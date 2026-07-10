@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Fantasy football league history record book, all-time standings, champions, and owner profiles." />
   <title>League History · Record Book</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --navy: #0a1626;
@@ -22,6 +25,7 @@
       --green: #128a53;
       --shadow: 0 16px 40px rgba(10, 22, 38, .12);
       --shadow-lg: 0 28px 64px rgba(10, 22, 38, .18);
+      --font-display: 'Space Grotesk', Inter, ui-sans-serif, system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -827,6 +831,7 @@
       .hero-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .hero-metric { min-height: 78px; }
       .profile-grid { grid-template-columns: 1fr; }
+      .leaderboard-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 700px) {
@@ -904,7 +909,7 @@
         white-space: normal;
       }
 
-      .all-time-card td.rank { grid-column: 1; font-size: 10px; }
+      .all-time-card td.rank { grid-column: 1; width: auto; font-size: 10px; }
       .all-time-card td.team-cell { grid-column: 2; min-width: 0; }
       .all-time-card td:not(.rank):not(.team-cell) { display: none; }
 
@@ -1175,6 +1180,68 @@
     @keyframes v2FadeUp {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- v3 visual overhaul: display type, richer hero, premium accents --- */
+    .hero h1,
+    .section-heading h2,
+    .card-head h3,
+    .brand-title,
+    .achievement-value,
+    .home-year-count strong,
+    .hero-metric strong,
+    .profile-identity h2,
+    .title-count {
+      font-family: var(--font-display);
+      letter-spacing: -.02em;
+    }
+
+    .hero h1 { font-weight: 700; }
+    .brand-title { font-weight: 700; letter-spacing: -.01em; }
+
+    /* Richer hero backdrop with layered glow (vignette folded into the
+       background stack itself so it stays behind the hero-inner content). */
+    .hero {
+      position: relative;
+      background:
+        linear-gradient(180deg, transparent 55%, rgba(4,10,18,.32) 100%),
+        radial-gradient(ellipse 620px 320px at 86% -10%, rgba(26, 99, 230, .40), transparent 60%),
+        radial-gradient(ellipse 460px 300px at 6% 118%, rgba(242, 169, 31, .22), transparent 62%),
+        linear-gradient(135deg, #050f1c 0%, #0f2740 55%, #123252 100%);
+    }
+
+    /* Foil-style gradient title on the home hero, with a plain-white fallback
+       for browsers without background-clip: text support. */
+    .home-hero h1 { color: #fff; }
+    @supports (background-clip: text) or (-webkit-background-clip: text) {
+      .home-hero h1 {
+        background: linear-gradient(90deg, #ffffff 15%, #cfe0fb 55%, #ffe3a3 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+    }
+
+    /* Topbar gets a live gradient underline instead of a flat hairline */
+    .topbar { border-bottom: none; }
+    .topbar::after {
+      content: "";
+      display: block;
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue) 0%, var(--gold) 50%, var(--red) 100%);
+      opacity: .85;
+    }
+
+    /* Soft pulsing glow on the trophy tile */
+    @media (prefers-reduced-motion: no-preference) {
+      .champions-card .head-icon {
+        animation: v3Glow 2.6s ease-in-out infinite;
+      }
+    }
+    @keyframes v3Glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(242,169,31,0); }
+      50% { box-shadow: 0 0 0 6px rgba(242,169,31,.18); }
     }
   </style>
 </head>
