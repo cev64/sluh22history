@@ -7,20 +7,21 @@
   <title>League History · Record Book</title>
   <style>
     :root {
-      --navy: #102238;
-      --navy-2: #172e49;
-      --ink: #11243a;
-      --muted: #68788a;
-      --line: #dfe5eb;
+      --navy: #0a1626;
+      --navy-2: #123252;
+      --ink: #0d1f33;
+      --muted: #5f7086;
+      --line: #e2e7ee;
       --panel: #ffffff;
-      --surface: #f4f7fa;
-      --blue: #1671c9;
-      --blue-2: #0d5ba8;
-      --gold: #d5a11e;
-      --gold-soft: #fff5cc;
-      --red: #c93d36;
-      --green: #17815d;
-      --shadow: 0 14px 38px rgba(15, 34, 55, .10);
+      --surface: #f5f7fa;
+      --blue: #1a63e6;
+      --blue-2: #0d4fbd;
+      --gold: #f2a91f;
+      --gold-soft: #fff2cf;
+      --red: #dc2f2f;
+      --green: #128a53;
+      --shadow: 0 16px 40px rgba(10, 22, 38, .12);
+      --shadow-lg: 0 28px 64px rgba(10, 22, 38, .18);
     }
 
     * { box-sizing: border-box; }
@@ -1129,6 +1130,52 @@
       }
     }
 
+
+    /* --- v2 visual refresh: refined elevation, motion, and accents --- */
+    ::selection { background: rgba(26, 99, 230, .22); color: var(--ink); }
+
+    .table-wrap, .profile-panel {
+      scrollbar-width: thin;
+      scrollbar-color: #b7c2d1 transparent;
+    }
+    .table-wrap::-webkit-scrollbar, .profile-panel::-webkit-scrollbar { height: 8px; width: 8px; }
+    .table-wrap::-webkit-scrollbar-thumb, .profile-panel::-webkit-scrollbar-thumb {
+      background: #c2cbd8; border-radius: 999px;
+    }
+    .table-wrap::-webkit-scrollbar-track, .profile-panel::-webkit-scrollbar-track { background: transparent; }
+
+    .card, .achievement-card, .hero-metric, .home-year-count, .profile-card {
+      transition: box-shadow .22s cubic-bezier(.2,.8,.2,1), border-color .22s ease;
+    }
+    .team-badge, .profile-logo {
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .card:hover { box-shadow: var(--shadow-lg, var(--shadow)); }
+      .achievement-card:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(15,34,55,.10); }
+      tbody tr:hover .team-badge { transform: scale(1.06); }
+    }
+
+    .achievement-card {
+      transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .team-button:focus-visible,
+    .sort-button:focus-visible,
+    .close-profile:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .card, .achievement-card { animation: v2FadeUp .5s cubic-bezier(.2,.8,.2,1) both; }
+    }
+    @keyframes v2FadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
