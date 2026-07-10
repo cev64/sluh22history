@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Fantasy football league history record book, all-time standings, champions, and owner profiles." />
+  <title>League History · Record Book</title>
+  <style>
+    :root {
+      --navy: #102238;
+      --navy-2: #172e49;
+      --ink: #11243a;
+      --muted: #68788a;
+      --line: #dfe5eb;
+      --panel: #ffffff;
+      --surface: #f4f7fa;
+      --blue: #1671c9;
+      --blue-2: #0d5ba8;
+      --gold: #d5a11e;
+      --gold-soft: #fff5cc;
+      --red: #c93d36;
+      --green: #17815d;
+      --shadow: 0 14px 38px rgba(15, 34, 55, .10);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, select { font: inherit; }
+
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, .94);
+      border-bottom: 1px solid rgba(17, 36, 58, .10);
+      backdrop-filter: blur(16px);
+    }
+
+    .topbar-inner,
+    .hero-inner,
+    main {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px 10px 13px 13px;
+      background: linear-gradient(145deg, #1a395b, #0d1d30);
+      color: #fff;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.13);
+      font-size: 13px;
+      font-weight: 1000;
+      letter-spacing: -.03em;
+    }
+
+    .brand-copy { display: grid; line-height: 1.05; }
+    .brand-kicker {
+      color: #738194;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .brand-title {
+      margin-top: 4px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: -.025em;
+    }
+
+    .season-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #6d7b8c;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .season-control select {
+      border: 1px solid #ccd5df;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 33px 9px 11px;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .hero {
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 82% 5%, rgba(57, 118, 183, .36), transparent 28%),
+        radial-gradient(circle at 9% 110%, rgba(213, 161, 30, .18), transparent 34%),
+        linear-gradient(135deg, #0c1d30, #1d3551);
+      color: #fff;
+    }
+
+    .hero-inner {
+      padding: 50px 0 44px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(340px, .65fr);
+      gap: 36px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      color: #a8c9ed;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      max-width: 760px;
+      margin: 10px 0 13px;
+      font-size: clamp(46px, 7vw, 82px);
+      line-height: .93;
+      letter-spacing: -.06em;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 0;
+      color: #c8d7e6;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .hero-metric {
+      min-height: 92px;
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 15px;
+      background: rgba(255,255,255,.075);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .hero-metric small {
+      display: block;
+      color: #a9bed3;
+      font-size: 8px;
+      font-weight: 950;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .hero-metric strong {
+      display: block;
+      margin-top: 7px;
+      color: #fff;
+      font-size: 29px;
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .hero-metric span {
+      display: block;
+      margin-top: 6px;
+      color: #b8c9da;
+      font-size: 9px;
+    }
+
+    main { padding: 25px 0 50px; }
+
+    .section {
+      margin-top: 18px;
+    }
+
+    .section:first-child { margin-top: 0; }
+
+    .section-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 25px;
+      letter-spacing: -.035em;
+    }
+
+    .section-heading p {
+      max-width: 680px;
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid #dbe2e9;
+      border-radius: 16px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .card-head {
+      min-height: 66px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fafbfd);
+    }
+
+
+    .leaderboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .leaderboard-card .card-head h3 {
+      gap: 10px;
+    }
+
+    .champions-card .card-head {
+      background: linear-gradient(180deg, #fffef9, #fff6d7);
+      border-bottom-color: #eddc9e;
+    }
+
+    .losers-card .card-head {
+      background: linear-gradient(180deg, #fff, #fff2f1);
+      border-bottom-color: #efc7c2;
+    }
+
+    .losers-card .head-icon {
+      background: #f5ddd9;
+    }
+
+    .card-head h3 {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.02em;
+    }
+
+    .head-icon {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--gold-soft);
+      font-size: 15px;
+    }
+
+    .card-head > span {
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 850;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 11px 12px;
+      background: #f5f7f9;
+      color: #738091;
+      font-size: 8px;
+      font-weight: 950;
+      letter-spacing: .08em;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 11px 12px;
+      border-top: 1px solid #edf0f3;
+      color: #2b3d50;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    tbody tr:first-child td { border-top: 0; }
+
+    tbody tr:hover { background: #fafcff; }
+
+    .rank {
+      width: 48px;
+      color: #768495;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .team-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .team-button:hover .team-name,
+    .team-button:focus-visible .team-name {
+      color: var(--blue-2);
+      text-decoration: underline;
+    }
+
+    .team-button:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 4px;
+      border-radius: 7px;
+    }
+
+    .team-badge {
+      --team-color: #667;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--team-color);
+      color: #fff;
+      font-size: 16px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.19);
+    }
+
+    .team-meta {
+      min-width: 0;
+      display: grid;
+      line-height: 1.12;
+    }
+
+    .team-name {
+      max-width: 260px;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .owner-name {
+      margin-top: 3px;
+      color: #7b8998;
+      font-size: 8.5px;
+      font-weight: 700;
+    }
+
+    .record { color: var(--ink); font-weight: 900; }
+    .positive { color: var(--green); font-weight: 900; }
+    .negative { color: var(--red); font-weight: 900; }
+
+    .title-count {
+      color: #7e5a00;
+      font-size: 14px;
+      font-weight: 1000;
+    }
+
+    .title-years {
+      color: #67501a;
+      font-weight: 850;
+    }
+
+    .sort-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      letter-spacing: inherit;
+      text-align: left;
+      text-transform: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .sort-button:hover,
+    .sort-button.active { color: var(--blue-2); }
+
+    .sort-arrow {
+      min-width: 9px;
+      color: var(--red);
+      font-size: 10px;
+    }
+
+    .mobile-sort { display: none; }
+
+    .mobile-stat-strip { display: none; }
+
+    .profile-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(6, 16, 27, .56);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+    }
+
+    .profile-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .profile-panel {
+      position: fixed;
+      inset: 0 0 0 auto;
+      z-index: 81;
+      width: min(980px, 94vw);
+      overflow-y: auto;
+      background: #f3f6f9;
+      box-shadow: -24px 0 60px rgba(7, 20, 34, .26);
+      transform: translateX(102%);
+      transition: transform .27s ease;
+    }
+
+    .profile-panel.open { transform: translateX(0); }
+
+    body.profile-open { overflow: hidden; }
+
+    .profile-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      min-height: 58px;
+      padding: 9px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(17,36,58,.10);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .profile-topbar strong {
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .close-profile {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #d5dde5;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .profile-hero {
+      --team-color: #1b5d8d;
+      position: relative;
+      overflow: hidden;
+      padding: 29px 26px 25px;
+      background:
+        radial-gradient(circle at 88% 5%, color-mix(in srgb, var(--team-color) 55%, transparent), transparent 32%),
+        linear-gradient(135deg, #0c1d30, #1a3552);
+      color: #fff;
+    }
+
+    .profile-identity {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .profile-logo {
+      width: 66px;
+      height: 66px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 2px solid rgba(255,255,255,.2);
+      border-radius: 18px;
+      background: var(--team-color);
+      box-shadow: 0 10px 24px rgba(0,0,0,.22);
+      font-size: 31px;
+    }
+
+    .profile-identity h2 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 42px);
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+
+    .profile-owner {
+      margin-top: 7px;
+      color: #c5d5e5;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+
+    .profile-content { padding: 15px; }
+
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .achievement-card {
+      min-height: 132px;
+      padding: 14px;
+      border: 1px solid #dde4eb;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(12, 31, 50, .06);
+    }
+
+    .achievement-card.gold {
+      background: linear-gradient(145deg, #fffdf4, #fff7d8);
+      border-color: #ead99a;
+    }
+
+    .achievement-card.red {
+      background: linear-gradient(145deg, #fff, #fff0ef);
+      border-color: #efc2be;
+    }
+
+    .achievement-label {
+      color: #778596;
+      font-size: 8px;
+      font-weight: 950;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .achievement-value {
+      margin-top: 9px;
+      color: var(--ink);
+      font-size: 23px;
+      font-weight: 1000;
+      line-height: 1.02;
+      letter-spacing: -.035em;
+    }
+
+    .achievement-detail {
+      margin-top: 7px;
+      color: #667688;
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .profile-card {
+      overflow: hidden;
+      border: 1px solid #dce3ea;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(12,31,50,.05);
+    }
+
+    .profile-card-head {
+      min-height: 52px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #e7ebef;
+    }
+
+    .profile-card-head h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 14px;
+      letter-spacing: -.02em;
+    }
+
+    .profile-card-head span {
+      color: #7a8795;
+      font-size: 8px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .chart-wrap {
+      padding: 10px 10px 5px;
+    }
+
+    .wins-chart {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .season-history {
+      padding: 0;
+    }
+
+    .season-history-row {
+      display: grid;
+      grid-template-columns: 50px minmax(0, 1fr) 58px 70px 70px 52px;
+      gap: 7px;
+      align-items: center;
+      padding: 10px 13px;
+      border-top: 1px solid #edf0f3;
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .season-history-row:first-child { border-top: 0; }
+
+    .season-history-row.header {
+      background: #f6f8fa;
+      color: #788696;
+      font-size: 7px;
+      font-weight: 950;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .season-history-row strong {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .h2h-card { margin-top: 10px; }
+
+    .h2h-mobile-sort { display: none; }
+
+    .empty-state {
+      padding: 28px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+    }
+
+
+    /* Compact all-time home header */
+    .home-hero .hero-inner {
+      min-height: 0;
+      padding: 28px 0;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .home-hero h1 {
+      margin: 5px 0 0;
+      font-size: clamp(42px, 6vw, 66px);
+      line-height: .92;
+    }
+
+    .home-year-count {
+      min-width: 190px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 14px;
+      background: rgba(255,255,255,.075);
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .home-year-count strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .home-year-count span {
+      display: block;
+      margin-top: 5px;
+      color: #bccddd;
+      font-size: 9px;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    /* The cards themselves now act as the section titles. */
+    main > .section {
+      margin-top: 14px;
+    }
+
+    main > .section:first-child {
+      margin-top: 0;
+    }
+
+    /* Compact owner-history metrics */
+    .achievement-card {
+      min-height: 0;
+      padding: 10px 12px;
+    }
+
+    .achievement-line {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .achievement-value {
+      margin-top: 0;
+      font-size: 20px;
+      white-space: nowrap;
+    }
+
+    .achievement-meta {
+      color: #657587;
+      font-size: 8px;
+      font-weight: 850;
+      line-height: 1.15;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .mobile-sort-direction {
+      width: 30px;
+      height: 30px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid #ccd5df;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 1000;
+      cursor: pointer;
+    }
+
+    .mobile-sort-direction:hover,
+    .mobile-sort-direction:focus-visible {
+      border-color: var(--blue);
+      color: var(--blue-2);
+    }
+
+    .footer {
+      padding: 4px 16px 34px;
+      color: #758394;
+      font-size: 9px;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .hero-metric { min-height: 78px; }
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) {
+      .topbar-inner,
+      .hero-inner,
+      main { width: min(100% - 12px, 1220px); }
+
+      .topbar-inner { min-height: 56px; }
+      .brand-kicker { display: none; }
+      .brand-title { font-size: 15px; }
+      .brand-mark { width: 32px; height: 37px; font-size: 11px; }
+      .season-control > span { display: none; }
+      .season-control select { padding: 7px 27px 7px 9px; font-size: 11px; }
+
+      .hero-inner {
+        padding: 28px 0 23px;
+        gap: 17px;
+      }
+
+      .hero h1 { font-size: 43px; }
+      .hero p { font-size: 12px; }
+
+      .hero-metrics { gap: 5px; }
+      .hero-metric { min-height: 67px; padding: 9px; border-radius: 10px; }
+      .hero-metric small { font-size: 6.5px; }
+      .hero-metric strong { margin-top: 5px; font-size: 20px; }
+      .hero-metric span { margin-top: 3px; font-size: 7px; }
+
+      main { padding-top: 14px; }
+
+      .section { margin-top: 13px; }
+      .section-heading { margin-bottom: 7px; }
+      .section-heading h2 { font-size: 20px; }
+      .section-heading p { font-size: 9px; }
+
+      .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15,34,55,.07); }
+      .card-head { min-height: 50px; padding: 10px 11px; }
+      .card-head h3 { font-size: 14px; }
+      .head-icon { width: 25px; height: 25px; border-radius: 7px; font-size: 12px; }
+      .card-head > span { display: none; }
+
+      .leaderboard-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .leaderboard-card th,
+      .leaderboard-card td { padding: 8px 7px; }
+      .leaderboard-card th:nth-child(1),
+      .leaderboard-card td:nth-child(1) { display: none; }
+      .leaderboard-card .team-badge { width: 27px; height: 27px; font-size: 13px; }
+      .leaderboard-card .team-name { max-width: 145px; font-size: 9.5px; }
+      .leaderboard-card .owner-name { font-size: 7.5px; }
+      .leaderboard-card td { font-size: 9px; }
+      .title-count { font-size: 12px; }
+
+      .all-time-card .table-wrap { overflow: visible; }
+      .all-time-card table,
+      .all-time-card tbody { display: block; width: 100%; }
+      .all-time-card thead { display: none; }
+
+      .all-time-card tbody tr {
+        display: grid;
+        grid-template-columns: 25px minmax(0, 1fr);
+        align-items: center;
+        padding: 7px 8px;
+        border-top: 1px solid #edf0f3;
+      }
+
+      .all-time-card tbody tr:first-child { border-top: 0; }
+
+      .all-time-card td {
+        padding: 0;
+        border: 0;
+        white-space: normal;
+      }
+
+      .all-time-card td.rank { grid-column: 1; font-size: 10px; }
+      .all-time-card td.team-cell { grid-column: 2; min-width: 0; }
+      .all-time-card td:not(.rank):not(.team-cell) { display: none; }
+
+      .all-time-card .team-button { width: 100%; gap: 6px; }
+      .all-time-card .team-badge { width: 28px; height: 28px; font-size: 13px; }
+      .all-time-card .team-name { max-width: 100%; font-size: 10px; }
+      .all-time-card .owner-name { font-size: 8px; }
+
+      .mobile-stat-strip {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0,1fr));
+        gap: 3px;
+        margin-top: 5px;
+      }
+
+      .mobile-stat {
+        min-width: 0;
+        padding: 3px 1px;
+        border-radius: 5px;
+        background: #f2f5f8;
+        text-align: center;
+      }
+
+      .mobile-stat small {
+        display: block;
+        color: #7b8897;
+        font-size: 6px;
+        font-weight: 950;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .mobile-stat strong {
+        display: block;
+        margin-top: 2px;
+        overflow: hidden;
+        color: var(--ink);
+        font-size: 7.5px;
+        line-height: 1.05;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .mobile-sort {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #758292;
+        font-size: 8px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .mobile-sort select,
+      .h2h-mobile-sort select {
+        max-width: 125px;
+        border: 1px solid #ccd5df;
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        padding: 6px 25px 6px 7px;
+        font-size: 9px;
+        font-weight: 850;
+      }
+
+
+      .home-hero .hero-inner {
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding: 18px 0;
+        gap: 10px;
+      }
+
+      .home-hero h1 {
+        margin-top: 4px;
+        font-size: 34px;
+      }
+
+      .home-year-count {
+        min-width: 112px;
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .home-year-count strong { font-size: 24px; }
+      .home-year-count span { margin-top: 3px; font-size: 6.5px; }
+
+      .achievement-card {
+        min-height: 0;
+        padding: 8px 9px;
+      }
+
+      .achievement-label { font-size: 6.5px; }
+      .achievement-line { margin-top: 5px; gap: 5px; }
+      .achievement-value { font-size: 16px; }
+      .achievement-meta { font-size: 6.5px; }
+
+      .profile-card-head {
+        min-height: 38px;
+        padding: 7px 9px;
+      }
+
+      .mobile-sort,
+      .h2h-mobile-sort {
+        gap: 4px;
+      }
+
+      .mobile-sort-direction {
+        width: 27px;
+        height: 27px;
+        font-size: 12px;
+      }
+
+      .profile-panel { width: 100%; }
+
+      .profile-topbar { min-height: 52px; padding: 7px 9px; }
+      .close-profile { width: 34px; height: 34px; }
+
+      .profile-hero { padding: 19px 12px 16px; }
+      .profile-identity { gap: 10px; }
+      .profile-logo { width: 49px; height: 49px; border-radius: 13px; font-size: 23px; }
+      .profile-identity h2 { font-size: 26px; }
+      .profile-owner { margin-top: 4px; font-size: 10px; }
+      .name-history { margin-top: 12px; gap: 4px; }
+      .name-chip { padding: 5px 6px; font-size: 7px; }
+
+      .profile-content { padding: 8px; }
+
+      .achievement-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 6px;
+      }
+
+      .achievement-card {
+        min-height: 104px;
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .achievement-label { font-size: 7px; }
+      .achievement-value { margin-top: 7px; font-size: 18px; }
+      .achievement-detail { margin-top: 5px; font-size: 7.5px; }
+
+      .profile-grid { gap: 7px; margin-top: 7px; }
+      .profile-card { border-radius: 10px; }
+      .profile-card-head { min-height: 45px; padding: 9px 10px; }
+      .profile-card-head h3 { font-size: 12px; }
+      .profile-card-head span { font-size: 7px; }
+
+      .season-history-row {
+        grid-template-columns: 39px minmax(0,1fr) 43px 50px;
+        gap: 5px;
+        padding: 8px 9px;
+        font-size: 7.5px;
+      }
+
+      .season-history-row > :nth-child(4),
+      .season-history-row > :nth-child(5) { display: none; }
+
+      .h2h-card .table-wrap { overflow: visible; }
+      .h2h-card table,
+      .h2h-card tbody { display: block; width: 100%; }
+      .h2h-card thead { display: none; }
+
+      .h2h-card tbody tr {
+        display: block;
+        padding: 8px 9px;
+        border-top: 1px solid #edf0f3;
+      }
+
+      .h2h-card tbody tr:first-child { border-top: 0; }
+      .h2h-card td { display: none; padding: 0; border: 0; }
+      .h2h-card td.opponent-cell { display: block; }
+      .h2h-card .team-button { width: 100%; }
+      .h2h-card .team-badge { width: 27px; height: 27px; font-size: 12px; }
+      .h2h-card .team-name { font-size: 9.5px; }
+      .h2h-card .owner-name { font-size: 7.5px; }
+
+      .h2h-mobile-sort {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #758292;
+        font-size: 7px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .hero-metrics { grid-template-columns: 1fr 1fr; }
+      .achievement-grid { grid-template-columns: 1fr 1fr; }
+      .mobile-stat-strip { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+  
+    @media (max-width: 700px) {
+      .achievement-card {
+        min-height: 0;
+        padding: 8px 9px;
+        border-radius: 9px;
+      }
+
+      .achievement-label {
+        font-size: 6.5px;
+      }
+
+      .achievement-line {
+        margin-top: 5px;
+        gap: 5px;
+      }
+
+      .achievement-value {
+        margin-top: 0;
+        font-size: 16px;
+      }
+
+      .achievement-meta {
+        font-size: 6.5px;
+      }
+
+      .profile-card-head {
+        min-height: 38px;
+        padding: 7px 9px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html" aria-label="League History home">
+        <div class="brand-mark">LH</div>
+        <div class="brand-copy">
+          <span class="brand-kicker">Fantasy Football</span>
+          <span class="brand-title">League History</span>
+        </div>
+      </a>
+
+      <label class="season-control">
+        <span>View</span>
+        <select id="pageSelect" aria-label="Open a season">
+          <option value="home" selected>All-Time Home</option>
+          <option value="2025">2025 Season</option>
+          <option value="2024">2024 Season</option>
+          <option value="2023">2023 Season</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <section class="hero home-hero">
+    <div class="hero-inner">
+      <div class="home-heading">
+        <div class="eyebrow">League History</div>
+        <h1>Home</h1>
+      </div>
+      <div class="home-year-count" aria-label="Audited league history">
+        <strong id="homeSeasonCount">2</strong>
+        <span>Years of League History</span>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section leaderboard-grid">
+      <div class="card champions-card leaderboard-card">
+        <div class="card-head">
+          <h3><span class="head-icon">🏆</span> League Champions</h3>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Current Team</th>
+                <th>Championships</th>
+                <th>Title Years</th>
+              </tr>
+            </thead>
+            <tbody id="championBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card losers-card leaderboard-card">
+        <div class="card-head">
+          <h3><span class="head-icon">💩</span> League Losers</h3>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Current Team</th>
+                <th>Last Places</th>
+                <th>Years</th>
+              </tr>
+            </thead>
+            <tbody id="loserBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section"><div class="card all-time-card">
+        <div class="card-head">
+          <h3>All Time Standings</h3>
+          <div class="mobile-sort">
+            <label for="allTimeMobileSort">Sort</label>
+            <select id="allTimeMobileSort" aria-label="Sort all-time standings">
+              <option value="wins">Wins</option>
+              <option value="losses">Losses</option>
+              <option value="pct">Win Percentage</option>
+              <option value="pf">Points For</option>
+              <option value="pa">Points Against</option>
+              <option value="diff">Point Differential</option>
+              <option value="pfg">Points per Game</option>
+              <option value="titles">Championships</option>
+              <option value="seasons">Seasons</option>
+              <option value="team">Team</option>
+            </select>
+            <button type="button" class="mobile-sort-direction" id="allTimeMobileDirection" data-mobile-direction="allTime" aria-label="Sort descending">↓</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th><button class="sort-button" data-table="allTime" data-sort="team">Team <span class="sort-arrow"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="seasons">Seasons <span class="sort-arrow"></span></button></th>
+                <th><button class="sort-button active" data-table="allTime" data-sort="wins">W <span class="sort-arrow">↓</span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="losses">L <span class="sort-arrow"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="pct">PCT <span class="sort-arrow"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="pf">PF <span class="sort-arrow"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="pa">PA <span class="sort-arrow"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="diff">Diff <span class="sort-arrow"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="pfg">PF/G <span class="sort-arrow"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="titles">Titles <span class="sort-arrow"></span></button></th>
+              </tr>
+            </thead>
+            <tbody id="allTimeBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="profile-backdrop" id="profileBackdrop"></div>
+  <aside class="profile-panel" id="profilePanel" aria-hidden="true" aria-label="Team history profile">
+    <div class="profile-topbar">
+      <strong>Team History</strong>
+      <button class="close-profile" id="closeProfile" aria-label="Close team history">×</button>
+    </div>
+    <div id="profileRoot"></div>
+  </aside>
+
+  <footer class="footer">All totals are based on the manually audited 2024 and 2025 league archives.</footer>
+
+  <script>
+    const LEAGUE_DATA = {"owners":{"ted_williams":{"name":"Ted Williams","currentTeam":"First and Ted","icon":"🏇","color":"#7c3945"},"charlie_vonderheid":{"name":"Charlie Vonderheid","currentTeam":"Game of Throws","icon":"🏰","color":"#c05b2a"},"niko_nadreau":{"name":"Niko Nadreau","currentTeam":"Hamilton Administration","icon":"🎭","color":"#304f91"},"jp_torack":{"name":"JP Torack","currentTeam":"Roll Bill (Croskey-Merritt)","icon":"🦬","color":"#9d542e"},"ian_farroll":{"name":"Ian Farroll","currentTeam":"To infinity and Bijan","icon":"👑","color":"#b78d0a"},"matt_windler":{"name":"Matt Windler","currentTeam":"Hawaii McLovins VIII","icon":"🌴","color":"#3a3c9d"},"nathan_rich":{"name":"Nathan Rich","currentTeam":"The Left Tacklers","icon":"🛡️","color":"#166a83"},"matthew_kluba":{"name":"Matthew Kluba","currentTeam":"Team Kareem Pie 🍑","icon":"🏈","color":"#719b70"},"grant_thornberry":{"name":"Grant Thornberry","currentTeam":"LaPorta Potty","icon":"🚽","color":"#6a78a7"},"jared_thornberry":{"name":"Jared Thornberry","currentTeam":"Jared's Pack Attack","icon":"🟣","color":"#4d3f93"}},"seasons":[{"year":2023,"teams":{"hawaii":{"ownerId":"matt_windler","name":"Hawaii McLovins VIII","owner":"Matt Windler","division":null,"wins":10,"losses":4,"pf":1872.14,"pa":1587.64,"divRecord":null,"finalRank":1,"icon":"🌴","color":"#3a3c9d"},"saint":{"ownerId":"charlie_vonderheid","name":"The Saint Show","owner":"Charlie Vonderheid","division":null,"wins":9,"losses":5,"pf":1834.1,"pa":1627.06,"divRecord":null,"finalRank":2,"icon":"🛡️","color":"#2f8f53"},"freiermuth":{"ownerId":"ted_williams","name":"Freiermuth Banana Stand","owner":"Ted Williams","division":null,"wins":9,"losses":5,"pf":1762.72,"pa":1740.66,"divRecord":null,"finalRank":4,"icon":"🦄","color":"#a6499a"},"left":{"ownerId":"nathan_rich","name":"The Left Tacklers","owner":"Nathan Rich","division":null,"wins":8,"losses":6,"pf":1781.0,"pa":1735.72,"divRecord":null,"finalRank":3,"icon":"🛡️","color":"#166a83"},"metcalf":{"ownerId":"jp_torack","name":"How I Metcalf Your Mother","owner":"JP Torack","division":null,"wins":7,"losses":7,"pf":1595.3,"pa":1527.92,"divRecord":null,"finalRank":6,"icon":"🐿️","color":"#9d542e"},"packers":{"ownerId":"jared_thornberry","name":"Team Go Packers","owner":"Jared Thornberry","division":null,"wins":6,"losses":8,"pf":1714.62,"pa":1755.34,"divRecord":null,"finalRank":5,"icon":"🏈","color":"#4d3f93"},"hamilton":{"ownerId":"niko_nadreau","name":"Hamilton Administration","owner":"Niko Nadreau","division":null,"wins":6,"losses":8,"pf":1616.08,"pa":1758.84,"divRecord":null,"finalRank":7,"icon":"🎭","color":"#304f91"},"kareem":{"ownerId":"matthew_kluba","name":"Team Kareem Pie 🍑","owner":"Matthew Kluba","division":null,"wins":6,"losses":8,"pf":1556.74,"pa":1628.74,"divRecord":null,"finalRank":8,"icon":"🏈","color":"#719b70"},"chubbed":{"ownerId":"grant_thornberry","name":"Chubbed Up","owner":"Grant Thornberry","division":null,"wins":5,"losses":9,"pf":1593.44,"pa":1727.68,"divRecord":null,"finalRank":10,"icon":"🏋️","color":"#b14e3c"},"infinity":{"ownerId":"ian_farroll","name":"To infinity and Bijan","owner":"Ian Farroll","division":null,"wins":4,"losses":10,"pf":1492.5,"pa":1729.04,"divRecord":null,"finalRank":9,"icon":"👑","color":"#b78d0a"}},"regularGames":[{"week":1,"a":"hamilton","aScore":97.68,"b":"saint","bScore":116.06},{"week":1,"a":"freiermuth","aScore":143.24,"b":"packers","bScore":95.44},{"week":1,"a":"infinity","aScore":124.54,"b":"chubbed","bScore":109.96},{"week":1,"a":"left","aScore":93.24,"b":"kareem","bScore":149.56},{"week":1,"a":"metcalf","aScore":91.56,"b":"hawaii","bScore":100.2},{"week":2,"a":"infinity","aScore":107.1,"b":"freiermuth","bScore":108.44},{"week":2,"a":"saint","aScore":145.48,"b":"left","bScore":106.36},{"week":2,"a":"hamilton","aScore":168.78,"b":"metcalf","bScore":81.4},{"week":2,"a":"packers","aScore":104.54,"b":"kareem","bScore":106.3},{"week":2,"a":"chubbed","aScore":114.86,"b":"hawaii","bScore":167.22},{"week":3,"a":"metcalf","aScore":125.2,"b":"left","bScore":96.42},{"week":3,"a":"kareem","aScore":110.36,"b":"freiermuth","bScore":112.06},{"week":3,"a":"hawaii","aScore":151.14,"b":"infinity","bScore":130.98},{"week":3,"a":"packers","aScore":156.76,"b":"saint","bScore":189.88},{"week":3,"a":"chubbed","aScore":155.18,"b":"hamilton","bScore":96.44},{"week":4,"a":"hawaii","aScore":129.66,"b":"kareem","bScore":79.12},{"week":4,"a":"left","aScore":165.7,"b":"packers","bScore":127.12},{"week":4,"a":"metcalf","aScore":115.68,"b":"chubbed","bScore":69.98},{"week":4,"a":"freiermuth","aScore":162.78,"b":"saint","bScore":158.04},{"week":4,"a":"infinity","aScore":72.72,"b":"hamilton","bScore":112.3},{"week":5,"a":"chubbed","aScore":134.42,"b":"packers","bScore":105.18},{"week":5,"a":"saint","aScore":82.94,"b":"kareem","bScore":146.54},{"week":5,"a":"hamilton","aScore":143.98,"b":"hawaii","bScore":132.12},{"week":5,"a":"freiermuth","aScore":114.86,"b":"left","bScore":166.86},{"week":5,"a":"infinity","aScore":67.24,"b":"metcalf","bScore":137.92},{"week":6,"a":"freiermuth","aScore":145.64,"b":"hamilton","bScore":110.0},{"week":6,"a":"left","aScore":76.96,"b":"infinity","bScore":107.84},{"week":6,"a":"kareem","aScore":131.94,"b":"metcalf","bScore":109.88},{"week":6,"a":"packers","aScore":104.82,"b":"hawaii","bScore":127.7},{"week":6,"a":"saint","aScore":132.02,"b":"chubbed","bScore":114.58},{"week":7,"a":"hamilton","aScore":120.78,"b":"left","bScore":123.2},{"week":7,"a":"infinity","aScore":120.56,"b":"kareem","bScore":84.24},{"week":7,"a":"metcalf","aScore":129.86,"b":"packers","bScore":106.88},{"week":7,"a":"hawaii","aScore":92.16,"b":"saint","bScore":108.7},{"week":7,"a":"chubbed","aScore":105.84,"b":"freiermuth","bScore":142.96},{"week":8,"a":"kareem","aScore":149.78,"b":"hamilton","bScore":76.88},{"week":8,"a":"packers","aScore":172.36,"b":"infinity","bScore":108.6},{"week":8,"a":"saint","aScore":112.12,"b":"metcalf","bScore":138.52},{"week":8,"a":"freiermuth","aScore":118.0,"b":"hawaii","bScore":122.86},{"week":8,"a":"left","aScore":151.66,"b":"chubbed","bScore":110.36},{"week":9,"a":"hamilton","aScore":89.08,"b":"packers","bScore":144.0},{"week":9,"a":"kareem","aScore":82.56,"b":"saint","bScore":127.64},{"week":9,"a":"chubbed","aScore":77.62,"b":"infinity","bScore":82.8},{"week":9,"a":"left","aScore":145.12,"b":"freiermuth","bScore":131.6},{"week":9,"a":"hawaii","aScore":116.08,"b":"metcalf","bScore":83.94},{"week":10,"a":"infinity","aScore":105.38,"b":"saint","bScore":126.68},{"week":10,"a":"packers","aScore":141.84,"b":"freiermuth","bScore":110.44},{"week":10,"a":"metcalf","aScore":139.42,"b":"hamilton","bScore":92.62},{"week":10,"a":"kareem","aScore":115.72,"b":"left","bScore":102.58},{"week":10,"a":"hawaii","aScore":171.26,"b":"chubbed","bScore":92.2},{"week":11,"a":"metcalf","aScore":92.8,"b":"freiermuth","bScore":98.64},{"week":11,"a":"left","aScore":146.0,"b":"saint","bScore":110.76},{"week":11,"a":"infinity","aScore":103.98,"b":"hawaii","bScore":160.3},{"week":11,"a":"kareem","aScore":82.36,"b":"packers","bScore":113.22},{"week":11,"a":"hamilton","aScore":115.26,"b":"chubbed","bScore":156.14},{"week":12,"a":"hawaii","aScore":152.04,"b":"left","bScore":166.66},{"week":12,"a":"freiermuth","aScore":185.96,"b":"kareem","bScore":105.46},{"week":12,"a":"chubbed","aScore":110.2,"b":"metcalf","bScore":93.48},{"week":12,"a":"saint","aScore":147.14,"b":"packers","bScore":95.86},{"week":12,"a":"hamilton","aScore":134.18,"b":"infinity","bScore":114.22},{"week":13,"a":"chubbed","aScore":140.1,"b":"kareem","bScore":111.54},{"week":13,"a":"packers","aScore":128.96,"b":"left","bScore":118.62},{"week":13,"a":"hawaii","aScore":119.92,"b":"hamilton","bScore":147.58},{"week":13,"a":"saint","aScore":167.6,"b":"freiermuth","bScore":71.36},{"week":13,"a":"metcalf","aScore":160.2,"b":"infinity","bScore":135.2},{"week":14,"a":"saint","aScore":109.04,"b":"hamilton","bScore":110.52},{"week":14,"a":"freiermuth","aScore":116.74,"b":"infinity","bScore":111.34},{"week":14,"a":"left","aScore":121.62,"b":"metcalf","bScore":95.44},{"week":14,"a":"kareem","aScore":101.26,"b":"hawaii","bScore":129.48},{"week":14,"a":"packers","aScore":117.64,"b":"chubbed","bScore":102.0}],"postseasonGames":[{"week":15,"a":"metcalf","aScore":105.48,"b":"left","bScore":155.36,"label":"Quarterfinal"},{"week":15,"a":"packers","aScore":78.26,"b":"freiermuth","bScore":94.92,"label":"Quarterfinal"},{"week":16,"a":"left","aScore":103.48,"b":"hawaii","bScore":139.54,"label":"Semifinal"},{"week":16,"a":"freiermuth","aScore":108.6,"b":"saint","bScore":195.1,"label":"Semifinal"},{"week":17,"a":"saint","aScore":95.78,"b":"hawaii","bScore":173.98,"label":"Championship"},{"week":15,"a":"infinity","aScore":109.3,"b":"hamilton","bScore":136.84,"label":"Losers Bracket · Round 1"},{"week":15,"a":"chubbed","aScore":97.96,"b":"kareem","bScore":124.72,"label":"Losers Bracket · Round 1"},{"week":16,"a":"infinity","aScore":118.3,"b":"chubbed","bScore":121.22,"label":"Losers Bracket · Last-Place Series · Leg 1"},{"week":17,"a":"infinity","aScore":139.6,"b":"chubbed","bScore":79.08,"label":"Losers Bracket · Last-Place Series · Leg 2"}]},{"year":2024,"teams":{"game":{"ownerId":"charlie_vonderheid","name":"Game of Throws","owner":"Charlie Vonderheid","division":"Xavier","wins":9,"losses":5,"pf":1803.5,"pa":1859.42,"divRecord":"6–2","finalRank":3,"icon":"🏰","color":"#c05b2a"},"infinity":{"ownerId":"ian_farroll","name":"To infinity and Bijan","owner":"Ian Farroll","division":"Xavier","wins":8,"losses":6,"pf":1905.62,"pa":1798.16,"divRecord":"3–5","finalRank":5,"icon":"👑","color":"#b78d0a"},"first":{"ownerId":"ted_williams","name":"First and Ted","owner":"Ted Williams","division":"Xavier","wins":7,"losses":7,"pf":1818.06,"pa":1860.08,"divRecord":"4–4","finalRank":2,"icon":"🏇","color":"#7c3945"},"hamilton":{"ownerId":"niko_nadreau","name":"Hamilton Administration","owner":"Niko Nadreau","division":"Xavier","wins":7,"losses":7,"pf":1761.6,"pa":1714.22,"divRecord":"5–3","finalRank":8,"icon":"🎭","color":"#304f91"},"metcalf":{"ownerId":"jp_torack","name":"How I Metcalf Your Mother","owner":"JP Torack","division":"Xavier","wins":7,"losses":7,"pf":1590.1,"pa":1649.8,"divRecord":"2–6","finalRank":10,"icon":"🐿️","color":"#9d542e"},"left":{"ownerId":"nathan_rich","name":"The Left Tacklers","owner":"Nathan Rich","division":"Ignatius","wins":7,"losses":7,"pf":1795.82,"pa":1736.54,"divRecord":"4–4","finalRank":1,"icon":"🛡️","color":"#166a83"},"amon":{"ownerId":"grant_thornberry","name":"Amon a Mission","owner":"Grant Thornberry","division":"Ignatius","wins":7,"losses":7,"pf":1772.44,"pa":1727.98,"divRecord":"4–4","finalRank":4,"icon":"🤖","color":"#536fa8"},"jared":{"ownerId":"jared_thornberry","name":"Jared's Pack Attack","owner":"Jared Thornberry","division":"Ignatius","wins":6,"losses":8,"pf":1705.68,"pa":1689.3,"divRecord":"5–3","finalRank":6,"icon":"🟣","color":"#4d3f93"},"kareem":{"ownerId":"matthew_kluba","name":"Team Kareem Pie 🍑","owner":"Matthew Kluba","division":"Ignatius","wins":6,"losses":8,"pf":1860.06,"pa":1863.3,"divRecord":"4–4","finalRank":9,"icon":"🏈","color":"#719b70"},"hawaii":{"ownerId":"matt_windler","name":"Hawaii McLovins VIII","owner":"Matt Windler","division":"Ignatius","wins":6,"losses":8,"pf":1666.26,"pa":1780.34,"divRecord":"3–5","finalRank":7,"icon":"🌴","color":"#3a3c9d"}},"regularGames":[{"week":1,"a":"first","aScore":113.88,"b":"game","bScore":147.08},{"week":1,"a":"hamilton","aScore":105.08,"b":"kareem","bScore":113.88},{"week":1,"a":"infinity","aScore":102.92,"b":"metcalf","bScore":107.34},{"week":1,"a":"left","aScore":103.36,"b":"jared","bScore":115.6},{"week":1,"a":"amon","aScore":148.56,"b":"hawaii","bScore":117.12},{"week":2,"a":"infinity","aScore":159.68,"b":"first","bScore":133.24},{"week":2,"a":"game","aScore":110.68,"b":"metcalf","bScore":100.74},{"week":2,"a":"kareem","aScore":95.36,"b":"left","bScore":149.26},{"week":2,"a":"jared","aScore":139.8,"b":"hawaii","bScore":94.52},{"week":2,"a":"amon","aScore":114.2,"b":"hamilton","bScore":141.56},{"week":3,"a":"jared","aScore":105.78,"b":"left","bScore":112.16},{"week":3,"a":"kareem","aScore":148.04,"b":"infinity","bScore":165.08},{"week":3,"a":"hawaii","aScore":86.14,"b":"metcalf","bScore":106.88},{"week":3,"a":"first","aScore":113.38,"b":"amon","bScore":107.1},{"week":3,"a":"game","aScore":121.46,"b":"hamilton","bScore":120.92},{"week":4,"a":"amon","aScore":136.6,"b":"kareem","bScore":140.58},{"week":4,"a":"hawaii","aScore":126.14,"b":"hamilton","bScore":103.5},{"week":4,"a":"metcalf","aScore":133.5,"b":"left","bScore":132.26},{"week":4,"a":"infinity","aScore":128.24,"b":"game","bScore":98.92},{"week":4,"a":"first","aScore":137.92,"b":"jared","bScore":127.76},{"week":5,"a":"metcalf","aScore":134.84,"b":"jared","bScore":100.76},{"week":5,"a":"game","aScore":92.06,"b":"kareem","bScore":174.7},{"week":5,"a":"left","aScore":105.16,"b":"hawaii","bScore":123.88},{"week":5,"a":"first","aScore":123.52,"b":"hamilton","bScore":127.64},{"week":5,"a":"infinity","aScore":122.62,"b":"amon","bScore":128.14},{"week":6,"a":"infinity","aScore":114.62,"b":"hamilton","bScore":113},{"week":6,"a":"left","aScore":120,"b":"first","bScore":101.26},{"week":6,"a":"game","aScore":155.46,"b":"metcalf","bScore":101.7},{"week":6,"a":"jared","aScore":135.92,"b":"kareem","bScore":150.9},{"week":6,"a":"hawaii","aScore":88.32,"b":"amon","bScore":150.38},{"week":7,"a":"hamilton","aScore":101.12,"b":"left","bScore":106.94},{"week":7,"a":"infinity","aScore":105.64,"b":"metcalf","bScore":122.38},{"week":7,"a":"amon","aScore":112.74,"b":"jared","bScore":134.2},{"week":7,"a":"hawaii","aScore":108.08,"b":"game","bScore":96.16},{"week":7,"a":"kareem","aScore":134.8,"b":"first","bScore":135.64},{"week":8,"a":"kareem","aScore":129.7,"b":"hamilton","bScore":139.92},{"week":8,"a":"amon","aScore":111.8,"b":"infinity","bScore":163.38},{"week":8,"a":"game","aScore":162.34,"b":"first","bScore":155.58},{"week":8,"a":"metcalf","aScore":124.7,"b":"jared","bScore":104.84},{"week":8,"a":"left","aScore":136.2,"b":"hawaii","bScore":174.12},{"week":9,"a":"amon","aScore":130.38,"b":"jared","bScore":109.22},{"week":9,"a":"left","aScore":150.34,"b":"game","bScore":166.6},{"week":9,"a":"hamilton","aScore":168.8,"b":"infinity","bScore":124.5},{"week":9,"a":"metcalf","aScore":103.24,"b":"first","bScore":145.42},{"week":9,"a":"hawaii","aScore":110.3,"b":"kareem","bScore":124.4},{"week":10,"a":"kareem","aScore":131.94,"b":"amon","bScore":109.14},{"week":10,"a":"jared","aScore":115.14,"b":"infinity","bScore":140.8},{"week":10,"a":"metcalf","aScore":105,"b":"hamilton","bScore":118.3},{"week":10,"a":"first","aScore":93.88,"b":"left","bScore":146.12},{"week":10,"a":"hawaii","aScore":105.94,"b":"game","bScore":123.48},{"week":11,"a":"metcalf","aScore":101.08,"b":"first","bScore":108.64},{"week":11,"a":"infinity","aScore":143.18,"b":"game","bScore":143.96},{"week":11,"a":"hamilton","aScore":101.28,"b":"jared","bScore":150.84},{"week":11,"a":"kareem","aScore":143,"b":"hawaii","bScore":155.78},{"week":11,"a":"left","aScore":135.04,"b":"amon","bScore":116.18},{"week":12,"a":"kareem","aScore":91.56,"b":"jared","bScore":118.82},{"week":12,"a":"first","aScore":131.7,"b":"hawaii","bScore":147.62},{"week":12,"a":"hamilton","aScore":121.38,"b":"metcalf","bScore":117.16},{"week":12,"a":"game","aScore":122.36,"b":"amon","bScore":151.88},{"week":12,"a":"left","aScore":112.56,"b":"infinity","bScore":130.08},{"week":13,"a":"amon","aScore":133.18,"b":"left","bScore":126.56},{"week":13,"a":"metcalf","aScore":149.84,"b":"kareem","bScore":135.2},{"week":13,"a":"first","aScore":146.54,"b":"hamilton","bScore":111.02},{"week":13,"a":"game","aScore":143.22,"b":"jared","bScore":116.16},{"week":13,"a":"hawaii","aScore":117.38,"b":"infinity","bScore":140.28},{"week":14,"a":"game","aScore":119.72,"b":"hamilton","bScore":188.08},{"week":14,"a":"first","aScore":177.46,"b":"infinity","bScore":164.6},{"week":14,"a":"left","aScore":159.86,"b":"kareem","bScore":146},{"week":14,"a":"jared","aScore":130.84,"b":"hawaii","bScore":110.92},{"week":14,"a":"metcalf","aScore":81.7,"b":"amon","bScore":122.16}],"postseasonGames":[{"week":16,"a":"game","aScore":130.64,"b":"first","bScore":194.72,"label":"Semifinal"},{"week":15,"a":"infinity","aScore":109.8,"b":"first","bScore":138.94,"label":"Quarterfinal"},{"week":17,"a":"first","aScore":128.58,"b":"left","bScore":150.58,"label":"Championship"},{"week":16,"a":"left","aScore":142.48,"b":"amon","bScore":112.16,"label":"Semifinal"},{"week":15,"a":"amon","aScore":129.44,"b":"jared","bScore":108.44,"label":"Quarterfinal"},{"week":15,"a":"metcalf","aScore":119.86,"b":"hamilton","bScore":168.58,"label":"Losers Bracket · Game 1"},{"week":16,"a":"metcalf","aScore":138.64,"b":"hawaii","bScore":166.42,"label":"Losers Bracket · Game 3"},{"week":17,"a":"metcalf","aScore":145.52,"b":"kareem","bScore":171.06,"label":"Losers Bracket · Game 4"},{"week":15,"a":"kareem","aScore":107.02,"b":"hawaii","bScore":151.4,"label":"Losers Bracket · Game 2"}]},{"year":2025,"teams":{"first":{"ownerId":"ted_williams","name":"First and Ted","owner":"Ted Williams","division":"Xavier","wins":8,"losses":6,"pf":1727.62,"pa":1578.96,"divRecord":"4–4","finalRank":4,"icon":"🏇","color":"#7c3945"},"game":{"ownerId":"charlie_vonderheid","name":"Game of Throws","owner":"Charlie Vonderheid","division":"Xavier","wins":8,"losses":6,"pf":1852.96,"pa":1644.08,"divRecord":"5–3","finalRank":1,"icon":"🏰","color":"#c05b2a"},"hamilton":{"ownerId":"niko_nadreau","name":"Hamilton Administration","owner":"Niko Nadreau","division":"Xavier","wins":8,"losses":6,"pf":1726.86,"pa":1801.5,"divRecord":"4–4","finalRank":5,"icon":"🎭","color":"#304f91"},"roll":{"ownerId":"jp_torack","name":"Roll Bill (Croskey-Merritt)","owner":"JP Torack","division":"Xavier","wins":7,"losses":7,"pf":1647.74,"pa":1738.68,"divRecord":"4–4","finalRank":8,"icon":"🦬","color":"#9d542e"},"infinity":{"ownerId":"ian_farroll","name":"To infinity and Bijan","owner":"Ian Farroll","division":"Xavier","wins":7,"losses":7,"pf":1664.76,"pa":1631,"divRecord":"3–5","finalRank":6,"icon":"👑","color":"#b78d0a"},"hawaii":{"ownerId":"matt_windler","name":"Hawaii McLovins VIII","owner":"Matt Windler","division":"Ignatius","wins":12,"losses":2,"pf":1824.8,"pa":1560.22,"divRecord":"6–2","finalRank":3,"icon":"🌴","color":"#3a3c9d"},"left":{"ownerId":"nathan_rich","name":"The Left Tacklers","owner":"Nathan Rich","division":"Ignatius","wins":11,"losses":3,"pf":1918.66,"pa":1697.76,"divRecord":"7–1","finalRank":2,"icon":"🛡️","color":"#166a83"},"kareem":{"ownerId":"matthew_kluba","name":"Team Kareem Pie 🍑","owner":"Matthew Kluba","division":"Ignatius","wins":4,"losses":10,"pf":1597.4,"pa":1796.38,"divRecord":"3–5","finalRank":7,"icon":"🏈","color":"#719b70"},"laporta":{"ownerId":"grant_thornberry","name":"LaPorta Potty","owner":"Grant Thornberry","division":"Ignatius","wins":4,"losses":10,"pf":1521.82,"pa":1747.1,"divRecord":"4–4","finalRank":10,"icon":"🚽","color":"#6a78a7"},"jared":{"ownerId":"jared_thornberry","name":"Jared's Pack Attack","owner":"Jared Thornberry","division":"Ignatius","wins":1,"losses":13,"pf":1510.44,"pa":1797.38,"divRecord":"0–8","finalRank":9,"icon":"🟣","color":"#4d3f93"}},"regularGames":[{"week":1,"a":"first","aScore":89.72,"b":"game","bScore":124.78},{"week":1,"a":"infinity","aScore":114.06,"b":"left","bScore":84.32},{"week":1,"a":"hawaii","aScore":134.02,"b":"roll","bScore":100.92},{"week":1,"a":"kareem","aScore":120.88,"b":"jared","bScore":103.84},{"week":1,"a":"laporta","aScore":107.42,"b":"hamilton","bScore":144.26},{"week":2,"a":"hamilton","aScore":149.42,"b":"infinity","bScore":118.6},{"week":2,"a":"game","aScore":135.74,"b":"laporta","bScore":82.68},{"week":2,"a":"kareem","aScore":113.3,"b":"hawaii","bScore":114.54},{"week":2,"a":"jared","aScore":102.58,"b":"left","bScore":106.84},{"week":2,"a":"roll","aScore":116.18,"b":"first","bScore":102.5},{"week":3,"a":"jared","aScore":78.52,"b":"hawaii","bScore":96.14},{"week":3,"a":"kareem","aScore":143.22,"b":"laporta","bScore":99.02},{"week":3,"a":"left","aScore":147.18,"b":"roll","bScore":101.46},{"week":3,"a":"first","aScore":154.92,"b":"hamilton","bScore":94.32},{"week":3,"a":"game","aScore":160.54,"b":"infinity","bScore":166.72},{"week":4,"a":"hamilton","aScore":149.86,"b":"kareem","bScore":122.42},{"week":4,"a":"hawaii","aScore":101.78,"b":"laporta","bScore":159.94},{"week":4,"a":"jared","aScore":111.98,"b":"infinity","bScore":112.48},{"week":4,"a":"left","aScore":148.2,"b":"game","bScore":149.7},{"week":4,"a":"first","aScore":114.68,"b":"roll","bScore":118.9},{"week":5,"a":"roll","aScore":164.82,"b":"kareem","bScore":129.74},{"week":5,"a":"game","aScore":133.2,"b":"hawaii","bScore":162.88},{"week":5,"a":"left","aScore":138.12,"b":"first","bScore":111.04},{"week":5,"a":"jared","aScore":108.48,"b":"laporta","bScore":155.22},{"week":5,"a":"infinity","aScore":130.7,"b":"hamilton","bScore":105.52},{"week":6,"a":"roll","aScore":116.88,"b":"hamilton","bScore":135.2},{"week":6,"a":"left","aScore":150.44,"b":"hawaii","bScore":174.34},{"week":6,"a":"game","aScore":114.92,"b":"infinity","bScore":90.12},{"week":6,"a":"jared","aScore":87.96,"b":"first","bScore":142.24},{"week":6,"a":"kareem","aScore":91.96,"b":"laporta","bScore":97.34},{"week":7,"a":"hamilton","aScore":126.14,"b":"game","bScore":166.04},{"week":7,"a":"kareem","aScore":131.42,"b":"left","bScore":194.68},{"week":7,"a":"laporta","aScore":109.18,"b":"jared","bScore":81.06},{"week":7,"a":"hawaii","aScore":132.36,"b":"roll","bScore":98.74},{"week":7,"a":"infinity","aScore":125.42,"b":"first","bScore":129.64},{"week":8,"a":"kareem","aScore":104.88,"b":"hawaii","bScore":125.02},{"week":8,"a":"laporta","aScore":93.38,"b":"infinity","bScore":140.32},{"week":8,"a":"game","aScore":120.76,"b":"first","bScore":127.6},{"week":8,"a":"roll","aScore":170.52,"b":"jared","bScore":132.48},{"week":8,"a":"left","aScore":128.26,"b":"hamilton","bScore":104.92},{"week":9,"a":"kareem","aScore":139.5,"b":"jared","bScore":124.8},{"week":9,"a":"roll","aScore":93.9,"b":"game","bScore":142.5},{"week":9,"a":"left","aScore":150.14,"b":"laporta","bScore":144.66},{"week":9,"a":"hamilton","aScore":126.12,"b":"first","bScore":157.5},{"week":9,"a":"hawaii","aScore":110.8,"b":"infinity","bScore":103.76},{"week":10,"a":"hawaii","aScore":158.6,"b":"laporta","bScore":116.8},{"week":10,"a":"roll","aScore":141.6,"b":"infinity","bScore":134.54},{"week":10,"a":"kareem","aScore":125.1,"b":"hamilton","bScore":125.74},{"week":10,"a":"game","aScore":127.82,"b":"left","bScore":141.9},{"week":10,"a":"jared","aScore":85.8,"b":"first","bScore":102.8},{"week":11,"a":"hawaii","aScore":137.02,"b":"first","bScore":94.52},{"week":11,"a":"jared","aScore":119.16,"b":"game","bScore":105.6},{"week":11,"a":"kareem","aScore":100.94,"b":"infinity","bScore":97.42},{"week":11,"a":"hamilton","aScore":146.78,"b":"roll","bScore":125.64},{"week":11,"a":"left","aScore":129.7,"b":"laporta","bScore":107.04},{"week":12,"a":"laporta","aScore":85.86,"b":"infinity","bScore":131.32},{"week":12,"a":"first","aScore":148.16,"b":"kareem","bScore":77.74},{"week":12,"a":"hamilton","aScore":72.12,"b":"hawaii","bScore":140.26},{"week":12,"a":"game","aScore":149.96,"b":"roll","bScore":77.88},{"week":12,"a":"left","aScore":165.72,"b":"jared","bScore":136.36},{"week":13,"a":"laporta","aScore":91.08,"b":"first","bScore":142.76},{"week":13,"a":"roll","aScore":132.54,"b":"infinity","bScore":64.54},{"week":13,"a":"jared","aScore":113.76,"b":"hamilton","bScore":128.52},{"week":13,"a":"game","aScore":127.4,"b":"kareem","bScore":99.24},{"week":13,"a":"hawaii","aScore":95.3,"b":"left","bScore":109.42},{"week":14,"a":"game","aScore":94,"b":"hamilton","bScore":117.94},{"week":14,"a":"first","aScore":109.54,"b":"infinity","bScore":134.76},{"week":14,"a":"left","aScore":123.74,"b":"kareem","bScore":97.06},{"week":14,"a":"jared","aScore":123.66,"b":"hawaii","bScore":141.74},{"week":14,"a":"roll","aScore":87.76,"b":"laporta","bScore":72.2}],"postseasonGames":[{"week":16,"a":"first","aScore":141.82,"b":"game","bScore":162.9,"label":"Semifinal"},{"week":15,"a":"game","aScore":139.5,"b":"hamilton","bScore":127.52,"label":"Quarterfinal"},{"week":17,"a":"game","aScore":137.62,"b":"left","bScore":131.36,"label":"Championship"},{"week":15,"a":"infinity","aScore":128.54,"b":"left","bScore":171.42,"label":"Quarterfinal"},{"week":16,"a":"hawaii","aScore":144.76,"b":"left","bScore":176.38,"label":"Semifinal"},{"week":15,"a":"roll","aScore":108.66,"b":"kareem","bScore":99.3,"label":"Losers Bracket · Game 1"},{"week":16,"a":"kareem","aScore":157.3,"b":"laporta","bScore":102.4,"label":"Losers Bracket · Game 3"},{"week":15,"a":"laporta","aScore":120.8,"b":"jared","bScore":112.04,"label":"Losers Bracket · Game 2"},{"week":17,"a":"laporta","aScore":121.94,"b":"jared","bScore":139.02,"label":"Losers Bracket · Game 4"}]}]};
+
+    const fmt = (value) => Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    const pct = (wins, losses) => {
+      const games = wins + losses;
+      return games ? (wins / games).toFixed(3).replace(/^0/, "") : ".000";
+    };
+
+    const ordinal = (n) => {
+      const mod100 = n % 100;
+      if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+      if (n % 10 === 1) return `${n}st`;
+      if (n % 10 === 2) return `${n}nd`;
+      if (n % 10 === 3) return `${n}rd`;
+      return `${n}th`;
+    };
+
+    function createProfiles() {
+      const profiles = {};
+
+      Object.entries(LEAGUE_DATA.owners).forEach(([ownerId, owner]) => {
+        profiles[ownerId] = {
+          ownerId,
+          ...owner,
+          seasons: [],
+          wins: 0,
+          losses: 0,
+          pf: 0,
+          pa: 0,
+          championshipYears: [],
+          lastPlaceYears: [],
+          finishes: {},
+          highestWeek: null,
+          bestSeason: null,
+          playoffWins: 0,
+          playoffLosses: 0,
+          h2h: {}
+        };
+      });
+
+      const addH2H = (ownerId, opponentId, pfValue, paValue) => {
+        if (!profiles[ownerId].h2h[opponentId]) {
+          profiles[ownerId].h2h[opponentId] = {
+            opponentId,
+            wins: 0,
+            losses: 0,
+            pf: 0,
+            pa: 0,
+            games: 0
+          };
+        }
+
+        const row = profiles[ownerId].h2h[opponentId];
+        row.games += 1;
+        row.pf += pfValue;
+        row.pa += paValue;
+        if (pfValue > paValue) row.wins += 1;
+        else row.losses += 1;
+      };
+
+      const recordGame = (season, game, label = "Regular Season") => {
+        const aTeam = season.teams[game.a];
+        const bTeam = season.teams[game.b];
+        const aOwner = aTeam.ownerId;
+        const bOwner = bTeam.ownerId;
+
+        addH2H(aOwner, bOwner, game.aScore, game.bScore);
+        addH2H(bOwner, aOwner, game.bScore, game.aScore);
+
+        [
+          { ownerId: aOwner, team: aTeam, opponentId: bOwner, points: game.aScore },
+          { ownerId: bOwner, team: bTeam, opponentId: aOwner, points: game.bScore }
+        ].forEach((entry) => {
+          const current = profiles[entry.ownerId].highestWeek;
+          if (!current || entry.points > current.points) {
+            profiles[entry.ownerId].highestWeek = {
+              year: season.year,
+              week: game.week,
+              points: entry.points,
+              teamName: entry.team.name,
+              opponentId: entry.opponentId,
+              label
+            };
+          }
+        });
+      };
+
+      [...LEAGUE_DATA.seasons]
+        .sort((a, b) => a.year - b.year)
+        .forEach((season) => {
+          Object.values(season.teams).forEach((team) => {
+            const profile = profiles[team.ownerId];
+            profile.seasons.push({
+              year: season.year,
+              teamName: team.name,
+              wins: team.wins,
+              losses: team.losses,
+              pf: team.pf,
+              pa: team.pa,
+              finalRank: team.finalRank
+            });
+            profile.wins += team.wins;
+            profile.losses += team.losses;
+            profile.pf += team.pf;
+            profile.pa += team.pa;
+            profile.finishes[season.year] = team.finalRank;
+
+            if (team.finalRank === 1) profile.championshipYears.push(season.year);
+            if (team.finalRank === Object.keys(season.teams).length) profile.lastPlaceYears.push(season.year);
+
+            if (!profile.bestSeason || team.pf > profile.bestSeason.points) {
+              profile.bestSeason = {
+                year: season.year,
+                points: team.pf,
+                teamName: team.name
+              };
+            }
+          });
+
+          season.regularGames.forEach((game) => recordGame(season, game));
+
+          season.postseasonGames.forEach((game) => {
+            recordGame(season, game, game.label);
+
+            if (!game.label.startsWith("Losers Bracket")) {
+              const aOwner = season.teams[game.a].ownerId;
+              const bOwner = season.teams[game.b].ownerId;
+
+              if (game.aScore > game.bScore) {
+                profiles[aOwner].playoffWins += 1;
+                profiles[bOwner].playoffLosses += 1;
+              } else {
+                profiles[bOwner].playoffWins += 1;
+                profiles[aOwner].playoffLosses += 1;
+              }
+            }
+          });
+        });
+
+      Object.values(profiles).forEach((profile) => {
+        profile.seasons.sort((a, b) => a.year - b.year);
+        profile.diff = profile.pf - profile.pa;
+        profile.games = profile.wins + profile.losses;
+        profile.pct = profile.games ? profile.wins / profile.games : 0;
+        profile.pfg = profile.games ? profile.pf / profile.games : 0;
+        profile.bestFinish = Math.min(...Object.values(profile.finishes));
+        profile.worstFinish = Math.max(...Object.values(profile.finishes));
+
+        Object.values(profile.h2h).forEach((row) => {
+          row.diff = row.pf - row.pa;
+          row.pct = row.games ? row.wins / row.games : 0;
+        });
+      });
+
+      return profiles;
+    }
+
+    const profiles = createProfiles();
+    const profileList = Object.values(profiles);
+
+    document.getElementById("homeSeasonCount").textContent = LEAGUE_DATA.seasons.length;
+
+    function teamButton(profile, extraClass = "") {
+      return `
+        <button class="team-button ${extraClass}" data-owner="${profile.ownerId}" aria-label="Open ${profile.currentTeam} history">
+          <span class="team-badge" style="--team-color:${profile.color}">${profile.icon}</span>
+          <span class="team-meta">
+            <span class="team-name">${profile.currentTeam}</span>
+            <span class="owner-name">${profile.name}</span>
+          </span>
+        </button>
+      `;
+    }
+
+    function renderChampions() {
+      const rows = profileList
+        .filter((profile) => profile.championshipYears.length)
+        .sort((a, b) =>
+          b.championshipYears.length - a.championshipYears.length ||
+          Math.max(...b.championshipYears) - Math.max(...a.championshipYears)
+        );
+
+      document.getElementById("championBody").innerHTML = rows.map((profile, index) => `
+        <tr>
+          <td class="rank">${index + 1}</td>
+          <td>${teamButton(profile)}</td>
+          <td><span class="title-count">${"🏆".repeat(profile.championshipYears.length)} ${profile.championshipYears.length}</span></td>
+          <td class="title-years">${profile.championshipYears.join(", ")}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderLosers() {
+      const rows = profileList
+        .filter((profile) => profile.lastPlaceYears.length)
+        .sort((a, b) =>
+          b.lastPlaceYears.length - a.lastPlaceYears.length ||
+          Math.max(...b.lastPlaceYears) - Math.max(...a.lastPlaceYears)
+        );
+
+      document.getElementById("loserBody").innerHTML = rows.map((profile, index) => `
+        <tr>
+          <td class="rank">${index + 1}</td>
+          <td>${teamButton(profile)}</td>
+          <td><span class="title-count">${"💩".repeat(profile.lastPlaceYears.length)} ${profile.lastPlaceYears.length}</span></td>
+          <td class="title-years">${profile.lastPlaceYears.join(", ")}</td>
+        </tr>
+      `).join("");
+    }
+
+
+    const allTimeDefaults = {
+      team: "asc",
+      seasons: "desc",
+      wins: "desc",
+      losses: "asc",
+      pct: "desc",
+      pf: "desc",
+      pa: "asc",
+      diff: "desc",
+      pfg: "desc",
+      titles: "desc"
+    };
+
+    let allTimeSort = { key: "wins", direction: "desc" };
+
+    function allTimeValue(profile, key) {
+      if (key === "team") return profile.currentTeam.toLowerCase();
+      if (key === "seasons") return profile.seasons.length;
+      if (key === "titles") return profile.championshipYears.length;
+      return profile[key];
+    }
+
+    function sortRows(rows, state, valueFn) {
+      return [...rows].sort((a, b) => {
+        const aValue = valueFn(a, state.key);
+        const bValue = valueFn(b, state.key);
+        let comparison = typeof aValue === "string"
+          ? aValue.localeCompare(bValue)
+          : aValue - bValue;
+
+        if (comparison !== 0) {
+          return state.direction === "asc" ? comparison : -comparison;
+        }
+
+        return b.wins - a.wins || b.pf - a.pf;
+      });
+    }
+
+    function renderAllTime() {
+      const rows = sortRows(profileList, allTimeSort, allTimeValue);
+
+      document.getElementById("allTimeBody").innerHTML = rows.map((profile, index) => `
+        <tr>
+          <td class="rank">${index + 1}</td>
+          <td class="team-cell">
+            ${teamButton(profile)}
+            <div class="mobile-stat-strip" aria-label="${profile.currentTeam} all-time statistics">
+              <span class="mobile-stat"><small>W–L</small><strong>${profile.wins}–${profile.losses}</strong></span>
+              <span class="mobile-stat"><small>PCT</small><strong>${pct(profile.wins, profile.losses)}</strong></span>
+              <span class="mobile-stat"><small>PF</small><strong>${fmt(profile.pf)}</strong></span>
+              <span class="mobile-stat"><small>PA</small><strong>${fmt(profile.pa)}</strong></span>
+              <span class="mobile-stat"><small>Diff</small><strong class="${profile.diff >= 0 ? "positive" : "negative"}">${profile.diff >= 0 ? "+" : ""}${fmt(profile.diff)}</strong></span>
+              <span class="mobile-stat"><small>Titles</small><strong>${profile.championshipYears.length}</strong></span>
+            </div>
+          </td>
+          <td>${profile.seasons.length}</td>
+          <td class="record">${profile.wins}</td>
+          <td>${profile.losses}</td>
+          <td>${pct(profile.wins, profile.losses)}</td>
+          <td>${fmt(profile.pf)}</td>
+          <td>${fmt(profile.pa)}</td>
+          <td class="${profile.diff >= 0 ? "positive" : "negative"}">${profile.diff >= 0 ? "+" : ""}${fmt(profile.diff)}</td>
+          <td>${profile.pfg.toFixed(1)}</td>
+          <td>${profile.championshipYears.length}</td>
+        </tr>
+      `).join("");
+
+      document.querySelectorAll('[data-table="allTime"]').forEach((button) => {
+        const active = button.dataset.sort === allTimeSort.key;
+        button.classList.toggle("active", active);
+        button.querySelector(".sort-arrow").textContent = active
+          ? (allTimeSort.direction === "asc" ? "↑" : "↓")
+          : "";
+      });
+
+      document.getElementById("allTimeMobileSort").value = allTimeSort.key;
+      const directionButton = document.getElementById("allTimeMobileDirection");
+      directionButton.textContent = allTimeSort.direction === "asc" ? "↑" : "↓";
+      directionButton.setAttribute("aria-label", allTimeSort.direction === "asc" ? "Sort ascending" : "Sort descending");
+    }
+
+    function setAllTimeSort(key) {
+      if (allTimeSort.key === key) {
+        allTimeSort.direction = allTimeSort.direction === "asc" ? "desc" : "asc";
+      } else {
+        allTimeSort = { key, direction: allTimeDefaults[key] };
+      }
+      renderAllTime();
+    }
+
+    function yearsAtFinish(profile, rank) {
+      return profile.seasons.filter((season) => season.finalRank === rank).map((season) => season.year);
+    }
+
+    function renderWinsChart(profile) {
+      const seasons = profile.seasons;
+      const width = 620;
+      const height = 220;
+      const left = 54;
+      const right = 592;
+      const top = 24;
+      const bottom = 174;
+      const maxWins = 14;
+      const x = (index) => seasons.length === 1
+        ? (left + right) / 2
+        : left + (index * (right - left) / (seasons.length - 1));
+      const y = (wins) => bottom - (wins / maxWins) * (bottom - top);
+      const points = seasons.map((season, index) => `${x(index)},${y(season.wins)}`).join(" ");
+      const ticks = [0, 7, 14];
+
+      return `
+        <svg class="wins-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Regular season wins by year">
+          ${ticks.map((tick) => `
+            <line x1="${left}" y1="${y(tick)}" x2="${right}" y2="${y(tick)}" stroke="#e3e8ed" stroke-width="1" />
+            <text x="${left - 13}" y="${y(tick) + 4}" text-anchor="end" fill="#7b8998" font-size="11" font-weight="700">${tick}</text>
+          `).join("")}
+          <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#bec8d2" stroke-width="1.3" />
+          <polyline points="${points}" fill="none" stroke="${profile.color}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+          ${seasons.map((season, index) => `
+            <circle cx="${x(index)}" cy="${y(season.wins)}" r="7" fill="#fff" stroke="${profile.color}" stroke-width="4" />
+            <text x="${x(index)}" y="${y(season.wins) - 15}" text-anchor="middle" fill="#172b42" font-size="14" font-weight="900">${season.wins}</text>
+            <text x="${x(index)}" y="${bottom + 28}" text-anchor="middle" fill="#68788a" font-size="12" font-weight="800">${season.year}</text>
+          `).join("")}
+        </svg>
+      `;
+    }
+
+    let activeOwnerId = null;
+    let h2hSort = { key: "wins", direction: "desc" };
+
+    const h2hDefaults = {
+      team: "asc",
+      games: "desc",
+      wins: "desc",
+      losses: "asc",
+      pct: "desc",
+      pf: "desc",
+      pa: "asc",
+      diff: "desc"
+    };
+
+    function h2hValue(row, key) {
+      if (key === "team") return profiles[row.opponentId].currentTeam.toLowerCase();
+      return row[key];
+    }
+
+    function achievementCards(profile) {
+      const championshipMeta = profile.championshipYears.length
+        ? profile.championshipYears.join(", ")
+        : yearsAtFinish(profile, profile.bestFinish).join(", ");
+
+      const lastPlaceMeta = profile.lastPlaceYears.length
+        ? profile.lastPlaceYears.join(", ")
+        : yearsAtFinish(profile, profile.worstFinish).join(", ");
+
+      const highWeek = profile.highestWeek;
+
+      return `
+        <div class="achievement-card gold">
+          <div class="achievement-label">${profile.championshipYears.length ? "Championships" : "Best Finish"}</div>
+          <div class="achievement-line">
+            <div class="achievement-value">${profile.championshipYears.length
+              ? `${"🏆".repeat(profile.championshipYears.length)} ${profile.championshipYears.length}`
+              : ordinal(profile.bestFinish)}</div>
+            <div class="achievement-meta">${championshipMeta}</div>
+          </div>
+        </div>
+
+        <div class="achievement-card red">
+          <div class="achievement-label">${profile.lastPlaceYears.length ? "Last-Place Finishes" : "Lowest Finish"}</div>
+          <div class="achievement-line">
+            <div class="achievement-value">${profile.lastPlaceYears.length
+              ? `${"💩".repeat(profile.lastPlaceYears.length)} ${profile.lastPlaceYears.length}`
+              : ordinal(profile.worstFinish)}</div>
+            <div class="achievement-meta">${lastPlaceMeta}</div>
+          </div>
+        </div>
+
+        <div class="achievement-card">
+          <div class="achievement-label">Highest-Scoring Week</div>
+          <div class="achievement-line">
+            <div class="achievement-value">${fmt(highWeek.points)}</div>
+            <div class="achievement-meta">Week ${highWeek.week} · ${highWeek.year}</div>
+          </div>
+        </div>
+
+        <div class="achievement-card">
+          <div class="achievement-label">Best Scoring Season</div>
+          <div class="achievement-line">
+            <div class="achievement-value">${fmt(profile.bestSeason.points)}</div>
+            <div class="achievement-meta">${profile.bestSeason.year}</div>
+          </div>
+        </div>
+
+        <div class="achievement-card">
+          <div class="achievement-label">Playoff Record</div>
+          <div class="achievement-line">
+            <div class="achievement-value">${profile.playoffWins}–${profile.playoffLosses}</div>
+          </div>
+        </div>
+
+        <div class="achievement-card">
+          <div class="achievement-label">All-Time Regular Season</div>
+          <div class="achievement-line">
+            <div class="achievement-value">${profile.wins}–${profile.losses}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSeasonHistory(profile) {
+      return `
+        <div class="season-history-row header">
+          <span>Year</span><span>Team Name</span><span>Record</span><span>PF</span><span>PA</span><span>Finish</span>
+        </div>
+        ${[...profile.seasons].reverse().map((season) => `
+          <div class="season-history-row">
+            <strong>${season.year}</strong>
+            <strong title="${season.teamName}">${season.teamName}</strong>
+            <span>${season.wins}–${season.losses}</span>
+            <span>${fmt(season.pf)}</span>
+            <span>${fmt(season.pa)}</span>
+            <strong>${ordinal(season.finalRank)}</strong>
+          </div>
+        `).join("")}
+      `;
+    }
+
+    function h2hMobileStats(row) {
+      return `
+        <div class="mobile-stat-strip">
+          <span class="mobile-stat"><small>Record</small><strong>${row.wins}–${row.losses}</strong></span>
+          <span class="mobile-stat"><small>PCT</small><strong>${pct(row.wins, row.losses)}</strong></span>
+          <span class="mobile-stat"><small>PF</small><strong>${fmt(row.pf)}</strong></span>
+          <span class="mobile-stat"><small>PA</small><strong>${fmt(row.pa)}</strong></span>
+          <span class="mobile-stat"><small>Diff</small><strong class="${row.diff >= 0 ? "positive" : "negative"}">${row.diff >= 0 ? "+" : ""}${fmt(row.diff)}</strong></span>
+          <span class="mobile-stat"><small>Games</small><strong>${row.games}</strong></span>
+        </div>
+      `;
+    }
+
+    function renderH2H(profile) {
+      const rows = sortRows(
+        Object.values(profile.h2h),
+        h2hSort,
+        h2hValue
+      );
+
+      const body = document.getElementById("h2hBody");
+      body.innerHTML = rows.map((row) => {
+        const opponent = profiles[row.opponentId];
+        return `
+          <tr>
+            <td class="opponent-cell">
+              ${teamButton(opponent)}
+              ${h2hMobileStats(row)}
+            </td>
+            <td>${row.games}</td>
+            <td class="record">${row.wins}–${row.losses}</td>
+            <td>${pct(row.wins, row.losses)}</td>
+            <td>${fmt(row.pf)}</td>
+            <td>${fmt(row.pa)}</td>
+            <td class="${row.diff >= 0 ? "positive" : "negative"}">${row.diff >= 0 ? "+" : ""}${fmt(row.diff)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.querySelectorAll('[data-table="h2h"]').forEach((button) => {
+        const active = button.dataset.sort === h2hSort.key;
+        button.classList.toggle("active", active);
+        button.querySelector(".sort-arrow").textContent = active
+          ? (h2hSort.direction === "asc" ? "↑" : "↓")
+          : "";
+      });
+
+      document.getElementById("h2hMobileSort").value = h2hSort.key;
+      const directionButton = document.getElementById("h2hMobileDirection");
+      if (directionButton) {
+        directionButton.textContent = h2hSort.direction === "asc" ? "↑" : "↓";
+        directionButton.setAttribute("aria-label", h2hSort.direction === "asc" ? "Sort ascending" : "Sort descending");
+      }
+    }
+
+    function openProfile(ownerId) {
+      const profile = profiles[ownerId];
+      if (!profile) return;
+
+      activeOwnerId = ownerId;
+      h2hSort = { key: "wins", direction: "desc" };
+
+      document.getElementById("profileRoot").innerHTML = `
+        <section class="profile-hero" style="--team-color:${profile.color}">
+          <div class="profile-identity">
+            <div class="profile-logo">${profile.icon}</div>
+            <div>
+              <h2>${profile.currentTeam}</h2>
+              <div class="profile-owner">${profile.name}</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="profile-content">
+          <section class="achievement-grid">
+            ${achievementCards(profile)}
+          </section>
+
+          <section class="profile-grid">
+            <div class="profile-card">
+              <div class="profile-card-head">
+                <h3>Regular-Season Wins</h3>
+              </div>
+              <div class="chart-wrap">${renderWinsChart(profile)}</div>
+            </div>
+
+            <div class="profile-card">
+              <div class="profile-card-head">
+                <h3>Season History</h3>
+              </div>
+              <div class="season-history">${renderSeasonHistory(profile)}</div>
+            </div>
+          </section>
+
+          <section class="profile-card h2h-card">
+            <div class="profile-card-head">
+              <h3>Head-to-Head Records</h3>
+              <div class="h2h-mobile-sort">
+                <label for="h2hMobileSort">Sort</label>
+                <select id="h2hMobileSort" aria-label="Sort head-to-head records">
+                  <option value="wins">Wins</option>
+                  <option value="losses">Losses</option>
+                  <option value="pct">Win Percentage</option>
+                  <option value="pf">Points For</option>
+                  <option value="pa">Points Against</option>
+                  <option value="diff">Point Differential</option>
+                  <option value="games">Games</option>
+                  <option value="team">Opponent</option>
+                </select>
+                <button type="button" class="mobile-sort-direction" id="h2hMobileDirection" data-mobile-direction="h2h" aria-label="Sort descending">↓</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th><button class="sort-button" data-table="h2h" data-sort="team">Opponent <span class="sort-arrow"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="games">Games <span class="sort-arrow"></span></button></th>
+                    <th><button class="sort-button active" data-table="h2h" data-sort="wins">Record <span class="sort-arrow">↓</span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="pct">PCT <span class="sort-arrow"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="pf">PF <span class="sort-arrow"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="pa">PA <span class="sort-arrow"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="diff">Diff <span class="sort-arrow"></span></button></th>
+                  </tr>
+                </thead>
+                <tbody id="h2hBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      `;
+
+      renderH2H(profile);
+
+      document.getElementById("profilePanel").classList.add("open");
+      document.getElementById("profileBackdrop").classList.add("open");
+      document.getElementById("profilePanel").setAttribute("aria-hidden", "false");
+      document.body.classList.add("profile-open");
+      document.getElementById("closeProfile").focus();
+    }
+
+    function closeProfile() {
+      document.getElementById("profilePanel").classList.remove("open");
+      document.getElementById("profileBackdrop").classList.remove("open");
+      document.getElementById("profilePanel").setAttribute("aria-hidden", "true");
+      document.body.classList.remove("profile-open");
+      activeOwnerId = null;
+    }
+
+    document.addEventListener("click", (event) => {
+      const team = event.target.closest("[data-owner]");
+      if (team) {
+        openProfile(team.dataset.owner);
+        return;
+      }
+
+      const directionButton = event.target.closest("[data-mobile-direction]");
+      if (directionButton) {
+        if (directionButton.dataset.mobileDirection === "allTime") {
+          allTimeSort.direction = allTimeSort.direction === "asc" ? "desc" : "asc";
+          renderAllTime();
+        } else if (directionButton.dataset.mobileDirection === "h2h" && activeOwnerId) {
+          h2hSort.direction = h2hSort.direction === "asc" ? "desc" : "asc";
+          renderH2H(profiles[activeOwnerId]);
+        }
+        return;
+      }
+
+      const sortButton = event.target.closest(".sort-button");
+      if (!sortButton) return;
+
+      const key = sortButton.dataset.sort;
+      if (sortButton.dataset.table === "allTime") {
+        setAllTimeSort(key);
+      } else if (sortButton.dataset.table === "h2h" && activeOwnerId) {
+        if (h2hSort.key === key) {
+          h2hSort.direction = h2hSort.direction === "asc" ? "desc" : "asc";
+        } else {
+          h2hSort = { key, direction: h2hDefaults[key] };
+        }
+        renderH2H(profiles[activeOwnerId]);
+      }
+    });
+
+    document.getElementById("allTimeMobileSort").addEventListener("change", (event) => {
+      allTimeSort = {
+        key: event.target.value,
+        direction: allTimeDefaults[event.target.value]
+      };
+      renderAllTime();
+    });
+
+    document.addEventListener("change", (event) => {
+      if (event.target.id === "h2hMobileSort" && activeOwnerId) {
+        h2hSort = {
+          key: event.target.value,
+          direction: h2hDefaults[event.target.value]
+        };
+        renderH2H(profiles[activeOwnerId]);
+      }
+    });
+
+    document.getElementById("closeProfile").addEventListener("click", closeProfile);
+    document.getElementById("profileBackdrop").addEventListener("click", closeProfile);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeProfile();
+    });
+
+    document.getElementById("pageSelect").addEventListener("change", (event) => {
+      const pages = {
+        home: "index.html",
+        2025: "2025.html",
+        2024: "2024.html",
+        2023: "2023.html"
+      };
+      window.location.href = pages[event.target.value];
+    });
+
+    renderChampions();
+    renderLosers();
+    renderAllTime();
+  </script>
+</body>
+</html>
