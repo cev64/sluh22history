@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="2024 fantasy football league history, standings, schedules, and playoff brackets." />
-  <title>League History · 2024</title>
+  <meta name="description" content="2022 fantasy football league history, standings, schedules, and playoff brackets." />
+  <title>League History · 2022</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -953,6 +953,21 @@
     .mobile-sort-direction:focus-visible {
       border-color: var(--blue);
       color: var(--blue-2);
+    }
+
+
+    .single-standings {
+      grid-template-columns: 1fr;
+    }
+
+    .two-round-bracket {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 700px) {
+      .two-round-bracket {
+        grid-template-columns: 1fr;
+      }
     }
 
     .footer {
@@ -2079,9 +2094,9 @@
         <select id="yearSelect" aria-label="Choose season">
           <option value="home">All-Time Home</option>
           <option value="2025">2025</option>
-          <option value="2024" selected>2024</option>
+          <option value="2024">2024</option>
           <option value="2023">2023</option>
-          <option value="2022">2022</option>
+          <option value="2022" selected>2022</option>
         </select>
       </label>
     </div>
@@ -2090,44 +2105,44 @@
   <section class="hero">
     <div class="hero-inner outcome-grid">
       <article class="outcome-card champion-outcome">
-        <div class="outcome-label">🏆 2024 Champion</div>
+        <div class="outcome-label">🏆 2022 Champion</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#166a83">🛡️</span>
+          <span class="team-badge" style="--team-color:#304f91">🎭</span>
           <div>
-            <h2>The Left Tacklers</h2>
-            <span>Nathan Rich · 7–7 regular season</span>
+            <h2>Hamilton Administration</h2>
+            <span>Niko Nadreau · 9–5 regular season</span>
           </div>
         </div>
         <div class="outcome-score">
           <div class="outcome-score-side">
-            <strong>150.58</strong>
-            <small>The Left Tacklers</small>
+            <strong>120.66</strong>
+            <small>Hamilton Administration</small>
           </div>
           <span class="outcome-status">FINAL</span>
           <div class="outcome-score-side">
-            <strong>128.58</strong>
-            <small>First and Ted</small>
+            <strong>82.98</strong>
+            <small>Yung Gravy Fan Page</small>
           </div>
         </div>
       </article>
       <article class="outcome-card loser-outcome">
-        <div class="outcome-label">💩 2024 Last Place</div>
+        <div class="outcome-label">💩 2022 Last Place</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#9d542e">🐿️</span>
+          <span class="team-badge" style="--team-color:#c05b2a">🍝</span>
           <div>
-            <h2>How I Metcalf Your Mother</h2>
-            <span>JP Torack · 7–7 regular season</span>
+            <h2>Olave Garden</h2>
+            <span>Charlie Vonderheid · 4–10 regular season</span>
           </div>
         </div>
         <div class="outcome-score">
           <div class="outcome-score-side">
-            <strong>145.52</strong>
-            <small>How I Metcalf Your Mother</small>
+            <strong>104.60</strong>
+            <small>Olave Garden</small>
           </div>
           <span class="outcome-status">FINAL</span>
           <div class="outcome-score-side">
-            <strong>171.06</strong>
-            <small>Team Kareem Pie 🍑</small>
+            <strong>134.60</strong>
+            <small>larrylarry69</small>
           </div>
         </div>
       </article>
@@ -2138,7 +2153,7 @@
 
     <div class="page-toolbar">
       <div class="page-title">
-        <h2>2024 Season</h2>
+        <h2>2022 Season</h2>
       </div>
       <div class="view-tabs" role="tablist" aria-label="Season views">
         <button class="view-tab active" data-view="regular" role="tab" aria-selected="true">Regular Season</button>
@@ -2148,8 +2163,8 @@
     </div>
 
     <section id="regular" class="view-panel active" role="tabpanel">
-      <div class="division-grid" id="divisionGrid"></div>
-      <div class="source-note">Regular-season records reflect NFL Weeks 1–14. Division order follows the manually audited 2024 standings.</div>
+      <div class="division-grid single-standings" id="divisionGrid"></div>
+      <div class="source-note">The 2022 season used one league-wide table with no divisions. Seeds are taken directly from this regular-season order.</div>
     </section>
 
     <section id="final" class="view-panel" role="tabpanel">
@@ -2195,9 +2210,7 @@
     <section id="bracket" class="view-panel" role="tabpanel">
       <div class="card bracket-card winners-card">
         <div class="bracket-head">
-          <div>
-            <h3>Winner's Bracket</h3>
-          </div>
+          <div><h3>Winner's Bracket</h3></div>
         </div>
 
         <div class="bracket-scroll">
@@ -2206,22 +2219,22 @@
               <div class="round-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
               <div class="round-games">
                 <div class="matchup bye">
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="game" aria-label="Open Game of Throws schedule"><span class="mini-badge" style="--team-color:#c05b2a">🏰</span><span class="bracket-team-name">Game of Throws</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span></span></div>
                   <div class="bye-label">Bye</div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="infinity" aria-label="Open To infinity and Bijan schedule"><span class="mini-badge" style="--team-color:#b78d0a">👑</span><span class="bracket-team-name">To infinity and Bijan</span></button><span class="score">109.80</span></div>
-                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945">🏇</span><span class="bracket-team-name">First and Ted</span></button><span class="score">138.94</span></div>
+                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="ridley" aria-label="Open Ridley Me This schedule"><span class="mini-badge" style="--team-color:#4f7558">🏃</span><span class="bracket-team-name">Ridley Me This</span></button><span class="score">114.12</span></div>
+                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">128.10</span></div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="jared" aria-label="Open Jared's Pack Attack schedule"><span class="mini-badge" style="--team-color:#4d3f93">🟣</span><span class="bracket-team-name">Jared's Pack Attack</span></button><span class="score">108.44</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="amon" aria-label="Open Amon a Mission schedule"><span class="mini-badge" style="--team-color:#536fa8">🤖</span><span class="bracket-team-name">Amon a Mission</span></button><span class="score">129.44</span></div>
+                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="steeler" aria-label="Open Steeler Virginity schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Steeler Virginity</span></button><span class="score">88.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">137.26</span></div>
                 </div>
 
                 <div class="matchup bye">
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span></span></div>
                   <div class="bye-label">Bye</div>
                 </div>
               </div>
@@ -2231,13 +2244,13 @@
               <div class="round-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
               <div class="round-games">
                 <div class="matchup">
-                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945">🏇</span><span class="bracket-team-name">First and Ted</span></button><span class="score">194.72</span></div>
-                  <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="game" aria-label="Open Game of Throws schedule"><span class="mini-badge" style="--team-color:#c05b2a">🏰</span><span class="bracket-team-name">Game of Throws</span></button><span class="score">130.64</span></div>
+                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">119.30</span></div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="amon" aria-label="Open Amon a Mission schedule"><span class="mini-badge" style="--team-color:#536fa8">🤖</span><span class="bracket-team-name">Amon a Mission</span></button><span class="score">112.16</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">142.48</span></div>
+                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">119.98</span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">164.86</span></div>
                 </div>
               </div>
             </div>
@@ -2246,190 +2259,103 @@
               <div class="round-title"><strong>Championship</strong><span>NFL Week 17</span></div>
               <div class="round-games">
                 <div class="matchup championship-matchup">
-                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945">🏇</span><span class="bracket-team-name">First and Ted</span></button><span class="score">128.58</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">150.58</span></div>
+                  <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">82.98</span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">120.66</span></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      
-          <div class="mobile-winner-tree" aria-label="2024 mobile winner's bracket">
-            <section class="mobile-bracket-stage opening-stage">
-              <div class="mobile-stage-title">
-                <strong>Round 1</strong>
-                <span>NFL Week 15</span>
-              </div>
 
-              <div class="mobile-lane-grid">
-                <div class="mobile-bracket-lane">
-                  <div class="mobile-lane-label">Xavier Side</div>
-
-                  <div class="matchup mobile-bye-card">
-                    <div class="matchup-kicker">#1 Seed · Bye</div>
-                    <div class="matchup-row winner">
-                      <span class="seed">#1</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="game" aria-label="Open Game of Throws schedule"><span class="mini-badge" style="--team-color:#c05b2a">🏰</span><span class="bracket-team-name">Game of Throws</span></button>
-                      <span></span>
-                    </div>
-                  </div>
-
-
-                  <div class="matchup">
-                    <div class="matchup-row">
-                      <span class="seed">#2</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="infinity" aria-label="Open To infinity and Bijan schedule"><span class="mini-badge" style="--team-color:#b78d0a">👑</span><span class="bracket-team-name">To infinity and Bijan</span></button>
-                      <span class="score">109.80</span>
-                    </div>
-                    <div class="matchup-row winner">
-                      <span class="seed">#3</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945">🏇</span><span class="bracket-team-name">First and Ted</span></button>
-                      <span class="score">138.94</span>
-                    </div>
-                  </div>
+        <div class="mobile-winner-tree" aria-label="2022 mobile winner's bracket">
+          <section class="mobile-bracket-stage opening-stage">
+            <div class="mobile-stage-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
+            <div class="mobile-lane-grid">
+              <div class="mobile-bracket-lane">
+                <div class="mobile-lane-label">Top Half</div>
+                <div class="matchup mobile-bye-card">
+                  <div class="matchup-kicker">#1 Seed · Bye</div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span></span></div>
                 </div>
-
-                <div class="mobile-bracket-lane">
-                  <div class="mobile-lane-label">Ignatius Side</div>
-
-                  <div class="matchup mobile-bye-card">
-                    <div class="matchup-kicker">#1 Seed · Bye</div>
-                    <div class="matchup-row winner">
-                      <span class="seed">#1</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button>
-                      <span></span>
-                    </div>
-                  </div>
-
-
-                  <div class="matchup">
-                    <div class="matchup-row">
-                      <span class="seed">#3</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="jared" aria-label="Open Jared's Pack Attack schedule"><span class="mini-badge" style="--team-color:#4d3f93">🟣</span><span class="bracket-team-name">Jared's Pack Attack</span></button>
-                      <span class="score">108.44</span>
-                    </div>
-                    <div class="matchup-row winner">
-                      <span class="seed">#2</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="amon" aria-label="Open Amon a Mission schedule"><span class="mini-badge" style="--team-color:#536fa8">🤖</span><span class="bracket-team-name">Amon a Mission</span></button>
-                      <span class="score">129.44</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section class="mobile-bracket-stage semifinal-stage">
-              <div class="mobile-stage-title">
-                <strong>Semifinals</strong>
-                <span>NFL Week 16</span>
-              </div>
-
-              <div class="mobile-lane-grid">
-                <div class="mobile-bracket-lane mobile-semifinal-lane">
-                  <div class="matchup">
-                    <div class="matchup-row winner">
-                      <span class="seed">#3</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945">🏇</span><span class="bracket-team-name">First and Ted</span></button>
-                      <span class="score">194.72</span>
-                    </div>
-                    <div class="matchup-row">
-                      <span class="seed">#1</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="game" aria-label="Open Game of Throws schedule"><span class="mini-badge" style="--team-color:#c05b2a">🏰</span><span class="bracket-team-name">Game of Throws</span></button>
-                      <span class="score">130.64</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="mobile-bracket-lane mobile-semifinal-lane">
-                  <div class="matchup">
-                    <div class="matchup-row">
-                      <span class="seed">#2</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="amon" aria-label="Open Amon a Mission schedule"><span class="mini-badge" style="--team-color:#536fa8">🤖</span><span class="bracket-team-name">Amon a Mission</span></button>
-                      <span class="score">112.16</span>
-                    </div>
-                    <div class="matchup-row winner">
-                      <span class="seed">#1</span>
-                      <button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button>
-                      <span class="score">142.48</span>
-                    </div>
-                  </div>
+                <div class="matchup">
+                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="ridley" aria-label="Open Ridley Me This schedule"><span class="mini-badge" style="--team-color:#4f7558">🏃</span><span class="bracket-team-name">Ridley Me This</span></button><span class="score">114.12</span></div>
+                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">128.10</span></div>
                 </div>
               </div>
 
-              <div class="mobile-merge-lines" aria-hidden="true">
-                <span></span><span></span>
-              </div>
-            </section>
-
-            <section class="mobile-bracket-stage championship-stage">
-              <div class="mobile-stage-title">
-                <strong>Championship</strong>
-                <span>NFL Week 17</span>
-              </div>
-
-              <div class="matchup championship-matchup mobile-championship-card">
-                <div class="matchup-row">
-                  <span class="seed">#3</span>
-                  <button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945">🏇</span><span class="bracket-team-name">First and Ted</span></button>
-                  <span class="score">128.58</span>
+              <div class="mobile-bracket-lane">
+                <div class="mobile-lane-label">Bottom Half</div>
+                <div class="matchup mobile-bye-card">
+                  <div class="matchup-kicker">#2 Seed · Bye</div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span></span></div>
                 </div>
-                <div class="matchup-row winner">
-                  <span class="seed">#1</span>
-                  <button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button>
-                  <span class="score">150.58</span>
+                <div class="matchup">
+                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="steeler" aria-label="Open Steeler Virginity schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Steeler Virginity</span></button><span class="score">88.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">137.26</span></div>
                 </div>
               </div>
-            </section>
-          </div>
-</div>
+            </div>
+          </section>
+
+          <section class="mobile-bracket-stage semifinal-stage">
+            <div class="mobile-stage-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
+            <div class="mobile-lane-grid">
+              <div class="mobile-bracket-lane mobile-semifinal-lane">
+                <div class="matchup">
+                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">119.30</span></div>
+                </div>
+              </div>
+              <div class="mobile-bracket-lane mobile-semifinal-lane">
+                <div class="matchup">
+                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">119.98</span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">164.86</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="mobile-merge-lines" aria-hidden="true"><span></span><span></span></div>
+          </section>
+
+          <section class="mobile-bracket-stage championship-stage">
+            <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
+            <div class="matchup championship-matchup mobile-championship-card">
+              <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">82.98</span></div>
+              <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">120.66</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
 
       <div class="card bracket-card losers-card">
-        <div class="bracket-head">
-          <div>
-            <h3>Losers Bracket</h3>
-          </div>
-        </div>
-
+        <div class="bracket-head"><div><h3>Losers Bracket</h3></div></div>
         <div class="bracket-scroll">
-          <div class="bracket losers-bracket">
+          <div class="bracket losers-bracket two-round-bracket">
             <div class="round round-1">
-              <div class="round-title"><strong>Opening Round</strong><span>NFL Week 15</span></div>
+              <div class="round-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
               <div class="round-games">
                 <div class="matchup">
                   <div class="matchup-kicker">Game 1</div>
-                  <div class="matchup-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="metcalf" aria-label="Open How I Metcalf Your Mother schedule"><span class="mini-badge" style="--team-color:#9d542e">🐿️</span><span class="bracket-team-name">How I Metcalf Your Mother</span></button><span class="score">119.86</span></div>
-                  <div class="matchup-row winner"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">168.58</span></div>
-                  <div class="matchup-path">Loser → Game 3</div>
+                  <div class="matchup-row winner"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="matt" aria-label="Open MattWindy schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">MattWindy</span></button><span class="score">137.42</span></div>
+                  <div class="matchup-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="olave" aria-label="Open Olave Garden schedule"><span class="mini-badge" style="--team-color:#c05b2a">🍝</span><span class="bracket-team-name">Olave Garden</span></button><span class="score">96.74</span></div>
+                  <div class="matchup-path">Loser → Last-Place Game</div>
                 </div>
 
                 <div class="matchup">
                   <div class="matchup-kicker">Game 2</div>
-                  <div class="matchup-row"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">107.02</span></div>
-                  <div class="matchup-row winner"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">151.40</span></div>
-                  <div class="matchup-path">Winner → Game 3 · Loser → Game 4</div>
+                  <div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="larry" aria-label="Open larrylarry69 schedule"><span class="mini-badge" style="--team-color:#b14e3c">🦹</span><span class="bracket-team-name">larrylarry69</span></button><span class="score">88.48</span></div>
+                  <div class="matchup-row winner"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="smell" aria-label="Open Smell My Pittman schedule"><span class="mini-badge" style="--team-color:#7c3945">🟣</span><span class="bracket-team-name">Smell My Pittman</span></button><span class="score">103.48</span></div>
+                  <div class="matchup-path">Loser → Last-Place Game</div>
                 </div>
               </div>
             </div>
 
             <div class="round round-2">
-              <div class="round-title"><strong>Survival Game</strong><span>NFL Week 16</span></div>
-              <div class="round-games">
-                <div class="matchup">
-                  <div class="matchup-kicker">Game 3</div>
-                  <div class="matchup-row winner"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">166.42</span></div>
-                  <div class="matchup-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="metcalf" aria-label="Open How I Metcalf Your Mother schedule"><span class="mini-badge" style="--team-color:#9d542e">🐿️</span><span class="bracket-team-name">How I Metcalf Your Mother</span></button><span class="score">138.64</span></div>
-                  <div class="matchup-path">Loser → Game 4</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="round round-3">
-              <div class="round-title"><strong>Last-Place Game</strong><span>NFL Week 17</span></div>
+              <div class="round-title"><strong>Last-Place Game</strong><span>NFL Week 16</span></div>
               <div class="round-games">
                 <div class="matchup last-place-matchup">
-                  <div class="matchup-kicker">Game 4</div>
-                  <div class="matchup-row winner"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">171.06</span></div>
-                  <div class="matchup-row last-place-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="metcalf" aria-label="Open How I Metcalf Your Mother schedule"><span class="mini-badge" style="--team-color:#9d542e">🐿️</span><span class="bracket-team-name">How I Metcalf Your Mother</span></button><span class="score">145.52</span></div>
+                  <div class="matchup-kicker">Final</div>
+                  <div class="matchup-row winner"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="larry" aria-label="Open larrylarry69 schedule"><span class="mini-badge" style="--team-color:#b14e3c">🦹</span><span class="bracket-team-name">larrylarry69</span></button><span class="score">134.60</span></div>
+                  <div class="matchup-row last-place-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="olave" aria-label="Open Olave Garden schedule"><span class="mini-badge" style="--team-color:#c05b2a">🍝</span><span class="bracket-team-name">Olave Garden</span></button><span class="score">104.60</span></div>
                   <div class="matchup-path">Loser = last place in the league</div>
                 </div>
               </div>
@@ -2438,7 +2364,7 @@
         </div>
       </div>
 
-      <div class="source-note">Playoff labels use the league's manually audited 2024 division seeds: #1, #2, and #3. There were no wild-card designations in 2024.</div>
+      <div class="source-note">The 2022 season used Sleeper. The Toilet Bowl was manually audited as #7 vs #10 and #8 vs #9 in Week 15, followed by a one-week last-place game between the two losers in Week 16.</div>
     </section>
   </main>
 
@@ -2458,7 +2384,7 @@
     <div class="drawer-body" id="drawerBody"></div>
   </aside>
 
-  <footer class="footer">League History · 2024 season archive</footer>
+  <footer class="footer">League History · 2022 season archive</footer>
 
   <script>
     // Stable owner IDs are intentionally separate from team names so future
@@ -2477,83 +2403,81 @@
     };
 
     const teams = {
-      game: { name: "Game of Throws", ownerId: "charlie_vonderheid", owner: "Charlie Vonderheid", division: "Xavier", record: "9–5", wins: 9, losses: 5, pf: 1803.50, pa: 1859.42, divRecord: "6–2", icon: "🏰", color: "#c05b2a", divRank: 1, finalRank: 3 },
-      infinity: { name: "To infinity and Bijan", ownerId: "ian_farroll", owner: "Ian Farroll", division: "Xavier", record: "8–6", wins: 8, losses: 6, pf: 1905.62, pa: 1798.16, divRecord: "3–5", icon: "👑", color: "#b78d0a", divRank: 2, finalRank: 5 },
-      first: { name: "First and Ted", ownerId: "ted_williams", owner: "Ted Williams", division: "Xavier", record: "7–7", wins: 7, losses: 7, pf: 1818.06, pa: 1860.08, divRecord: "4–4", icon: "🏇", color: "#7c3945", divRank: 3, finalRank: 2 },
-      hamilton: { name: "Hamilton Administration", ownerId: "niko_nadreau", owner: "Niko Nadreau", division: "Xavier", record: "7–7", wins: 7, losses: 7, pf: 1761.60, pa: 1714.22, divRecord: "5–3", icon: "🎭", color: "#304f91", divRank: 4, finalRank: 8 },
-      metcalf: { name: "How I Metcalf Your Mother", ownerId: "jp_torack", owner: "JP Torack", division: "Xavier", record: "7–7", wins: 7, losses: 7, pf: 1590.10, pa: 1649.80, divRecord: "2–6", icon: "🐿️", color: "#9d542e", divRank: 5, finalRank: 10 },
-
-      left: { name: "The Left Tacklers", ownerId: "nathan_rich", owner: "Nathan Rich", division: "Ignatius", record: "7–7", wins: 7, losses: 7, pf: 1795.82, pa: 1736.54, divRecord: "4–4", icon: "🛡️", color: "#166a83", divRank: 1, finalRank: 1 },
-      amon: { name: "Amon a Mission", ownerId: "grant_thornberry", owner: "Grant Thornberry", division: "Ignatius", record: "7–7", wins: 7, losses: 7, pf: 1772.44, pa: 1727.98, divRecord: "4–4", icon: "🤖", color: "#536fa8", divRank: 2, finalRank: 4 },
-      jared: { name: "Jared's Pack Attack", ownerId: "jared_thornberry", owner: "Jared Thornberry", division: "Ignatius", record: "6–8", wins: 6, losses: 8, pf: 1705.68, pa: 1689.30, divRecord: "5–3", icon: "🟣", color: "#4d3f93", divRank: 3, finalRank: 6 },
-      kareem: { name: "Team Kareem Pie 🍑", ownerId: "matthew_kluba", owner: "Matthew Kluba", division: "Ignatius", record: "6–8", wins: 6, losses: 8, pf: 1860.06, pa: 1863.30, divRecord: "4–4", icon: "🏈", color: "#719b70", divRank: 4, finalRank: 9 },
-      hawaii: { name: "Hawaii McLovins VIII", ownerId: "matt_windler", owner: "Matt Windler", division: "Ignatius", record: "6–8", wins: 6, losses: 8, pf: 1666.26, pa: 1780.34, divRecord: "3–5", icon: "🌴", color: "#3a3c9d", divRank: 5, finalRank: 7 }
+      yung: { name: "Yung Gravy Fan Page", ownerId: "jp_torack", owner: "JP Torack", division: null, record: "10–4", wins: 10, losses: 4, pf: 1881.56, pa: 1616.36, divRecord: null, icon: "😎", color: "#9d542e", regRank: 1, finalRank: 2 },
+      hamilton: { name: "Hamilton Administration", ownerId: "niko_nadreau", owner: "Niko Nadreau", division: null, record: "9–5", wins: 9, losses: 5, pf: 1841.80, pa: 1556.94, divRecord: null, icon: "🎭", color: "#304f91", regRank: 2, finalRank: 1 },
+      zach: { name: "Zach Milfson", ownerId: "jared_thornberry", owner: "Jared Thornberry", division: null, record: "8–6", wins: 8, losses: 6, pf: 1779.16, pa: 1763.98, divRecord: null, icon: "🤖", color: "#6f4ab5", regRank: 3, finalRank: 4 },
+      left: { name: "The Left Tacklers", ownerId: "nathan_rich", owner: "Nathan Rich", division: null, record: "8–6", wins: 8, losses: 6, pf: 1753.20, pa: 1682.36, divRecord: null, icon: "🛡️", color: "#166a83", regRank: 4, finalRank: 3 },
+      ridley: { name: "Ridley Me This", ownerId: "ian_farroll", owner: "Ian Farroll", division: null, record: "8–6", wins: 8, losses: 6, pf: 1685.44, pa: 1786.18, divRecord: null, icon: "🏃", color: "#4f7558", regRank: 5, finalRank: 6 },
+      steeler: { name: "Steeler Virginity", ownerId: "matthew_kluba", owner: "Matthew Kluba", division: null, record: "6–8", wins: 6, losses: 8, pf: 1645.42, pa: 1633.44, divRecord: null, icon: "🏈", color: "#719b70", regRank: 6, finalRank: 5 },
+      matt: { name: "MattWindy", ownerId: "matt_windler", owner: "Matt Windler", division: null, record: "6–8", wins: 6, losses: 8, pf: 1599.00, pa: 1676.52, divRecord: null, icon: "🌴", color: "#3a3c9d", regRank: 7, finalRank: 7 },
+      larry: { name: "larrylarry69", ownerId: "grant_thornberry", owner: "Grant Thornberry", division: null, record: "6–8", wins: 6, losses: 8, pf: 1546.48, pa: 1619.88, divRecord: null, icon: "🦹", color: "#b14e3c", regRank: 8, finalRank: 9 },
+      smell: { name: "Smell My Pittman", ownerId: "ted_williams", owner: "Ted Williams", division: null, record: "5–9", wins: 5, losses: 9, pf: 1557.82, pa: 1753.10, divRecord: null, icon: "🟣", color: "#7c3945", regRank: 9, finalRank: 8 },
+      olave: { name: "Olave Garden", ownerId: "charlie_vonderheid", owner: "Charlie Vonderheid", division: null, record: "4–10", wins: 4, losses: 10, pf: 1410.06, pa: 1611.18, divRecord: null, icon: "🍝", color: "#c05b2a", regRank: 10, finalRank: 10 }
     };
 
     const regularGames = [
-      [1, "first", 113.88, "game", 147.08], [1, "hamilton", 105.08, "kareem", 113.88], [1, "infinity", 102.92, "metcalf", 107.34], [1, "left", 103.36, "jared", 115.60], [1, "amon", 148.56, "hawaii", 117.12],
-      [2, "infinity", 159.68, "first", 133.24], [2, "game", 110.68, "metcalf", 100.74], [2, "kareem", 95.36, "left", 149.26], [2, "jared", 139.80, "hawaii", 94.52], [2, "amon", 114.20, "hamilton", 141.56],
-      [3, "jared", 105.78, "left", 112.16], [3, "kareem", 148.04, "infinity", 165.08], [3, "hawaii", 86.14, "metcalf", 106.88], [3, "first", 113.38, "amon", 107.10], [3, "game", 121.46, "hamilton", 120.92],
-      [4, "amon", 136.60, "kareem", 140.58], [4, "hawaii", 126.14, "hamilton", 103.50], [4, "metcalf", 133.50, "left", 132.26], [4, "infinity", 128.24, "game", 98.92], [4, "first", 137.92, "jared", 127.76],
-      [5, "metcalf", 134.84, "jared", 100.76], [5, "game", 92.06, "kareem", 174.70], [5, "left", 105.16, "hawaii", 123.88], [5, "first", 123.52, "hamilton", 127.64], [5, "infinity", 122.62, "amon", 128.14],
-      [6, "infinity", 114.62, "hamilton", 113.00], [6, "left", 120.00, "first", 101.26], [6, "game", 155.46, "metcalf", 101.70], [6, "jared", 135.92, "kareem", 150.90], [6, "hawaii", 88.32, "amon", 150.38],
-      [7, "hamilton", 101.12, "left", 106.94], [7, "infinity", 105.64, "metcalf", 122.38], [7, "amon", 112.74, "jared", 134.20], [7, "hawaii", 108.08, "game", 96.16], [7, "kareem", 134.80, "first", 135.64],
-      [8, "kareem", 129.70, "hamilton", 139.92], [8, "amon", 111.80, "infinity", 163.38], [8, "game", 162.34, "first", 155.58], [8, "metcalf", 124.70, "jared", 104.84], [8, "left", 136.20, "hawaii", 174.12],
-      [9, "amon", 130.38, "jared", 109.22], [9, "left", 150.34, "game", 166.60], [9, "hamilton", 168.80, "infinity", 124.50], [9, "metcalf", 103.24, "first", 145.42], [9, "hawaii", 110.30, "kareem", 124.40],
-      [10, "kareem", 131.94, "amon", 109.14], [10, "jared", 115.14, "infinity", 140.80], [10, "metcalf", 105.00, "hamilton", 118.30], [10, "first", 93.88, "left", 146.12], [10, "hawaii", 105.94, "game", 123.48],
-      [11, "metcalf", 101.08, "first", 108.64], [11, "infinity", 143.18, "game", 143.96], [11, "hamilton", 101.28, "jared", 150.84], [11, "kareem", 143.00, "hawaii", 155.78], [11, "left", 135.04, "amon", 116.18],
-      [12, "kareem", 91.56, "jared", 118.82], [12, "first", 131.70, "hawaii", 147.62], [12, "hamilton", 121.38, "metcalf", 117.16], [12, "game", 122.36, "amon", 151.88], [12, "left", 112.56, "infinity", 130.08],
-      [13, "amon", 133.18, "left", 126.56], [13, "metcalf", 149.84, "kareem", 135.20], [13, "first", 146.54, "hamilton", 111.02], [13, "game", 143.22, "jared", 116.16], [13, "hawaii", 117.38, "infinity", 140.28],
-      [14, "game", 119.72, "hamilton", 188.08], [14, "first", 177.46, "infinity", 164.60], [14, "left", 159.86, "kareem", 146.00], [14, "jared", 130.84, "hawaii", 110.92], [14, "metcalf", 81.70, "amon", 122.16]
+      [1, "olave", 129.88, "hamilton", 107.52], [1, "zach", 117.28, "steeler", 131.40], [1, "ridley", 144.22, "larry", 115.10], [1, "left", 98.12, "yung", 132.72], [1, "smell", 113.66, "matt", 147.96],
+      [2, "olave", 92.10, "matt", 97.96], [2, "left", 185.38, "ridley", 163.52], [2, "larry", 126.86, "steeler", 107.60], [2, "smell", 120.28, "zach", 144.58], [2, "hamilton", 130.12, "yung", 128.06],
+      [3, "olave", 75.14, "yung", 87.80], [3, "left", 110.96, "larry", 112.76], [3, "ridley", 128.32, "zach", 120.60], [3, "matt", 104.48, "steeler", 93.18], [3, "smell", 64.24, "hamilton", 138.10],
+      [4, "olave", 138.30, "smell", 143.02], [4, "left", 112.58, "steeler", 101.06], [4, "larry", 131.58, "zach", 145.72], [4, "ridley", 83.96, "hamilton", 186.56], [4, "yung", 121.78, "matt", 132.22],
+      [5, "olave", 82.64, "larry", 140.76], [5, "left", 122.30, "zach", 155.56], [5, "ridley", 90.56, "steeler", 102.98], [5, "smell", 120.96, "yung", 133.70], [5, "hamilton", 160.06, "matt", 91.82],
+      [6, "olave", 78.82, "ridley", 112.30], [6, "left", 132.18, "smell", 99.78], [6, "yung", 174.30, "zach", 133.56], [6, "hamilton", 114.10, "steeler", 93.52], [6, "larry", 120.42, "matt", 101.62],
+      [7, "olave", 119.90, "steeler", 118.42], [7, "left", 132.66, "matt", 117.72], [7, "hamilton", 123.12, "zach", 144.68], [7, "ridley", 86.10, "yung", 178.24], [7, "smell", 90.80, "larry", 85.14],
+      [8, "olave", 135.70, "zach", 113.62], [8, "left", 172.60, "hamilton", 131.90], [8, "smell", 158.78, "steeler", 114.82], [8, "ridley", 145.42, "matt", 108.24], [8, "larry", 130.44, "yung", 99.08],
+      [9, "olave", 77.70, "left", 102.40], [9, "zach", 130.10, "matt", 112.20], [9, "yung", 155.94, "steeler", 182.14], [9, "smell", 101.80, "ridley", 102.42], [9, "hamilton", 125.12, "larry", 113.06],
+      [10, "olave", 93.12, "hamilton", 127.80], [10, "zach", 79.20, "steeler", 128.44], [10, "ridley", 132.74, "larry", 84.42], [10, "left", 115.08, "yung", 122.90], [10, "smell", 119.18, "matt", 77.14],
+      [11, "olave", 116.14, "matt", 150.30], [11, "left", 133.64, "ridley", 92.96], [11, "larry", 99.68, "steeler", 162.06], [11, "smell", 125.22, "zach", 120.54], [11, "hamilton", 89.90, "yung", 93.60],
+      [12, "olave", 93.02, "yung", 133.84], [12, "left", 135.74, "larry", 107.58], [12, "ridley", 145.16, "zach", 149.52], [12, "matt", 126.46, "steeler", 61.30], [12, "smell", 92.08, "hamilton", 142.72],
+      [13, "olave", 98.74, "smell", 95.06], [13, "left", 111.90, "steeler", 144.72], [13, "larry", 98.30, "zach", 102.72], [13, "ridley", 142.04, "hamilton", 137.10], [13, "yung", 142.84, "matt", 116.60],
+      [14, "olave", 78.86, "larry", 80.38], [14, "left", 87.66, "zach", 121.48], [14, "ridley", 115.72, "steeler", 103.78], [14, "smell", 112.96, "yung", 176.76], [14, "hamilton", 127.68, "matt", 114.28]
     ];
 
     const postseason = {
-      game: [
-        { label: "Semifinal", week: 16, opponent: "first", teamScore: 130.64, oppScore: 194.72, site: "vs" }
-      ],
-      infinity: [
-        { label: "Quarterfinal", week: 15, opponent: "first", teamScore: 109.80, oppScore: 138.94, site: "vs" }
-      ],
-      first: [
-        { label: "Quarterfinal", week: 15, opponent: "infinity", teamScore: 138.94, oppScore: 109.80, site: "vs" },
-        { label: "Semifinal", week: 16, opponent: "game", teamScore: 194.72, oppScore: 130.64, site: "vs" },
-        { label: "Championship", week: 17, opponent: "left", teamScore: 128.58, oppScore: 150.58, site: "vs" }
-      ],
-      left: [
-        { label: "Semifinal", week: 16, opponent: "amon", teamScore: 142.48, oppScore: 112.16, site: "vs" },
-        { label: "Championship", week: 17, opponent: "first", teamScore: 150.58, oppScore: 128.58, site: "vs" }
-      ],
-      amon: [
-        { label: "Quarterfinal", week: 15, opponent: "jared", teamScore: 129.44, oppScore: 108.44, site: "vs" },
-        { label: "Semifinal", week: 16, opponent: "left", teamScore: 112.16, oppScore: 142.48, site: "vs" }
-      ],
-      jared: [
-        { label: "Quarterfinal", week: 15, opponent: "amon", teamScore: 108.44, oppScore: 129.44, site: "vs" }
-      ],
-      metcalf: [
-        { label: "Losers Bracket · Game 1", week: 15, opponent: "hamilton", teamScore: 119.86, oppScore: 168.58, site: "vs" },
-        { label: "Losers Bracket · Game 3", week: 16, opponent: "hawaii", teamScore: 138.64, oppScore: 166.42, site: "vs" },
-        { label: "Losers Bracket · Game 4", week: 17, opponent: "kareem", teamScore: 145.52, oppScore: 171.06, site: "vs" }
+      yung: [
+        { label: "Semifinal", week: 16, opponent: "left", teamScore: 119.30, oppScore: 101.74, site: "vs" },
+        { label: "Championship", week: 17, opponent: "hamilton", teamScore: 82.98, oppScore: 120.66, site: "vs" }
       ],
       hamilton: [
-        { label: "Losers Bracket · Game 1", week: 15, opponent: "metcalf", teamScore: 168.58, oppScore: 119.86, site: "vs" }
+        { label: "Semifinal", week: 16, opponent: "zach", teamScore: 164.86, oppScore: 119.98, site: "vs" },
+        { label: "Championship", week: 17, opponent: "yung", teamScore: 120.66, oppScore: 82.98, site: "vs" }
       ],
-      kareem: [
-        { label: "Losers Bracket · Game 2", week: 15, opponent: "hawaii", teamScore: 107.02, oppScore: 151.40, site: "vs" },
-        { label: "Losers Bracket · Game 4", week: 17, opponent: "metcalf", teamScore: 171.06, oppScore: 145.52, site: "vs" }
+      zach: [
+        { label: "Quarterfinal", week: 15, opponent: "steeler", teamScore: 137.26, oppScore: 88.74, site: "vs" },
+        { label: "Semifinal", week: 16, opponent: "hamilton", teamScore: 119.98, oppScore: 164.86, site: "vs" }
       ],
-      hawaii: [
-        { label: "Losers Bracket · Game 2", week: 15, opponent: "kareem", teamScore: 151.40, oppScore: 107.02, site: "vs" },
-        { label: "Losers Bracket · Game 3", week: 16, opponent: "metcalf", teamScore: 166.42, oppScore: 138.64, site: "vs" }
+      left: [
+        { label: "Quarterfinal", week: 15, opponent: "ridley", teamScore: 128.10, oppScore: 114.12, site: "vs" },
+        { label: "Semifinal", week: 16, opponent: "yung", teamScore: 101.74, oppScore: 119.30, site: "vs" }
+      ],
+      ridley: [
+        { label: "Quarterfinal", week: 15, opponent: "left", teamScore: 114.12, oppScore: 128.10, site: "vs" },
+        { label: "5th Place Game", week: 16, opponent: "steeler", teamScore: 91.36, oppScore: 112.86, site: "vs" }
+      ],
+      steeler: [
+        { label: "Quarterfinal", week: 15, opponent: "zach", teamScore: 88.74, oppScore: 137.26, site: "vs" },
+        { label: "5th Place Game", week: 16, opponent: "ridley", teamScore: 112.86, oppScore: 91.36, site: "vs" }
+      ],
+      matt: [
+        { label: "Losers Bracket · Round 1", week: 15, opponent: "olave", teamScore: 137.42, oppScore: 96.74, site: "vs" },
+        { label: "Losers Bracket · 7th Place Game", week: 16, opponent: "smell", teamScore: 131.36, oppScore: 81.26, site: "vs" }
+      ],
+      larry: [
+        { label: "Losers Bracket · Round 1", week: 15, opponent: "smell", teamScore: 88.48, oppScore: 103.48, site: "vs" },
+        { label: "Losers Bracket · Last-Place Game", week: 16, opponent: "olave", teamScore: 134.60, oppScore: 104.60, site: "vs" }
+      ],
+      smell: [
+        { label: "Losers Bracket · Round 1", week: 15, opponent: "larry", teamScore: 103.48, oppScore: 88.48, site: "vs" },
+        { label: "Losers Bracket · 7th Place Game", week: 16, opponent: "matt", teamScore: 81.26, oppScore: 131.36, site: "vs" }
+      ],
+      olave: [
+        { label: "Losers Bracket · Round 1", week: 15, opponent: "matt", teamScore: 96.74, oppScore: 137.42, site: "vs" },
+        { label: "Losers Bracket · Last-Place Game", week: 16, opponent: "larry", teamScore: 104.60, oppScore: 134.60, site: "vs" }
       ]
     };
 
-    const divisionOrder = {
-      Xavier: ["game", "infinity", "first", "hamilton", "metcalf"],
-      Ignatius: ["left", "amon", "jared", "kareem", "hawaii"]
-    };
+    const regularOrder = ["yung", "hamilton", "zach", "left", "ridley", "steeler", "matt", "larry", "smell", "olave"];
 
-    const finalOrder = ["left", "first", "game", "amon", "infinity", "jared", "hawaii", "hamilton", "kareem", "metcalf"];
+    const finalOrder = ["hamilton", "yung", "left", "zach", "steeler", "ridley", "matt", "smell", "larry", "olave"];
 
     const fmt = (n) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const pct = (t) => (t.wins / (t.wins + t.losses)).toFixed(3).replace(/^0/, "");
@@ -2570,18 +2494,19 @@
 
     function renderDivisions() {
       const root = document.getElementById("divisionGrid");
-      root.innerHTML = Object.entries(divisionOrder).map(([division, ids]) => `
+      root.innerHTML = `
         <article class="card">
           <div class="card-head">
-            <h3><span class="division-chip">${division.charAt(0)}</span>${division}</h3>
-            <span>5 teams</span>
+            <h3><span class="division-chip">R</span>Regular Season Standings</h3>
+            <span>10 teams · no divisions</span>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th>PCT</th><th>PF</th><th>PA</th><th>DIFF</th></tr></thead>
               <tbody>
-                ${ids.map((id, i) => {
+                ${regularOrder.map((id, i) => {
                   const t = teams[id];
+                  const diff = t.pf - t.pa;
                   return `<tr>
                     <td class="rank">${i + 1}</td>
                     <td class="team-cell">
@@ -2591,20 +2516,20 @@
                         <span class="mobile-stat"><small>PCT</small><strong>${pct(t)}</strong></span>
                         <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
                         <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
-                        <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
+                        <span class="mobile-stat"><small>DIFF</small><strong class="${diff >= 0 ? "positive" : "negative"}">${diff >= 0 ? "+" : ""}${fmt(diff)}</strong></span>
                       </div>
                     </td>
                     <td class="record">${t.record}</td>
                     <td>${pct(t)}</td>
                     <td>${fmt(t.pf)}</td>
                     <td>${fmt(t.pa)}</td>
-                    <td>${t.divRecord}</td>
+                    <td class="${diff >= 0 ? "positive" : "negative"}">${diff >= 0 ? "+" : ""}${fmt(diff)}</td>
                   </tr>`;
                 }).join("")}
               </tbody>
             </table>
           </div>
-        </article>`).join("");
+        </article>`;
     }
 
     let finalSort = { key: "finalRank", direction: "asc" };
@@ -2762,9 +2687,9 @@
 
       const regular = scheduleFor(teamId);
       const post = postseason[teamId] || [];
-      const postTitle = ["metcalf", "hamilton", "kareem", "hawaii"].includes(teamId)
+      const postTitle = ["matt", "larry", "smell", "olave"].includes(teamId)
         ? "Losers Bracket"
-        : "Winner's Bracket";
+        : "Postseason";
       document.getElementById("drawerBody").innerHTML = `
         <section class="schedule-section">
           <div class="schedule-heading"><h3>Regular Season Schedule</h3><span>Weeks 1–14</span></div>
@@ -2830,7 +2755,7 @@
     });
 
     window.leagueHistorySeasonData = {
-      season: 2024,
+      season: 2022,
       ownerDirectory,
       teamOwnerMap: Object.fromEntries(
         Object.entries(teams).map(([teamId, team]) => [teamId, team.ownerId])
