@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="2024 fantasy football league history, standings, schedules, and playoff brackets." />
   <title>League History · 2024</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --ink: #0a1420;
@@ -23,6 +26,7 @@
       --shadow: 0 14px 34px rgba(6, 14, 26, 0.12);
       --shadow-lg: 0 26px 60px rgba(6, 14, 26, 0.18);
       --radius: 18px;
+      --font-display: 'Space Grotesk', Inter, ui-sans-serif, system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -1107,6 +1111,7 @@
       #regular td.rank,
       #final td.rank {
         grid-column: 1;
+        width: auto;
         color: #738090;
         font-size: 11px;
         text-align: center;
@@ -1993,6 +1998,69 @@
     @keyframes v2FadeUp {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- v3 visual overhaul: display type, richer hero, premium accents --- */
+    .hero h1,
+    .page-title h2,
+    .card-head h3,
+    .brand-title,
+    .outcome-team h2,
+    .outcome-score strong,
+    .champ-team h2,
+    .champ-score strong,
+    .drawer-team h2,
+    .drawer-stat strong,
+    .metric-card strong {
+      font-family: var(--font-display);
+      letter-spacing: -.02em;
+    }
+
+    .hero h1 { font-weight: 700; }
+    .brand-title { font-weight: 700; letter-spacing: -.01em; }
+
+    /* Richer hero backdrop with layered glow (vignette folded into the
+       background stack itself so it stays behind the hero-inner content,
+       rather than a ::after which would paint over the champion cards). */
+    .hero {
+      position: relative;
+      background:
+        linear-gradient(180deg, transparent 55%, rgba(4,10,18,.32) 100%),
+        radial-gradient(ellipse 620px 320px at 14% -10%, rgba(26, 99, 230, .38), transparent 60%),
+        radial-gradient(ellipse 460px 300px at 96% 120%, rgba(242, 169, 31, .22), transparent 62%),
+        linear-gradient(90deg, rgba(5, 15, 28, .98) 0%, rgba(15, 39, 64, .97) 54%, rgba(26, 99, 230, .82) 100%),
+        repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.03) 40px),
+        repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,.03) 40px);
+    }
+
+    /* Topbar gets a live gradient underline instead of a flat hairline */
+    .topbar { border-bottom: none; }
+    .topbar::after {
+      content: "";
+      display: block;
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue) 0%, var(--gold) 50%, var(--red) 100%);
+      opacity: .85;
+    }
+
+    /* Champion outcome card: slow gold sheen sweep (paints behind real content,
+       since ::before is first in paint order and the label/team/score are
+       normal-flow siblings that come after it). */
+    @media (prefers-reduced-motion: no-preference) {
+      .champion-outcome::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.28) 50%, transparent 60%);
+        background-size: 220% 100%;
+        background-position: -120% 0;
+        animation: v3Sheen 6s ease-in-out infinite;
+        pointer-events: none;
+      }
+    }
+    @keyframes v3Sheen {
+      0%, 15% { background-position: -120% 0; }
+      55%, 100% { background-position: 140% 0; }
     }
   </style>
 </head>
