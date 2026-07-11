@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="2022 fantasy football league history, standings, schedules, and playoff brackets." />
-  <title>League History · 2022</title>
+  <meta name="description" content="2021 fantasy football league history, standings, schedules, and playoff brackets." />
+  <title>League History · 2021</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -2077,6 +2077,59 @@
       0%, 15% { background-position: -120% 0; }
       55%, 100% { background-position: 140% 0; }
     }
+  
+    .mobile-quarterfinal-stack {
+      display: grid;
+      gap: 7px;
+    }
+
+    .three-round-losers {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .official-last-place-matchup {
+      border: 2px solid #c94b43;
+      background: linear-gradient(180deg, #fff, #fff7f6);
+    }
+
+    .official-last-place-matchup::before {
+      content: "OFFICIAL LAST: ONE EN";
+      position: absolute;
+      right: 10px;
+      top: -10px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: #c94b43;
+      color: #fff;
+      font-size: 7px;
+      font-weight: 1000;
+      letter-spacing: .08em;
+    }
+
+    .official-last-row,
+    .official-last-row .score {
+      color: #9e302b;
+    }
+
+    .outcome-note {
+      position: relative;
+      z-index: 1;
+      margin-top: 9px;
+      color: #c7d4df;
+      font-size: 8px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 700px) {
+      .three-round-losers {
+        grid-template-columns: 1fr;
+      }
+      .outcome-note {
+        margin-top: 7px;
+        font-size: 7px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -2096,8 +2149,8 @@
           <option value="2025">2025</option>
           <option value="2024">2024</option>
           <option value="2023">2023</option>
-          <option value="2022" selected>2022</option>
-          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+          <option value="2021" selected>2021</option>
         </select>
       </label>
     </div>
@@ -2106,46 +2159,29 @@
   <section class="hero">
     <div class="hero-inner outcome-grid">
       <article class="outcome-card champion-outcome">
-        <div class="outcome-label">🏆 2022 Champion</div>
+        <div class="outcome-label">🏆 2021 Champion</div>
         <div class="outcome-team">
           <span class="team-badge" style="--team-color:#304f91">🎭</span>
-          <div>
-            <h2>Hamilton Administration</h2>
-            <span>Niko Nadreau · 9–5 regular season</span>
-          </div>
+          <div><h2>Hamilton Administration</h2><span>Niko Nadreau · 11–3 regular season</span></div>
         </div>
         <div class="outcome-score">
-          <div class="outcome-score-side">
-            <strong>120.66</strong>
-            <small>Hamilton Administration</small>
-          </div>
+          <div class="outcome-score-side"><strong>166.60</strong><small>Hamilton Administration</small></div>
           <span class="outcome-status">FINAL</span>
-          <div class="outcome-score-side">
-            <strong>82.98</strong>
-            <small>Yung Gravy Fan Page</small>
-          </div>
+          <div class="outcome-score-side"><strong>152.74</strong><small>Team Kareem Pie 🍑</small></div>
         </div>
       </article>
-      <article class="outcome-card loser-outcome">
-        <div class="outcome-label">💩 2022 Last Place</div>
+      <article class="outcome-card loser-outcome official-loser-outcome">
+        <div class="outcome-label">💩 2021 Official Last Place</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#c05b2a">🍝</span>
-          <div>
-            <h2>Olave Garden</h2>
-            <span>Charlie Vonderheid · 4–10 regular season</span>
-          </div>
+          <span class="team-badge" style="--team-color:#c05b2a">🌞</span>
+          <div><h2>One En</h2><span>Charlie Vonderheid · 3–11 regular season</span></div>
         </div>
         <div class="outcome-score">
-          <div class="outcome-score-side">
-            <strong>104.60</strong>
-            <small>Olave Garden</small>
-          </div>
-          <span class="outcome-status">FINAL</span>
-          <div class="outcome-score-side">
-            <strong>134.60</strong>
-            <small>larrylarry69</small>
-          </div>
+          <div class="outcome-score-side"><strong>111.48</strong><small>One En</small></div>
+          <span class="outcome-status">EXEMPTION</span>
+          <div class="outcome-score-side"><strong>99.46</strong><small>Kroenke Sucks</small></div>
         </div>
+        <div class="outcome-note">Kroenke lost the game, but One En received the official last-place designation under the teacher exemption.</div>
       </article>
     </div>
   </section>
@@ -2154,7 +2190,7 @@
 
     <div class="page-toolbar">
       <div class="page-title">
-        <h2>2022 Season</h2>
+        <h2>2021 Season</h2>
       </div>
       <div class="view-tabs" role="tablist" aria-label="Season views">
         <button class="view-tab active" data-view="regular" role="tab" aria-selected="true">Regular Season</button>
@@ -2164,8 +2200,8 @@
     </div>
 
     <section id="regular" class="view-panel active" role="tabpanel">
-      <div class="division-grid single-standings" id="divisionGrid"></div>
-      <div class="source-note">The 2022 season used one league-wide table with no divisions. Seeds are taken directly from this regular-season order.</div>
+      <div class="division-grid" id="divisionGrid"></div>
+      <div class="source-note">The 2021 divisions determined only the two division champions, who received the #1 and #2 playoff seeds.</div>
     </section>
 
     <section id="final" class="view-panel" role="tabpanel">
@@ -2206,166 +2242,162 @@
           </table>
         </div>
       </div>
+      <div class="source-note">The table preserves the actual 12-team finish. One En is the official league loser for 2021 because Kroenke Sucks was exempt from the punishment.</div>
     </section>
 
     <section id="bracket" class="view-panel" role="tabpanel">
-      <div class="card bracket-card winners-card">
-        <div class="bracket-head">
-          <div><h3>Winner's Bracket</h3></div>
-        </div>
 
+      <div class="card bracket-card winners-card">
+        <div class="bracket-head"><div><h3>Winner's Bracket</h3></div></div>
         <div class="bracket-scroll">
           <div class="bracket winners-bracket">
             <div class="round round-1">
               <div class="round-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
               <div class="round-games">
-                <div class="matchup bye">
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span></span></div>
-                  <div class="bye-label">Bye</div>
-                </div>
-
-                <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="ridley" aria-label="Open Ridley Me This schedule"><span class="mini-badge" style="--team-color:#4f7558">🏃</span><span class="bracket-team-name">Ridley Me This</span></button><span class="score">114.12</span></div>
-                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">128.10</span></div>
-                </div>
-
-                <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="steeler" aria-label="Open Steeler Virginity schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Steeler Virginity</span></button><span class="score">88.74</span></div>
-                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">137.26</span></div>
-                </div>
-
-                <div class="matchup bye">
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span></span></div>
-                  <div class="bye-label">Bye</div>
-                </div>
+                <div class="matchup"><div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">84.36</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">177.90</span></div></div>
+                <div class="matchup"><div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="inactive" aria-label="Open Team Inactive schedule"><span class="mini-badge" style="--team-color:#3296a8">💤</span><span class="bracket-team-name">Team Inactive</span></button><span class="score">75.46</span></div><div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945">🏎️</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">121.80</span></div></div>
+                <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">111.58</span></div><div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93">🟣</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">97.92</span></div></div>
+                <div class="matchup"><div class="matchup-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="beatcev" aria-label="Open Beat Cev schedule"><span class="mini-badge" style="--team-color:#557866">🧔</span><span class="bracket-team-name">Beat Cev</span></button><span class="score">73.38</span></div><div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">73.84</span></div></div>
               </div>
             </div>
-
             <div class="round round-2">
               <div class="round-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
               <div class="round-games">
-                <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.74</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">119.30</span></div>
-                </div>
-
-                <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">119.98</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">164.86</span></div>
-                </div>
+                <div class="matchup"><div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945">🏎️</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">143.72</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">183.66</span></div></div>
+                <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">133.10</span></div><div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.64</span></div></div>
               </div>
             </div>
-
             <div class="round round-3">
               <div class="round-title"><strong>Championship</strong><span>NFL Week 17</span></div>
               <div class="round-games">
-                <div class="matchup championship-matchup">
-                  <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">82.98</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">120.66</span></div>
-                </div>
+                <div class="matchup championship-matchup"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="mobile-winner-tree" aria-label="2022 mobile winner's bracket">
+        <div class="mobile-winner-tree" aria-label="2021 mobile winner's bracket">
           <section class="mobile-bracket-stage opening-stage">
             <div class="mobile-stage-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
             <div class="mobile-lane-grid">
               <div class="mobile-bracket-lane">
                 <div class="mobile-lane-label">Top Half</div>
-                <div class="matchup mobile-bye-card">
-                  <div class="matchup-kicker">#1 Seed · Bye</div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span></span></div>
-                </div>
-                <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="ridley" aria-label="Open Ridley Me This schedule"><span class="mini-badge" style="--team-color:#4f7558">🏃</span><span class="bracket-team-name">Ridley Me This</span></button><span class="score">114.12</span></div>
-                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">128.10</span></div>
+                <div class="mobile-quarterfinal-stack">
+                  <div class="matchup"><div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">84.36</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">177.90</span></div></div>
+                  <div class="matchup"><div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="inactive" aria-label="Open Team Inactive schedule"><span class="mini-badge" style="--team-color:#3296a8">💤</span><span class="bracket-team-name">Team Inactive</span></button><span class="score">75.46</span></div><div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945">🏎️</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">121.80</span></div></div>
                 </div>
               </div>
-
               <div class="mobile-bracket-lane">
                 <div class="mobile-lane-label">Bottom Half</div>
-                <div class="matchup mobile-bye-card">
-                  <div class="matchup-kicker">#2 Seed · Bye</div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span></span></div>
-                </div>
-                <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="steeler" aria-label="Open Steeler Virginity schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Steeler Virginity</span></button><span class="score">88.74</span></div>
-                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">137.26</span></div>
+                <div class="mobile-quarterfinal-stack">
+                  <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">111.58</span></div><div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93">🟣</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">97.92</span></div></div>
+                  <div class="matchup"><div class="matchup-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="beatcev" aria-label="Open Beat Cev schedule"><span class="mini-badge" style="--team-color:#557866">🧔</span><span class="bracket-team-name">Beat Cev</span></button><span class="score">73.38</span></div><div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">73.84</span></div></div>
                 </div>
               </div>
             </div>
           </section>
-
           <section class="mobile-bracket-stage semifinal-stage">
             <div class="mobile-stage-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
             <div class="mobile-lane-grid">
-              <div class="mobile-bracket-lane mobile-semifinal-lane">
-                <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.74</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">119.30</span></div>
-                </div>
-              </div>
-              <div class="mobile-bracket-lane mobile-semifinal-lane">
-                <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">119.98</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">164.86</span></div>
-                </div>
-              </div>
+              <div class="mobile-bracket-lane mobile-semifinal-lane"><div class="matchup"><div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945">🏎️</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">143.72</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">183.66</span></div></div></div>
+              <div class="mobile-bracket-lane mobile-semifinal-lane"><div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">133.10</span></div><div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.64</span></div></div></div>
             </div>
             <div class="mobile-merge-lines" aria-hidden="true"><span></span><span></span></div>
           </section>
-
           <section class="mobile-bracket-stage championship-stage">
             <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
-            <div class="matchup championship-matchup mobile-championship-card">
-              <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">82.98</span></div>
-              <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">120.66</span></div>
-            </div>
+            <div class="matchup championship-matchup mobile-championship-card"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div>
           </section>
         </div>
       </div>
 
       <div class="card bracket-card losers-card">
-        <div class="bracket-head"><div><h3>Losers Bracket</h3></div></div>
+        <div class="bracket-head">
+          <div>
+            <h3>Losers Bracket</h3>
+          </div>
+        </div>
+
         <div class="bracket-scroll">
-          <div class="bracket losers-bracket two-round-bracket">
+          <div class="bracket losers-bracket">
             <div class="round round-1">
-              <div class="round-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
+              <div class="round-title"><strong>Opening Round</strong><span>NFL Week 15</span></div>
               <div class="round-games">
                 <div class="matchup">
                   <div class="matchup-kicker">Game 1</div>
-                  <div class="matchup-row winner"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="matt" aria-label="Open MattWindy schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">MattWindy</span></button><span class="score">137.42</span></div>
-                  <div class="matchup-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="olave" aria-label="Open Olave Garden schedule"><span class="mini-badge" style="--team-color:#c05b2a">🍝</span><span class="bracket-team-name">Olave Garden</span></button><span class="score">96.74</span></div>
-                  <div class="matchup-path">Loser → Last-Place Game</div>
+                  <div class="matchup-row winner">
+                    <span class="seed">#10</span>
+                    <button type="button" class="mini-team bracket-team-button" data-team="skeet" aria-label="Open St. Louis Skeet and Trap schedule"><span class="mini-badge" style="--team-color:#b14e3c">🎯</span><span class="bracket-team-name">St. Louis Skeet and Trap</span></button>
+                    <span class="score">102.14</span>
+                  </div>
+                  <div class="matchup-row">
+                    <span class="seed">#9</span>
+                    <button type="button" class="mini-team bracket-team-button" data-team="rip" aria-label="Open RIP Julio schedule"><span class="mini-badge" style="--team-color:#6f3c3c">💀</span><span class="bracket-team-name">RIP Julio</span></button>
+                    <span class="score">96.28</span>
+                  </div>
+                  <div class="matchup-path">Loser → Game 3</div>
                 </div>
 
                 <div class="matchup">
                   <div class="matchup-kicker">Game 2</div>
-                  <div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="larry" aria-label="Open larrylarry69 schedule"><span class="mini-badge" style="--team-color:#b14e3c">🦹</span><span class="bracket-team-name">larrylarry69</span></button><span class="score">88.48</span></div>
-                  <div class="matchup-row winner"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="smell" aria-label="Open Smell My Pittman schedule"><span class="mini-badge" style="--team-color:#7c3945">🟣</span><span class="bracket-team-name">Smell My Pittman</span></button><span class="score">103.48</span></div>
-                  <div class="matchup-path">Loser → Last-Place Game</div>
+                  <div class="matchup-row">
+                    <span class="seed">#12</span>
+                    <button type="button" class="mini-team bracket-team-button" data-team="kroenke" aria-label="Open Kroenke Sucks schedule"><span class="mini-badge" style="--team-color:#9a8b1e">🟡</span><span class="bracket-team-name">Kroenke Sucks</span></button>
+                    <span class="score">60.76</span>
+                  </div>
+                  <div class="matchup-row winner">
+                    <span class="seed">#11</span>
+                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a">🌞</span><span class="bracket-team-name">One En</span></button>
+                    <span class="score">139.04</span>
+                  </div>
+                  <div class="matchup-path">Winner → Game 3 · Loser → Game 4</div>
                 </div>
               </div>
             </div>
 
             <div class="round round-2">
-              <div class="round-title"><strong>Last-Place Game</strong><span>NFL Week 16</span></div>
+              <div class="round-title"><strong>Survival Game</strong><span>NFL Week 16</span></div>
+              <div class="round-games">
+                <div class="matchup">
+                  <div class="matchup-kicker">Game 3</div>
+                  <div class="matchup-row winner">
+                    <span class="seed">#9</span>
+                    <button type="button" class="mini-team bracket-team-button" data-team="rip" aria-label="Open RIP Julio schedule"><span class="mini-badge" style="--team-color:#6f3c3c">💀</span><span class="bracket-team-name">RIP Julio</span></button>
+                    <span class="score">99.40</span>
+                  </div>
+                  <div class="matchup-row">
+                    <span class="seed">#11</span>
+                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a">🌞</span><span class="bracket-team-name">One En</span></button>
+                    <span class="score">77.04</span>
+                  </div>
+                  <div class="matchup-path">Loser → Game 4</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="round round-3">
+              <div class="round-title"><strong>Last-Place Game</strong><span>NFL Week 17</span></div>
               <div class="round-games">
                 <div class="matchup last-place-matchup">
-                  <div class="matchup-kicker">Final</div>
-                  <div class="matchup-row winner"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="larry" aria-label="Open larrylarry69 schedule"><span class="mini-badge" style="--team-color:#b14e3c">🦹</span><span class="bracket-team-name">larrylarry69</span></button><span class="score">134.60</span></div>
-                  <div class="matchup-row last-place-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="olave" aria-label="Open Olave Garden schedule"><span class="mini-badge" style="--team-color:#c05b2a">🍝</span><span class="bracket-team-name">Olave Garden</span></button><span class="score">104.60</span></div>
-                  <div class="matchup-path">Loser = last place in the league</div>
+                  <div class="matchup-kicker">Game 4</div>
+                  <div class="matchup-row last-place-row">
+                    <span class="seed">#11</span>
+                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a">🌞</span><span class="bracket-team-name">One En</span></button>
+                    <span class="score">111.48</span>
+                  </div>
+                  <div class="matchup-row">
+                    <span class="seed">#12</span>
+                    <button type="button" class="mini-team bracket-team-button" data-team="kroenke" aria-label="Open Kroenke Sucks schedule"><span class="mini-badge" style="--team-color:#9a8b1e">🟡</span><span class="bracket-team-name">Kroenke Sucks</span></button>
+                    <span class="score">99.46</span>
+                  </div>
+                  <div class="matchup-path">One En = official last place under the teacher exemption</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <div class="source-note">The 2022 season used Sleeper. The Toilet Bowl was manually audited as #7 vs #10 and #8 vs #9 in Week 15, followed by a one-week last-place game between the two losers in Week 16.</div>
+      <div class="source-note">One En is the official 2021 league loser under the teacher-exemption rule, despite Kroenke Sucks losing Game 4.</div>
     </section>
   </main>
 
@@ -2385,100 +2417,97 @@
     <div class="drawer-body" id="drawerBody"></div>
   </aside>
 
-  <footer class="footer">League History · 2022 season archive</footer>
+  <footer class="footer">League History · 2021 season archive</footer>
 
   <script>
     // Stable owner IDs are intentionally separate from team names so future
     // history dashboards can aggregate renamed franchises by owner.
-    const ownerDirectory = {
-      charlie_vonderheid: { name: "Charlie Vonderheid" },
-      ian_farroll: { name: "Ian Farroll" },
-      ted_williams: { name: "Ted Williams" },
-      niko_nadreau: { name: "Niko Nadreau" },
-      jp_torack: { name: "JP Torack" },
-      nathan_rich: { name: "Nathan Rich" },
-      grant_thornberry: { name: "Grant Thornberry" },
-      jared_thornberry: { name: "Jared Thornberry" },
-      matthew_kluba: { name: "Matthew Kluba" },
-      matt_windler: { name: "Matt Windler" }
-    };
+    const ownerDirectory = {"charlie_vonderheid":{"name":"Charlie Vonderheid"},"ian_farroll":{"name":"Ian Farroll"},"ted_williams":{"name":"Ted Williams"},"niko_nadreau":{"name":"Niko Nadreau"},"jp_torack":{"name":"JP Torack"},"nathan_rich":{"name":"Nathan Rich"},"grant_thornberry":{"name":"Grant Thornberry"},"jared_thornberry":{"name":"Jared Thornberry"},"matthew_kluba":{"name":"Matthew Kluba"},"matt_windler":{"name":"Matt Windler"},"jack_figge":{"name":"Jack Figge"},"stephen_deves":{"name":"Stephen Deves"}};
 
     const teams = {
-      yung: { name: "Yung Gravy Fan Page", ownerId: "jp_torack", owner: "JP Torack", division: null, record: "10–4", wins: 10, losses: 4, pf: 1881.56, pa: 1616.36, divRecord: null, icon: "😎", color: "#9d542e", regRank: 1, finalRank: 2 },
-      hamilton: { name: "Hamilton Administration", ownerId: "niko_nadreau", owner: "Niko Nadreau", division: null, record: "9–5", wins: 9, losses: 5, pf: 1841.80, pa: 1556.94, divRecord: null, icon: "🎭", color: "#304f91", regRank: 2, finalRank: 1 },
-      zach: { name: "Zach Milfson", ownerId: "jared_thornberry", owner: "Jared Thornberry", division: null, record: "8–6", wins: 8, losses: 6, pf: 1779.16, pa: 1763.98, divRecord: null, icon: "🤖", color: "#6f4ab5", regRank: 3, finalRank: 4 },
-      left: { name: "The Left Tacklers", ownerId: "nathan_rich", owner: "Nathan Rich", division: null, record: "8–6", wins: 8, losses: 6, pf: 1753.20, pa: 1682.36, divRecord: null, icon: "🛡️", color: "#166a83", regRank: 4, finalRank: 3 },
-      ridley: { name: "Ridley Me This", ownerId: "ian_farroll", owner: "Ian Farroll", division: null, record: "8–6", wins: 8, losses: 6, pf: 1685.44, pa: 1786.18, divRecord: null, icon: "🏃", color: "#4f7558", regRank: 5, finalRank: 6 },
-      steeler: { name: "Steeler Virginity", ownerId: "matthew_kluba", owner: "Matthew Kluba", division: null, record: "6–8", wins: 6, losses: 8, pf: 1645.42, pa: 1633.44, divRecord: null, icon: "🏈", color: "#719b70", regRank: 6, finalRank: 5 },
-      matt: { name: "MattWindy", ownerId: "matt_windler", owner: "Matt Windler", division: null, record: "6–8", wins: 6, losses: 8, pf: 1599.00, pa: 1676.52, divRecord: null, icon: "🌴", color: "#3a3c9d", regRank: 7, finalRank: 7 },
-      larry: { name: "larrylarry69", ownerId: "grant_thornberry", owner: "Grant Thornberry", division: null, record: "6–8", wins: 6, losses: 8, pf: 1546.48, pa: 1619.88, divRecord: null, icon: "🦹", color: "#b14e3c", regRank: 8, finalRank: 9 },
-      smell: { name: "Smell My Pittman", ownerId: "ted_williams", owner: "Ted Williams", division: null, record: "5–9", wins: 5, losses: 9, pf: 1557.82, pa: 1753.10, divRecord: null, icon: "🟣", color: "#7c3945", regRank: 9, finalRank: 8 },
-      olave: { name: "Olave Garden", ownerId: "charlie_vonderheid", owner: "Charlie Vonderheid", division: null, record: "4–10", wins: 4, losses: 10, pf: 1410.06, pa: 1611.18, divRecord: null, icon: "🍝", color: "#c05b2a", regRank: 10, finalRank: 10 }
+      hamilton: { name: "Hamilton Administration", ownerId: "niko_nadreau", owner: "Niko Nadreau", division: "Ignatius", record: "11\u20133", wins: 11, losses: 3, pf: 1850.00, pa: 1521.68, divRecord: "5\u20130", icon: "\ud83c\udfad", color: "#304f91", regRank: 1, finalRank: 1 },
+      left: { name: "The Left Tacklers", ownerId: "nathan_rich", owner: "Nathan Rich", division: "Xavier", record: "10\u20134", wins: 10, losses: 4, pf: 1821.72, pa: 1537.60, divRecord: "4\u20132", icon: "\ud83d\udee1\ufe0f", color: "#166a83", regRank: 2, finalRank: 3 },
+      packers: { name: "Team Go Packers", ownerId: "jared_thornberry", owner: "Jared Thornberry", division: "Xavier", record: "10\u20134", wins: 10, losses: 4, pf: 1771.40, pa: 1551.96, divRecord: "6\u20130", icon: "\ud83d\udfe3", color: "#4d3f93", regRank: 3, finalRank: 7 },
+      hotrod: { name: "Hot Rod Fan Club", ownerId: "ted_williams", owner: "Ted Williams", division: "Xavier", record: "10\u20134", wins: 10, losses: 4, pf: 1767.42, pa: 1542.30, divRecord: "2\u20134", icon: "\ud83c\udfce\ufe0f", color: "#7c3945", regRank: 4, finalRank: 4 },
+      inactive: { name: "Team Inactive", ownerId: "jack_figge", owner: "Jack Figge", division: "Xavier", record: "8\u20136", wins: 8, losses: 6, pf: 1527.08, pa: 1585.06, divRecord: "4\u20133", icon: "\ud83d\udca4", color: "#3296a8", regRank: 5, finalRank: 5, excludeFromHome: true },
+      kareem: { name: "Team Kareem Pie \ud83c\udf51", ownerId: "matthew_kluba", owner: "Matthew Kluba", division: "Xavier", record: "7\u20137", wins: 7, losses: 7, pf: 1700.76, pa: 1586.54, divRecord: "2\u20135", icon: "\ud83c\udfc8", color: "#719b70", regRank: 6, finalRank: 2 },
+      beatcev: { name: "Beat Cev", ownerId: "jp_torack", owner: "JP Torack", division: "Ignatius", record: "7\u20137", wins: 7, losses: 7, pf: 1651.08, pa: 1588.48, divRecord: "5\u20132", icon: "\ud83e\uddd4", color: "#557866", regRank: 7, finalRank: 8 },
+      hawaii: { name: "Hawaii McLovins VIII", ownerId: "matt_windler", owner: "Matt Windler", division: "Ignatius", record: "7\u20137", wins: 7, losses: 7, pf: 1487.50, pa: 1515.08, divRecord: "5\u20132", icon: "\ud83c\udf34", color: "#3a3c9d", regRank: 8, finalRank: 6 },
+      rip: { name: "RIP Julio", ownerId: "ian_farroll", owner: "Ian Farroll", division: "Ignatius", record: "6\u20138", wins: 6, losses: 8, pf: 1487.66, pa: 1762.42, divRecord: "2\u20133", icon: "\ud83d\udc80", color: "#6f3c3c", regRank: 9, finalRank: 10 },
+      skeet: { name: "St. Louis Skeet and Trap", ownerId: "grant_thornberry", owner: "Grant Thornberry", division: "Ignatius", record: "4\u201310", wins: 4, losses: 10, pf: 1520.28, pa: 1723.76, divRecord: "1\u20136", icon: "\ud83c\udfaf", color: "#b14e3c", regRank: 10, finalRank: 9 },
+      oneen: { name: "One En", ownerId: "charlie_vonderheid", owner: "Charlie Vonderheid", division: "Xavier", record: "3\u201311", wins: 3, losses: 11, pf: 1597.70, pa: 1797.32, divRecord: "1\u20135", icon: "\ud83c\udf1e", color: "#c05b2a", regRank: 11, finalRank: 11, officialLastPlace: true },
+      kroenke: { name: "Kroenke Sucks", ownerId: "stephen_deves", owner: "Stephen Deves", division: "Ignatius", record: "1\u201313", wins: 1, losses: 13, pf: 1161.82, pa: 1632.22, divRecord: "1\u20136", icon: "\ud83d\udfe1", color: "#9a8b1e", regRank: 12, finalRank: 12, excludeFromHome: true }
     };
 
     const regularGames = [
-      [1, "olave", 129.88, "hamilton", 107.52], [1, "zach", 117.28, "steeler", 131.40], [1, "ridley", 144.22, "larry", 115.10], [1, "left", 98.12, "yung", 132.72], [1, "smell", 113.66, "matt", 147.96],
-      [2, "olave", 92.10, "matt", 97.96], [2, "left", 185.38, "ridley", 163.52], [2, "larry", 126.86, "steeler", 107.60], [2, "smell", 120.28, "zach", 144.58], [2, "hamilton", 130.12, "yung", 128.06],
-      [3, "olave", 75.14, "yung", 87.80], [3, "left", 110.96, "larry", 112.76], [3, "ridley", 128.32, "zach", 120.60], [3, "matt", 104.48, "steeler", 93.18], [3, "smell", 64.24, "hamilton", 138.10],
-      [4, "olave", 138.30, "smell", 143.02], [4, "left", 112.58, "steeler", 101.06], [4, "larry", 131.58, "zach", 145.72], [4, "ridley", 83.96, "hamilton", 186.56], [4, "yung", 121.78, "matt", 132.22],
-      [5, "olave", 82.64, "larry", 140.76], [5, "left", 122.30, "zach", 155.56], [5, "ridley", 90.56, "steeler", 102.98], [5, "smell", 120.96, "yung", 133.70], [5, "hamilton", 160.06, "matt", 91.82],
-      [6, "olave", 78.82, "ridley", 112.30], [6, "left", 132.18, "smell", 99.78], [6, "yung", 174.30, "zach", 133.56], [6, "hamilton", 114.10, "steeler", 93.52], [6, "larry", 120.42, "matt", 101.62],
-      [7, "olave", 119.90, "steeler", 118.42], [7, "left", 132.66, "matt", 117.72], [7, "hamilton", 123.12, "zach", 144.68], [7, "ridley", 86.10, "yung", 178.24], [7, "smell", 90.80, "larry", 85.14],
-      [8, "olave", 135.70, "zach", 113.62], [8, "left", 172.60, "hamilton", 131.90], [8, "smell", 158.78, "steeler", 114.82], [8, "ridley", 145.42, "matt", 108.24], [8, "larry", 130.44, "yung", 99.08],
-      [9, "olave", 77.70, "left", 102.40], [9, "zach", 130.10, "matt", 112.20], [9, "yung", 155.94, "steeler", 182.14], [9, "smell", 101.80, "ridley", 102.42], [9, "hamilton", 125.12, "larry", 113.06],
-      [10, "olave", 93.12, "hamilton", 127.80], [10, "zach", 79.20, "steeler", 128.44], [10, "ridley", 132.74, "larry", 84.42], [10, "left", 115.08, "yung", 122.90], [10, "smell", 119.18, "matt", 77.14],
-      [11, "olave", 116.14, "matt", 150.30], [11, "left", 133.64, "ridley", 92.96], [11, "larry", 99.68, "steeler", 162.06], [11, "smell", 125.22, "zach", 120.54], [11, "hamilton", 89.90, "yung", 93.60],
-      [12, "olave", 93.02, "yung", 133.84], [12, "left", 135.74, "larry", 107.58], [12, "ridley", 145.16, "zach", 149.52], [12, "matt", 126.46, "steeler", 61.30], [12, "smell", 92.08, "hamilton", 142.72],
-      [13, "olave", 98.74, "smell", 95.06], [13, "left", 111.90, "steeler", 144.72], [13, "larry", 98.30, "zach", 102.72], [13, "ridley", 142.04, "hamilton", 137.10], [13, "yung", 142.84, "matt", 116.60],
-      [14, "olave", 78.86, "larry", 80.38], [14, "left", 87.66, "zach", 121.48], [14, "ridley", 115.72, "steeler", 103.78], [14, "smell", 112.96, "yung", 176.76], [14, "hamilton", 127.68, "matt", 114.28]
+      [1, "beatcev", 108.76, "packers", 110.32], [1, "oneen", 156.66, "hawaii", 164.78], [1, "left", 152.70, "hotrod", 108.90], [1, "kareem", 122.34, "hamilton", 97.90], [1, "rip", 135.42, "skeet", 110.90], [1, "inactive", 119.78, "kroenke", 119.64],
+      [2, "oneen", 116.04, "beatcev", 186.90], [2, "packers", 158.50, "left", 107.42], [2, "hawaii", 123.52, "hotrod", 133.76], [2, "rip", 116.98, "kareem", 94.98], [2, "hamilton", 132.60, "inactive", 122.00], [2, "skeet", 98.58, "kroenke", 118.62],
+      [3, "beatcev", 108.24, "left", 128.62], [3, "hotrod", 156.38, "oneen", 149.88], [3, "hawaii", 120.30, "packers", 96.34], [3, "kareem", 100.08, "inactive", 105.80], [3, "kroenke", 91.62, "rip", 132.72], [3, "skeet", 91.34, "hamilton", 150.24],
+      [4, "hotrod", 113.74, "beatcev", 97.02], [4, "left", 100.26, "hawaii", 83.72], [4, "oneen", 81.48, "packers", 127.62], [4, "kroenke", 88.90, "kareem", 136.42], [4, "inactive", 134.96, "skeet", 127.94], [4, "rip", 120.62, "hamilton", 133.92],
+      [5, "beatcev", 101.76, "hawaii", 82.28], [5, "packers", 172.06, "hotrod", 163.08], [5, "oneen", 140.72, "left", 145.88], [5, "kareem", 118.14, "skeet", 119.94], [5, "hamilton", 167.00, "kroenke", 61.90], [5, "rip", 123.68, "inactive", 117.54],
+      [6, "kareem", 179.14, "beatcev", 163.96], [6, "hamilton", 134.82, "packers", 133.60], [6, "rip", 127.30, "oneen", 108.60], [6, "inactive", 65.08, "left", 102.12], [6, "kroenke", 75.84, "hotrod", 130.68], [6, "skeet", 91.74, "hawaii", 146.18],
+      [7, "packers", 144.16, "kareem", 113.24], [7, "oneen", 98.58, "hamilton", 120.64], [7, "left", 171.20, "rip", 79.54], [7, "hotrod", 125.54, "inactive", 139.54], [7, "hawaii", 89.38, "kroenke", 63.26], [7, "beatcev", 92.14, "skeet", 117.92],
+      [8, "kareem", 134.86, "oneen", 83.42], [8, "hamilton", 129.90, "left", 115.54], [8, "rip", 77.30, "hotrod", 114.30], [8, "inactive", 127.70, "hawaii", 111.88], [8, "kroenke", 88.50, "beatcev", 109.76], [8, "skeet", 78.94, "packers", 118.36],
+      [9, "left", 127.38, "kareem", 105.58], [9, "hotrod", 103.74, "hamilton", 77.56], [9, "hawaii", 102.14, "rip", 94.40], [9, "beatcev", 93.48, "inactive", 73.82], [9, "packers", 111.50, "kroenke", 71.06], [9, "oneen", 116.74, "skeet", 92.64],
+      [10, "kareem", 75.94, "hotrod", 133.44], [10, "hamilton", 151.94, "hawaii", 62.12], [10, "rip", 88.40, "beatcev", 119.46], [10, "inactive", 86.60, "packers", 101.18], [10, "kroenke", 73.52, "oneen", 104.40], [10, "skeet", 134.24, "left", 108.00],
+      [11, "hawaii", 80.40, "kareem", 108.62], [11, "beatcev", 84.44, "hamilton", 148.56], [11, "packers", 165.60, "rip", 79.54], [11, "oneen", 144.28, "inactive", 106.58], [11, "left", 119.08, "kroenke", 74.40], [11, "hotrod", 108.00, "skeet", 102.40],
+      [12, "beatcev", 108.22, "kareem", 155.70], [12, "packers", 121.98, "hamilton", 155.80], [12, "oneen", 96.72, "rip", 102.10], [12, "left", 92.80, "inactive", 102.84], [12, "hotrod", 81.18, "kroenke", 71.08], [12, "hawaii", 137.80, "skeet", 95.52],
+      [13, "kareem", 113.20, "packers", 119.34], [13, "hamilton", 115.60, "oneen", 103.48], [13, "rip", 112.42, "left", 170.72], [13, "inactive", 130.22, "hotrod", 129.96], [13, "kroenke", 98.50, "hawaii", 103.12], [13, "skeet", 120.46, "beatcev", 148.32],
+      [14, "oneen", 96.70, "kareem", 142.52], [14, "left", 180.00, "hamilton", 133.52], [14, "hotrod", 164.72, "rip", 97.24], [14, "hawaii", 79.88, "inactive", 94.62], [14, "beatcev", 128.62, "kroenke", 64.98], [14, "packers", 90.84, "skeet", 137.72]
     ];
 
     const postseason = {
-      yung: [
-        { label: "Semifinal", week: 16, opponent: "left", teamScore: 119.30, oppScore: 101.74, site: "vs" },
-        { label: "Championship", week: 17, opponent: "hamilton", teamScore: 82.98, oppScore: 120.66, site: "vs" }
-      ],
       hamilton: [
-        { label: "Semifinal", week: 16, opponent: "zach", teamScore: 164.86, oppScore: 119.98, site: "vs" },
-        { label: "Championship", week: 17, opponent: "yung", teamScore: 120.66, oppScore: 82.98, site: "vs" }
-      ],
-      zach: [
-        { label: "Quarterfinal", week: 15, opponent: "steeler", teamScore: 137.26, oppScore: 88.74, site: "vs" },
-        { label: "Semifinal", week: 16, opponent: "hamilton", teamScore: 119.98, oppScore: 164.86, site: "vs" }
+        { label: "Quarterfinal", week: 15, opponent: "hawaii", teamScore: 177.90, oppScore: 84.36, site: "vs" },
+        { label: "Semifinal", week: 16, opponent: "hotrod", teamScore: 183.66, oppScore: 143.72, site: "vs" },
+        { label: "Championship", week: 17, opponent: "kareem", teamScore: 166.60, oppScore: 152.74, site: "vs" }
       ],
       left: [
-        { label: "Quarterfinal", week: 15, opponent: "ridley", teamScore: 128.10, oppScore: 114.12, site: "vs" },
-        { label: "Semifinal", week: 16, opponent: "yung", teamScore: 101.74, oppScore: 119.30, site: "vs" }
+        { label: "Quarterfinal", week: 15, opponent: "beatcev", teamScore: 73.84, oppScore: 73.38, site: "vs" },
+        { label: "Semifinal", week: 16, opponent: "kareem", teamScore: 101.64, oppScore: 133.10, site: "vs" }
       ],
-      ridley: [
-        { label: "Quarterfinal", week: 15, opponent: "left", teamScore: 114.12, oppScore: 128.10, site: "vs" },
-        { label: "5th Place Game", week: 16, opponent: "steeler", teamScore: 91.36, oppScore: 112.86, site: "vs" }
+      packers: [
+        { label: "Quarterfinal", week: 15, opponent: "kareem", teamScore: 97.92, oppScore: 111.58, site: "vs" }
       ],
-      steeler: [
-        { label: "Quarterfinal", week: 15, opponent: "zach", teamScore: 88.74, oppScore: 137.26, site: "vs" },
-        { label: "5th Place Game", week: 16, opponent: "ridley", teamScore: 112.86, oppScore: 91.36, site: "vs" }
+      hotrod: [
+        { label: "Quarterfinal", week: 15, opponent: "inactive", teamScore: 121.80, oppScore: 75.46, site: "vs" },
+        { label: "Semifinal", week: 16, opponent: "hamilton", teamScore: 143.72, oppScore: 183.66, site: "vs" }
       ],
-      matt: [
-        { label: "Losers Bracket · Round 1", week: 15, opponent: "olave", teamScore: 137.42, oppScore: 96.74, site: "vs" },
-        { label: "Losers Bracket · 7th Place Game", week: 16, opponent: "smell", teamScore: 131.36, oppScore: 81.26, site: "vs" }
+      inactive: [
+        { label: "Quarterfinal", week: 15, opponent: "hotrod", teamScore: 75.46, oppScore: 121.80, site: "vs" }
       ],
-      larry: [
-        { label: "Losers Bracket · Round 1", week: 15, opponent: "smell", teamScore: 88.48, oppScore: 103.48, site: "vs" },
-        { label: "Losers Bracket · Last-Place Game", week: 16, opponent: "olave", teamScore: 134.60, oppScore: 104.60, site: "vs" }
+      kareem: [
+        { label: "Quarterfinal", week: 15, opponent: "packers", teamScore: 111.58, oppScore: 97.92, site: "vs" },
+        { label: "Semifinal", week: 16, opponent: "left", teamScore: 133.10, oppScore: 101.64, site: "vs" },
+        { label: "Championship", week: 17, opponent: "hamilton", teamScore: 152.74, oppScore: 166.60, site: "vs" }
       ],
-      smell: [
-        { label: "Losers Bracket · Round 1", week: 15, opponent: "larry", teamScore: 103.48, oppScore: 88.48, site: "vs" },
-        { label: "Losers Bracket · 7th Place Game", week: 16, opponent: "matt", teamScore: 81.26, oppScore: 131.36, site: "vs" }
+      beatcev: [
+        { label: "Quarterfinal", week: 15, opponent: "left", teamScore: 73.38, oppScore: 73.84, site: "vs" }
       ],
-      olave: [
-        { label: "Losers Bracket · Round 1", week: 15, opponent: "matt", teamScore: 96.74, oppScore: 137.42, site: "vs" },
-        { label: "Losers Bracket · Last-Place Game", week: 16, opponent: "larry", teamScore: 104.60, oppScore: 134.60, site: "vs" }
+      hawaii: [
+        { label: "Quarterfinal", week: 15, opponent: "hamilton", teamScore: 84.36, oppScore: 177.90, site: "vs" }
+      ],
+      rip: [
+        { label: "Losers Bracket \u00b7 Game 1", week: 15, opponent: "skeet", teamScore: 96.28, oppScore: 102.14, site: "vs" },
+        { label: "Losers Bracket \u00b7 Game 3", week: 16, opponent: "oneen", teamScore: 99.40, oppScore: 77.04, site: "vs" }
+      ],
+      skeet: [
+        { label: "Losers Bracket \u00b7 Game 1", week: 15, opponent: "rip", teamScore: 102.14, oppScore: 96.28, site: "vs" }
+      ],
+      oneen: [
+        { label: "Losers Bracket \u00b7 Game 2", week: 15, opponent: "kroenke", teamScore: 139.04, oppScore: 60.76, site: "vs" },
+        { label: "Losers Bracket \u00b7 Game 3", week: 16, opponent: "rip", teamScore: 77.04, oppScore: 99.40, site: "vs" },
+        { label: "Losers Bracket \u00b7 Game 4", week: 17, opponent: "kroenke", teamScore: 111.48, oppScore: 99.46, site: "vs" }
+      ],
+      kroenke: [
+        { label: "Losers Bracket \u00b7 Game 2", week: 15, opponent: "oneen", teamScore: 60.76, oppScore: 139.04, site: "vs" },
+        { label: "Losers Bracket \u00b7 Game 4", week: 17, opponent: "oneen", teamScore: 99.46, oppScore: 111.48, site: "vs" }
       ]
     };
 
-    const regularOrder = ["yung", "hamilton", "zach", "left", "ridley", "steeler", "matt", "larry", "smell", "olave"];
+    const divisionOrder = {"Xavier":["left","packers","hotrod","inactive","kareem","oneen"],"Ignatius":["hamilton","beatcev","hawaii","rip","skeet","kroenke"]};
 
-    const finalOrder = ["hamilton", "yung", "left", "zach", "steeler", "ridley", "matt", "smell", "larry", "olave"];
+    const finalOrder = ["hamilton", "kareem", "left", "hotrod", "inactive", "hawaii", "packers", "beatcev", "skeet", "rip", "oneen", "kroenke"];
 
     const fmt = (n) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const pct = (t) => (t.wins / (t.wins + t.losses)).toFixed(3).replace(/^0/, "");
@@ -2495,19 +2524,18 @@
 
     function renderDivisions() {
       const root = document.getElementById("divisionGrid");
-      root.innerHTML = `
+      root.innerHTML = Object.entries(divisionOrder).map(([division, ids]) => `
         <article class="card">
           <div class="card-head">
-            <h3><span class="division-chip">R</span>Regular Season Standings</h3>
-            <span>10 teams · no divisions</span>
+            <h3><span class="division-chip">${division.charAt(0)}</span>${division}</h3>
+            <span>6 teams</span>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th>PCT</th><th>PF</th><th>PA</th><th>DIFF</th></tr></thead>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
               <tbody>
-                ${regularOrder.map((id, i) => {
+                ${ids.map((id, i) => {
                   const t = teams[id];
-                  const diff = t.pf - t.pa;
                   return `<tr>
                     <td class="rank">${i + 1}</td>
                     <td class="team-cell">
@@ -2517,20 +2545,20 @@
                         <span class="mobile-stat"><small>PCT</small><strong>${pct(t)}</strong></span>
                         <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
                         <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
-                        <span class="mobile-stat"><small>DIFF</small><strong class="${diff >= 0 ? "positive" : "negative"}">${diff >= 0 ? "+" : ""}${fmt(diff)}</strong></span>
+                        <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
                       </div>
                     </td>
                     <td class="record">${t.record}</td>
                     <td>${pct(t)}</td>
                     <td>${fmt(t.pf)}</td>
                     <td>${fmt(t.pa)}</td>
-                    <td class="${diff >= 0 ? "positive" : "negative"}">${diff >= 0 ? "+" : ""}${fmt(diff)}</td>
+                    <td>${t.divRecord}</td>
                   </tr>`;
                 }).join("")}
               </tbody>
             </table>
           </div>
-        </article>`;
+        </article>`).join("");
     }
 
     let finalSort = { key: "finalRank", direction: "asc" };
@@ -2688,7 +2716,7 @@
 
       const regular = scheduleFor(teamId);
       const post = postseason[teamId] || [];
-      const postTitle = ["matt", "larry", "smell", "olave"].includes(teamId)
+      const postTitle = ["skeet", "rip", "oneen", "kroenke"].includes(teamId)
         ? "Losers Bracket"
         : "Postseason";
       document.getElementById("drawerBody").innerHTML = `
@@ -2756,7 +2784,7 @@
     });
 
     window.leagueHistorySeasonData = {
-      season: 2022,
+      season: 2021,
       ownerDirectory,
       teamOwnerMap: Object.fromEntries(
         Object.entries(teams).map(([teamId, team]) => [teamId, team.ownerId])

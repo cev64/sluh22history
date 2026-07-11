@@ -5,28 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="2025 fantasy football league history, standings, schedules, and playoff bracket." />
   <title>League History · 2025</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink: #0a1420;
-      --muted: #5c6b80;
-      --line: #e1e6ed;
+      --ink: #0b1726;
+      --muted: #637083;
+      --line: #dce3eb;
       --surface: #ffffff;
-      --surface-2: #f6f8fb;
-      --page: #eef1f6;
-      --navy: #050f1c;
-      --navy-2: #0f2740;
-      --blue: #1a63e6;
-      --blue-2: #0d4fbd;
-      --red: #dc2f2f;
-      --gold: #f2a91f;
-      --green: #128a53;
-      --shadow: 0 14px 34px rgba(6, 14, 26, 0.12);
-      --shadow-lg: 0 26px 60px rgba(6, 14, 26, 0.18);
+      --surface-2: #f5f7fa;
+      --page: #eef2f6;
+      --navy: #071827;
+      --navy-2: #102b43;
+      --blue: #1769e0;
+      --blue-2: #0f56bd;
+      --red: #d71920;
+      --gold: #f6b73c;
+      --green: #16834a;
+      --shadow: 0 12px 30px rgba(7, 24, 39, 0.10);
       --radius: 18px;
-      --font-display: 'Space Grotesk', Inter, ui-sans-serif, system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -1111,7 +1106,6 @@
       #regular td.rank,
       #final td.rank {
         grid-column: 1;
-        width: auto;
         color: #738090;
         font-size: 11px;
         text-align: center;
@@ -1726,342 +1720,6 @@
       .drawer-hero, .drawer-body { padding-left: 10px; padding-right: 10px; }
     }
 
-  
-    /* Compact season outcome cards */
-    .hero-inner.outcome-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      padding: 24px 0;
-      align-items: stretch;
-    }
-
-    .outcome-card {
-      position: relative;
-      overflow: hidden;
-      min-width: 0;
-      padding: 16px;
-      border: 1px solid rgba(255,255,255,.17);
-      border-radius: 18px;
-      background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
-      box-shadow: 0 18px 45px rgba(0,0,0,.22);
-    }
-
-    .outcome-card::after {
-      content: "";
-      position: absolute;
-      width: 150px;
-      height: 150px;
-      right: -55px;
-      top: -65px;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    .champion-outcome::after {
-      background: radial-gradient(circle, rgba(246,183,60,.42), transparent 67%);
-    }
-
-    .loser-outcome::after {
-      background: radial-gradient(circle, rgba(214,67,61,.42), transparent 67%);
-    }
-
-    .outcome-label {
-      position: relative;
-      z-index: 1;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      width: fit-content;
-      padding: 4px 7px;
-      border-radius: 999px;
-      color: #3b2a05;
-      background: #ffe6a6;
-      font-size: 8px;
-      font-weight: 1000;
-      letter-spacing: .11em;
-      line-height: 1;
-      text-transform: uppercase;
-    }
-
-    .loser-outcome .outcome-label {
-      color: #fff;
-      background: #c9423c;
-    }
-
-    .outcome-team {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      margin: 13px 0;
-    }
-
-    .outcome-team .team-badge {
-      width: 46px;
-      height: 46px;
-      flex: 0 0 auto;
-      border-radius: 12px;
-      font-size: 22px;
-    }
-
-    .outcome-team h2 {
-      margin: 0;
-      font-size: 20px;
-      line-height: 1.08;
-      letter-spacing: -.03em;
-    }
-
-    .outcome-team span {
-      display: block;
-      margin-top: 4px;
-      color: #bfd0df;
-      font-size: 10px;
-    }
-
-    .outcome-score {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-      align-items: center;
-      gap: 9px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255,255,255,.14);
-    }
-
-    .outcome-score-side {
-      min-width: 0;
-    }
-
-    .outcome-score-side:last-child {
-      text-align: right;
-    }
-
-    .outcome-score strong {
-      display: block;
-      color: #fff;
-      font-size: 19px;
-      line-height: 1;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .outcome-score small {
-      display: block;
-      overflow: hidden;
-      margin-top: 5px;
-      color: #afc0d0;
-      font-size: 8.5px;
-      line-height: 1.15;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .outcome-status {
-      color: #8298ad;
-      font-size: 8px;
-      font-weight: 1000;
-      letter-spacing: .08em;
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    @media (max-width: 700px) {
-      .hero-inner.outcome-grid {
-        grid-template-columns: 1fr;
-        gap: 8px;
-        padding: 12px 0;
-      }
-
-      .outcome-card {
-        padding: 12px;
-        border-radius: 14px;
-      }
-
-      .outcome-label {
-        padding: 3px 6px;
-        font-size: 7px;
-      }
-
-      .outcome-team {
-        gap: 8px;
-        margin: 9px 0;
-      }
-
-      .outcome-team .team-badge {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        font-size: 18px;
-      }
-
-      .outcome-team h2 {
-        font-size: 16px;
-      }
-
-      .outcome-team span {
-        margin-top: 3px;
-        font-size: 8px;
-      }
-
-      .outcome-score {
-        gap: 6px;
-        padding-top: 9px;
-      }
-
-      .outcome-score strong {
-        font-size: 16px;
-      }
-
-      .outcome-score small {
-        margin-top: 3px;
-        font-size: 7px;
-      }
-
-      .outcome-status {
-        font-size: 6.5px;
-      }
-    }
-
-  
-    .hero + main .page-toolbar {
-      margin-top: 0;
-    }
-
-    @media (max-width: 700px) {
-      .hero + main .page-toolbar {
-        margin-top: 0;
-      }
-    }
-
-  
-    .outcome-team .team-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      line-height: 1;
-    }
-
-
-    /* --- v2 visual refresh: refined elevation, motion, and accents --- */
-    ::selection { background: rgba(26, 99, 230, .22); color: var(--ink); }
-
-    .table-wrap, .bracket-scroll, .drawer-body {
-      scrollbar-width: thin;
-      scrollbar-color: #b7c2d1 transparent;
-    }
-    .table-wrap::-webkit-scrollbar, .bracket-scroll::-webkit-scrollbar, .drawer-body::-webkit-scrollbar { height: 8px; width: 8px; }
-    .table-wrap::-webkit-scrollbar-thumb, .bracket-scroll::-webkit-scrollbar-thumb, .drawer-body::-webkit-scrollbar-thumb {
-      background: #c2cbd8; border-radius: 999px;
-    }
-    .table-wrap::-webkit-scrollbar-track, .bracket-scroll::-webkit-scrollbar-track, .drawer-body::-webkit-scrollbar-track { background: transparent; }
-
-    .view-tab {
-      transition: color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
-    }
-    .view-tab.active {
-      background: linear-gradient(135deg, var(--navy-2), var(--navy));
-      box-shadow: 0 8px 18px rgba(6,14,26,.24);
-    }
-
-    .card, .metric-card, .outcome-card {
-      transition: box-shadow .22s cubic-bezier(.2,.8,.2,1), border-color .22s ease;
-    }
-    .team-badge, .mini-badge {
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-    .matchup {
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .view-tab:not(.active):hover { background: rgba(15, 39, 64, .07); transform: translateY(-1px); }
-      .card:hover { box-shadow: var(--shadow-lg, var(--shadow)); }
-      .metric-card:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(7,24,39,.12); border-color: #cdd8e3; }
-      tbody tr:hover .team-badge { transform: scale(1.06); }
-      .matchup:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(7,24,39,.12); }
-    }
-
-    .team-button:focus-visible,
-    .bracket-team-button:focus-visible,
-    .sort-button:focus-visible,
-    .view-tab:focus-visible {
-      outline: 2px solid var(--blue);
-      outline-offset: 3px;
-      border-radius: 6px;
-    }
-
-    @media (prefers-reduced-motion: no-preference) {
-      .card, .metric-card, .outcome-card { animation: v2FadeUp .5s cubic-bezier(.2,.8,.2,1) both; }
-    }
-    @keyframes v2FadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* --- v3 visual overhaul: display type, richer hero, premium accents --- */
-    .hero h1,
-    .page-title h2,
-    .card-head h3,
-    .brand-title,
-    .outcome-team h2,
-    .outcome-score strong,
-    .champ-team h2,
-    .champ-score strong,
-    .drawer-team h2,
-    .drawer-stat strong,
-    .metric-card strong {
-      font-family: var(--font-display);
-      letter-spacing: -.02em;
-    }
-
-    .hero h1 { font-weight: 700; }
-    .brand-title { font-weight: 700; letter-spacing: -.01em; }
-
-    /* Richer hero backdrop with layered glow (vignette folded into the
-       background stack itself so it stays behind the hero-inner content,
-       rather than a ::after which would paint over the champion cards). */
-    .hero {
-      position: relative;
-      background:
-        linear-gradient(180deg, transparent 55%, rgba(4,10,18,.32) 100%),
-        radial-gradient(ellipse 620px 320px at 14% -10%, rgba(26, 99, 230, .38), transparent 60%),
-        radial-gradient(ellipse 460px 300px at 96% 120%, rgba(242, 169, 31, .22), transparent 62%),
-        linear-gradient(90deg, rgba(5, 15, 28, .98) 0%, rgba(15, 39, 64, .97) 54%, rgba(26, 99, 230, .82) 100%),
-        repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.03) 40px),
-        repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,.03) 40px);
-    }
-
-    /* Topbar gets a live gradient underline instead of a flat hairline */
-    .topbar { border-bottom: none; }
-    .topbar::after {
-      content: "";
-      display: block;
-      height: 2px;
-      background: linear-gradient(90deg, var(--blue) 0%, var(--gold) 50%, var(--red) 100%);
-      opacity: .85;
-    }
-
-    /* Champion outcome card: slow gold sheen sweep (paints behind real content,
-       since ::before is first in paint order and the label/team/score are
-       normal-flow siblings that come after it). */
-    @media (prefers-reduced-motion: no-preference) {
-      .champion-outcome::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.28) 50%, transparent 60%);
-        background-size: 220% 100%;
-        background-position: -120% 0;
-        animation: v3Sheen 6s ease-in-out infinite;
-        pointer-events: none;
-      }
-    }
-    @keyframes v3Sheen {
-      0%, 15% { background-position: -120% 0; }
-      55%, 100% { background-position: 140% 0; }
-    }
   </style>
 </head>
 <body>
@@ -2082,63 +1740,49 @@
           <option value="2024">2024</option>
           <option value="2023">2023</option>
           <option value="2022">2022</option>
+          <option value="2021">2021</option>
         </select>
       </label>
     </div>
   </header>
 
   <section class="hero">
-    <div class="hero-inner outcome-grid">
-      <article class="outcome-card champion-outcome">
-        <div class="outcome-label">🏆 2025 Champion</div>
-        <div class="outcome-team">
+    <div class="hero-inner">
+      <div class="season-hero-title">
+        <div class="eyebrow">2025 Season Archive</div>
+        <h1>League History</h1>
+      </div>
+
+      <div class="champ-card">
+        <div class="champ-label">🏆 2025 League Champion</div>
+        <div class="champ-team">
           <span class="team-badge" style="--team-color:#c05b2a">🏰</span>
           <div>
             <h2>Game of Throws</h2>
             <span>Charlie Vonderheid · 8–6 regular season</span>
           </div>
         </div>
-        <div class="outcome-score">
-          <div class="outcome-score-side">
-            <strong>137.62</strong>
-            <small>Game of Throws</small>
-          </div>
-          <span class="outcome-status">FINAL</span>
-          <div class="outcome-score-side">
-            <strong>131.36</strong>
-            <small>The Left Tacklers</small>
-          </div>
+        <div class="champ-score">
+          <div><strong>137.62</strong><small>Game of Throws</small></div>
+          <span class="versus">FINAL</span>
+          <div><strong>131.36</strong><small>The Left Tacklers</small></div>
         </div>
-      </article>
-      <article class="outcome-card loser-outcome">
-        <div class="outcome-label">💩 2025 Last Place</div>
-        <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#6a78a7">🚽</span>
-          <div>
-            <h2>LaPorta Potty</h2>
-            <span>Grant Thornberry · 4–10 regular season</span>
-          </div>
-        </div>
-        <div class="outcome-score">
-          <div class="outcome-score-side">
-            <strong>121.94</strong>
-            <small>LaPorta Potty</small>
-          </div>
-          <span class="outcome-status">FINAL</span>
-          <div class="outcome-score-side">
-            <strong>139.02</strong>
-            <small>Jared's Pack Attack</small>
-          </div>
-        </div>
-      </article>
+      </div>
     </div>
   </section>
 
   <main>
+    <section class="season-strip" aria-label="Season highlights">
+      <div class="metric-card"><small>Champion</small><strong>Game of Throws</strong><span>Xavier #2 seed</span></div>
+      <div class="metric-card"><small>Runner-up</small><strong>The Left Tacklers</strong><span>11–3 regular season</span></div>
+      <div class="metric-card"><small>Top Seed</small><strong>Hawaii McLovins VIII</strong><span>12–2 record</span></div>
+      <div class="metric-card"><small>Scoring Leader</small><strong>The Left Tacklers</strong><span>1,918.66 points</span></div>
+    </section>
 
     <div class="page-toolbar">
       <div class="page-title">
         <h2>2025 Season</h2>
+        <p>Select a team anywhere in the standings to open its full schedule.</p>
       </div>
       <div class="view-tabs" role="tablist" aria-label="Season views">
         <button class="view-tab active" data-view="regular" role="tab" aria-selected="true">Regular Season</button>
@@ -2807,7 +2451,8 @@
         "2025": "2025.html",
         "2024": "2024.html",
         "2023": "2023.html",
-        "2022": "2022.html"
+        "2022": "2022.html",
+        "2021": "2021.html"
       };
       if (files[year]) window.location.href = files[year];
     });
