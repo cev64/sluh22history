@@ -1523,7 +1523,6 @@
               <option value="pa">Points Against</option>
               <option value="diff">Point Differential</option>
               <option value="pfg">Points per Game</option>
-              <option value="titles">Championships</option>
               <option value="seasons">Seasons</option>
               <option value="team">Team</option>
             </select>
@@ -1545,7 +1544,6 @@
                 <th><button class="sort-button" data-table="allTime" data-sort="pa">PA <span class="sort-arrow"></span></button></th>
                 <th><button class="sort-button" data-table="allTime" data-sort="diff">Diff <span class="sort-arrow"></span></button></th>
                 <th><button class="sort-button" data-table="allTime" data-sort="pfg">PF/G <span class="sort-arrow"></span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="titles">Titles <span class="sort-arrow"></span></button></th>
               </tr>
             </thead>
             <tbody id="allTimeBody"></tbody>
@@ -1844,7 +1842,6 @@
               <span class="mobile-stat"><small>PF</small><strong>${fmt(profile.pf)}</strong></span>
               <span class="mobile-stat"><small>PA</small><strong>${fmt(profile.pa)}</strong></span>
               <span class="mobile-stat"><small>Diff</small><strong class="${profile.diff >= 0 ? "positive" : "negative"}">${profile.diff >= 0 ? "+" : ""}${fmt(profile.diff)}</strong></span>
-              <span class="mobile-stat"><small>Titles</small><strong>${profile.championshipYears.length}</strong></span>
             </div>
           </td>
           <td>${profile.seasons.length}</td>
@@ -1855,7 +1852,6 @@
           <td>${fmt(profile.pa)}</td>
           <td class="${profile.diff >= 0 ? "positive" : "negative"}">${profile.diff >= 0 ? "+" : ""}${fmt(profile.diff)}</td>
           <td>${profile.pfg.toFixed(1)}</td>
-          <td>${profile.championshipYears.length}</td>
         </tr>
       `).join("");
 
@@ -2028,7 +2024,6 @@
           <span class="mobile-stat"><small>PF</small><strong>${fmt(row.pf)}</strong></span>
           <span class="mobile-stat"><small>PA</small><strong>${fmt(row.pa)}</strong></span>
           <span class="mobile-stat"><small>Diff</small><strong class="${row.diff >= 0 ? "positive" : "negative"}">${row.diff >= 0 ? "+" : ""}${fmt(row.diff)}</strong></span>
-          <span class="mobile-stat"><small>Games</small><strong>${row.games}</strong></span>
         </div>
       `;
     }
@@ -2049,7 +2044,6 @@
               ${teamButton(opponent)}
               ${h2hMobileStats(row)}
             </td>
-            <td>${row.games}</td>
             <td class="record">${row.wins}–${row.losses}</td>
             <td>${pct(row.wins, row.losses)}</td>
             <td>${fmt(row.pf)}</td>
@@ -2126,7 +2120,6 @@
                   <option value="pf">Points For</option>
                   <option value="pa">Points Against</option>
                   <option value="diff">Point Differential</option>
-                  <option value="games">Games</option>
                   <option value="team">Opponent</option>
                 </select>
                 <button type="button" class="mobile-sort-direction" id="h2hMobileDirection" data-mobile-direction="h2h" aria-label="Sort descending">↓</button>
@@ -2138,7 +2131,6 @@
                 <thead>
                   <tr>
                     <th><button class="sort-button" data-table="h2h" data-sort="team">Opponent <span class="sort-arrow"></span></button></th>
-                    <th><button class="sort-button" data-table="h2h" data-sort="games">Games <span class="sort-arrow"></span></button></th>
                     <th><button class="sort-button active" data-table="h2h" data-sort="wins">Record <span class="sort-arrow">↓</span></button></th>
                     <th><button class="sort-button" data-table="h2h" data-sort="pct">PCT <span class="sort-arrow"></span></button></th>
                     <th><button class="sort-button" data-table="h2h" data-sort="pf">PF <span class="sort-arrow"></span></button></th>
