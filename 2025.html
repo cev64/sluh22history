@@ -1937,6 +1937,161 @@
       line-height: 1;
     }
 
+  
+    /* --- v4 modern overhaul: depth, glass, gradient accents, motion
+       (purely visual — data structure, columns and copy are unchanged) --- */
+
+    /* Layered light mesh gives the page real depth instead of a flat wash */
+    body {
+      background:
+        radial-gradient(1100px 520px at 84% -8%, rgba(23,105,224,.09), transparent 60%),
+        radial-gradient(880px 460px at 2% 4%, rgba(246,183,60,.07), transparent 58%),
+        radial-gradient(820px 640px at 50% 122%, rgba(23,105,224,.06), transparent 62%),
+        linear-gradient(180deg, #f3f6fb 0%, #eaeff6 46%, #f3f6fb 100%);
+    }
+
+    /* Premium card depth: crisp top highlight, soft contact + ambient shadow */
+    .card {
+      border-color: rgba(15,34,55,.09);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.85),
+        0 1px 2px rgba(10,22,38,.05),
+        0 22px 46px -26px rgba(10,22,38,.42);
+    }
+
+    /* Warmer card header with a faint tri-color rule bleeding along its base */
+    .card-head {
+      position: relative;
+      background: linear-gradient(180deg, #ffffff, #f5f9fd);
+    }
+    .card-head::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(23,105,224,.4) 22%, rgba(246,183,60,.45) 50%, rgba(215,25,32,.35) 78%, transparent);
+      opacity: .75;
+    }
+
+    /* Section chip becomes a glossy gradient token with a soft blue glow */
+    .division-chip {
+      background: linear-gradient(150deg, var(--blue) 0%, var(--navy-2) 78%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.22),
+        0 6px 14px -5px rgba(23,105,224,.6);
+    }
+
+    /* Table: brighter header, gradient row hover with a leading accent bar */
+    th {
+      background: linear-gradient(180deg, #fbfcfe, #f2f6fb);
+    }
+    tbody tr { transition: background .18s ease, box-shadow .18s ease; }
+    tbody tr:hover {
+      background: linear-gradient(90deg, rgba(23,105,224,.07), rgba(23,105,224,.02) 55%, transparent);
+      box-shadow: inset 3px 0 0 rgba(23,105,224,.6);
+    }
+    /* Champion keeps a standing gold bar so it reads as first at a glance */
+    .champion-row,
+    .champion-row:hover { box-shadow: inset 3px 0 0 var(--gold); }
+
+    /* Team badges get a subtle ring + lift so the emojis feel like real crests */
+    .team-badge {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.35),
+        0 6px 14px -6px rgba(7,24,39,.55);
+    }
+
+    /* Segmented view switcher reads as a modern pill control */
+    .view-tabs {
+      background: rgba(12,28,45,.06);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 2px rgba(7,24,39,.08);
+    }
+    .view-tab {
+      border-radius: 999px;
+      transition: color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .view-tab.active {
+      background: linear-gradient(180deg, var(--navy-2), var(--navy));
+      box-shadow: 0 8px 18px -7px rgba(7,24,39,.7), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    /* Outcome cards: gradient-lit rim + hover lift; champion adds the gold sheen */
+    .outcome-card {
+      border-color: rgba(255,255,255,.22);
+      transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+    }
+    .outcome-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 30px 64px -28px rgba(0,0,0,.6);
+    }
+    .champion-outcome { border-color: rgba(246,183,60,.42); }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .champion-outcome::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.28) 50%, transparent 60%);
+        background-size: 220% 100%;
+        background-position: -120% 0;
+        animation: v4Sheen 6s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
+      }
+    }
+    @keyframes v4Sheen {
+      0%, 15% { background-position: -120% 0; }
+      55%, 100% { background-position: 140% 0; }
+    }
+
+    /* Animated aurora drift behind the hero content (motion-safe only) */
+    @media (prefers-reduced-motion: no-preference) {
+      .hero { overflow: hidden; }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: -38% 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(closest-side, rgba(23,105,224,.35), transparent),
+          radial-gradient(closest-side, rgba(246,183,60,.22), transparent);
+        background-size: 55% 70%, 45% 60%;
+        background-position: 8% 12%, 92% 88%;
+        background-repeat: no-repeat;
+        filter: blur(12px);
+        opacity: .8;
+        animation: v4Aurora 16s ease-in-out infinite alternate;
+      }
+      .hero-inner { position: relative; z-index: 1; }
+    }
+    @keyframes v4Aurora {
+      0%   { background-position: 6% 10%, 94% 90%; }
+      100% { background-position: 22% 26%, 78% 72%; }
+    }
+
+    /* Smooth link affordance on team names */
+    .team-button { transition: transform .15s ease; }
+    .team-name { transition: color .15s ease; }
+
+    /* Season title carries a gradient accent bar — a crisp modern signature */
+    .page-title h2 {
+      position: relative;
+      padding-left: 15px;
+    }
+    .page-title h2::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .12em;
+      bottom: .12em;
+      width: 5px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--blue), var(--gold));
+    }
+
+
   </style>
 </head>
 <body>
