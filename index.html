@@ -1387,6 +1387,48 @@
       box-shadow: 0 24px 44px -24px rgba(10,22,38,.5);
     }
 
+  
+    /* --- v5: adopt the season pages' dark banner + shield crest on home --- */
+    .topbar {
+      background: rgba(7, 24, 39, .96);
+      border-bottom: none;
+      color: #fff;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 48px;
+      position: relative;
+      border-radius: 0;
+      background: linear-gradient(145deg, #fff 0%, #dce6f3 100%);
+      color: var(--navy);
+      clip-path: polygon(50% 0, 92% 16%, 86% 78%, 50% 100%, 14% 78%, 8% 16%);
+      box-shadow: inset 0 0 0 3px rgba(215, 25, 32, .55);
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: -.05em;
+    }
+    .brand-kicker { color: #9eb0c1; letter-spacing: .22em; }
+    .brand-title { color: #fff; margin-top: 2px; }
+
+    /* Season switcher restyled for the dark banner */
+    .season-control { color: #c9d5df; }
+    .season-control select {
+      appearance: none;
+      color: #fff;
+      background: #16324a;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 10px;
+      padding: 10px 38px 10px 14px;
+      font-weight: 800;
+      outline: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #fff 50%),
+        linear-gradient(135deg, #fff 50%, transparent 50%);
+      background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
   </style>
 </head>
 <body>
