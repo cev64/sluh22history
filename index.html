@@ -1889,7 +1889,7 @@
       }
     }
 
-    function openProfile(ownerId) {
+    function openProfile(ownerId, options = {}) {
       const profile = profiles[ownerId];
       if (!profile) return;
 
@@ -1969,10 +1969,18 @@
 
       renderH2H(profile);
 
-      document.getElementById("profilePanel").classList.add("open");
+      const profilePanel = document.getElementById("profilePanel");
+      profilePanel.classList.add("open");
       document.getElementById("profileBackdrop").classList.add("open");
-      document.getElementById("profilePanel").setAttribute("aria-hidden", "false");
+      profilePanel.setAttribute("aria-hidden", "false");
       document.body.classList.add("profile-open");
+
+      if (options.scrollToTop) {
+        requestAnimationFrame(() => {
+          profilePanel.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+
       document.getElementById("closeProfile").focus();
     }
 
@@ -1987,7 +1995,8 @@
     document.addEventListener("click", (event) => {
       const team = event.target.closest("[data-owner]");
       if (team) {
-        openProfile(team.dataset.owner);
+        const fromHeadToHead = Boolean(team.closest(".h2h-card"));
+        openProfile(team.dataset.owner, { scrollToTop: fromHeadToHead });
         return;
       }
 
