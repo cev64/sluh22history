@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:name=".LeagueHistoryApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.LeagueHistory"
+        android:enableOnBackInvokedCallback="true">
+
+        <!-- resizeableActivity plus the config-change list keeps the activity
+             alive across folding, unfolding and multi-window changes so the
+             navigation state survives the transition. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:resizeableActivity="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|density|uiMode"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.LeagueHistory.Starting">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Widgets deep-link straight to a team or a season. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="leaguehistory" android:host="record" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".widgets.ChampionsWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_champions_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_champions_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.StandingsWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_standings_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_standings_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.SeasonWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_season_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_season_info" />
+        </receiver>
+    </application>
+</manifest>
