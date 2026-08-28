@@ -1077,11 +1077,13 @@
 
       /* Compact regular-season rows: all stats remain visible inside each team row. */
       #regular .table-wrap,
+      #panel-standings .table-wrap,
       #final .table-wrap {
         overflow: visible;
       }
 
       #regular table,
+      #panel-standings table,
       #regular tbody,
       #final table,
       #final tbody {
@@ -1091,6 +1093,7 @@
       }
 
       #regular thead,
+      #panel-standings thead,
       #final thead {
         display: none;
       }
@@ -1111,6 +1114,7 @@
       }
 
       #regular td,
+      #panel-standings td,
       #final td {
         padding: 0;
         border: 0;
@@ -1119,6 +1123,7 @@
       }
 
       #regular td.rank,
+      #panel-standings td.rank,
       #final td.rank {
         grid-column: 1;
         color: #738090;
@@ -1127,12 +1132,14 @@
       }
 
       #regular td.team-cell,
+      #panel-standings td.team-cell,
       #final td.team-cell {
         grid-column: 2;
         min-width: 0;
       }
 
       #regular td:not(.rank):not(.team-cell),
+      #panel-standings td:not(.rank):not(.team-cell),
       #final td:not(.rank):not(.team-cell) {
         display: none;
       }
@@ -2781,6 +2788,152 @@
       .summary-superlatives { padding: 4px 14px 16px; }
       .summary-meta { padding: 12px 14px 0; }
     }
+
+    /* Seed, clinch, and tiebreaker markers in the standings tables ---- */
+
+    .team-flags {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .seed-tag {
+      font-size: 9.5px;
+      font-weight: 900;
+      letter-spacing: .03em;
+      padding: 3px 5px;
+      border-radius: 5px;
+      color: #fff;
+      background: var(--navy-2);
+      white-space: nowrap;
+    }
+
+    .seed-tag.div { background: var(--blue); }
+    .seed-tag.div.lead { background: var(--green); }
+    .seed-tag.wc { background: var(--gold); color: #3a2a02; }
+    .seed-tag.out { background: #9aa6b6; }
+
+    .clinch-tag {
+      width: 16px;
+      height: 16px;
+      border-radius: 5px;
+      display: inline-grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 900;
+      color: #fff;
+      background: var(--green);
+      flex: 0 0 auto;
+    }
+
+    .clinch-tag.x { background: var(--blue); }
+    .clinch-tag.e { background: #9aa6b6; }
+
+    .why-btn {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      font-style: italic;
+      display: inline-grid;
+      place-items: center;
+      padding: 0;
+      line-height: 1;
+      flex: 0 0 auto;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+
+    .why-btn:hover, .why-btn:focus-visible {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .why-pop {
+      position: fixed;
+      z-index: 90;
+      width: max-content;
+      max-width: min(300px, calc(100vw - 24px));
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      box-shadow: 0 18px 44px rgba(7, 24, 39, .24);
+      padding: 13px 15px;
+    }
+
+    .why-pop h4 {
+      margin: 0 0 6px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--blue-2);
+    }
+
+    .why-pop p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
+    .why-pop .why-team { margin-top: 8px; font-size: 12px; color: var(--muted); }
+
+    .standings-note .legend-key .seed-tag,
+    .standings-note .legend-key .clinch-tag,
+    .standings-note .legend-key .why-btn { margin-right: 2px; }
+
+    td.gb, th.gb { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* The seed and clinch markers widen the team cell, so let the division
+       tables size it to content instead of holding a 250px floor. */
+    .division-grid .team-cell { min-width: 168px; }
+
+    /* Between the tablet stack point and full width the two-up cards are too
+       narrow for eight columns, so stack them a little earlier. */
+    @media (max-width: 1120px) {
+      .division-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* Eight columns in a half-width card: tighten the gutters so DIV fits. */
+    .division-grid th,
+    .division-grid td { padding-left: 9px; padding-right: 9px; }
+
+    /* Full projected bracket ---------------------------------------- */
+
+    .bracket-rounds {
+      display: grid;
+      gap: 14px;
+      padding: 15px 15px 17px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      align-items: start;
+    }
+
+    .bracket-round { display: grid; gap: 9px; align-content: start; }
+
+    .bracket-round .round-label {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .bracket-round .round-label span {
+      display: block;
+      margin-top: 2px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+
+    .pg-name.tbd { color: var(--muted); font-weight: 700; }
+
+    @media (max-width: 700px) {
+      .team-flags { margin-left: 6px; gap: 4px; }
+      .bracket-rounds { padding: 12px 12px 14px; gap: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -3053,12 +3206,33 @@
 
     /* Rulebook 4.1.1 — two-team tie in the division standings:
        head-to-head, then points for, then intra-division record, then coin flip. */
-    function breakTwoWay(a, b, week, stats, flips) {
+    function breakTwoWay(a, b, week, stats, flips, reasons) {
       const h = headToHead(a, b, week);
-      if (h.played && h.w !== h.l) return h.w > h.l ? [a, b] : [b, a];
-      if (stats[a].pf !== stats[b].pf) return stats[a].pf > stats[b].pf ? [a, b] : [b, a];
-      if (stats[a].divPct !== stats[b].divPct) return stats[a].divPct > stats[b].divPct ? [a, b] : [b, a];
+      const note = (win, lose, criterion, detail) => {
+        if (reasons) reasons[win] = { over: lose, criterion, detail };
+        return [win, lose];
+      };
+
+      if (h.played && h.w !== h.l) {
+        const [win, lose] = h.w > h.l ? [a, b] : [b, a];
+        const hi = Math.max(h.w, h.l), lo = Math.min(h.w, h.l);
+        return note(win, lose, "Head-to-head",
+          `${teams[win].name} won the season series against ${teams[lose].name}, ${hi}–${lo}.`);
+      }
+      if (stats[a].pf !== stats[b].pf) {
+        const [win, lose] = stats[a].pf > stats[b].pf ? [a, b] : [b, a];
+        const split = h.played ? ` The teams split head-to-head ${h.w}–${h.l}.` : " They had not played yet.";
+        return note(win, lose, "Points for",
+          `${teams[win].name} scored ${fmt(stats[win].pf)} to ${teams[lose].name}'s ${fmt(stats[lose].pf)}.${split}`);
+      }
+      if (stats[a].divPct !== stats[b].divPct) {
+        const [win, lose] = stats[a].divPct > stats[b].divPct ? [a, b] : [b, a];
+        return note(win, lose, "Division record",
+          `Head-to-head and points for were level, so division record decided it: ${stats[win].divRecord} to ${stats[lose].divRecord}.`);
+      }
       flips.push([a, b]);
+      if (reasons) reasons[a] = { over: b, criterion: "Coin flip",
+        detail: `${teams[a].name} and ${teams[b].name} are level on every tiebreaker. The rulebook goes to a coin flip.` };
       return [a, b];
     }
 
@@ -3066,9 +3240,9 @@
        record among the tied teams, then the resulting sub-groups drop back down
        to the smaller-tie rules. Identical head-to-head across the whole group
        ranks on points for. */
-    function breakTie(group, week, stats, flips) {
+    function breakTie(group, week, stats, flips, reasons) {
       if (group.length <= 1) return group.slice();
-      if (group.length === 2) return breakTwoWay(group[0], group[1], week, stats, flips);
+      if (group.length === 2) return breakTwoWay(group[0], group[1], week, stats, flips, reasons);
 
       const scored = group.map((id) => ({ id, h2h: groupH2HPct(id, group, week) }));
       const distinct = [...new Set(scored.map((s) => (s.h2h === null ? "none" : s.h2h.toFixed(6))))];
@@ -3078,7 +3252,27 @@
         for (let i = 1; i < byPoints.length; i++) {
           if (stats[byPoints[i - 1]].pf === stats[byPoints[i]].pf) flips.push([byPoints[i - 1], byPoints[i]]);
         }
+        if (reasons) {
+          const names = group.map((id) => teams[id].name).join(", ");
+          byPoints.forEach((id, i) => {
+            if (i === byPoints.length - 1) return;
+            reasons[id] = { over: byPoints[i + 1], criterion: "Points for",
+              detail: `${names} all had the same head-to-head record against each other, so the rulebook ranks them on points for. ${teams[id].name}: ${fmt(stats[id].pf)}.` };
+          });
+        }
         return byPoints;
+      }
+
+      if (reasons) {
+        const summary = group
+          .map((id) => ({ id, r: groupRecordVs(id, group, week) }))
+          .sort((x, y) => (y.r.w - y.r.l) - (x.r.w - x.r.l))
+          .map((x) => `${teams[x.id].name} ${x.r.w}–${x.r.l}`)
+          .join(", ");
+        group.forEach((id) => {
+          reasons[id] = { over: null, criterion: `Head-to-head among ${group.length} tied teams`,
+            detail: `Records against the other tied teams: ${summary}.` };
+        });
       }
 
       const buckets = [];
@@ -3092,11 +3286,22 @@
           else buckets.push({ key, ids: [entry.id] });
         });
 
-      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips));
+      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips, reasons));
+    }
+
+    // Win-loss record against a specific set of teams, for tiebreaker explanations.
+    function groupRecordVs(id, group, week) {
+      let w = 0, l = 0;
+      group.forEach((other) => {
+        if (other === id) return;
+        const r = headToHead(id, other, week);
+        w += r.w; l += r.l;
+      });
+      return { w, l };
     }
 
     // Division standings: record first, ties resolved by the rulebook ladder.
-    function orderDivision(division, week, stats, flips) {
+    function orderDivision(division, week, stats, flips, reasons) {
       const ids = divisionOrder[division].slice();
       const buckets = [];
       ids
@@ -3108,8 +3313,53 @@
           if (bucket) bucket.ids.push(id);
           else buckets.push({ key, ids: [id] });
         });
-      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips));
+      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips, reasons));
     }
+
+    /* Games back of a leader, the standard baseball formula. */
+    function gamesBack(leader, team) {
+      return ((leader.wins - team.wins) + (team.losses - leader.losses)) / 2;
+    }
+
+    /* Clinch and elimination flags. Every test here is a *sufficient*
+       condition, so a badge is never shown unless it is mathematically
+       settled; a team can be safe before the badge appears, never after. */
+    function clinchFlags(stats, divisions, playoffField) {
+      const maxWins = (id) => stats[id].wins + Math.max(0, REGULAR_WEEKS - stats[id].gp);
+      const seasonOver = TEAM_IDS.every((id) => stats[id].gp >= REGULAR_WEEKS);
+      const flags = {};
+
+      TEAM_IDS.forEach((id) => {
+        const division = teams[id].division;
+        const rivals = divisionOrder[division].filter((x) => x !== id);
+
+        if (seasonOver) {
+          flags[id] = divisions[division][0] === id ? "z" : playoffField.includes(id) ? "x" : "e";
+          return;
+        }
+
+        // Rivals who can still reach or pass this team's win total.
+        const couldCatch = rivals.filter((x) => maxWins(x) >= stats[id].wins).length;
+        if (couldCatch === 0) { flags[id] = "z"; return; }
+        if (couldCatch <= 1) { flags[id] = "x"; return; }
+
+        // Two division rivals already out of reach means no top-two finish;
+        // six teams out of reach league-wide means at least two of them sit
+        // in the wild-card pool ahead of this team, since only four can hold
+        // division seeds.
+        const divAhead = rivals.filter((x) => stats[x].wins > maxWins(id)).length;
+        const leagueAhead = TEAM_IDS.filter((x) => x !== id && stats[x].wins > maxWins(id)).length;
+        flags[id] = (divAhead >= 2 && leagueAhead >= 6) ? "e" : null;
+      });
+
+      return flags;
+    }
+
+    const CLINCH_KEY = {
+      z: { label: "z", title: "Clinched division and the first-round bye" },
+      x: { label: "x", title: "Clinched a playoff berth" },
+      e: { label: "e", title: "Eliminated from playoff contention" }
+    };
 
     /* Wild cards and division-runner-up ordering: games won, then points for,
        then a coin flip. */
@@ -3144,8 +3394,9 @@
       const stats = computeStats(week);
       const flips = [];
 
+      const reasons = {};
       const divisions = {};
-      DIVISION_NAMES.forEach((d) => { divisions[d] = orderDivision(d, week, stats, flips); });
+      DIVISION_NAMES.forEach((d) => { divisions[d] = orderDivision(d, week, stats, flips, reasons); });
 
       const champs = DIVISION_NAMES.map((d) => ({ division: d, id: divisions[d][0] }));
       const runnersUp = DIVISION_NAMES.map((d) => ({ division: d, id: divisions[d][1] }));
@@ -3186,10 +3437,10 @@
       const flipPairs = flips.filter(([a, b], i, arr) =>
         arr.findIndex(([x, y]) => (x === a && y === b) || (x === b && y === a)) === i);
 
-      return {
+      const result = {
         week, stats, divisions, champs, runnersUp,
         wildcards, wildcardOrder, toiletSeeds, sides,
-        seedLabels, flips: flipPairs,
+        seedLabels, flips: flipPairs, reasons,
         playoffField: [
           ...champs.map((c) => c.id),
           ...runnersUp.map((r) => r.id),
@@ -3197,6 +3448,9 @@
         ],
         firstOut: wildcardOrder[2] || null
       };
+
+      result.flags = clinchFlags(stats, divisions, result.playoffField);
+      return result;
     }
 
     // League-wide order used for the overall standings table.
@@ -3342,6 +3596,113 @@
 
       return { label: `Where it stands · Week ${asOf}`, narrative, headlines: headlines.slice(0, 3) };
     }
+
+
+    /* =================================================================
+       STANDINGS MARKERS — seeds, clinch flags, tiebreak explanations
+       ================================================================= */
+
+    // Populated as standings render; the popover reads explanations from here.
+    const whyStore = {};
+
+    function seedTag(picture, id) {
+      const label = picture.seedLabels[id];
+      if (!label) return "";
+      const isBye = picture.champs.some((c) => c.id === id);
+      const cls = label.kind === "div" ? (isBye ? "div lead" : "div") : label.kind;
+      const title = isBye ? `${label.note}` : label.note;
+      return `<span class="seed-tag ${cls}" title="${title}">${label.chip}</span>`;
+    }
+
+    function clinchTag(picture, id) {
+      const flag = picture.flags[id];
+      if (!flag) return "";
+      return `<span class="clinch-tag ${flag}" title="${CLINCH_KEY[flag].title}">${CLINCH_KEY[flag].label}</span>`;
+    }
+
+    function whyButton(picture, id, scope) {
+      const reason = picture.reasons[id];
+      if (!reason) return "";
+      const key = `${scope}:${id}`;
+      whyStore[key] = {
+        team: teams[id].name,
+        criterion: reason.criterion,
+        detail: reason.detail,
+        over: reason.over ? teams[reason.over].name : null
+      };
+      return `<button type="button" class="why-btn" data-why="${key}"
+        aria-label="Why ${teams[id].name} is ranked here">i</button>`;
+    }
+
+    function teamFlags(picture, id, scope) {
+      const inner = seedTag(picture, id) + clinchTag(picture, id) + whyButton(picture, id, scope);
+      return inner ? `<span class="team-flags">${inner}</span>` : "";
+    }
+
+    function gbText(leader, t) {
+      const back = gamesBack(leader, t);
+      return back <= 0 ? "—" : (back % 1 ? back.toFixed(1) : String(back));
+    }
+
+    function standingsLegend(picture) {
+      const anyFlag = TEAM_IDS.some((id) => picture.flags[id]);
+      const out = picture.firstOut;
+      return `<div class="standings-note">
+        <span class="legend-key"><span class="seed-tag div lead">X1</span>Division leader · first-round bye</span>
+        <span class="legend-key"><span class="seed-tag div">X2</span>Division runner-up</span>
+        <span class="legend-key"><span class="seed-tag wc">WC</span>Wild card</span>
+        <span class="legend-key"><span class="seed-tag out">#7</span>Toilet Bowl</span>
+        ${anyFlag ? `<span class="legend-key"><span class="clinch-tag z">z</span>Clinched division</span>
+        <span class="legend-key"><span class="clinch-tag x">x</span>Clinched a berth</span>
+        <span class="legend-key"><span class="clinch-tag e">e</span>Eliminated</span>` : ""}
+        <span class="legend-key"><span class="why-btn" aria-hidden="true">i</span>Tap for the tiebreaker</span>
+        ${out ? `<span class="legend-key">First team out · <strong>${teams[out].name}</strong> (${picture.stats[out].record}, ${fmt(picture.stats[out].pf)} PF)</span>` : ""}
+      </div>`;
+    }
+
+    /* Tiebreaker popover ------------------------------------------- */
+
+    let whyPop = null;
+
+    function closeWhy() {
+      if (whyPop) { whyPop.remove(); whyPop = null; }
+    }
+
+    function openWhy(button) {
+      closeWhy();
+      const info = whyStore[button.dataset.why];
+      if (!info) return;
+
+      const pop = document.createElement("div");
+      pop.className = "why-pop";
+      pop.setAttribute("role", "dialog");
+      pop.innerHTML = `
+        <h4>${info.criterion}</h4>
+        <p>${info.detail}</p>
+        ${info.over ? `<div class="why-team">Placed ahead of ${info.over}.</div>` : ""}`;
+      document.body.appendChild(pop);
+
+      const anchor = button.getBoundingClientRect();
+      const box = pop.getBoundingClientRect();
+      const margin = 12;
+      let left = anchor.left + anchor.width / 2 - box.width / 2;
+      left = Math.max(margin, Math.min(left, window.innerWidth - box.width - margin));
+      let top = anchor.bottom + 8;
+      if (top + box.height > window.innerHeight - margin) top = Math.max(margin, anchor.top - box.height - 8);
+      pop.style.left = `${left}px`;
+      pop.style.top = `${top}px`;
+      whyPop = pop;
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".why-btn[data-why]");
+      if (button) { event.stopPropagation(); openWhy(button); return; }
+      if (whyPop && !event.target.closest(".why-pop")) closeWhy();
+    });
+
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeWhy(); });
+    window.addEventListener("resize", closeWhy);
+    window.addEventListener("scroll", closeWhy, true);
 
     /* =================================================================
        WEEK RAIL + VIEW TABS
@@ -3521,23 +3882,25 @@
           ${cardHead(division, division.charAt(0), `5 teams · ${through}`)}
           <div class="table-wrap">
             <table>
-              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
               <tbody>
                 ${ids.map((id, i) => {
                   const t = stats[id];
+                  const gb = live ? gbText(stats[ids[0]], t) : "—";
                   return `<tr class="${seedRowClass(picture, id, live)}">
                     <td class="rank">${live ? i + 1 : "–"}</td>
                     <td class="team-cell">
-                      ${teamButton(id)}
+                      ${teamButton(id)}${live ? teamFlags(picture, id, `w${asOf}`) : ""}
                       <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
                         <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
-                        <span class="mobile-stat"><small>PCT</small><strong>${pctText(t.pct)}</strong></span>
+                        <span class="mobile-stat"><small>GB</small><strong>${gb}</strong></span>
                         <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
                         <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
                         <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
                       </div>
                     </td>
                     <td class="record">${t.record}</td>
+                    <td class="gb">${gb}</td>
                     <td>${pctText(t.pct)}</td>
                     <td>${fmt(t.pf)}</td>
                     <td>${fmt(t.pa)}</td>
@@ -3557,26 +3920,28 @@
           <div class="table-wrap">
             <table class="final-table">
               <thead>
-                <tr><th class="place">RK</th><th>Team</th><th>Record</th><th>PF</th><th>PA</th><th>PF/G</th><th>PA/G</th><th>Diff</th></tr>
+                <tr><th class="place">RK</th><th>Team</th><th>Record</th><th class="gb">GB</th><th>PF</th><th>PA</th><th>PF/G</th><th>PA/G</th><th>Diff</th></tr>
               </thead>
               <tbody>
                 ${order.map((id, i) => {
                   const t = stats[id];
                   const d = t.diffPerGame;
                   const dClass = d > 0 ? "positive" : d < 0 ? "negative" : "";
+                  const gb = live ? gbText(stats[order[0]], t) : "—";
                   return `<tr class="${seedRowClass(picture, id, live)}">
                     <td class="rank">${live ? i + 1 : "–"}</td>
                     <td class="team-cell">
-                      ${teamButton(id)}
+                      ${teamButton(id)}${live ? teamFlags(picture, id, `L${asOf}`) : ""}
                       <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
                         <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
+                        <span class="mobile-stat"><small>GB</small><strong>${gb}</strong></span>
                         <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
-                        <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
                         <span class="mobile-stat"><small>PF/G</small><strong>${fmt1(t.pfg)}</strong></span>
                         <span class="mobile-stat"><small>DIFF</small><strong class="${dClass}">${d > 0 ? "+" : ""}${fmt1(d)}</strong></span>
                       </div>
                     </td>
                     <td class="record">${t.record}</td>
+                    <td class="gb">${gb}</td>
                     <td>${fmt(t.pf)}</td>
                     <td>${fmt(t.pa)}</td>
                     <td>${fmt1(t.pfg)}</td>
@@ -3589,12 +3954,7 @@
           </div>
         </article>`;
 
-      const legend = live ? `
-        <div class="standings-note">
-          <span class="legend-key"><span class="legend-swatch"></span>Division seed (top two)</span>
-          <span class="legend-key"><span class="legend-swatch wildcard"></span>Wild card</span>
-          <span class="legend-key"><span class="legend-swatch toilet"></span>Toilet Bowl</span>
-        </div>` : "";
+      const legend = live ? standingsLegend(picture) : "";
 
       document.getElementById("panel-standings").innerHTML = `
         <div class="panel-stack">
@@ -3636,14 +3996,6 @@
       </div>`;
     }
 
-    function byeGame(title, seed, id, stats) {
-      return `<div class="projected-game">
-        <div class="pg-head">${title}</div>
-        <div class="pg-side"><span class="seed">${seed}</span>${miniTeam(id)}<span class="pg-name">${teams[id].name}</span><span class="pg-rec">${stats[id].record}</span></div>
-        <div class="pg-bye">First-round bye · division champion</div>
-      </div>`;
-    }
-
     function renderPicturePanel(week) {
       const asOf = asOfWeek(week);
       const panel = document.getElementById("panel-picture");
@@ -3677,29 +4029,38 @@
       const picture = buildPicture(asOf);
       const stats = picture.stats;
 
-      const fieldCard = `
-        <article class="card">
-          ${cardHead("Playoff Field", "P", `If the season ended after Week ${asOf}`)}
-          <div class="seed-list">
-            ${picture.playoffField.map((id) => seedRow(picture, id)).join("")}
-          </div>
-          ${picture.firstOut ? `<div class="tag-row"><span class="rule-tag">First team out · ${teams[picture.firstOut].name} (${stats[picture.firstOut].record}, ${fmt(stats[picture.firstOut].pf)} PF)</span></div>` : ""}
-        </article>`;
-
+      const BRACKET_TITLE = "Projected Bracket";
       const bracketCard = `
         <article class="card">
-          ${cardHead("Projected Bracket", "B", "Weeks 15–17")}
-          <div class="projected-matchups">
-            ${picture.sides.map((side) => `
-              <div class="side-block">
-                <div class="side-title">${side.division} side of the bracket</div>
-                ${byeGame("Week 15 · Bye", "#1", side.one, stats)}
-                ${projectedGame("Week 15 · Wild Card round", "#3", side.three, "#2", side.two, stats)}
-              </div>`).join("")}
-          </div>
-          <div class="tag-row">
-            <span class="rule-tag">Winners meet their division's #1 seed in the Week 16 semifinal</span>
-            <span class="rule-tag">Fantasy Bowl and third-place game in Week 17</span>
+          ${cardHead(BRACKET_TITLE, "B", "Weeks 15–17")}
+          <div class="bracket-rounds">
+            <div class="bracket-round">
+              <div class="round-label">Round 1<span>Week 15</span></div>
+              ${picture.sides.map((side) =>
+                projectedGame(`${side.division} side`, "#3", side.three, "#2", side.two, stats)).join("")}
+            </div>
+            <div class="bracket-round">
+              <div class="round-label">Semifinals<span>Week 16</span></div>
+              ${picture.sides.map((side) => `
+                <div class="projected-game">
+                  <div class="pg-head">${side.division} side</div>
+                  <div class="pg-side"><span class="seed">#1</span>${miniTeam(side.one)}<span class="pg-name">${teams[side.one].name}</span><span class="pg-rec">${stats[side.one].record}</span></div>
+                  <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of ${side.division} Round 1</span></div>
+                  <div class="pg-bye">${teams[side.one].name} rests in Round 1 as division champion.</div>
+                </div>`).join("")}
+            </div>
+            <div class="bracket-round">
+              <div class="round-label">Fantasy Bowl<span>Week 17</span></div>
+              <div class="projected-game">
+                <div class="pg-head">Championship</div>
+                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of ${picture.sides[0].division} semifinal</span></div>
+                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of ${picture.sides[1].division} semifinal</span></div>
+              </div>
+              <div class="projected-game">
+                <div class="pg-head">Third-place game</div>
+                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">The two semifinal losers</span></div>
+              </div>
+            </div>
           </div>
         </article>`;
 
@@ -3731,7 +4092,7 @@
 
       panel.innerHTML = `
         <div class="panel-stack">
-          <div class="picture-grid">${fieldCard}${bracketCard}</div>
+          ${bracketCard}
           ${flipNote}
           ${toiletCard}
         </div>
