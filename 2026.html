@@ -2961,6 +2961,45 @@
       .team-flags { margin-left: 6px; gap: 4px; }
       .bracket-rounds { padding: 12px 12px 14px; gap: 12px; }
     }
+    /* Bulleted weekly recap */
+    .recap-list {
+      list-style: none;
+      margin: 0;
+      padding: 4px 20px 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .recap-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #24354a;
+    }
+
+    .recap-list li > span { min-width: 0; }
+
+    .recap-list li::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 7px;
+      height: 7px;
+      margin-top: 8px;
+      border-radius: 2px;
+      background: var(--blue);
+      transform: rotate(45deg);
+    }
+
+    .recap-list strong { color: var(--ink); font-weight: 800; }
+
+    @media (max-width: 560px) {
+      .recap-list { padding: 4px 14px 16px; gap: 9px; }
+      .recap-list li { font-size: 14px; }
+    }
+
+
   </style>
 </head>
 <body>
@@ -4185,9 +4224,9 @@
         <article class="card summary-card">
           ${cardHead(week === 0 ? "Preseason Outlook" : `Week ${week} Recap`, week === 0 ? "0" : String(week), summary.generated || "League recap")}
           ${summary.headline ? `<div class="summary-meta">${summary.headline}</div>` : ""}
-          <div class="summary-body">
-            ${summary.body.map((p) => `<p>${p}</p>`).join("")}
-          </div>
+          ${summary.bullets
+            ? `<ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>`
+            : `<div class="summary-body">${summary.body.map((para) => `<p>${para}</p>`).join("")}</div>`}
         </article>
         <div class="source-note">Recaps are written from the posted results and do not change any standings on this page.</div>`;
     }
