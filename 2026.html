@@ -2878,6 +2878,22 @@
       padding: 13px 15px;
     }
 
+    .why-head {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      color: var(--muted);
+      padding-bottom: 9px;
+      margin-bottom: 11px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .why-entry + .why-entry {
+      margin-top: 13px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
     .why-pop h4 {
       margin: 0 0 6px;
       font-size: 10px;
@@ -3217,13 +3233,18 @@
 
     /* Rulebook 4.1.1 — two-team tie in the division standings:
        head-to-head, then points for, then intra-division record, then coin flip. */
-    function breakTwoWay(a, b, week, stats, flips, reasons) {
+    // A team can be caught in several races at once — its division, the
+    // wild-card order, the Toilet Bowl reseed — so reasons accumulate.
+    function addReason(reasons, id, entry) {
+      if (!reasons) return;
+      (reasons[id] = reasons[id] || []).push(entry);
+    }
+
+    function breakTwoWay(a, b, week, stats, flips, reasons, race = "Division standings") {
       const h = headToHead(a, b, week);
       const note = (win, lose, criterion, detail) => {
-        if (reasons) {
-          reasons[win] = { over: lose, criterion, detail };
-          reasons[lose] = { under: win, criterion, detail };
-        }
+        addReason(reasons, win, { race, over: win === a ? b : a, criterion, detail });
+        addReason(reasons, lose, { race, under: win, criterion, detail });
         return [win, lose];
       };
 
@@ -3245,11 +3266,9 @@
           `Head-to-head and points for were level, so division record decided it: ${stats[win].divRecord} to ${stats[lose].divRecord}.`);
       }
       flips.push([a, b]);
-      if (reasons) {
-        const detail = `${teams[a].name} and ${teams[b].name} are level on every tiebreaker. The rulebook goes to a coin flip.`;
-        reasons[a] = { over: b, criterion: "Coin flip", detail };
-        reasons[b] = { under: a, criterion: "Coin flip", detail };
-      }
+      const flipDetail = `${teams[a].name} and ${teams[b].name} are level on every tiebreaker. The rulebook goes to a coin flip.`;
+      addReason(reasons, a, { race, over: b, criterion: "Coin flip", detail: flipDetail });
+      addReason(reasons, b, { race, under: a, criterion: "Coin flip", detail: flipDetail });
       return [a, b];
     }
 
@@ -3257,9 +3276,9 @@
        record among the tied teams, then the resulting sub-groups drop back down
        to the smaller-tie rules. Identical head-to-head across the whole group
        ranks on points for. */
-    function breakTie(group, week, stats, flips, reasons) {
+    function breakTie(group, week, stats, flips, reasons, race = "Division standings") {
       if (group.length <= 1) return group.slice();
-      if (group.length === 2) return breakTwoWay(group[0], group[1], week, stats, flips, reasons);
+      if (group.length === 2) return breakTwoWay(group[0], group[1], week, stats, flips, reasons, race);
 
       const scored = group.map((id) => ({ id, h2h: groupH2HPct(id, group, week) }));
       const distinct = [...new Set(scored.map((s) => (s.h2h === null ? "none" : s.h2h.toFixed(6))))];
@@ -3269,13 +3288,11 @@
         for (let i = 1; i < byPoints.length; i++) {
           if (stats[byPoints[i - 1]].pf === stats[byPoints[i]].pf) flips.push([byPoints[i - 1], byPoints[i]]);
         }
-        if (reasons) {
-          const names = group.map((id) => teams[id].name).join(", ");
-          byPoints.forEach((id, i) => {
-            reasons[id] = { over: byPoints[i + 1] || null, criterion: "Points for",
-              detail: `${names} all had the same head-to-head record against each other, so the rulebook ranks them on points for. ${teams[id].name}: ${fmt(stats[id].pf)}.` };
-          });
-        }
+        const ladder = byPoints.map((id) => `${teams[id].name} ${fmt(stats[id].pf)}`).join(", ");
+        byPoints.forEach((id, i) => {
+          addReason(reasons, id, { race, over: byPoints[i + 1] || null, criterion: "Points for",
+            detail: `These teams had the same head-to-head record against each other, so the rulebook ranks them on points for: ${ladder}.` });
+        });
         return byPoints;
       }
 
@@ -3286,8 +3303,8 @@
           .map((x) => `${teams[x.id].name} ${x.r.w}–${x.r.l}`)
           .join(", ");
         group.forEach((id) => {
-          reasons[id] = { over: null, criterion: `Head-to-head among ${group.length} tied teams`,
-            detail: `Records against the other tied teams: ${summary}.` };
+          addReason(reasons, id, { race, criterion: `Head-to-head among ${group.length} tied teams`,
+            detail: `Records against the other tied teams: ${summary}.` });
         });
       }
 
@@ -3302,7 +3319,7 @@
           else buckets.push({ key, ids: [entry.id] });
         });
 
-      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips, reasons));
+      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips, reasons, race));
     }
 
     // Win-loss record against a specific set of teams, for tiebreaker explanations.
@@ -3329,7 +3346,7 @@
           if (bucket) bucket.ids.push(id);
           else buckets.push({ key, ids: [id] });
         });
-      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips, reasons));
+      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips, reasons, "Division standings"));
     }
 
     /* Games back of a leader, the standard baseball formula. */
@@ -3409,17 +3426,42 @@
 
     /* Wild cards and division-runner-up ordering: games won, then points for,
        then a coin flip. */
-    function orderByRecordThenPoints(ids, stats, flips) {
+    function orderByRecordThenPoints(ids, stats, flips, reasons, race) {
       const ordered = ids.slice().sort((a, b) => (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf));
       for (let i = 1; i < ordered.length; i++) {
         const p = stats[ordered[i - 1]], c = stats[ordered[i]];
         if (p.wins === c.wins && p.pf === c.pf) flips.push([ordered[i - 1], ordered[i]]);
       }
+      // This race spans both divisions, so teams that never tied inside their
+      // own division can still be separated here.
+      recordWinGroupTies(ordered, stats, reasons, race, (group) => {
+        const ladder = group.map((id) => `${teams[id].name} ${fmt(stats[id].pf)}`).join(", ");
+        return { criterion: "Points for", detail: `${group.length} teams sat at ${stats[group[0]].record}. The rulebook ranks them on points for: ${ladder}.` };
+      });
       return ordered;
     }
 
+    /* Any run of teams level on wins inside an ordered race was separated by
+       something other than record, so each of them gets an explanation. */
+    function recordWinGroupTies(ordered, stats, reasons, race, describe) {
+      if (!reasons || !race) return;
+      let i = 0;
+      while (i < ordered.length) {
+        let j = i;
+        while (j + 1 < ordered.length && stats[ordered[j + 1]].wins === stats[ordered[i]].wins) j += 1;
+        if (j > i) {
+          const group = ordered.slice(i, j + 1);
+          const { criterion, detail } = describe(group);
+          group.forEach((id, k) => {
+            addReason(reasons, id, { race, criterion, detail, over: group[k + 1] || null, under: k ? group[k - 1] : null });
+          });
+        }
+        i = j + 1;
+      }
+    }
+
     /* Toilet Bowl reseeding: games won, points for, head-to-head, coin flip. */
-    function orderToilet(ids, week, stats, flips) {
+    function orderToilet(ids, week, stats, flips, reasons) {
       const ordered = ids.slice().sort((a, b) => {
         if (stats[b].wins !== stats[a].wins) return stats[b].wins - stats[a].wins;
         if (stats[b].pf !== stats[a].pf) return stats[b].pf - stats[a].pf;
@@ -3432,6 +3474,10 @@
         const h = headToHead(a, b, week);
         if (stats[a].wins === stats[b].wins && stats[a].pf === stats[b].pf && (!h.played || h.w === h.l)) flips.push([a, b]);
       }
+      recordWinGroupTies(ordered, stats, reasons, "Toilet Bowl seeding", (group) => {
+        const ladder = group.map((id) => `${teams[id].name} ${fmt(stats[id].pf)}`).join(", ");
+        return { criterion: "Points for", detail: `${group.length} teams sat at ${stats[group[0]].record}. Toilet Bowl seeding reranks on wins, then points for: ${ladder}.` };
+      });
       return ordered;
     }
 
@@ -3450,12 +3496,12 @@
       const locked = new Set([...champs, ...runnersUp].map((x) => x.id));
       const rest = TEAM_IDS.filter((id) => !locked.has(id));
 
-      const wildcardOrder = orderByRecordThenPoints(rest, stats, flips);
+      const wildcardOrder = orderByRecordThenPoints(rest, stats, flips, reasons, "Wild-card race");
       const wildcards = wildcardOrder.slice(0, 2);
-      const toiletSeeds = orderToilet(wildcardOrder.slice(2), week, stats, flips);
+      const toiletSeeds = orderToilet(wildcardOrder.slice(2), week, stats, flips, reasons);
 
       // The better runner-up faces the worse wild card, and vice versa.
-      const runnerOrder = orderByRecordThenPoints(runnersUp.map((r) => r.id), stats, flips);
+      const runnerOrder = orderByRecordThenPoints(runnersUp.map((r) => r.id), stats, flips, reasons, "Runner-up seeding");
       const betterRunner = runnersUp.find((r) => r.id === runnerOrder[0]);
       const worseRunner = runnersUp.find((r) => r.id === runnerOrder[1]);
 
@@ -3552,7 +3598,7 @@
     function cardHead(title, chip, meta) {
       return `<div class="card-head">
         <h3>${chip ? `<span class="division-chip">${chip}</span>` : ""}${title}</h3>
-        <span>${meta || ""}</span>
+        ${meta ? `<span>${meta}</span>` : ""}
       </div>`;
     }
 
@@ -3662,18 +3708,21 @@
     }
 
     function whyButton(picture, id, scope) {
-      const reason = picture.reasons[id];
-      if (!reason) return "";
+      const entries = picture.reasons[id];
+      if (!entries || !entries.length) return "";
       const key = `${scope}:${id}`;
       whyStore[key] = {
         team: teams[id].name,
-        criterion: reason.criterion,
-        detail: reason.detail,
-        over: reason.over ? teams[reason.over].name : null,
-        under: reason.under ? teams[reason.under].name : null
+        entries: entries.map((r) => ({
+          race: r.race,
+          criterion: r.criterion,
+          detail: r.detail,
+          over: r.over ? teams[r.over].name : null,
+          under: r.under ? teams[r.under].name : null
+        }))
       };
       return `<button type="button" class="why-btn" data-why="${key}"
-        aria-label="Why ${teams[id].name} is ranked here">i</button>`;
+        aria-label="Tiebreakers involving ${teams[id].name}">i</button>`;
     }
 
     function teamFlags(picture, id, scope) {
@@ -3717,10 +3766,14 @@
       pop.className = "why-pop";
       pop.setAttribute("role", "dialog");
       pop.innerHTML = `
-        <h4>${info.criterion}</h4>
-        <p>${info.detail}</p>
-        ${info.over ? `<div class="why-team">Placed ahead of ${info.over}.</div>`
-          : info.under ? `<div class="why-team">Placed behind ${info.under}.</div>` : ""}`;
+        <div class="why-head">${info.team} · ${info.entries.length} tiebreak${info.entries.length === 1 ? "" : "s"}</div>
+        ${info.entries.map((e) => `
+          <div class="why-entry">
+            <h4>${e.race} · ${e.criterion}</h4>
+            <p>${e.detail}</p>
+            ${e.over ? `<div class="why-team">Placed ahead of ${e.over}.</div>`
+              : e.under ? `<div class="why-team">Placed behind ${e.under}.</div>` : ""}
+          </div>`).join("")}`;
       document.body.appendChild(pop);
 
       const anchor = button.getBoundingClientRect();
@@ -3914,13 +3967,12 @@
       const live = asOf > 0;
       const picture = buildPicture(asOf);
       const stats = picture.stats;
-      const through = live ? `Through Week ${asOf}` : "No games played";
 
       const divisionCards = DIVISION_NAMES.map((division) => {
         const ids = live ? picture.divisions[division] : divisionOrder[division];
         return `
         <article class="card">
-          ${cardHead(division, division.charAt(0), `5 teams · ${through}`)}
+          ${cardHead(division, division.charAt(0))}
           <div class="table-wrap">
             <table>
               <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
@@ -4036,7 +4088,7 @@
             <div class="bracket-round">
               <div class="round-label">Round 1<span>Week 15</span></div>
               ${picture.sides.map((side) =>
-                projectedGame(`${side.division} side`, "#3", side.three, "#2", side.two, stats)).join("")}
+                projectedGame(`${side.division} side`, picture.seedLabels[side.three].chip, side.three, "#2", side.two, stats)).join("")}
             </div>
             <div class="bracket-round">
               <div class="round-label">Semifinals<span>Week 16</span></div>
