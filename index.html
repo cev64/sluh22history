@@ -1457,6 +1457,7 @@
         <span>View</span>
         <select id="pageSelect" aria-label="Open a season">
           <option value="home" selected>All-Time Home</option>
+          <option value="2026">2026 Season · Live</option>
           <option value="2025">2025 Season</option>
           <option value="2024">2024 Season</option>
           <option value="2023">2023 Season</option>
@@ -2242,6 +2243,7 @@
     document.getElementById("pageSelect").addEventListener("change", (event) => {
       const pages = {
         home: "index.html",
+        2026: "2026.html",
         2025: "2025.html",
         2024: "2024.html",
         2023: "2023.html",

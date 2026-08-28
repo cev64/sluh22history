@@ -1,0 +1,3886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="2026 fantasy football season live hub: weekly results, standings, and the playoff picture as it stands today." />
+  <title>League History · 2026 Live</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#071827" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="League History" />
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <script src="pwa.js" defer></script>
+  <style>
+    :root {
+      --ink: #0b1726;
+      --muted: #637083;
+      --line: #dce3eb;
+      --surface: #ffffff;
+      --surface-2: #f5f7fa;
+      --page: #eef2f6;
+      --navy: #071827;
+      --navy-2: #102b43;
+      --blue: #1769e0;
+      --blue-2: #0f56bd;
+      --red: #d71920;
+      --gold: #f6b73c;
+      --green: #16834a;
+      --shadow: 0 12px 30px rgba(7, 24, 39, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(23, 105, 224, .08), transparent 24rem),
+        linear-gradient(180deg, #f7f9fb 0, var(--page) 38rem, #f7f9fb 100%);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(7, 24, 39, .96);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: #fff;
+    }
+
+    .topbar-inner {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 48px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      letter-spacing: -.05em;
+      background: linear-gradient(145deg, #fff 0%, #dce6f3 100%);
+      color: var(--navy);
+      clip-path: polygon(50% 0, 92% 16%, 86% 78%, 50% 100%, 14% 78%, 8% 16%);
+      box-shadow: inset 0 0 0 3px rgba(215, 25, 32, .55);
+      flex: 0 0 auto;
+    }
+
+    .brand-copy { min-width: 0; }
+    .brand-kicker {
+      display: block;
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #9eb0c1;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+    .brand-title {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .year-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #c9d5df;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .year-control select {
+      appearance: none;
+      color: #fff;
+      background: #16324a;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 10px;
+      padding: 10px 38px 10px 14px;
+      font-weight: 800;
+      outline: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #fff 50%),
+        linear-gradient(135deg, #fff 50%, transparent 50%);
+      background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .hero {
+      color: #fff;
+      background:
+        linear-gradient(90deg, rgba(7, 24, 39, .98) 0%, rgba(11, 40, 66, .96) 54%, rgba(23, 105, 224, .86) 100%),
+        repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.025) 40px),
+        repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,.025) 40px);
+      border-bottom: 4px solid var(--red);
+    }
+
+    .hero-inner {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(330px, 430px);
+      gap: 32px;
+      align-items: center;
+    }
+
+    .season-hero-title {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      color: #9fc4ff;
+      text-transform: uppercase;
+      letter-spacing: .19em;
+      font-size: 11px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      font-size: clamp(54px, 8vw, 92px);
+      line-height: .9;
+      letter-spacing: -.06em;
+      margin: 0;
+      max-width: 760px;
+    }
+
+    .champ-card {
+      justify-self: end;
+      width: min(100%, 430px);
+      border-radius: 22px;
+      padding: 22px;
+      background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.17);
+      box-shadow: 0 24px 65px rgba(0,0,0,.28);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .champ-card::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -60px;
+      top: -70px;
+      background: radial-gradient(circle, rgba(246,183,60,.45), transparent 65%);
+      pointer-events: none;
+    }
+
+    .champ-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffe2a3;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-weight: 900;
+    }
+
+    .champ-team {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 18px 0;
+    }
+
+    .champ-team .team-badge { width: 62px; height: 62px; font-size: 29px; }
+    .champ-team h2 { margin: 0; font-size: 26px; letter-spacing: -.035em; }
+    .champ-team span { color: #bcd0e1; font-size: 13px; }
+
+    .champ-score {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,.13);
+    }
+
+    .champ-score strong { display: block; font-size: 22px; }
+    .champ-score small { color: #aebdca; }
+    .champ-score .versus { font-size: 11px; color: #7690a7; font-weight: 900; }
+    .champ-score > div:last-child { text-align: right; }
+
+    main {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 30px 0 70px;
+    }
+
+    .season-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: -18px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 17px;
+      box-shadow: 0 8px 24px rgba(7,24,39,.07);
+      min-width: 0;
+    }
+
+    .metric-card small {
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 900;
+      margin-bottom: 7px;
+    }
+
+    .metric-card strong {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 16px;
+      letter-spacing: -.025em;
+    }
+
+    .metric-card span { color: var(--muted); font-size: 12px; }
+
+    .page-toolbar {
+      margin: 28px 0 18px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .page-title h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -.04em;
+    }
+
+    .page-title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .view-tabs {
+      display: inline-flex;
+      gap: 4px;
+      background: #e4e9ef;
+      padding: 4px;
+      border-radius: 12px;
+      flex-wrap: wrap;
+    }
+
+    .view-tab {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      color: #536174;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 800;
+      transition: .18s ease;
+    }
+
+    .view-tab:hover { color: var(--ink); }
+    .view-tab.active {
+      color: #fff;
+      background: var(--navy-2);
+      box-shadow: 0 5px 14px rgba(7,24,39,.18);
+    }
+
+    .view-panel { display: none; }
+    .view-panel.active { display: block; animation: panelIn .2s ease; }
+    @keyframes panelIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+    .division-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 19px 20px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card-head h3 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 18px;
+      letter-spacing: -.025em;
+    }
+
+    .division-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 8px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .card-head span { color: var(--muted); font-size: 12px; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 555px;
+    }
+
+    th {
+      color: #6b7788;
+      font-size: 10px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      font-weight: 900;
+      padding: 12px 14px;
+      text-align: right;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    th:first-child, th:nth-child(2) { text-align: left; }
+
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid #edf0f3;
+      font-size: 13px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background .15s ease; }
+    tbody tr:hover { background: #f5f8fb; }
+    td:first-child, td:nth-child(2) { text-align: left; }
+
+    .rank {
+      color: #7a8796;
+      font-weight: 900;
+      width: 36px;
+    }
+
+    .team-cell { min-width: 250px; }
+    .team-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--blue-2);
+      font-weight: 800;
+      text-align: left;
+    }
+    .team-button:hover .team-name { text-decoration: underline; }
+
+    .team-badge {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 10px;
+      font-size: 17px;
+      color: #fff;
+      background: var(--team-color, var(--navy-2));
+      border: 2px solid rgba(255,255,255,.5);
+      box-shadow: 0 0 0 1px rgba(7,24,39,.12), inset 0 -8px 14px rgba(0,0,0,.13);
+      flex: 0 0 auto;
+    }
+
+    .team-meta { display: flex; flex-direction: column; gap: 2px; }
+    .team-name { color: var(--blue-2); font-size: 13px; }
+    .owner { color: var(--muted); font-size: 11px; font-weight: 600; }
+
+    .record { font-weight: 900; }
+    .positive { color: var(--green); }
+    .negative { color: #c92929; }
+    .muted { color: var(--muted); }
+
+    .final-card .card-head { padding-bottom: 15px; }
+    .final-table { min-width: 900px; }
+    .final-table .place { width: 56px; }
+    .final-table .team-cell { min-width: 300px; }
+    .champion-row { background: linear-gradient(90deg, rgba(246,183,60,.16), transparent 48%); }
+    .champion-row:hover { background: linear-gradient(90deg, rgba(246,183,60,.22), #f8fafc 60%); }
+    .place-medal { font-size: 17px; margin-right: 4px; }
+
+    .sort-button {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 5px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-transform: inherit;
+      letter-spacing: inherit;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .sort-button:hover,
+    .sort-button.active {
+      color: var(--blue-2);
+    }
+
+    .sort-indicator {
+      min-width: 10px;
+      font-size: 11px;
+      line-height: 1;
+      color: var(--red);
+    }
+
+    .bracket-card { padding: 0; }
+
+    .bracket-head {
+      min-height: 0;
+    }
+
+    .bracket-head > div {
+      display: flex;
+      align-items: center;
+    }
+
+    .bracket-head h3 {
+      margin: 0;
+    }
+
+    .bracket-head {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+    }
+    .bracket-head h3 { margin: 0; font-size: 19px; }
+    .bracket-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .bracket-tag {
+      color: #fff;
+      background: var(--red);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 8px 11px;
+      white-space: nowrap;
+    }
+
+    .bracket-scroll { overflow-x: auto; }
+    .bracket {
+      min-width: 1050px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      padding: 24px;
+      background:
+        linear-gradient(rgba(255,255,255,.94), rgba(255,255,255,.94)),
+        repeating-linear-gradient(90deg, #dfe7ef 0 1px, transparent 1px 48px),
+        repeating-linear-gradient(0deg, #dfe7ef 0 1px, transparent 1px 48px);
+    }
+
+    .round {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .round-title {
+      padding: 0 3px 12px;
+      border-bottom: 3px solid var(--navy-2);
+      margin-bottom: 18px;
+    }
+    .round-title strong { display: block; font-size: 13px; letter-spacing: .02em; }
+    .round-title span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+
+    .round-games { display: flex; flex-direction: column; justify-content: space-around; flex: 1; gap: 18px; }
+    .round-2 .round-games { padding: 60px 0; gap: 100px; }
+    .round-3 .round-games { justify-content: center; padding: 140px 0; }
+
+    .matchup {
+      position: relative;
+      background: #fff;
+      border: 1px solid #cfd8e2;
+      border-radius: 14px;
+      padding: 8px 12px;
+      box-shadow: 0 7px 18px rgba(7,24,39,.07);
+    }
+
+    .matchup-row {
+      display: grid;
+      grid-template-columns: 46px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 2px;
+      color: #7e8996;
+      font-size: 12px;
+    }
+    .matchup-row + .matchup-row { border-top: 1px solid #edf0f3; }
+    .matchup-row.winner { color: var(--ink); font-weight: 900; }
+    .matchup-row .seed { color: #758191; font-size: 10px; font-weight: 900; white-space: nowrap; }
+    .matchup-row .score { font-size: 15px; font-variant-numeric: tabular-nums; }
+    .matchup-row .mini-team { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .matchup-row .mini-team span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mini-badge {
+      width: 23px; height: 23px; border-radius: 7px; display: grid; place-items: center;
+      color: #fff; font-size: 12px; background: var(--team-color, var(--navy));
+      flex: 0 0 auto;
+    }
+    .bye { min-height: 94px; display: flex; flex-direction: column; justify-content: center; }
+    .bye-label { padding: 6px 2px 2px 56px; color: #8a95a2; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; font-weight: 900; }
+    .championship-matchup {
+      border: 2px solid var(--gold);
+      box-shadow: 0 14px 34px rgba(246,183,60,.24);
+    }
+    .championship-matchup::before {
+      content: "CHAMPION";
+      position: absolute;
+      right: 12px;
+      top: -11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #2d2105;
+      font-size: 8px;
+      font-weight: 1000;
+      letter-spacing: .1em;
+    }
+
+
+    .losers-card {
+      margin-top: 22px;
+    }
+
+    .losers-card .bracket-head {
+      background: linear-gradient(180deg, #fff, #fff8f7);
+    }
+
+    .losers-card .bracket-tag {
+      background: #a62f2b;
+    }
+
+    .losers-bracket .round-2 .round-games,
+    .losers-bracket .round-3 .round-games {
+      justify-content: center;
+      padding: 68px 0;
+      gap: 18px;
+    }
+
+    .matchup-kicker {
+      margin: -1px 2px 5px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .matchup-path {
+      margin-top: 6px;
+      padding: 8px 2px 1px;
+      border-top: 1px solid #edf0f3;
+      color: #687585;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .last-place-matchup {
+      border: 2px solid #d6433d;
+      box-shadow: 0 14px 34px rgba(214,67,61,.18);
+    }
+
+    .last-place-matchup::before {
+      content: "LAST PLACE";
+      position: absolute;
+      right: 12px;
+      top: -11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #d6433d;
+      color: #fff;
+      font-size: 8px;
+      font-weight: 1000;
+      letter-spacing: .12em;
+    }
+
+    .last-place-row {
+      color: #a62f2b !important;
+      font-weight: 900;
+    }
+
+    .source-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(4, 14, 23, .64);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+      backdrop-filter: blur(3px);
+    }
+    .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .team-drawer {
+      position: fixed;
+      z-index: 80;
+      top: 0;
+      right: 0;
+      width: min(600px, 100%);
+      height: 100dvh;
+      background: #f6f8fa;
+      box-shadow: -25px 0 65px rgba(0,0,0,.25);
+      transform: translateX(104%);
+      transition: transform .26s cubic-bezier(.2,.8,.2,1);
+      display: flex;
+      flex-direction: column;
+    }
+    .team-drawer.open { transform: translateX(0); }
+
+    .drawer-hero {
+      padding: 22px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--drawer-color, var(--navy-2)), #071827 92%);
+      position: relative;
+      overflow: hidden;
+    }
+    .drawer-hero::after {
+      content: "";
+      position: absolute;
+      width: 260px; height: 260px;
+      right: -120px; top: -110px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+    }
+
+    .drawer-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      z-index: 2;
+      width: 38px; height: 38px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      border-radius: 10px;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .drawer-team {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding-right: 46px;
+    }
+    .drawer-team .team-badge { width: 58px; height: 58px; font-size: 28px; }
+    .drawer-team h2 { margin: 0 0 4px; font-size: 25px; letter-spacing: -.04em; }
+    .drawer-team p { margin: 0; color: rgba(255,255,255,.72); font-size: 13px; }
+
+    .drawer-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .drawer-stat {
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .drawer-stat small { display: block; color: rgba(255,255,255,.63); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; font-weight: 900; margin-bottom: 5px; }
+    .drawer-stat strong { font-size: 14px; }
+
+    .drawer-body {
+      flex: 1;
+      overflow: auto;
+      padding: 18px;
+    }
+
+    .schedule-section { margin-bottom: 20px; }
+    .schedule-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 2px 10px;
+    }
+    .schedule-heading h3 { margin: 0; font-size: 15px; }
+    .schedule-heading span { color: var(--muted); font-size: 11px; }
+
+    .schedule-list {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .schedule-row {
+      display: grid;
+      grid-template-columns: 54px 34px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px;
+      border-bottom: 1px solid #edf0f3;
+    }
+    .schedule-row:last-child { border-bottom: 0; }
+    .schedule-week { color: var(--muted); font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+    .result-pill {
+      width: 27px; height: 27px; border-radius: 8px; display: grid; place-items: center;
+      font-size: 11px; font-weight: 1000; color: #fff;
+    }
+    .result-pill.win { background: var(--green); }
+    .result-pill.loss { background: #c73535; }
+    .result-pill.bye { background: #8693a1; }
+    .schedule-opponent { min-width: 0; }
+    .schedule-opponent strong { display: block; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .schedule-opponent span { color: var(--muted); font-size: 10px; }
+    .schedule-score { text-align: right; font-size: 12px; }
+    .schedule-score strong { display: block; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .schedule-score span { color: var(--muted); font-size: 10px; }
+
+
+    .mobile-stat-strip,
+    .mobile-sort-control {
+      display: none;
+    }
+
+    .mobile-stat-strip {
+      margin-top: 5px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .mobile-stat {
+      min-width: 0;
+      padding: 3px 2px;
+      border-radius: 5px;
+      background: #f3f6f9;
+      text-align: center;
+    }
+
+    .mobile-stat small {
+      display: block;
+      color: #7a8796;
+      font-size: 7px;
+      font-weight: 900;
+      letter-spacing: .05em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .mobile-stat strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 9px;
+      line-height: 1.05;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .mobile-sort-control {
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .mobile-sort-control select {
+      min-width: 112px;
+      border: 1px solid #ccd5df;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 28px 7px 8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+
+    .mobile-winner-tree {
+      display: none;
+    }
+
+
+    /* Subtle championship styling, mirroring the red tint used for the losers bracket. */
+    .winners-card .bracket-head {
+      background: linear-gradient(180deg, #fffef9, #fff7d9);
+      border-bottom-color: #ead58b;
+    }
+
+    /* Playoff team names open the same schedule drawer used by the standings. */
+    .bracket-team-button {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .bracket-team-button:hover .bracket-team-name,
+    .bracket-team-button:focus-visible .bracket-team-name {
+      color: var(--blue-2);
+      text-decoration: underline;
+    }
+
+    .bracket-team-button:focus-visible {
+      outline: 2px solid var(--blue-2);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    .bracket-team-name {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .bracket-team-name.multiline {
+      text-align: left;
+    }
+
+    /* Keep every logo optically centered inside its tile in the winner's bracket. */
+    .winners-card .mini-badge,
+    .mobile-winner-tree .mini-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1;
+    }
+
+
+    .mobile-sort-direction {
+      width: 30px;
+      height: 30px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid #ccd5df;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 1000;
+      cursor: pointer;
+    }
+
+    .mobile-sort-direction:hover,
+    .mobile-sort-direction:focus-visible {
+      border-color: var(--blue);
+      color: var(--blue-2);
+    }
+
+    .footer {
+      padding: 26px 16px 34px;
+      text-align: center;
+      color: #718092;
+      font-size: 11px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .champ-card { justify-self: stretch; width: 100%; }
+      .season-strip { grid-template-columns: repeat(2, 1fr); }
+      .division-grid { grid-template-columns: 1fr; }
+      .page-toolbar { align-items: stretch; flex-direction: column; }
+      .view-tabs { align-self: stretch; }
+      .view-tab { flex: 1; }
+    }
+
+
+    @media (max-width: 700px) {
+      .topbar-inner, .hero-inner, main { width: min(100% - 12px, 1220px); }
+      .topbar-inner { min-height: 56px; }
+      .brand-kicker { display: none; }
+      .brand-title { font-size: 15px; }
+      .brand-mark { width: 32px; height: 37px; font-size: 12px; }
+      .year-control > span { display: none; }
+      .year-control select { padding: 7px 27px 7px 9px; font-size: 12px; }
+
+      .hero-inner {
+        padding: 20px 0 18px;
+        gap: 12px;
+      }
+
+      .hero h1 { font-size: 38px; }
+
+      .champ-card {
+        padding: 13px;
+        border-radius: 14px;
+      }
+
+      .champ-label { font-size: 8px; margin-bottom: 9px; }
+      .champ-team { gap: 8px; }
+      .champ-team .team-badge { width: 38px; height: 38px; font-size: 18px; }
+      .champ-team h2 { font-size: 17px; }
+      .champ-team span { font-size: 10px; }
+      .champ-score { margin-top: 11px; padding-top: 10px; }
+      .champ-score strong { font-size: 19px; }
+      .champ-score small { font-size: 8px; }
+
+      .season-strip {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-top: -8px;
+      }
+
+      .metric-card {
+        min-height: 0;
+        padding: 9px 10px;
+        border-radius: 11px;
+      }
+
+      .metric-card small { margin-bottom: 4px; font-size: 7px; }
+      .metric-card strong { font-size: 12px; }
+      .metric-card span { font-size: 9px; }
+
+      .page-toolbar {
+        margin: 15px 0 9px;
+        gap: 8px;
+      }
+
+      .page-title h2 { font-size: 21px; }
+      .page-title p { margin-top: 3px; font-size: 10px; }
+
+      .view-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+        gap: 2px;
+        padding: 3px;
+        border-radius: 10px;
+      }
+
+      .view-tab {
+        min-width: 0;
+        padding: 8px 3px;
+        border-radius: 7px;
+        font-size: 10px;
+        line-height: 1.1;
+        white-space: normal;
+      }
+
+      .division-grid { gap: 9px; }
+
+      .card {
+        border-radius: 12px;
+        box-shadow: 0 5px 16px rgba(7,24,39,.07);
+      }
+
+      .card-head,
+      .bracket-head {
+        padding: 11px 12px;
+      }
+
+      .card-head h3,
+      .bracket-head h3 {
+        font-size: 15px;
+      }
+
+      .card-head > span { font-size: 9px; }
+      .division-chip { min-width: 23px; height: 23px; border-radius: 6px; font-size: 9px; }
+
+      /* Compact regular-season rows: all stats remain visible inside each team row. */
+      #regular .table-wrap,
+      #final .table-wrap {
+        overflow: visible;
+      }
+
+      #regular table,
+      #regular tbody,
+      #final table,
+      #final tbody {
+        display: block;
+        width: 100%;
+        min-width: 0;
+      }
+
+      #regular thead,
+      #final thead {
+        display: none;
+      }
+
+      #regular tbody tr,
+      #final tbody tr {
+        display: grid;
+        grid-template-columns: 24px minmax(0, 1fr);
+        align-items: center;
+        min-height: 0;
+        padding: 7px 8px;
+        border-bottom: 1px solid #edf0f3;
+      }
+
+      #regular tbody tr:last-child,
+      #final tbody tr:last-child {
+        border-bottom: 0;
+      }
+
+      #regular td,
+      #final td {
+        padding: 0;
+        border: 0;
+        text-align: left;
+        white-space: normal;
+      }
+
+      #regular td.rank,
+      #final td.rank {
+        grid-column: 1;
+        color: #738090;
+        font-size: 11px;
+        text-align: center;
+      }
+
+      #regular td.team-cell,
+      #final td.team-cell {
+        grid-column: 2;
+        min-width: 0;
+      }
+
+      #regular td:not(.rank):not(.team-cell),
+      #final td:not(.rank):not(.team-cell) {
+        display: none;
+      }
+
+      .team-button {
+        width: 100%;
+        gap: 6px;
+      }
+
+      .team-badge {
+        width: 27px;
+        height: 27px;
+        border-radius: 7px;
+        font-size: 13px;
+      }
+
+      .team-meta {
+        min-width: 0;
+        gap: 0;
+      }
+
+      .team-name {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        color: var(--blue-2);
+        font-size: 10.5px;
+        line-height: 1.1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .owner {
+        font-size: 8.5px;
+        line-height: 1.15;
+      }
+
+      .mobile-stat-strip { display: grid; }
+
+      .final-card .card-head {
+        flex-wrap: wrap;
+        padding-bottom: 10px;
+      }
+
+      .final-card .card-head > span {
+        display: none;
+      }
+
+      .mobile-sort-control {
+        display: inline-flex;
+        margin-left: auto;
+      }
+
+      .place-medal {
+        display: block;
+        margin: 0;
+        font-size: 13px;
+        line-height: 1;
+      }
+
+      /* Brackets become dense round sections instead of a wide scrolling canvas. */
+      .bracket-card { margin-top: 0; }
+      .losers-card { margin-top: 10px; }
+
+      .bracket-head {
+        align-items: center;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
+      .bracket-scroll {
+        overflow: visible;
+      }
+
+      .bracket {
+        min-width: 0;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 8px;
+        background:
+          linear-gradient(rgba(255,255,255,.96), rgba(255,255,255,.96)),
+          repeating-linear-gradient(90deg, #e8edf2 0 1px, transparent 1px 28px),
+          repeating-linear-gradient(0deg, #e8edf2 0 1px, transparent 1px 28px);
+      }
+
+      .round-title {
+        margin-bottom: 7px;
+        padding: 0 2px 5px;
+        border-bottom-width: 2px;
+      }
+
+      .round-title strong { font-size: 11px; }
+      .round-title span { font-size: 8px; }
+
+      .round-games,
+      .round-2 .round-games,
+      .round-3 .round-games,
+      .losers-bracket .round-2 .round-games,
+      .losers-bracket .round-3 .round-games {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
+        gap: 6px;
+        padding: 0;
+      }
+
+      .round-3 .round-games,
+      .losers-bracket .round-2 .round-games,
+      .losers-bracket .round-3 .round-games {
+        grid-template-columns: 1fr;
+      }
+
+      .matchup {
+        min-width: 0;
+        padding: 5px 6px;
+        border-radius: 9px;
+        box-shadow: 0 3px 9px rgba(7,24,39,.06);
+      }
+
+      .matchup-row {
+        grid-template-columns: 27px minmax(0, 1fr) auto;
+        gap: 4px;
+        padding: 5px 0;
+        font-size: 9px;
+      }
+
+      .matchup-row .seed { font-size: 7.5px; }
+      .matchup-row .score { font-size: 10px; }
+      .matchup-row .mini-team { gap: 4px; align-items: flex-start; }
+      .matchup-row .mini-team span:last-child {
+        overflow: visible;
+        font-size: 8.5px;
+        line-height: 1.12;
+        text-overflow: clip;
+        white-space: normal;
+      }
+
+      .mini-badge {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        font-size: 9px;
+      }
+
+      .bye {
+        min-height: 0;
+      }
+
+      .bye-label {
+        padding: 3px 0 1px 31px;
+        font-size: 7px;
+      }
+
+      .matchup-kicker {
+        margin-bottom: 2px;
+        font-size: 7px;
+      }
+
+      .matchup-path {
+        margin-top: 3px;
+        padding-top: 4px;
+        font-size: 6.5px;
+        line-height: 1.2;
+      }
+
+      .championship-matchup::before,
+      .last-place-matchup::before {
+        right: 7px;
+        top: -8px;
+        padding: 3px 5px;
+        font-size: 6px;
+      }
+
+
+      /* Preserve a true three-round bracket on mobile for the championship side. */
+      .winners-card .bracket-scroll {
+        overflow: visible;
+      }
+
+      .winners-bracket {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        min-width: 0;
+        padding: 8px 5px 10px;
+      }
+
+      .winners-bracket .round {
+        position: relative;
+        min-width: 0;
+      }
+
+      .winners-bracket .round-title {
+        min-height: 29px;
+        margin-bottom: 3px;
+        padding: 0 1px 4px;
+        text-align: center;
+      }
+
+      .winners-bracket .round-title strong {
+        display: block;
+        font-size: 8px;
+        line-height: 1.05;
+      }
+
+      .winners-bracket .round-title span {
+        display: block;
+        margin-top: 2px;
+        font-size: 6.5px;
+        line-height: 1;
+      }
+
+      .winners-bracket .round-games,
+      .winners-bracket .round-2 .round-games,
+      .winners-bracket .round-3 .round-games {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(8, minmax(0, 1fr));
+        height: 330px;
+        gap: 0;
+        padding: 0;
+      }
+
+      .winners-bracket .round-1 .matchup:nth-child(1) { grid-row: 1 / 3; }
+      .winners-bracket .round-1 .matchup:nth-child(2) { grid-row: 3 / 5; }
+      .winners-bracket .round-1 .matchup:nth-child(3) { grid-row: 5 / 7; }
+      .winners-bracket .round-1 .matchup:nth-child(4) { grid-row: 7 / 9; }
+
+      .winners-bracket .round-2 .matchup:nth-child(1) { grid-row: 2 / 4; }
+      .winners-bracket .round-2 .matchup:nth-child(2) { grid-row: 6 / 8; }
+
+      .winners-bracket .round-3 .matchup:nth-child(1) { grid-row: 4 / 6; }
+
+      .winners-bracket .matchup {
+        position: relative;
+        z-index: 2;
+        align-self: center;
+        width: 100%;
+        min-width: 0;
+        padding: 3px 4px;
+        border-radius: 7px;
+        box-shadow: 0 2px 7px rgba(7,24,39,.08);
+      }
+
+      .winners-bracket .matchup-row {
+        grid-template-columns: 19px minmax(0, 1fr) 25px;
+        gap: 2px;
+        min-height: 25px;
+        padding: 3px 0;
+      }
+
+      .winners-bracket .matchup-row .seed {
+        font-size: 6px;
+        line-height: 1.05;
+        white-space: normal;
+      }
+
+      .winners-bracket .matchup-row .mini-team {
+        min-width: 0;
+        gap: 0;
+      }
+
+      .winners-bracket .mini-badge {
+        display: none;
+      }
+
+      .winners-bracket .matchup-row .mini-team span:last-child {
+        display: -webkit-box;
+        overflow: hidden;
+        font-size: 6.7px;
+        font-weight: 850;
+        line-height: 1.05;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .winners-bracket .matchup-row .score {
+        font-size: 7.2px;
+      }
+
+      .winners-bracket .bye {
+        min-height: 0;
+      }
+
+      .winners-bracket .bye-label {
+        padding: 1px 0 0 21px;
+        font-size: 5.8px;
+      }
+
+      /* Connector geometry: Round 1 pairs feed the semifinals. */
+      .winners-bracket .round-2 .round-games::before,
+      .winners-bracket .round-3 .round-games::before {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        bottom: 0;
+        left: -6px;
+        width: 6px;
+        pointer-events: none;
+      }
+
+      .winners-bracket .round-2 .round-games::before {
+        background:
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 12.5% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 25% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 37.5% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 12.5% / 1px 25% no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 62.5% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 75% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 87.5% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 62.5% / 1px 25% no-repeat;
+      }
+
+      /* The two semifinal winners feed the title game. */
+      .winners-bracket .round-3 .round-games::before {
+        background:
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 25% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 50% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 75% / 100% 1px no-repeat,
+          linear-gradient(#aab5c1, #aab5c1) left 0 top 25% / 1px 50% no-repeat;
+      }
+
+      .winners-bracket .championship-matchup::before {
+        right: 4px;
+        top: -7px;
+        padding: 2px 4px;
+        font-size: 5px;
+      }
+
+
+      /* Mobile winner's bracket: two persistent bracket lanes that merge at the title game. */
+      .winners-card > .bracket-scroll {
+        display: none;
+      }
+
+      .mobile-winner-tree {
+        display: block;
+        padding: 10px;
+        background:
+          linear-gradient(rgba(255,255,255,.97), rgba(255,255,255,.97)),
+          repeating-linear-gradient(90deg, #e8edf2 0 1px, transparent 1px 28px),
+          repeating-linear-gradient(0deg, #e8edf2 0 1px, transparent 1px 28px);
+      }
+
+      .mobile-bracket-stage {
+        position: relative;
+      }
+
+      .mobile-bracket-stage + .mobile-bracket-stage {
+        margin-top: 12px;
+      }
+
+      .mobile-stage-title {
+        margin-bottom: 8px;
+        padding: 0 4px 6px;
+        border-bottom: 3px solid #162b42;
+      }
+
+      .mobile-stage-title strong {
+        display: block;
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.1;
+      }
+
+      .mobile-stage-title span {
+        display: block;
+        margin-top: 4px;
+        color: #66778a;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+
+      .mobile-lane-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .mobile-bracket-lane {
+        position: relative;
+        min-width: 0;
+      }
+
+      .mobile-lane-label {
+        margin: 0 2px 5px;
+        color: #778495;
+        font-size: 7.5px;
+        font-weight: 1000;
+        letter-spacing: .1em;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .mobile-winner-tree .matchup {
+        min-width: 0;
+        padding: 6px 7px;
+        border-radius: 11px;
+        box-shadow: 0 4px 12px rgba(7,24,39,.07);
+      }
+
+      .mobile-winner-tree .matchup-row {
+        grid-template-columns: 31px minmax(0, 1fr) auto;
+        gap: 5px;
+        min-height: 36px;
+        padding: 6px 0;
+      }
+
+      .mobile-winner-tree .matchup-row .seed {
+        font-size: 8px;
+        line-height: 1.05;
+        white-space: normal;
+      }
+
+      .mobile-winner-tree .mini-team {
+        min-width: 0;
+        gap: 6px;
+      }
+
+      .mobile-winner-tree .mini-badge {
+        display: inline-flex;
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        font-size: 13px;
+        flex: 0 0 auto;
+      }
+
+      .mobile-winner-tree .mini-team > span:last-child {
+        display: -webkit-box;
+        overflow: hidden;
+        color: inherit;
+        font-size: 9.5px;
+        font-weight: 850;
+        line-height: 1.08;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .mobile-winner-tree .matchup-row .score {
+        font-size: 10px;
+      }
+
+      .mobile-winner-tree .matchup-kicker {
+        margin: 0 2px 2px;
+        font-size: 7px;
+      }
+
+      .mobile-bye-card {
+        border-color: #c8d3df;
+        background: linear-gradient(180deg, #fff, #f5f8fb);
+      }
+
+      .semifinal-stage::before {
+        content: "";
+        position: absolute;
+        top: -13px;
+        left: 25%;
+        right: 25%;
+        height: 13px;
+        border-left: 2px solid #a9b5c2;
+        border-right: 2px solid #a9b5c2;
+      }
+
+      .mobile-semifinal-lane::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        width: 2px;
+        height: 8px;
+        background: #a9b5c2;
+        transform: translateX(-50%);
+      }
+
+      .mobile-merge-lines {
+        position: relative;
+        height: 22px;
+        margin: 0 25%;
+        border-bottom: 2px solid #a9b5c2;
+      }
+
+      .mobile-merge-lines::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -22px;
+        width: 2px;
+        height: 22px;
+        background: #a9b5c2;
+        transform: translateX(-50%);
+      }
+
+      .mobile-merge-lines span {
+        position: absolute;
+        bottom: 0;
+        width: 2px;
+        height: 22px;
+        background: #a9b5c2;
+      }
+
+      .mobile-merge-lines span:first-child { left: 0; }
+      .mobile-merge-lines span:last-child { right: 0; }
+
+      .championship-stage {
+        padding-top: 9px;
+      }
+
+      .mobile-championship-card {
+        width: min(100%, 430px);
+        margin: 0 auto;
+      }
+
+      .mobile-winner-tree .championship-matchup::before {
+        right: 9px;
+        top: -9px;
+        padding: 3px 6px;
+        font-size: 6px;
+      }
+
+      @media (max-width: 430px) {
+        .mobile-winner-tree {
+          padding: 8px 6px;
+        }
+
+        .mobile-lane-grid {
+          gap: 5px;
+        }
+
+        .mobile-winner-tree .matchup {
+          padding: 5px;
+          border-radius: 9px;
+        }
+
+        .mobile-winner-tree .matchup-row {
+          grid-template-columns: 25px minmax(0, 1fr) auto;
+          gap: 3px;
+          min-height: 32px;
+          padding: 5px 0;
+        }
+
+        .mobile-winner-tree .mini-badge {
+          width: 22px;
+          height: 22px;
+          border-radius: 6px;
+          font-size: 11px;
+        }
+
+        .mobile-winner-tree .mini-team {
+          gap: 4px;
+        }
+
+        .mobile-winner-tree .mini-team > span:last-child {
+          font-size: 8px;
+        }
+
+        .mobile-winner-tree .matchup-row .seed {
+          font-size: 7px;
+        }
+
+        .mobile-winner-tree .matchup-row .score {
+          font-size: 8.5px;
+        }
+
+        .mobile-winner-tree .matchup-kicker,
+        .mobile-lane-label {
+          font-size: 6.5px;
+        }
+      }
+
+      .source-note {
+        margin-top: 7px;
+        font-size: 8.5px;
+        line-height: 1.3;
+        text-align: left;
+      }
+
+      .drawer-stats { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+      .drawer-stat { padding: 7px 4px; }
+      .drawer-stat small { font-size: 7px; }
+      .drawer-stat strong { font-size: 11px; }
+      .schedule-row {
+        grid-template-columns: 42px 23px minmax(0, 1fr) auto;
+        gap: 5px;
+        padding: 7px;
+      }
+      .schedule-week { font-size: 8px; }
+      .result-pill { width: 21px; height: 21px; font-size: 8px; }
+      .schedule-opponent strong { font-size: 10px; }
+      .schedule-opponent span { font-size: 8px; }
+      .schedule-score { font-size: 9px; }
+      .schedule-score strong { font-size: 10px; }
+      .drawer-hero, .drawer-body { padding-left: 10px; padding-right: 10px; }
+    }
+
+  
+    /* Compact season outcome cards */
+    .hero-inner.outcome-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      padding: 24px 0;
+      align-items: stretch;
+    }
+
+    .outcome-card {
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
+      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+    }
+
+    .outcome-card::after {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -55px;
+      top: -65px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .champion-outcome::after {
+      background: radial-gradient(circle, rgba(246,183,60,.42), transparent 67%);
+    }
+
+    .loser-outcome::after {
+      background: radial-gradient(circle, rgba(214,67,61,.42), transparent 67%);
+    }
+
+    .outcome-label {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      width: fit-content;
+      padding: 4px 7px;
+      border-radius: 999px;
+      color: #3b2a05;
+      background: #ffe6a6;
+      font-size: 8px;
+      font-weight: 1000;
+      letter-spacing: .11em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .loser-outcome .outcome-label {
+      color: #fff;
+      background: #c9423c;
+    }
+
+    .outcome-team {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 13px 0;
+    }
+
+    .outcome-team .team-badge {
+      width: 46px;
+      height: 46px;
+      flex: 0 0 auto;
+      border-radius: 12px;
+      font-size: 22px;
+    }
+
+    .outcome-team h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.08;
+      letter-spacing: -.03em;
+    }
+
+    .outcome-team span {
+      display: block;
+      margin-top: 4px;
+      color: #bfd0df;
+      font-size: 10px;
+    }
+
+    .outcome-score {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.14);
+    }
+
+    .outcome-score-side {
+      min-width: 0;
+    }
+
+    .outcome-score-side:last-child {
+      text-align: right;
+    }
+
+    .outcome-score strong {
+      display: block;
+      color: #fff;
+      font-size: 19px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .outcome-score small {
+      display: block;
+      overflow: hidden;
+      margin-top: 5px;
+      color: #afc0d0;
+      font-size: 8.5px;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .outcome-status {
+      color: #8298ad;
+      font-size: 8px;
+      font-weight: 1000;
+      letter-spacing: .08em;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 700px) {
+      .hero-inner.outcome-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 12px 0;
+      }
+
+      .outcome-card {
+        padding: 12px;
+        border-radius: 14px;
+      }
+
+      .outcome-label {
+        padding: 3px 6px;
+        font-size: 7px;
+      }
+
+      .outcome-team {
+        gap: 8px;
+        margin: 9px 0;
+      }
+
+      .outcome-team .team-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        font-size: 18px;
+      }
+
+      .outcome-team h2 {
+        font-size: 16px;
+      }
+
+      .outcome-team span {
+        margin-top: 3px;
+        font-size: 8px;
+      }
+
+      .outcome-score {
+        gap: 6px;
+        padding-top: 9px;
+      }
+
+      .outcome-score strong {
+        font-size: 16px;
+      }
+
+      .outcome-score small {
+        margin-top: 3px;
+        font-size: 7px;
+      }
+
+      .outcome-status {
+        font-size: 6.5px;
+      }
+    }
+
+  
+    .hero + main .page-toolbar {
+      margin-top: 0;
+    }
+
+    @media (max-width: 700px) {
+      .hero + main .page-toolbar {
+        margin-top: 0;
+      }
+    }
+
+  
+    .outcome-team .team-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1;
+    }
+
+  
+    /* --- v4 modern overhaul: depth, glass, gradient accents, motion
+       (purely visual — data structure, columns and copy are unchanged) --- */
+
+    /* Layered light mesh gives the page real depth instead of a flat wash */
+    body {
+      background:
+        radial-gradient(1100px 520px at 84% -8%, rgba(23,105,224,.09), transparent 60%),
+        radial-gradient(880px 460px at 2% 4%, rgba(246,183,60,.07), transparent 58%),
+        radial-gradient(820px 640px at 50% 122%, rgba(23,105,224,.06), transparent 62%),
+        linear-gradient(180deg, #f3f6fb 0%, #eaeff6 46%, #f3f6fb 100%);
+    }
+
+    /* Premium card depth: crisp top highlight, soft contact + ambient shadow */
+    .card {
+      border-color: rgba(15,34,55,.09);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.85),
+        0 1px 2px rgba(10,22,38,.05),
+        0 22px 46px -26px rgba(10,22,38,.42);
+    }
+
+    /* Warmer card header with a faint tri-color rule bleeding along its base */
+    .card-head {
+      position: relative;
+      background: linear-gradient(180deg, #ffffff, #f5f9fd);
+    }
+    .card-head::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(23,105,224,.4) 22%, rgba(246,183,60,.45) 50%, rgba(215,25,32,.35) 78%, transparent);
+      opacity: .75;
+    }
+
+    /* Section chip becomes a glossy gradient token with a soft blue glow */
+    .division-chip {
+      background: linear-gradient(150deg, var(--blue) 0%, var(--navy-2) 78%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.22),
+        0 6px 14px -5px rgba(23,105,224,.6);
+    }
+
+    /* Table: brighter header, gradient row hover with a leading accent bar */
+    th {
+      background: linear-gradient(180deg, #fbfcfe, #f2f6fb);
+    }
+    tbody tr { transition: background .18s ease, box-shadow .18s ease; }
+    tbody tr:hover {
+      background: linear-gradient(90deg, rgba(23,105,224,.07), rgba(23,105,224,.02) 55%, transparent);
+      box-shadow: inset 3px 0 0 rgba(23,105,224,.6);
+    }
+    /* Champion keeps a standing gold bar so it reads as first at a glance */
+    .champion-row,
+    .champion-row:hover { box-shadow: inset 3px 0 0 var(--gold); }
+
+    /* Team badges get a subtle ring + lift so the emojis feel like real crests */
+    .team-badge {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.35),
+        0 6px 14px -6px rgba(7,24,39,.55);
+    }
+
+    /* Segmented view switcher reads as a modern pill control */
+    .view-tabs {
+      background: rgba(12,28,45,.06);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 2px rgba(7,24,39,.08);
+    }
+    .view-tab {
+      border-radius: 999px;
+      transition: color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .view-tab.active {
+      background: linear-gradient(180deg, var(--navy-2), var(--navy));
+      box-shadow: 0 8px 18px -7px rgba(7,24,39,.7), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    /* Outcome cards: gradient-lit rim + hover lift; champion adds the gold sheen */
+    .outcome-card {
+      border-color: rgba(255,255,255,.22);
+      transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+    }
+    .outcome-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 30px 64px -28px rgba(0,0,0,.6);
+    }
+    .champion-outcome { border-color: rgba(246,183,60,.42); }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .champion-outcome::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.28) 50%, transparent 60%);
+        background-size: 220% 100%;
+        background-position: -120% 0;
+        animation: v4Sheen 6s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
+      }
+    }
+    @keyframes v4Sheen {
+      0%, 15% { background-position: -120% 0; }
+      55%, 100% { background-position: 140% 0; }
+    }
+
+    /* Animated aurora drift behind the hero content (motion-safe only) */
+    @media (prefers-reduced-motion: no-preference) {
+      .hero { overflow: hidden; }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: -38% 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(closest-side, rgba(23,105,224,.35), transparent),
+          radial-gradient(closest-side, rgba(246,183,60,.22), transparent);
+        background-size: 55% 70%, 45% 60%;
+        background-position: 8% 12%, 92% 88%;
+        background-repeat: no-repeat;
+        filter: blur(12px);
+        opacity: .8;
+        animation: v4Aurora 16s ease-in-out infinite alternate;
+      }
+      .hero-inner { position: relative; z-index: 1; }
+    }
+    @keyframes v4Aurora {
+      0%   { background-position: 6% 10%, 94% 90%; }
+      100% { background-position: 22% 26%, 78% 72%; }
+    }
+
+    /* Smooth link affordance on team names */
+    .team-button { transition: transform .15s ease; }
+    .team-name { transition: color .15s ease; }
+
+    /* Season title carries a gradient accent bar — a crisp modern signature */
+    .page-title h2 {
+      position: relative;
+      padding-left: 15px;
+    }
+    .page-title h2::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .12em;
+      bottom: .12em;
+      width: 5px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--blue), var(--gold));
+    }
+
+
+
+    /* ---------------------------------------------------------------
+       2026 live-season additions.
+       Everything above is the shared season-page design system; the
+       rules below cover the pieces only the live hub needs.
+       --------------------------------------------------------------- */
+
+    .live-hero .hero-inner {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: stretch;
+      padding: 26px 20px 30px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .live-status {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      padding: 5px 12px 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .12);
+      border: 1px solid rgba(255, 255, 255, .22);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 0 rgba(215, 25, 32, .7);
+      animation: livePulse 2.2s infinite;
+    }
+
+    @keyframes livePulse {
+      70% { box-shadow: 0 0 0 9px rgba(215, 25, 32, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(215, 25, 32, 0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .live-dot { animation: none; }
+    }
+
+    .live-status h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.04;
+      letter-spacing: -.02em;
+    }
+
+    .live-status p {
+      margin: 0;
+      max-width: 46ch;
+      color: rgba(255, 255, 255, .74);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .live-leaders {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .leader-card {
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 14px;
+      padding: 12px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .leader-card .leader-label {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .6);
+    }
+
+    .leader-card .leader-team {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .leader-card .leader-team .team-badge {
+      width: 30px;
+      height: 30px;
+      font-size: 15px;
+      flex: 0 0 auto;
+    }
+
+    .leader-card .leader-name {
+      font-weight: 800;
+      font-size: 13.5px;
+      line-height: 1.15;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .leader-card .leader-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, .62);
+    }
+
+    .leader-card .leader-value {
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: -.01em;
+    }
+
+    /* Week rail ---------------------------------------------------- */
+
+    .week-rail-wrap {
+      width: min(1220px, calc(100% - 32px));
+      margin: 22px auto 0;
+    }
+
+    .week-rail-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .week-rail-head strong {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .week-rail-head span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .week-rail {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      scrollbar-width: thin;
+    }
+
+    .week-pill {
+      flex: 0 0 auto;
+      border: 1px solid transparent;
+      background: transparent;
+      border-radius: 10px;
+      padding: 8px 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      line-height: 1.1;
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .week-pill small {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .week-pill:hover { background: var(--surface-2); }
+
+    .week-pill.active {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .week-pill.active small { color: rgba(255, 255, 255, .66); }
+
+    .week-pill.upcoming { color: var(--muted); }
+
+    .week-pill.played small { color: var(--green); }
+
+    /* Panels ------------------------------------------------------- */
+
+    .live-panel { display: none; }
+    .live-panel.active { display: block; }
+
+    .panel-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .empty-state {
+      background: var(--surface);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 34px 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--ink);
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .empty-state p { margin: 0 auto; max-width: 52ch; font-size: 13.5px; line-height: 1.55; }
+
+    /* Scoreboard --------------------------------------------------- */
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .game-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .game-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 13px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--line);
+      font-size: 10.5px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .game-card-head .game-margin { color: var(--ink); letter-spacing: .04em; }
+
+    .game-side {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      min-width: 0;
+    }
+
+    .game-side + .game-side { border-top: 1px solid var(--line); }
+
+    .game-side .mini-badge { flex: 0 0 auto; }
+
+    .game-side .game-team {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-align: left;
+      background: none;
+      border: 0;
+      padding: 0;
+    }
+
+    .game-side .game-team strong {
+      font-size: 14px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .game-side .game-team span { font-size: 11.5px; color: var(--muted); }
+
+    .game-side .game-score {
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      font-size: 17px;
+      color: var(--muted);
+    }
+
+    .game-side.winner { background: rgba(22, 131, 74, .06); }
+    .game-side.winner .game-score { color: var(--ink); }
+    .game-side.winner .game-team strong { color: var(--ink); }
+
+    .game-side .win-flag {
+      width: 4px;
+      align-self: stretch;
+      border-radius: 999px;
+      background: transparent;
+      flex: 0 0 auto;
+    }
+
+    .game-side.winner .win-flag { background: var(--green); }
+
+    /* Standings extras --------------------------------------------- */
+
+    .standings-note {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--blue);
+    }
+
+    .legend-swatch.wildcard { background: var(--gold); }
+    .legend-swatch.toilet { background: #9aa6b6; }
+
+    tr.seed-div td:first-child { box-shadow: inset 3px 0 0 var(--blue); }
+    tr.seed-wc td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
+    tr.seed-toilet td:first-child { box-shadow: inset 3px 0 0 #9aa6b6; }
+
+    .result-pill.pending { background: #b9c3cd; }
+
+    .streak {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .streak.win { color: var(--green); }
+    .streak.loss { color: var(--red); }
+
+    /* Playoff picture ---------------------------------------------- */
+
+    .picture-grid {
+      display: grid;
+      align-items: start;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .seed-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .seed-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 15px;
+      border-top: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .seed-row:first-child { border-top: 0; }
+
+    .seed-chip {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 30px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+      background: var(--navy-2);
+      letter-spacing: .02em;
+    }
+
+    .seed-chip.div { background: var(--blue); }
+    .seed-chip.wc { background: var(--gold); color: #3a2a02; }
+    .seed-chip.out { background: #9aa6b6; }
+
+    .seed-row .seed-body {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .seed-row .seed-copy { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .seed-row .seed-copy strong { font-size: 14px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .seed-row .seed-copy span { font-size: 11.5px; color: var(--muted); }
+
+    .seed-row .seed-line {
+      flex: 0 0 auto;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .seed-row .seed-line strong { display: block; font-size: 14px; font-weight: 900; }
+    .seed-row .seed-line span { font-size: 11px; color: var(--muted); }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 15px 13px;
+    }
+
+    .rule-tag {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .rule-tag.flip { background: rgba(246, 183, 60, .16); border-color: rgba(246, 183, 60, .5); color: #7a5605; }
+
+    .projected-matchups {
+      display: grid;
+      gap: 10px;
+      padding: 14px 15px 16px;
+    }
+
+    .side-block { display: grid; gap: 8px; }
+
+    .side-block + .side-block { margin-top: 6px; }
+
+    .side-title {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .projected-game {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface-2);
+    }
+
+    .projected-game .pg-head {
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .projected-game .pg-side {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 12px;
+      min-width: 0;
+    }
+
+    .projected-game .pg-side + .pg-side { border-top: 1px solid var(--line); }
+    .projected-game .pg-side .seed { font-size: 10px; font-weight: 900; color: #758191; white-space: nowrap; min-width: 30px; }
+    .projected-game .pg-side .pg-name { font-size: 13.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto; min-width: 0; }
+    .projected-game .pg-side .pg-rec { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+    .projected-game .pg-bye { padding: 9px 12px; font-size: 11.5px; color: var(--muted); font-weight: 700; }
+
+    /* Weekly summary ------------------------------------------------ */
+
+    .summary-card .summary-body {
+      padding: 4px 20px 20px;
+      font-size: 15px;
+      line-height: 1.68;
+      color: #24354a;
+    }
+
+    .summary-card .summary-body h4 {
+      margin: 20px 0 6px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .summary-card .summary-body p { margin: 0 0 12px; }
+    .summary-card .summary-body p:last-child { margin-bottom: 0; }
+    .summary-card .summary-body strong { color: var(--ink); }
+
+    .summary-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px 0;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .summary-superlatives {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      padding: 4px 20px 20px;
+    }
+
+    .superlative {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-2);
+      padding: 11px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .superlative small {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .superlative strong { font-size: 14px; font-weight: 800; line-height: 1.2; }
+    .superlative span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    /* Season schedule grid (Week 0) --------------------------------- */
+
+    .schedule-weeks {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+      padding: 14px 15px 16px;
+    }
+
+    .schedule-week-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface-2);
+    }
+
+    .schedule-week-card .swc-head {
+      padding: 7px 12px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 10.5px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .schedule-week-card .swc-head em {
+      font-style: normal;
+      color: var(--red);
+      letter-spacing: .06em;
+    }
+
+    .swc-game {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+      min-width: 0;
+    }
+
+    .swc-game + .swc-game { border-top: 1px solid var(--line); }
+    .swc-game .swc-team { flex: 1 1 0; min-width: 0; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+    .swc-game .swc-team.right { text-align: right; }
+    .swc-game .swc-vs { flex: 0 0 auto; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .08em; }
+
+    @media (max-width: 900px) {
+      .live-hero .hero-inner { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .live-leaders { grid-template-columns: minmax(0, 1fr); }
+      .live-hero .hero-inner { padding: 20px 14px 24px; }
+      .seed-row { padding: 10px 12px; gap: 9px; }
+      .seed-chip { width: 30px; height: 27px; font-size: 10px; }
+      .summary-card .summary-body { padding: 4px 14px 16px; font-size: 14.5px; }
+      .summary-superlatives { padding: 4px 14px 16px; }
+      .summary-meta { padding: 12px 14px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html" aria-label="League History home">
+        <div class="brand-mark">LH</div>
+        <div class="brand-copy">
+          <span class="brand-kicker">Fantasy Football</span>
+          <span class="brand-title">League History</span>
+        </div>
+      </a>
+      <label class="year-control">
+        <span>Season</span>
+        <select id="yearSelect" aria-label="Choose season">
+          <option value="home">All-Time Home</option>
+          <option value="2026" selected>2026 · Live</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <section class="hero live-hero">
+    <div class="hero-inner">
+      <div class="live-status">
+        <span class="live-badge"><span class="live-dot" aria-hidden="true"></span><span id="liveBadgeText">Season in progress</span></span>
+        <h1 id="liveHeadline">2026 Season</h1>
+        <p id="liveSubhead"></p>
+      </div>
+      <div class="live-leaders" id="liveLeaders"></div>
+    </div>
+  </section>
+
+  <div class="week-rail-wrap">
+    <div class="week-rail-head">
+      <strong>Week</strong>
+      <span id="weekRailNote"></span>
+    </div>
+    <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
+  </div>
+
+  <main>
+    <div class="page-toolbar">
+      <div class="page-title">
+        <h2 id="weekTitle">Preseason</h2>
+      </div>
+      <div class="view-tabs" id="viewTabs" role="tablist" aria-label="Week views"></div>
+    </div>
+
+    <section id="panel-results" class="live-panel active" role="tabpanel"></section>
+    <section id="panel-standings" class="live-panel" role="tabpanel"></section>
+    <section id="panel-picture" class="live-panel" role="tabpanel"></section>
+    <section id="panel-summary" class="live-panel" role="tabpanel"></section>
+  </main>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="team-drawer" id="teamDrawer" aria-hidden="true" aria-label="Team schedule">
+    <div class="drawer-hero" id="drawerHero">
+      <button class="drawer-close" id="drawerClose" aria-label="Close team schedule">×</button>
+      <div class="drawer-team">
+        <span class="team-badge" id="drawerBadge"></span>
+        <div>
+          <h2 id="drawerName"></h2>
+          <p id="drawerOwner"></p>
+        </div>
+      </div>
+      <div class="drawer-stats" id="drawerStats"></div>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+
+  <footer class="footer">League History · 2026 season in progress · standings and seeding update as results are posted</footer>
+
+  <script>
+    /* =================================================================
+       2026 LIVE SEASON HUB
+
+       This page is generated from three editable blocks:
+
+         1. `teams`             — franchise identity (rename here if an
+                                  owner changes their team name mid-year)
+         2. `results`           — weekly scores, added one week at a time
+         3. `weeklySummaries`   — the written recap for each week
+
+       Everything else (records, division standings, tiebreakers, the
+       playoff field, the projected bracket, and Toilet Bowl seeding) is
+       COMPUTED from those blocks using the league rulebook, so posting a
+       week's scores is the only edit needed to move the whole page
+       forward. Nothing about the champion or the league loser is shown —
+       the season is live.
+       ================================================================= */
+
+    const SEASON = 2026;
+    const REGULAR_WEEKS = 14;
+
+    const teams = {
+      first:    { name: "First and Ted",               owner: "Ted Williams",       division: "Xavier",    icon: "🏇",  color: "#7c3945" },
+      game:     { name: "Game of Throws",              owner: "Charlie Vonderheid", division: "Xavier",    icon: "🏰",  color: "#c05b2a" },
+      hamilton: { name: "Hamilton Administration",     owner: "Niko Nadreau",       division: "Xavier",    icon: "🎭",  color: "#304f91" },
+      roll:     { name: "Roll Bill (Croskey-Merritt)", owner: "JP Torack",          division: "Xavier",    icon: "🦬",  color: "#9d542e" },
+      infinity: { name: "To infinity and Bijan",       owner: "Ian Farroll",        division: "Xavier",    icon: "👑",  color: "#b78d0a" },
+      hawaii:   { name: "Hawaii McLovins VIII",        owner: "Matt Windler",       division: "Ignatius",  icon: "🌴",  color: "#3a3c9d" },
+      left:     { name: "The Left Tacklers",           owner: "Nathan Rich",        division: "Ignatius",  icon: "🛡️", color: "#166a83" },
+      kareem:   { name: "Team Kareem Pie 🍑",          owner: "Matthew Kluba",      division: "Ignatius",  icon: "🏈",  color: "#719b70" },
+      laporta:  { name: "LaPorta Potty",               owner: "Grant Thornberry",   division: "Ignatius",  icon: "🚽",  color: "#6a78a7" },
+      jared:    { name: "Jared's Pack Attack",         owner: "Jared Thornberry",   division: "Ignatius",  icon: "🟣",  color: "#4d3f93" }
+    };
+
+    const divisionOrder = {
+      Xavier: ["first", "game", "hamilton", "roll", "infinity"],
+      Ignatius: ["hawaii", "left", "kareem", "laporta", "jared"]
+    };
+
+    // Full 2026 slate. Week 14 is the fixed rivalry week.
+    const schedule = {
+      1:  [["first", "game"], ["hamilton", "left"], ["roll", "laporta"], ["infinity", "jared"], ["hawaii", "kareem"]],
+      2:  [["first", "roll"], ["game", "hawaii"], ["hamilton", "infinity"], ["left", "laporta"], ["kareem", "jared"]],
+      3:  [["first", "kareem"], ["game", "infinity"], ["hamilton", "roll"], ["hawaii", "left"], ["laporta", "jared"]],
+      4:  [["first", "hawaii"], ["game", "jared"], ["hamilton", "kareem"], ["roll", "left"], ["infinity", "laporta"]],
+      5:  [["first", "hamilton"], ["game", "roll"], ["infinity", "jared"], ["hawaii", "laporta"], ["left", "kareem"]],
+      6:  [["first", "infinity"], ["game", "left"], ["hamilton", "laporta"], ["roll", "kareem"], ["hawaii", "jared"]],
+      7:  [["first", "hawaii"], ["game", "infinity"], ["hamilton", "roll"], ["left", "jared"], ["kareem", "laporta"]],
+      8:  [["first", "roll"], ["game", "laporta"], ["hamilton", "jared"], ["infinity", "left"], ["hawaii", "kareem"]],
+      9:  [["first", "game"], ["hamilton", "kareem"], ["roll", "jared"], ["infinity", "hawaii"], ["left", "laporta"]],
+      10: [["first", "left"], ["game", "hamilton"], ["roll", "infinity"], ["hawaii", "laporta"], ["kareem", "jared"]],
+      11: [["first", "laporta"], ["game", "kareem"], ["hamilton", "infinity"], ["roll", "hawaii"], ["left", "jared"]],
+      12: [["first", "hamilton"], ["game", "roll"], ["infinity", "kareem"], ["hawaii", "left"], ["laporta", "jared"]],
+      13: [["first", "jared"], ["game", "left"], ["hamilton", "hawaii"], ["roll", "infinity"], ["kareem", "laporta"]],
+      14: [["first", "infinity"], ["game", "hamilton"], ["roll", "laporta"], ["hawaii", "jared"], ["left", "kareem"]]
+    };
+
+    const rivalryWeek = 14;
+
+    /* -----------------------------------------------------------------
+       RESULTS — add one entry per week as the screenshots come in.
+       Shape: week: [[teamId, score, teamId, score], ...]
+       Example:
+         1: [["first", 118.42, "game", 104.06], ...]
+       ----------------------------------------------------------------- */
+    const results = {};
+
+    /* -----------------------------------------------------------------
+       WEEKLY SUMMARIES — the written recap shown on each week's tab.
+       `body` is an array of paragraphs; `headline` is optional.
+       ----------------------------------------------------------------- */
+    const weeklySummaries = {
+      0: {
+        headline: "Ten teams, two divisions, everything still on the table.",
+        body: [
+          "Nothing has been played yet, so every record below reads 0–0 and the playoff picture is a blank bracket waiting on Week 1. What is settled is the structure: ten teams split into the <strong>Xavier</strong> and <strong>Ignatius</strong> divisions, fourteen regular-season weeks, and a Week 14 rivalry slate that has been locked in since the rulebook was signed.",
+          "Six teams reach the playoffs. Each division champion takes a Week 15 bye and the division runners-up land on their own side of the bracket. The last two spots are league-wide wild cards, awarded on record with points for as the first tiebreaker — so a third-place finish in a loaded division still plays in December.",
+          "The four teams left over get reseeded 7 through 10 for the Toilet Bowl ladder, where winning early is the whole point: once you win, you cannot finish last. Week 15 has every team in the league playing for something.",
+          "Standings, seeding, and the projected bracket on this page recompute automatically the moment a week's scores are posted."
+        ],
+        generated: "Preseason outlook"
+      }
+    };
+
+    /* =================================================================
+       ENGINE — records, tiebreakers, seeding
+       ================================================================= */
+
+    const TEAM_IDS = Object.keys(teams);
+    const DIVISION_NAMES = Object.keys(divisionOrder);
+
+    const playedWeeks = Object.keys(results)
+      .map(Number)
+      .filter((w) => Array.isArray(results[w]) && results[w].length)
+      .sort((a, b) => a - b);
+
+    const lastPlayedWeek = playedWeeks.length ? playedWeeks[playedWeeks.length - 1] : 0;
+
+    const fmt = (n) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmt1 = (n) => Number(n).toFixed(1);
+    const pctText = (v) => v.toFixed(3).replace(/^0/, "");
+
+    function gamesThrough(week) {
+      const out = [];
+      playedWeeks.filter((w) => w <= week).forEach((w) => {
+        results[w].forEach(([a, as, b, bs]) => out.push({ week: w, a, as, b, bs }));
+      });
+      return out;
+    }
+
+    function blankLine(id) {
+      return {
+        id,
+        wins: 0, losses: 0, ties: 0, gp: 0,
+        pf: 0, pa: 0,
+        divWins: 0, divLosses: 0, divTies: 0,
+        form: []
+      };
+    }
+
+    // Records for every team through the given week.
+    function computeStats(week) {
+      const stats = {};
+      TEAM_IDS.forEach((id) => { stats[id] = blankLine(id); });
+
+      gamesThrough(week).forEach((g) => {
+        const sameDivision = teams[g.a].division === teams[g.b].division;
+        [[g.a, g.as, g.b, g.bs], [g.b, g.bs, g.a, g.as]].forEach(([id, own, oppId, opp]) => {
+          const line = stats[id];
+          line.gp += 1;
+          line.pf += own;
+          line.pa += opp;
+          if (own > opp) { line.wins += 1; if (sameDivision) line.divWins += 1; line.form.push("W"); }
+          else if (own < opp) { line.losses += 1; if (sameDivision) line.divLosses += 1; line.form.push("L"); }
+          else { line.ties += 1; if (sameDivision) line.divTies += 1; line.form.push("T"); }
+        });
+      });
+
+      TEAM_IDS.forEach((id) => {
+        const t = stats[id];
+        t.pct = t.gp ? (t.wins + t.ties * 0.5) / t.gp : 0;
+        t.divGp = t.divWins + t.divLosses + t.divTies;
+        t.divPct = t.divGp ? (t.divWins + t.divTies * 0.5) / t.divGp : 0;
+        t.record = t.ties ? `${t.wins}–${t.losses}–${t.ties}` : `${t.wins}–${t.losses}`;
+        t.divRecord = t.divTies ? `${t.divWins}–${t.divLosses}–${t.divTies}` : `${t.divWins}–${t.divLosses}`;
+        t.pfg = t.gp ? t.pf / t.gp : 0;
+        t.pag = t.gp ? t.pa / t.gp : 0;
+        t.diff = t.pf - t.pa;
+        t.diffPerGame = t.gp ? t.diff / t.gp : 0;
+        t.streak = streakOf(t.form);
+      });
+
+      return stats;
+    }
+
+    function streakOf(form) {
+      if (!form.length) return null;
+      const last = form[form.length - 1];
+      let n = 0;
+      for (let i = form.length - 1; i >= 0 && form[i] === last; i--) n += 1;
+      return { type: last, count: n, text: `${last}${n}` };
+    }
+
+    // Head-to-head record for `a` against `b` through the given week.
+    function headToHead(a, b, week) {
+      let w = 0, l = 0, t = 0;
+      gamesThrough(week).forEach((g) => {
+        let own, opp;
+        if (g.a === a && g.b === b) { own = g.as; opp = g.bs; }
+        else if (g.b === a && g.a === b) { own = g.bs; opp = g.as; }
+        else return;
+        if (own > opp) w += 1; else if (own < opp) l += 1; else t += 1;
+      });
+      return { w, l, t, played: w + l + t };
+    }
+
+    // Head-to-head win percentage against everyone else in a tied group.
+    function groupH2HPct(id, group, week) {
+      let w = 0, l = 0, t = 0;
+      group.forEach((other) => {
+        if (other === id) return;
+        const r = headToHead(id, other, week);
+        w += r.w; l += r.l; t += r.t;
+      });
+      const played = w + l + t;
+      return played ? (w + t * 0.5) / played : null;
+    }
+
+    /* Rulebook 4.1.1 — two-team tie in the division standings:
+       head-to-head, then points for, then intra-division record, then coin flip. */
+    function breakTwoWay(a, b, week, stats, flips) {
+      const h = headToHead(a, b, week);
+      if (h.played && h.w !== h.l) return h.w > h.l ? [a, b] : [b, a];
+      if (stats[a].pf !== stats[b].pf) return stats[a].pf > stats[b].pf ? [a, b] : [b, a];
+      if (stats[a].divPct !== stats[b].divPct) return stats[a].divPct > stats[b].divPct ? [a, b] : [b, a];
+      flips.push([a, b]);
+      return [a, b];
+    }
+
+    /* Rulebook 4.1.2 / 4.1.3 — three- and four-team ties resolve by head-to-head
+       record among the tied teams, then the resulting sub-groups drop back down
+       to the smaller-tie rules. Identical head-to-head across the whole group
+       ranks on points for. */
+    function breakTie(group, week, stats, flips) {
+      if (group.length <= 1) return group.slice();
+      if (group.length === 2) return breakTwoWay(group[0], group[1], week, stats, flips);
+
+      const scored = group.map((id) => ({ id, h2h: groupH2HPct(id, group, week) }));
+      const distinct = [...new Set(scored.map((s) => (s.h2h === null ? "none" : s.h2h.toFixed(6))))];
+
+      if (distinct.length <= 1) {
+        const byPoints = group.slice().sort((a, b) => stats[b].pf - stats[a].pf);
+        for (let i = 1; i < byPoints.length; i++) {
+          if (stats[byPoints[i - 1]].pf === stats[byPoints[i]].pf) flips.push([byPoints[i - 1], byPoints[i]]);
+        }
+        return byPoints;
+      }
+
+      const buckets = [];
+      scored
+        .slice()
+        .sort((a, b) => (b.h2h === null ? -1 : b.h2h) - (a.h2h === null ? -1 : a.h2h))
+        .forEach((entry) => {
+          const key = entry.h2h === null ? "none" : entry.h2h.toFixed(6);
+          const bucket = buckets.find((x) => x.key === key);
+          if (bucket) bucket.ids.push(entry.id);
+          else buckets.push({ key, ids: [entry.id] });
+        });
+
+      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips));
+    }
+
+    // Division standings: record first, ties resolved by the rulebook ladder.
+    function orderDivision(division, week, stats, flips) {
+      const ids = divisionOrder[division].slice();
+      const buckets = [];
+      ids
+        .slice()
+        .sort((a, b) => stats[b].pct - stats[a].pct || stats[b].wins - stats[a].wins)
+        .forEach((id) => {
+          const key = `${stats[id].wins}-${stats[id].losses}-${stats[id].ties}`;
+          const bucket = buckets.find((x) => x.key === key);
+          if (bucket) bucket.ids.push(id);
+          else buckets.push({ key, ids: [id] });
+        });
+      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips));
+    }
+
+    /* Wild cards and division-runner-up ordering: games won, then points for,
+       then a coin flip. */
+    function orderByRecordThenPoints(ids, stats, flips) {
+      const ordered = ids.slice().sort((a, b) => (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf));
+      for (let i = 1; i < ordered.length; i++) {
+        const p = stats[ordered[i - 1]], c = stats[ordered[i]];
+        if (p.wins === c.wins && p.pf === c.pf) flips.push([ordered[i - 1], ordered[i]]);
+      }
+      return ordered;
+    }
+
+    /* Toilet Bowl reseeding: games won, points for, head-to-head, coin flip. */
+    function orderToilet(ids, week, stats, flips) {
+      const ordered = ids.slice().sort((a, b) => {
+        if (stats[b].wins !== stats[a].wins) return stats[b].wins - stats[a].wins;
+        if (stats[b].pf !== stats[a].pf) return stats[b].pf - stats[a].pf;
+        const h = headToHead(a, b, week);
+        if (h.played && h.w !== h.l) return h.l - h.w;
+        return 0;
+      });
+      for (let i = 1; i < ordered.length; i++) {
+        const a = ordered[i - 1], b = ordered[i];
+        const h = headToHead(a, b, week);
+        if (stats[a].wins === stats[b].wins && stats[a].pf === stats[b].pf && (!h.played || h.w === h.l)) flips.push([a, b]);
+      }
+      return ordered;
+    }
+
+    /* The whole playoff picture as it stands after the given week. */
+    function buildPicture(week) {
+      const stats = computeStats(week);
+      const flips = [];
+
+      const divisions = {};
+      DIVISION_NAMES.forEach((d) => { divisions[d] = orderDivision(d, week, stats, flips); });
+
+      const champs = DIVISION_NAMES.map((d) => ({ division: d, id: divisions[d][0] }));
+      const runnersUp = DIVISION_NAMES.map((d) => ({ division: d, id: divisions[d][1] }));
+
+      const locked = new Set([...champs, ...runnersUp].map((x) => x.id));
+      const rest = TEAM_IDS.filter((id) => !locked.has(id));
+
+      const wildcardOrder = orderByRecordThenPoints(rest, stats, flips);
+      const wildcards = wildcardOrder.slice(0, 2);
+      const toiletSeeds = orderToilet(wildcardOrder.slice(2), week, stats, flips);
+
+      // The better runner-up faces the worse wild card, and vice versa.
+      const runnerOrder = orderByRecordThenPoints(runnersUp.map((r) => r.id), stats, flips);
+      const betterRunner = runnersUp.find((r) => r.id === runnerOrder[0]);
+      const worseRunner = runnersUp.find((r) => r.id === runnerOrder[1]);
+
+      const sideOf = (runner, wildcard) => ({
+        division: runner.division,
+        one: champs.find((c) => c.division === runner.division).id,
+        two: runner.id,
+        three: wildcard
+      });
+
+      const sides = [sideOf(betterRunner, wildcards[1]), sideOf(worseRunner, wildcards[0])];
+
+      const seedLabels = {};
+      DIVISION_NAMES.forEach((d) => {
+        seedLabels[divisions[d][0]] = { chip: `${d.charAt(0)}1`, kind: "div", note: `${d} leader · Week 15 bye` };
+        seedLabels[divisions[d][1]] = { chip: `${d.charAt(0)}2`, kind: "div", note: `${d} runner-up` };
+      });
+      wildcards.forEach((id, i) => {
+        seedLabels[id] = { chip: `WC${i + 1}`, kind: "wc", note: i === 0 ? "Top wild card" : "Second wild card" };
+      });
+      toiletSeeds.forEach((id, i) => {
+        seedLabels[id] = { chip: `#${i + 7}`, kind: "out", note: `Toilet Bowl seed ${i + 7}` };
+      });
+
+      const flipPairs = flips.filter(([a, b], i, arr) =>
+        arr.findIndex(([x, y]) => (x === a && y === b) || (x === b && y === a)) === i);
+
+      return {
+        week, stats, divisions, champs, runnersUp,
+        wildcards, wildcardOrder, toiletSeeds, sides,
+        seedLabels, flips: flipPairs,
+        playoffField: [
+          ...champs.map((c) => c.id),
+          ...runnersUp.map((r) => r.id),
+          ...wildcards
+        ],
+        firstOut: wildcardOrder[2] || null
+      };
+    }
+
+    // League-wide order used for the overall standings table.
+    function overallOrder(stats) {
+      return TEAM_IDS.slice().sort((a, b) =>
+        (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf) || teams[a].name.localeCompare(teams[b].name));
+    }
+
+    /* =================================================================
+       VIEW STATE
+       ================================================================= */
+
+    const VIEWS = ["results", "standings", "picture", "summary"];
+
+    const state = {
+      week: lastPlayedWeek,
+      view: "results"
+    };
+
+    // Standings and the playoff picture for a week that has not been played
+    // yet fall back to the most recent completed week.
+    function asOfWeek(week) {
+      const done = playedWeeks.filter((w) => w <= week);
+      return done.length ? done[done.length - 1] : 0;
+    }
+
+    const weekLabel = (w) => (w === 0 ? "Preseason" : `Week ${w}`);
+    const isPlayed = (w) => playedWeeks.includes(w);
+
+    function viewLabels(week) {
+      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoff Picture", summary: "Preseason" };
+      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary" };
+      return { results: "Matchups", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary" };
+    }
+
+    /* =================================================================
+       SHARED PIECES
+       ================================================================= */
+
+    function teamButton(id) {
+      const t = teams[id];
+      return `
+        <button class="team-button" data-team="${id}" aria-label="Open ${t.name} schedule">
+          <span class="team-badge" style="--team-color:${t.color}">${t.icon}</span>
+          <span class="team-meta"><span class="team-name">${t.name}</span><span class="owner">${t.owner}</span></span>
+        </button>`;
+    }
+
+    function miniTeam(id, extra = "") {
+      const t = teams[id];
+      return `<span class="mini-badge" style="--team-color:${t.color}">${t.icon}</span>${extra}`;
+    }
+
+    function emptyState(title, copy) {
+      return `<div class="empty-state"><strong>${title}</strong><p>${copy}</p></div>`;
+    }
+
+    function cardHead(title, chip, meta) {
+      return `<div class="card-head">
+        <h3>${chip ? `<span class="division-chip">${chip}</span>` : ""}${title}</h3>
+        <span>${meta || ""}</span>
+      </div>`;
+    }
+
+    /* =================================================================
+       HERO
+       ================================================================= */
+
+    function renderHero(week) {
+      const asOf = asOfWeek(week);
+      const badge = document.getElementById("liveBadgeText");
+      const headline = document.getElementById("liveHeadline");
+      const subhead = document.getElementById("liveSubhead");
+
+      if (lastPlayedWeek === 0) {
+        badge.textContent = "Season not started";
+        headline.textContent = "2026 Season · Preseason";
+        subhead.textContent = `Ten teams, two divisions, ${REGULAR_WEEKS} regular-season weeks. Standings, seeding, and the projected bracket below fill in automatically as each week's results are posted.`;
+      } else {
+        badge.textContent = `Through Week ${lastPlayedWeek}`;
+        headline.textContent = `2026 Season · Week ${lastPlayedWeek} of ${REGULAR_WEEKS}`;
+        subhead.textContent = `Everything on this page — records, division order, wild cards, the projected bracket, and Toilet Bowl seeding — reflects results through Week ${lastPlayedWeek} and follows the league rulebook's tiebreakers.`;
+      }
+
+      document.getElementById("liveLeaders").innerHTML = leaderCards(asOf).join("");
+    }
+
+    function leaderCard({ label, teamId, name, sub, value }) {
+      const badge = teamId
+        ? `<span class="team-badge" style="--team-color:${teams[teamId].color}">${teams[teamId].icon}</span>`
+        : "";
+      return `<div class="leader-card">
+        <span class="leader-label">${label}</span>
+        <div class="leader-team">
+          ${badge}
+          <div style="min-width:0">
+            <div class="leader-name">${name}</div>
+            <div class="leader-sub">${sub}</div>
+          </div>
+        </div>
+        ${value ? `<div class="leader-value">${value}</div>` : ""}
+      </div>`;
+    }
+
+    function leaderCards(asOf) {
+      if (asOf === 0) {
+        return [
+          { label: "Format", name: "10 teams · 2 divisions", sub: "Xavier and Ignatius" },
+          { label: "Regular season", name: `${REGULAR_WEEKS} weeks`, sub: "Week 14 is rivalry week" },
+          { label: "Playoffs", name: "6 teams · Weeks 15–17", sub: "Two byes, two wild cards" },
+          { label: "Toilet Bowl", name: "4 teams · ladder", sub: "Loser advances, winner is safe" }
+        ].map(leaderCard);
+      }
+
+      const picture = buildPicture(asOf);
+      const stats = picture.stats;
+      const cards = [];
+
+      DIVISION_NAMES.forEach((d) => {
+        const id = picture.divisions[d][0];
+        cards.push({
+          label: `${d} leader`,
+          teamId: id,
+          name: teams[id].name,
+          sub: teams[id].owner,
+          value: `${stats[id].record} · ${fmt(stats[id].pf)} PF`
+        });
+      });
+
+      const pointsLeader = TEAM_IDS.slice().sort((a, b) => stats[b].pf - stats[a].pf)[0];
+      cards.push({
+        label: "Points leader",
+        teamId: pointsLeader,
+        name: teams[pointsLeader].name,
+        sub: `${fmt1(stats[pointsLeader].pfg)} per game`,
+        value: `${fmt(stats[pointsLeader].pf)} PF`
+      });
+
+      const weekGames = results[asOf] || [];
+      let top = null;
+      weekGames.forEach(([a, as, b, bs]) => {
+        if (!top || as > top.score) top = { id: a, score: as };
+        if (!top || bs > top.score) top = { id: b, score: bs };
+      });
+      if (top) {
+        cards.push({
+          label: `Week ${asOf} top score`,
+          teamId: top.id,
+          name: teams[top.id].name,
+          sub: teams[top.id].owner,
+          value: fmt(top.score)
+        });
+      }
+
+      return cards.map(leaderCard);
+    }
+
+    /* =================================================================
+       WEEK RAIL + VIEW TABS
+       ================================================================= */
+
+    function renderWeekRail() {
+      const rail = document.getElementById("weekRail");
+      const weeks = [];
+      for (let w = 0; w <= REGULAR_WEEKS; w++) weeks.push(w);
+
+      rail.innerHTML = weeks.map((w) => {
+        const played = isPlayed(w);
+        const status = w === 0 ? "Preseason" : played ? "Final" : "Upcoming";
+        const cls = ["week-pill"];
+        if (w === state.week) cls.push("active");
+        if (played) cls.push("played");
+        if (w !== 0 && !played) cls.push("upcoming");
+        return `<button type="button" class="${cls.join(" ")}" data-week="${w}" role="tab"
+          aria-selected="${w === state.week}">${w === 0 ? "Week 0" : `Wk ${w}`}<small>${status}</small></button>`;
+      }).join("");
+
+      document.getElementById("weekRailNote").textContent = lastPlayedWeek === 0
+        ? "No results posted yet"
+        : `Weeks 1–${lastPlayedWeek} posted`;
+
+      const active = rail.querySelector(".week-pill.active");
+      if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
+    }
+
+    function renderViewTabs() {
+      const labels = viewLabels(state.week);
+      document.getElementById("viewTabs").innerHTML = VIEWS.map((v) => `
+        <button type="button" class="view-tab ${v === state.view ? "active" : ""}" data-view="${v}"
+          role="tab" aria-selected="${v === state.view}">${labels[v]}</button>`).join("");
+
+      document.getElementById("weekTitle").textContent = state.week === 0
+        ? "Preseason · 2026"
+        : `Week ${state.week} · 2026`;
+    }
+
+    /* =================================================================
+       RESULTS / SCHEDULE PANEL
+       ================================================================= */
+
+    function gameCard(week, a, as, b, bs) {
+      const aWon = as > bs, bWon = bs > as;
+      const margin = Math.abs(as - bs);
+      const side = (id, score, won) => `
+        <div class="game-side ${won ? "winner" : ""}">
+          <span class="win-flag"></span>
+          ${miniTeam(id)}
+          <button type="button" class="game-team" data-team="${id}" aria-label="Open ${teams[id].name} schedule">
+            <strong>${teams[id].name}</strong><span>${teams[id].owner}</span>
+          </button>
+          <span class="game-score">${fmt(score)}</span>
+        </div>`;
+      return `<article class="game-card">
+        <div class="game-card-head">
+          <span>Week ${week}${week === rivalryWeek ? " · Rivalry" : ""}</span>
+          <span class="game-margin">${as === bs ? "Tie" : `Margin ${fmt(margin)}`}</span>
+        </div>
+        ${side(a, as, aWon)}
+        ${side(b, bs, bWon)}
+      </article>`;
+    }
+
+    function weekSuperlatives(week) {
+      const games = results[week] || [];
+      if (!games.length) return "";
+      const scores = [];
+      games.forEach(([a, as, b, bs]) => { scores.push({ id: a, score: as }); scores.push({ id: b, score: bs }); });
+      const byScore = scores.slice().sort((x, y) => y.score - x.score);
+      const byMargin = games.slice().sort((x, y) => Math.abs(y[1] - y[3]) - Math.abs(x[1] - x[3]));
+      const blowout = byMargin[0];
+      const nailbiter = byMargin[byMargin.length - 1];
+      const total = scores.reduce((sum, s) => sum + s.score, 0);
+
+      const item = (label, strong, sub) => `<div class="superlative"><small>${label}</small><strong>${strong}</strong><span>${sub}</span></div>`;
+      const winnerOf = (g) => (g[1] >= g[3] ? g[0] : g[2]);
+      const loserOf = (g) => (g[1] >= g[3] ? g[2] : g[0]);
+
+      return `<div class="summary-superlatives">
+        ${item("High score", teams[byScore[0].id].name, fmt(byScore[0].score))}
+        ${item("Low score", teams[byScore[byScore.length - 1].id].name, fmt(byScore[byScore.length - 1].score))}
+        ${item("Biggest blowout", `${teams[winnerOf(blowout)].name} over ${teams[loserOf(blowout)].name}`, `by ${fmt(Math.abs(blowout[1] - blowout[3]))}`)}
+        ${item("Closest game", `${teams[winnerOf(nailbiter)].name} over ${teams[loserOf(nailbiter)].name}`, `by ${fmt(Math.abs(nailbiter[1] - nailbiter[3]))}`)}
+        ${item("League average", `${fmt1(total / scores.length)} per team`, `${fmt(total)} total points`)}
+      </div>`;
+    }
+
+    function renderResultsPanel(week) {
+      const panel = document.getElementById("panel-results");
+
+      if (week === 0) {
+        panel.innerHTML = `
+          <article class="card">
+            ${cardHead("2026 Schedule", "S", `${REGULAR_WEEKS} weeks · 70 games`)}
+            <div class="schedule-weeks">
+              ${Object.keys(schedule).map(Number).sort((a, b) => a - b).map((w) => `
+                <div class="schedule-week-card">
+                  <div class="swc-head"><span>Week ${w}</span>${w === rivalryWeek ? "<em>Rivalry Week</em>" : `<span>${isPlayed(w) ? "Final" : "Upcoming"}</span>`}</div>
+                  ${schedule[w].map(([a, b]) => `
+                    <div class="swc-game">
+                      <span class="swc-team">${teams[a].name}</span>
+                      <span class="swc-vs">VS</span>
+                      <span class="swc-team right">${teams[b].name}</span>
+                    </div>`).join("")}
+                </div>`).join("")}
+            </div>
+          </article>
+          <div class="source-note">Divisional opponents play twice; the extra cross-division game pairs teams that finished in the same divisional spot in 2025.</div>`;
+        return;
+      }
+
+      if (isPlayed(week)) {
+        panel.innerHTML = `
+          <div class="panel-stack">
+            <div class="score-grid">
+              ${results[week].map(([a, as, b, bs]) => gameCard(week, a, as, b, bs)).join("")}
+            </div>
+            <article class="card">
+              ${cardHead(`Week ${week} Notes`, "W", "Scoring extremes")}
+              ${weekSuperlatives(week)}
+            </article>
+          </div>
+          <div class="source-note">Scores audited from the league's Week ${week} results screenshot.</div>`;
+        return;
+      }
+
+      const stats = computeStats(asOfWeek(week));
+      panel.innerHTML = `
+        <article class="card">
+          ${cardHead(`Week ${week} Matchups`, "M", week === rivalryWeek ? "Rivalry Week · not yet played" : "Not yet played")}
+          <div class="projected-matchups">
+            ${(schedule[week] || []).map(([a, b]) => `
+              <div class="projected-game">
+                <div class="pg-head">Week ${week}</div>
+                <div class="pg-side">${miniTeam(a)}<span class="pg-name">${teams[a].name}</span><span class="pg-rec">${stats[a].record}</span></div>
+                <div class="pg-side">${miniTeam(b)}<span class="pg-name">${teams[b].name}</span><span class="pg-rec">${stats[b].record}</span></div>
+              </div>`).join("")}
+          </div>
+        </article>
+        <div class="source-note">Records shown are through Week ${asOfWeek(week)}.</div>`;
+    }
+
+    /* =================================================================
+       STANDINGS PANEL
+       ================================================================= */
+
+    function seedRowClass(picture, id, live) {
+      if (!live) return "";
+      const label = picture.seedLabels[id];
+      if (!label) return "";
+      if (label.kind === "div") return "seed-div";
+      if (label.kind === "wc") return "seed-wc";
+      return "seed-toilet";
+    }
+
+    function renderStandingsPanel(week) {
+      const asOf = asOfWeek(week);
+      const live = asOf > 0;
+      const picture = buildPicture(asOf);
+      const stats = picture.stats;
+      const through = live ? `Through Week ${asOf}` : "No games played";
+
+      const divisionCards = DIVISION_NAMES.map((division) => {
+        const ids = live ? picture.divisions[division] : divisionOrder[division];
+        return `
+        <article class="card">
+          ${cardHead(division, division.charAt(0), `5 teams · ${through}`)}
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
+              <tbody>
+                ${ids.map((id, i) => {
+                  const t = stats[id];
+                  return `<tr class="${seedRowClass(picture, id, live)}">
+                    <td class="rank">${live ? i + 1 : "–"}</td>
+                    <td class="team-cell">
+                      ${teamButton(id)}
+                      <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
+                        <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
+                        <span class="mobile-stat"><small>PCT</small><strong>${pctText(t.pct)}</strong></span>
+                        <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
+                        <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
+                        <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
+                      </div>
+                    </td>
+                    <td class="record">${t.record}</td>
+                    <td>${pctText(t.pct)}</td>
+                    <td>${fmt(t.pf)}</td>
+                    <td>${fmt(t.pa)}</td>
+                    <td>${t.divRecord}</td>
+                  </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </article>`;
+      }).join("");
+
+      const order = live ? overallOrder(stats) : TEAM_IDS;
+      const overallCard = `
+        <article class="card final-card">
+          ${cardHead("League Standings", "L", `Ranked by record, then points for · ${through}`)}
+          <div class="table-wrap">
+            <table class="final-table">
+              <thead>
+                <tr><th class="place">RK</th><th>Team</th><th>Record</th><th>PF</th><th>PA</th><th>PF/G</th><th>PA/G</th><th>Diff</th></tr>
+              </thead>
+              <tbody>
+                ${order.map((id, i) => {
+                  const t = stats[id];
+                  const d = t.diffPerGame;
+                  const dClass = d > 0 ? "positive" : d < 0 ? "negative" : "";
+                  return `<tr class="${seedRowClass(picture, id, live)}">
+                    <td class="rank">${live ? i + 1 : "–"}</td>
+                    <td class="team-cell">
+                      ${teamButton(id)}
+                      <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
+                        <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
+                        <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
+                        <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
+                        <span class="mobile-stat"><small>PF/G</small><strong>${fmt1(t.pfg)}</strong></span>
+                        <span class="mobile-stat"><small>DIFF</small><strong class="${dClass}">${d > 0 ? "+" : ""}${fmt1(d)}</strong></span>
+                      </div>
+                    </td>
+                    <td class="record">${t.record}</td>
+                    <td>${fmt(t.pf)}</td>
+                    <td>${fmt(t.pa)}</td>
+                    <td>${fmt1(t.pfg)}</td>
+                    <td>${fmt1(t.pag)}</td>
+                    <td class="${dClass}">${d > 0 ? "+" : ""}${fmt1(d)}</td>
+                  </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </article>`;
+
+      const legend = live ? `
+        <div class="standings-note">
+          <span class="legend-key"><span class="legend-swatch"></span>Division seed (top two)</span>
+          <span class="legend-key"><span class="legend-swatch wildcard"></span>Wild card</span>
+          <span class="legend-key"><span class="legend-swatch toilet"></span>Toilet Bowl</span>
+        </div>` : "";
+
+      document.getElementById("panel-standings").innerHTML = `
+        <div class="panel-stack">
+          <div class="division-grid">${divisionCards}</div>
+          ${legend}
+          ${overallCard}
+        </div>
+        <div class="source-note">${live
+          ? `Division order applies the rulebook tiebreakers: head-to-head, points for, then division record. Records reflect Weeks 1–${asOf}.`
+          : "Division order is unranked until Week 1 results are posted."}</div>`;
+    }
+
+    /* =================================================================
+       PLAYOFF PICTURE PANEL
+       ================================================================= */
+
+    function seedRow(picture, id) {
+      const label = picture.seedLabels[id];
+      const t = picture.stats[id];
+      return `<div class="seed-row">
+        <span class="seed-chip ${label.kind}">${label.chip}</span>
+        <span class="seed-body">
+          ${miniTeam(id)}
+          <span class="seed-copy">
+            <strong>${teams[id].name}</strong>
+            <span>${teams[id].owner} · ${label.note}</span>
+          </span>
+        </span>
+        <span class="seed-line"><strong>${t.record}</strong><span>${fmt(t.pf)} PF</span></span>
+      </div>`;
+    }
+
+    function projectedGame(title, seedA, idA, seedB, idB, stats) {
+      const line = (seed, id) => `<div class="pg-side"><span class="seed">${seed}</span>${miniTeam(id)}<span class="pg-name">${teams[id].name}</span><span class="pg-rec">${stats[id].record}</span></div>`;
+      return `<div class="projected-game">
+        <div class="pg-head">${title}</div>
+        ${line(seedA, idA)}
+        ${line(seedB, idB)}
+      </div>`;
+    }
+
+    function byeGame(title, seed, id, stats) {
+      return `<div class="projected-game">
+        <div class="pg-head">${title}</div>
+        <div class="pg-side"><span class="seed">${seed}</span>${miniTeam(id)}<span class="pg-name">${teams[id].name}</span><span class="pg-rec">${stats[id].record}</span></div>
+        <div class="pg-bye">First-round bye · division champion</div>
+      </div>`;
+    }
+
+    function renderPicturePanel(week) {
+      const asOf = asOfWeek(week);
+      const panel = document.getElementById("panel-picture");
+
+      if (asOf === 0) {
+        panel.innerHTML = `
+          <div class="panel-stack">
+            ${emptyState("The bracket opens after Week 1",
+              "Six teams make the playoffs: each division champion (with a Week 15 bye), each division runner-up, and two league-wide wild cards taken on record with points for as the first tiebreaker. The better wild card draws the weaker runner-up. The remaining four teams are reseeded 7 through 10 for the Toilet Bowl ladder. Once results are posted, this tab shows exactly where every team would land if the season ended that day.")}
+            <article class="card">
+              ${cardHead("How the field is set", "R", "League rulebook, Sections 4 and 5")}
+              <div class="projected-matchups">
+                <div class="projected-game">
+                  <div class="pg-head">Week 15</div>
+                  <div class="pg-bye">Both division champions rest. The two runners-up host the wild cards, and the Toilet Bowl opens with #7 vs #8 and #9 vs #10.</div>
+                </div>
+                <div class="projected-game">
+                  <div class="pg-head">Week 16</div>
+                  <div class="pg-bye">Semifinals on each side of the bracket. In the Toilet Bowl, the loser of Game 1 plays the winner of Game 2.</div>
+                </div>
+                <div class="projected-game">
+                  <div class="pg-head">Week 17</div>
+                  <div class="pg-bye">Fantasy Bowl and the third-place game. The Toilet Bowl Championship pits the loser of Game 3 against the loser of Game 2.</div>
+                </div>
+              </div>
+            </article>
+          </div>`;
+        return;
+      }
+
+      const picture = buildPicture(asOf);
+      const stats = picture.stats;
+
+      const fieldCard = `
+        <article class="card">
+          ${cardHead("Playoff Field", "P", `If the season ended after Week ${asOf}`)}
+          <div class="seed-list">
+            ${picture.playoffField.map((id) => seedRow(picture, id)).join("")}
+          </div>
+          ${picture.firstOut ? `<div class="tag-row"><span class="rule-tag">First team out · ${teams[picture.firstOut].name} (${stats[picture.firstOut].record}, ${fmt(stats[picture.firstOut].pf)} PF)</span></div>` : ""}
+        </article>`;
+
+      const bracketCard = `
+        <article class="card">
+          ${cardHead("Projected Bracket", "B", "Weeks 15–17")}
+          <div class="projected-matchups">
+            ${picture.sides.map((side) => `
+              <div class="side-block">
+                <div class="side-title">${side.division} side of the bracket</div>
+                ${byeGame("Week 15 · Bye", "#1", side.one, stats)}
+                ${projectedGame("Week 15 · Wild Card round", "#3", side.three, "#2", side.two, stats)}
+              </div>`).join("")}
+          </div>
+          <div class="tag-row">
+            <span class="rule-tag">Winners meet their division's #1 seed in the Week 16 semifinal</span>
+            <span class="rule-tag">Fantasy Bowl and third-place game in Week 17</span>
+          </div>
+        </article>`;
+
+      const toilet = picture.toiletSeeds;
+      const toiletCard = `
+        <article class="card">
+          ${cardHead("Toilet Bowl Watch", "T", "Seeds 7–10 · loser advances")}
+          <div class="seed-list">
+            ${toilet.map((id) => seedRow(picture, id)).join("")}
+          </div>
+          <div class="projected-matchups">
+            ${projectedGame("Game 1 · Week 15", "#7", toilet[0], "#8", toilet[1], stats)}
+            ${projectedGame("Game 2 · Week 15", "#9", toilet[2], "#10", toilet[3], stats)}
+            <div class="projected-game">
+              <div class="pg-head">Game 3 · Week 16</div>
+              <div class="pg-bye">Loser of Game 1 vs winner of Game 2.</div>
+            </div>
+            <div class="projected-game">
+              <div class="pg-head">Toilet Bowl Championship · Week 17</div>
+              <div class="pg-bye">Loser of Game 3 vs loser of Game 2. Win any game before this one and you are safe.</div>
+            </div>
+          </div>
+        </article>`;
+
+      const flipNote = picture.flips.length
+        ? `<div class="tag-row" style="padding:0">${picture.flips.map(([a, b]) =>
+            `<span class="rule-tag flip">Coin flip pending · ${teams[a].name} / ${teams[b].name}</span>`).join("")}</div>`
+        : "";
+
+      panel.innerHTML = `
+        <div class="panel-stack">
+          <div class="picture-grid">${fieldCard}${bracketCard}</div>
+          ${flipNote}
+          ${toiletCard}
+        </div>
+        <div class="source-note">Seeding follows the rulebook: divisions first (head-to-head, points for, division record), then the two best remaining records league-wide as wild cards. Toilet Bowl seeds reset on wins, points for, then head-to-head.</div>`;
+    }
+
+    /* =================================================================
+       WEEKLY SUMMARY PANEL
+       ================================================================= */
+
+    function renderSummaryPanel(week) {
+      const panel = document.getElementById("panel-summary");
+      const summary = weeklySummaries[week];
+
+      if (!summary) {
+        panel.innerHTML = emptyState(
+          week === 0 ? "No preseason notes yet" : `Week ${week} recap not posted yet`,
+          isPlayed(week)
+            ? "The scores are in but the write-up has not been added for this week."
+            : "The recap goes up once the week's results are posted.");
+        return;
+      }
+
+      panel.innerHTML = `
+        <article class="card summary-card">
+          ${cardHead(week === 0 ? "Preseason Outlook" : `Week ${week} Recap`, week === 0 ? "0" : String(week), summary.generated || "League recap")}
+          ${summary.headline ? `<div class="summary-meta">${summary.headline}</div>` : ""}
+          <div class="summary-body">
+            ${summary.body.map((p) => `<p>${p}</p>`).join("")}
+          </div>
+        </article>
+        <div class="source-note">Recaps are written from the posted results and do not change any standings on this page.</div>`;
+    }
+
+    /* =================================================================
+       TEAM DRAWER
+       ================================================================= */
+
+    const drawer = document.getElementById("teamDrawer");
+    const backdrop = document.getElementById("drawerBackdrop");
+
+    function seasonScheduleFor(teamId) {
+      const rows = [];
+      for (let w = 1; w <= REGULAR_WEEKS; w++) {
+        const game = (schedule[w] || []).find(([a, b]) => a === teamId || b === teamId);
+        if (!game) continue;
+        const opponent = game[0] === teamId ? game[1] : game[0];
+        const scored = (results[w] || []).find(([a, , b]) => a === teamId || b === teamId);
+        if (scored) {
+          const isFirst = scored[0] === teamId;
+          const teamScore = isFirst ? scored[1] : scored[3];
+          const oppScore = isFirst ? scored[3] : scored[1];
+          rows.push({
+            week: w, opponent, teamScore, oppScore,
+            result: teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "T",
+            played: true
+          });
+        } else {
+          rows.push({ week: w, opponent, played: false });
+        }
+      }
+      return rows;
+    }
+
+    function scheduleRows(items) {
+      return items.map((g) => {
+        const opponent = teams[g.opponent];
+        const pill = g.played
+          ? `<span class="result-pill ${g.result === "W" ? "win" : g.result === "L" ? "loss" : "bye"}">${g.result}</span>`
+          : `<span class="result-pill pending">–</span>`;
+        const score = g.played
+          ? `<strong>${fmt(g.teamScore)}–${fmt(g.oppScore)}</strong><span>NFL Week ${g.week}</span>`
+          : `<strong>—</strong><span>Not played</span>`;
+        return `<div class="schedule-row">
+          <span class="schedule-week">Week ${g.week}</span>
+          ${pill}
+          <span class="schedule-opponent"><strong>vs ${opponent.name}</strong><span>${opponent.owner}</span></span>
+          <span class="schedule-score">${score}</span>
+        </div>`;
+      }).join("");
+    }
+
+    function openTeam(teamId) {
+      const t = teams[teamId];
+      const asOf = asOfWeek(state.week);
+      const picture = buildPicture(asOf);
+      const line = picture.stats[teamId];
+      const seed = asOf > 0 ? picture.seedLabels[teamId] : null;
+
+      document.getElementById("drawerHero").style.setProperty("--drawer-color", t.color);
+      const badge = document.getElementById("drawerBadge");
+      badge.style.setProperty("--team-color", t.color);
+      badge.textContent = t.icon;
+      document.getElementById("drawerName").textContent = t.name;
+      document.getElementById("drawerOwner").textContent = `${t.owner} · ${t.division} Division`;
+      document.getElementById("drawerStats").innerHTML = `
+        <div class="drawer-stat"><small>Record</small><strong>${line.record}</strong></div>
+        <div class="drawer-stat"><small>Points For</small><strong>${fmt(line.pf)}</strong></div>
+        <div class="drawer-stat"><small>Points Against</small><strong>${fmt(line.pa)}</strong></div>
+        <div class="drawer-stat"><small>Current Seed</small><strong>${seed ? seed.chip : "—"}</strong></div>`;
+
+      document.getElementById("drawerBody").innerHTML = `
+        <section class="schedule-section">
+          <div class="schedule-heading"><h3>2026 Schedule</h3><span>Weeks 1–${REGULAR_WEEKS}</span></div>
+          <div class="schedule-list">${scheduleRows(seasonScheduleFor(teamId))}</div>
+        </section>`;
+
+      drawer.classList.add("open");
+      backdrop.classList.add("open");
+      drawer.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeTeam() {
+      drawer.classList.remove("open");
+      backdrop.classList.remove("open");
+      drawer.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    /* =================================================================
+       RENDER + ROUTING
+       ================================================================= */
+
+    function renderAll() {
+      renderWeekRail();
+      renderViewTabs();
+      renderHero(state.week);
+      renderResultsPanel(state.week);
+      renderStandingsPanel(state.week);
+      renderPicturePanel(state.week);
+      renderSummaryPanel(state.week);
+      document.querySelectorAll(".live-panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === `panel-${state.view}`);
+      });
+    }
+
+    function applyHash() {
+      const match = /^#w(\d{1,2})(?:-(results|standings|picture|summary))?$/.exec(window.location.hash || "");
+      if (!match) return false;
+      const week = Number(match[1]);
+      if (week < 0 || week > REGULAR_WEEKS) return false;
+      state.week = week;
+      state.view = match[2] || "results";
+      return true;
+    }
+
+    function writeHash() {
+      const next = `#w${state.week}-${state.view}`;
+      if (window.location.hash !== next) history.replaceState(null, "", next);
+    }
+
+    document.getElementById("weekRail").addEventListener("click", (event) => {
+      const pill = event.target.closest(".week-pill");
+      if (!pill) return;
+      state.week = Number(pill.dataset.week);
+      renderAll();
+      writeHash();
+    });
+
+    document.getElementById("viewTabs").addEventListener("click", (event) => {
+      const tab = event.target.closest(".view-tab");
+      if (!tab) return;
+      state.view = tab.dataset.view;
+      renderViewTabs();
+      document.querySelectorAll(".live-panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === `panel-${state.view}`);
+      });
+      writeHash();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (event.target.closest(".week-pill") || event.target.closest(".view-tab")) return;
+      const team = event.target.closest("[data-team]");
+      if (team) openTeam(team.dataset.team);
+    });
+
+    document.getElementById("drawerClose").addEventListener("click", closeTeam);
+    backdrop.addEventListener("click", closeTeam);
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeTeam(); });
+
+    window.addEventListener("hashchange", () => { if (applyHash()) renderAll(); });
+
+    document.getElementById("yearSelect").addEventListener("change", (event) => {
+      const files = {
+        home: "index.html",
+        2026: "2026.html",
+        2025: "2025.html",
+        2024: "2024.html",
+        2023: "2023.html",
+        2022: "2022.html",
+        2021: "2021.html"
+      };
+      const target = files[event.target.value];
+      if (target) window.location.href = target;
+    });
+
+    applyHash();
+    renderAll();
+    writeHash();
+  </script>
+</body>
+</html>
