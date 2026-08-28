@@ -4095,9 +4095,22 @@
       const toiletSeeds = orderToilet(wildcardOrder.slice(2), week, stats, flips, reasons);
 
       // The better runner-up faces the worse wild card, and vice versa.
-      const runnerOrder = orderByRecordThenPoints(runnersUp.map((r) => r.id), stats, flips, reasons, "Runner-up seeding");
+      // The two division runners-up are compared on record, then points for,
+      // to set the wild-card matchups: the better one draws WC2 and the worse
+      // draws WC1. It orders nobody in the standings, so it is reported as
+      // the matchup it decides rather than as a placement.
+      const runnerOrder = orderByRecordThenPoints(runnersUp.map((r) => r.id), stats, flips);
       const betterRunner = runnersUp.find((r) => r.id === runnerOrder[0]);
       const worseRunner = runnersUp.find((r) => r.id === runnerOrder[1]);
+
+      if (betterRunner && worseRunner && wildcards.length === 2 &&
+          stats[betterRunner.id].wins === stats[worseRunner.id].wins) {
+        const detail = `Both division runners-up finished ${stats[betterRunner.id].record}, so points for decides which wild card each one draws: ${teams[betterRunner.id].name} ${fmt(stats[betterRunner.id].pf)}, ${teams[worseRunner.id].name} ${fmt(stats[worseRunner.id].pf)}. The better runner-up plays WC2, the worse plays WC1.`;
+        addReason(reasons, betterRunner.id, { race: "Wild-card matchup", criterion: "Points for", detail,
+          note: `Draws WC2 · ${teams[wildcards[1]].name}.` });
+        addReason(reasons, worseRunner.id, { race: "Wild-card matchup", criterion: "Points for", detail,
+          note: `Draws WC1 · ${teams[wildcards[0]].name}.` });
+      }
 
       const sideOf = (runner, wildcard) => ({
         division: runner.division,
@@ -4207,6 +4220,7 @@
           race: r.race,
           criterion: r.criterion,
           detail: r.detail,
+          note: r.note || null,
           over: r.over ? teams[r.over].name : null,
           under: r.under ? teams[r.under].name : null
         }))
@@ -4261,7 +4275,8 @@
           <div class="why-entry">
             <h4>${e.race} · ${e.criterion}</h4>
             <p>${e.detail}</p>
-            ${e.over ? `<div class="why-team">Placed ahead of ${e.over}.</div>`
+            ${e.note ? `<div class="why-team">${e.note}</div>`
+              : e.over ? `<div class="why-team">Placed ahead of ${e.over}.</div>`
               : e.under ? `<div class="why-team">Placed behind ${e.under}.</div>` : ""}
           </div>`).join("")}`;
       document.body.appendChild(pop);
