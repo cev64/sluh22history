@@ -3151,7 +3151,9 @@
 
     /* -----------------------------------------------------------------
        WEEKLY SUMMARIES — the written recap shown on each week's tab.
-       `body` is an array of paragraphs; `headline` is optional.
+       A week uses `bullets` (an array of short lines, HTML allowed);
+       the preseason note uses `body` (an array of paragraphs).
+       Shape: week: { headline, bullets: [...], generated: "Week N recap" }
        ----------------------------------------------------------------- */
     const weeklySummaries = {
       0: {
