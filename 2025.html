@@ -1131,7 +1131,18 @@
       #final td.team-cell {
         grid-column: 2;
         min-width: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
       }
+
+      /* Seed and clinch markers ride beside the name; the stat strip takes
+         the next row on its own. */
+      td.team-cell .team-button { flex: 0 1 auto; width: auto; max-width: 100%; min-width: 0; }
+      td.team-cell .team-button .team-meta { min-width: 0; }
+      td.team-cell .team-button .team-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      td.team-cell .team-flags { flex: 0 0 auto; }
+      td.team-cell .mobile-stat-strip { flex: 1 0 100%; }
 
       #regular td:not(.rank):not(.team-cell),
       #panel-standings td:not(.rank):not(.team-cell),
@@ -3804,7 +3815,10 @@
     function breakTwoWay(a, b, week, stats, flips, reasons) {
       const h = headToHead(a, b, week);
       const note = (win, lose, criterion, detail) => {
-        if (reasons) reasons[win] = { over: lose, criterion, detail };
+        if (reasons) {
+          reasons[win] = { over: lose, criterion, detail };
+          reasons[lose] = { under: win, criterion, detail };
+        }
         return [win, lose];
       };
 
@@ -3826,8 +3840,11 @@
           `Head-to-head and points for were level, so division record decided it: ${stats[win].divRecord} to ${stats[lose].divRecord}.`);
       }
       flips.push([a, b]);
-      if (reasons) reasons[a] = { over: b, criterion: "Coin flip",
-        detail: `${teams[a].name} and ${teams[b].name} are level on every tiebreaker. The rulebook goes to a coin flip.` };
+      if (reasons) {
+        const detail = `${teams[a].name} and ${teams[b].name} are level on every tiebreaker. The rulebook goes to a coin flip.`;
+        reasons[a] = { over: b, criterion: "Coin flip", detail };
+        reasons[b] = { under: a, criterion: "Coin flip", detail };
+      }
       return [a, b];
     }
 
@@ -3850,8 +3867,7 @@
         if (reasons) {
           const names = group.map((id) => teams[id].name).join(", ");
           byPoints.forEach((id, i) => {
-            if (i === byPoints.length - 1) return;
-            reasons[id] = { over: byPoints[i + 1], criterion: "Points for",
+            reasons[id] = { over: byPoints[i + 1] || null, criterion: "Points for",
               detail: `${names} all had the same head-to-head record against each other, so the rulebook ranks them on points for. ${teams[id].name}: ${fmt(stats[id].pf)}.` };
           });
         }
@@ -3918,33 +3934,63 @@
 
     /* Clinch and elimination flags. Every test here is a *sufficient*
        condition, so a badge is never shown unless it is mathematically
-       settled; a team can be safe before the badge appears, never after. */
+       settled; a team can be safe before the badge appears, never after.
+
+       The key structural fact: only the top two of each division take
+       division seeds, so if a team finishes third or worse, the teams that
+       beat it in its own division are holding division seeds, not wild
+       cards. That means a third-place team's only wild-card rivals are the
+       other division's non-top-two teams, plus any of its own division
+       beyond the two ahead of it. */
     function clinchFlags(stats, divisions, playoffField) {
       const maxWins = (id) => stats[id].wins + Math.max(0, REGULAR_WEEKS - stats[id].gp);
+      const minWins = (id) => stats[id].wins;
+      const rivalsOf = (id) => divisionOrder[teams[id].division].filter((x) => x !== id);
+
+      // Rivals who can still finish level with or ahead of this team.
+      const couldPass = (id) => rivalsOf(id).filter((x) => maxWins(x) >= minWins(id)).length;
+      // Certain to take a division seed, so never in the wild-card pool.
+      const lockedTopTwo = (id) => couldPass(id) <= 1;
+      // Certain to miss a division seed, so certain to be in the pool.
+      const lockedOutOfTopTwo = (id) => rivalsOf(id).filter((x) => minWins(x) > maxWins(id)).length >= 2;
+
       const seasonOver = TEAM_IDS.every((id) => stats[id].gp >= REGULAR_WEEKS);
       const flags = {};
 
       TEAM_IDS.forEach((id) => {
-        const division = teams[id].division;
-        const rivals = divisionOrder[division].filter((x) => x !== id);
-
         if (seasonOver) {
-          flags[id] = divisions[division][0] === id ? "z" : playoffField.includes(id) ? "x" : "e";
+          flags[id] = divisions[teams[id].division][0] === id ? "z"
+            : playoffField.includes(id) ? "x" : "e";
           return;
         }
 
-        // Rivals who can still reach or pass this team's win total.
-        const couldCatch = rivals.filter((x) => maxWins(x) >= stats[id].wins).length;
-        if (couldCatch === 0) { flags[id] = "z"; return; }
-        if (couldCatch <= 1) { flags[id] = "x"; return; }
+        const rivals = rivalsOf(id);
 
-        // Two division rivals already out of reach means no top-two finish;
-        // six teams out of reach league-wide means at least two of them sit
-        // in the wild-card pool ahead of this team, since only four can hold
-        // division seeds.
-        const divAhead = rivals.filter((x) => stats[x].wins > maxWins(id)).length;
-        const leagueAhead = TEAM_IDS.filter((x) => x !== id && stats[x].wins > maxWins(id)).length;
-        flags[id] = (divAhead >= 2 && leagueAhead >= 6) ? "e" : null;
+        // Nobody left who can even draw level: division and bye are locked.
+        if (rivals.every((x) => maxWins(x) < minWins(id))) { flags[id] = "z"; return; }
+
+        // Guaranteed a top-two finish, which is a berth on its own.
+        if (couldPass(id) <= 1) { flags[id] = "x"; return; }
+
+        // Otherwise the team may fall to third, so count who could actually
+        // beat it for a wild card. Its own division contributes only the
+        // rivals beyond the two holding division seeds.
+        const ownAhead = rivals.filter((x) => maxWins(x) >= minWins(id)).length;
+        const ownPool = Math.max(0, ownAhead - 2);
+        const otherPool = TEAM_IDS.filter((x) =>
+          teams[x].division !== teams[id].division &&
+          maxWins(x) >= minWins(id) &&
+          !lockedTopTwo(x)).length;
+        if (ownPool + otherPool <= 1) { flags[id] = "x"; return; }
+
+        // Elimination is the mirror image: out of the division race for
+        // certain, and with at least two certain wild-card rivals ahead.
+        const divBeaten = rivals.filter((x) => minWins(x) > maxWins(id)).length;
+        const poolBeaten = Math.max(0, divBeaten - 2) + TEAM_IDS.filter((x) =>
+          teams[x].division !== teams[id].division &&
+          minWins(x) > maxWins(id) &&
+          lockedOutOfTopTwo(x)).length;
+        flags[id] = (divBeaten >= 2 && poolBeaten >= 2) ? "e" : null;
       });
 
       return flags;
@@ -4048,11 +4094,6 @@
       return result;
     }
 
-    // League-wide order used for the overall standings table.
-    function overallOrder(stats) {
-      return TEAM_IDS.slice().sort((a, b) =>
-        (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf) || teams[a].name.localeCompare(teams[b].name));
-    }
 
     /* =================================================================
        VIEW STATE
@@ -4119,7 +4160,8 @@
         team: teams[id].name,
         criterion: reason.criterion,
         detail: reason.detail,
-        over: reason.over ? teams[reason.over].name : null
+        over: reason.over ? teams[reason.over].name : null,
+        under: reason.under ? teams[reason.under].name : null
       };
       return `<button type="button" class="why-btn" data-why="${key}"
         aria-label="Why ${teams[id].name} is ranked here">i</button>`;
@@ -4137,7 +4179,6 @@
 
     function standingsLegend(picture) {
       const anyFlag = TEAM_IDS.some((id) => picture.flags[id]);
-      const out = picture.firstOut;
       return `<div class="standings-note">
         <span class="legend-key"><span class="seed-tag div lead">X1</span>Division leader · first-round bye</span>
         <span class="legend-key"><span class="seed-tag div">X2</span>Division runner-up</span>
@@ -4147,7 +4188,6 @@
         <span class="legend-key"><span class="clinch-tag x">x</span>Clinched a berth</span>
         <span class="legend-key"><span class="clinch-tag e">e</span>Eliminated</span>` : ""}
         <span class="legend-key"><span class="why-btn" aria-hidden="true">i</span>Tap for the tiebreaker</span>
-        ${out ? `<span class="legend-key">First team out · <strong>${teams[out].name}</strong> (${picture.stats[out].record}, ${fmt(picture.stats[out].pf)} PF)</span>` : ""}
       </div>`;
     }
 
@@ -4170,7 +4210,8 @@
       pop.innerHTML = `
         <h4>${info.criterion}</h4>
         <p>${info.detail}</p>
-        ${info.over ? `<div class="why-team">Placed ahead of ${info.over}.</div>` : ""}`;
+        ${info.over ? `<div class="why-team">Placed ahead of ${info.over}.</div>`
+          : info.under ? `<div class="why-team">Placed behind ${info.under}.</div>` : ""}`;
       document.body.appendChild(pop);
 
       const anchor = button.getBoundingClientRect();
@@ -4343,49 +4384,10 @@
         </article>`;
       }).join("");
 
-      const overallCard = `
-        <article class="card final-card">
-          ${cardHead("League Standings", "L", `Ranked by record, then points for · ${through}`)}
-          <div class="table-wrap">
-            <table class="final-table">
-              <thead><tr><th class="place">RK</th><th>Team</th><th>Record</th><th class="gb">GB</th><th>PF</th><th>PA</th><th>PF/G</th><th>PA/G</th><th>Diff</th></tr></thead>
-              <tbody>
-                ${(() => { const order = overallOrder(stats); return order.map((id, i) => {
-                  const t = stats[id];
-                  const d = t.diffPerGame;
-                  const dClass = d > 0 ? "positive" : d < 0 ? "negative" : "";
-                  const gb = gbText(stats[order[0]], t);
-                  return `<tr class="${seedRowClass(picture, id)}">
-                    <td class="rank">${i + 1}</td>
-                    <td class="team-cell">
-                      ${teamButton(id)}${teamFlags(picture, id, `L${week}`)}
-                      <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
-                        <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
-                        <span class="mobile-stat"><small>GB</small><strong>${gb}</strong></span>
-                        <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
-                        <span class="mobile-stat"><small>PF/G</small><strong>${fmt1(t.pfg)}</strong></span>
-                        <span class="mobile-stat"><small>DIFF</small><strong class="${dClass}">${d > 0 ? "+" : ""}${fmt1(d)}</strong></span>
-                      </div>
-                    </td>
-                    <td class="record">${t.record}</td>
-                    <td class="gb">${gb}</td>
-                    <td>${fmt(t.pf)}</td>
-                    <td>${fmt(t.pa)}</td>
-                    <td>${fmt1(t.pfg)}</td>
-                    <td>${fmt1(t.pag)}</td>
-                    <td class="${dClass}">${d > 0 ? "+" : ""}${fmt1(d)}</td>
-                  </tr>`;
-                }).join(""); })()}
-              </tbody>
-            </table>
-          </div>
-        </article>`;
-
       document.getElementById("panel-standings").innerHTML = `
         <div class="panel-stack">
           <div class="division-grid">${divisionCards}</div>
           ${standingsLegend(picture)}
-          ${overallCard}
         </div>
         <div class="source-note">Division order applies the rulebook tiebreakers: head-to-head, points for, then division record. Records reflect Weeks 1–${week}.</div>`;
     }
@@ -4438,7 +4440,6 @@
                   <div class="pg-head">${side.division} side</div>
                   <div class="pg-side"><span class="seed">#1</span>${miniTeam(side.one)}<span class="pg-name">${teams[side.one].name}</span><span class="pg-rec">${stats[side.one].record}</span></div>
                   <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of ${side.division} Round 1</span></div>
-                  <div class="pg-bye">${teams[side.one].name} rests in Round 1 as division champion.</div>
                 </div>`).join("")}
             </div>
             <div class="bracket-round">
