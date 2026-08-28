@@ -4095,7 +4095,10 @@
       const toiletSeeds = orderToilet(wildcardOrder.slice(2), week, stats, flips, reasons);
 
       // The better runner-up faces the worse wild card, and vice versa.
-      const runnerOrder = orderByRecordThenPoints(runnersUp.map((r) => r.id), stats, flips, reasons, "Runner-up seeding");
+      // Comparing the two runners-up only decides which side of the bracket
+      // each one lands on. It is not a standings tiebreak — they are in
+      // different divisions and both are #2 seeds — so it records no reason.
+      const runnerOrder = orderByRecordThenPoints(runnersUp.map((r) => r.id), stats, flips);
       const betterRunner = runnersUp.find((r) => r.id === runnerOrder[0]);
       const worseRunner = runnersUp.find((r) => r.id === runnerOrder[1]);
 
