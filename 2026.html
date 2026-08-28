@@ -1053,6 +1053,8 @@
         white-space: normal;
       }
 
+      .view-tab:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
       .division-grid { gap: 9px; }
 
       .card {
@@ -2317,6 +2319,48 @@
 
     .week-pill.played small { color: var(--green); }
 
+    /* Phones get a single dropdown instead of a rail that runs off-screen. */
+    .week-select-wrap { display: none; }
+
+    @media (max-width: 700px) {
+      .week-rail { display: none; }
+
+      .week-select-wrap {
+        display: block;
+        position: relative;
+      }
+
+      .week-select-wrap::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        width: 9px;
+        height: 9px;
+        margin-top: -6px;
+        border-right: 2.5px solid rgba(255, 255, 255, .8);
+        border-bottom: 2.5px solid rgba(255, 255, 255, .8);
+        transform: rotate(45deg);
+        pointer-events: none;
+      }
+
+      #weekSelect {
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        background: linear-gradient(180deg, var(--navy-2), var(--navy));
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, .14);
+        border-radius: 14px;
+        padding: 14px 42px 14px 16px;
+        font-size: 15px;
+        font-weight: 800;
+        box-shadow: var(--shadow);
+      }
+
+      #weekSelect:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    }
+
     /* Panels ------------------------------------------------------- */
 
     .live-panel { display: none; }
@@ -2781,6 +2825,9 @@
       <span id="weekRailNote"></span>
     </div>
     <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
+    <div class="week-select-wrap">
+      <select id="weekSelect" aria-label="Choose a week"></select>
+    </div>
   </div>
 
   <main>
@@ -3320,6 +3367,13 @@
         ? "No results posted yet"
         : `Weeks 1–${lastPlayedWeek} posted`;
 
+      const select = document.getElementById("weekSelect");
+      select.innerHTML = weeks.map((w) => {
+        const status = w === 0 ? "Preseason" : isPlayed(w) ? "Final" : "Upcoming";
+        const label = status === weekLabel(w) ? weekLabel(w) : `${weekLabel(w)} · ${status}`;
+        return `<option value="${w}" ${w === state.week ? "selected" : ""}>${label}</option>`;
+      }).join("");
+
       const active = rail.querySelector(".week-pill.active");
       if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
     }
@@ -3834,6 +3888,12 @@
       const pill = event.target.closest(".week-pill");
       if (!pill) return;
       state.week = Number(pill.dataset.week);
+      renderAll();
+      writeHash();
+    });
+
+    document.getElementById("weekSelect").addEventListener("change", (event) => {
+      state.week = Number(event.target.value);
       renderAll();
       writeHash();
     });
