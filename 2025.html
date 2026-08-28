@@ -2102,6 +2102,551 @@
     }
 
 
+    /* Week rail ---------------------------------------------------- */
+
+    .week-rail-wrap {
+      width: min(1220px, calc(100% - 32px));
+      margin: 22px auto 0;
+    }
+
+    .week-rail-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .week-rail-head strong {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .week-rail-head span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .week-rail {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      scrollbar-width: thin;
+    }
+
+    .week-pill {
+      flex: 0 0 auto;
+      border: 1px solid transparent;
+      background: transparent;
+      border-radius: 10px;
+      padding: 8px 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      line-height: 1.1;
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .week-pill small {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .week-pill:hover { background: var(--surface-2); }
+
+    .week-pill.active {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .week-pill.active small { color: rgba(255, 255, 255, .66); }
+
+    .week-pill.upcoming { color: var(--muted); }
+
+    .week-pill.played small { color: var(--green); }
+
+    /* Phones get a single dropdown instead of a rail that runs off-screen. */
+    .week-select-wrap { display: none; }
+
+    @media (max-width: 700px) {
+      .week-rail { display: none; }
+
+      .week-select-wrap {
+        display: block;
+        position: relative;
+      }
+
+      .week-select-wrap::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        width: 9px;
+        height: 9px;
+        margin-top: -6px;
+        border-right: 2.5px solid rgba(255, 255, 255, .8);
+        border-bottom: 2.5px solid rgba(255, 255, 255, .8);
+        transform: rotate(45deg);
+        pointer-events: none;
+      }
+
+      #weekSelect {
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        background: linear-gradient(180deg, var(--navy-2), var(--navy));
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, .14);
+        border-radius: 14px;
+        padding: 14px 42px 14px 16px;
+        font-size: 15px;
+        font-weight: 800;
+        box-shadow: var(--shadow);
+      }
+
+      #weekSelect:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    }
+
+    /* Panels ------------------------------------------------------- */
+
+    .panel-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .empty-state {
+      background: var(--surface);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 34px 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--ink);
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .empty-state p { margin: 0 auto; max-width: 52ch; font-size: 13.5px; line-height: 1.55; }
+
+    /* Scoreboard --------------------------------------------------- */
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .game-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .game-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 13px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--line);
+      font-size: 10.5px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .game-card-head .game-margin { color: var(--ink); letter-spacing: .04em; }
+
+    .game-side {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      min-width: 0;
+    }
+
+    .game-side + .game-side { border-top: 1px solid var(--line); }
+
+    .game-side .mini-badge { flex: 0 0 auto; }
+
+    .game-side .game-team {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-align: left;
+      background: none;
+      border: 0;
+      padding: 0;
+    }
+
+    .game-side .game-team strong {
+      font-size: 14px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .game-side .game-team span { font-size: 11.5px; color: var(--muted); }
+
+    .game-side .game-score {
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      font-size: 17px;
+      color: var(--muted);
+    }
+
+    .game-side.winner { background: rgba(22, 131, 74, .06); }
+    .game-side.winner .game-score { color: var(--ink); }
+    .game-side.winner .game-team strong { color: var(--ink); }
+
+    .game-side .win-flag {
+      width: 4px;
+      align-self: stretch;
+      border-radius: 999px;
+      background: transparent;
+      flex: 0 0 auto;
+    }
+
+    .game-side.winner .win-flag { background: var(--green); }
+
+    /* Standings extras --------------------------------------------- */
+
+    .standings-note {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--blue);
+    }
+
+    .legend-swatch.wildcard { background: var(--gold); }
+    .legend-swatch.toilet { background: #9aa6b6; }
+
+    tr.seed-div td:first-child { box-shadow: inset 3px 0 0 var(--blue); }
+    tr.seed-wc td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
+    tr.seed-toilet td:first-child { box-shadow: inset 3px 0 0 #9aa6b6; }
+
+    .result-pill.pending { background: #b9c3cd; }
+
+    .streak {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .streak.win { color: var(--green); }
+    .streak.loss { color: var(--red); }
+
+    /* Playoff picture ---------------------------------------------- */
+
+    .picture-grid {
+      display: grid;
+      align-items: start;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .seed-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .seed-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 15px;
+      border-top: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .seed-row:first-child { border-top: 0; }
+
+    .seed-chip {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 30px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+      background: var(--navy-2);
+      letter-spacing: .02em;
+    }
+
+    .seed-chip.div { background: var(--blue); }
+    .seed-chip.wc { background: var(--gold); color: #3a2a02; }
+    .seed-chip.out { background: #9aa6b6; }
+
+    .seed-row .seed-body {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .seed-row .seed-copy { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .seed-row .seed-copy strong { font-size: 14px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .seed-row .seed-copy span { font-size: 11.5px; color: var(--muted); }
+
+    .seed-row .seed-line {
+      flex: 0 0 auto;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .seed-row .seed-line strong { display: block; font-size: 14px; font-weight: 900; }
+    .seed-row .seed-line span { font-size: 11px; color: var(--muted); }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 15px 13px;
+    }
+
+    .rule-tag {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .rule-tag.flip { background: rgba(246, 183, 60, .16); border-color: rgba(246, 183, 60, .5); color: #7a5605; }
+
+    .projected-matchups {
+      display: grid;
+      gap: 10px;
+      padding: 14px 15px 16px;
+    }
+
+    .side-block { display: grid; gap: 8px; }
+
+    .side-block + .side-block { margin-top: 6px; }
+
+    .side-title {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .projected-game {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface-2);
+    }
+
+    .projected-game .pg-head {
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .projected-game .pg-side {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 12px;
+      min-width: 0;
+    }
+
+    .projected-game .pg-side + .pg-side { border-top: 1px solid var(--line); }
+    .projected-game .pg-side .seed { font-size: 10px; font-weight: 900; color: #758191; white-space: nowrap; min-width: 30px; }
+    .projected-game .pg-side .pg-name { font-size: 13.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto; min-width: 0; }
+    .projected-game .pg-side .pg-rec { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+    .projected-game .pg-bye { padding: 9px 12px; font-size: 11.5px; color: var(--muted); font-weight: 700; }
+
+    /* Weekly summary ------------------------------------------------ */
+
+    .summary-card .summary-body {
+      padding: 4px 20px 20px;
+      font-size: 15px;
+      line-height: 1.68;
+      color: #24354a;
+    }
+
+    .summary-card .summary-body h4 {
+      margin: 20px 0 6px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .summary-card .summary-body p { margin: 0 0 12px; }
+    .summary-card .summary-body p:last-child { margin-bottom: 0; }
+    .summary-card .summary-body strong { color: var(--ink); }
+
+    .summary-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px 0;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .summary-superlatives {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      padding: 4px 20px 20px;
+    }
+
+    .superlative {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-2);
+      padding: 11px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .superlative small {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .superlative strong { font-size: 14px; font-weight: 800; line-height: 1.2; }
+    .superlative span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    @media (max-width: 560px) {
+      .seed-row { padding: 10px 12px; gap: 9px; }
+      .seed-chip { width: 30px; height: 27px; font-size: 10px; }
+      .summary-card .summary-body { padding: 4px 14px 16px; font-size: 14.5px; }
+      .summary-superlatives { padding: 4px 14px 16px; }
+      .summary-meta { padding: 12px 14px 0; }
+    }
+
+    /* Bulleted weekly recap */
+    .recap-list {
+      list-style: none;
+      margin: 0;
+      padding: 4px 20px 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .recap-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #24354a;
+    }
+
+    .recap-list li > span { min-width: 0; }
+
+    .recap-list li::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 7px;
+      height: 7px;
+      margin-top: 8px;
+      border-radius: 2px;
+      background: var(--blue);
+      transform: rotate(45deg);
+    }
+
+    .recap-list strong { color: var(--ink); font-weight: 800; }
+
+    @media (max-width: 560px) {
+      .recap-list { padding: 4px 14px 16px; gap: 9px; }
+      .recap-list li { font-size: 14px; }
+    }
+
+
+    /* The season view has three tabs and a week view has four, so lay them
+       out two-up on phones and let an odd last tab span the full row. */
+    @media (max-width: 700px) {
+      .view-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 15px;
+      }
+
+      .view-tab {
+        display: grid;
+        place-items: center;
+        min-width: 0;
+        min-height: 40px;
+        padding: 9px 6px;
+        border-radius: 11px;
+        font-size: 12.5px;
+        line-height: 1.15;
+        white-space: normal;
+      }
+
+      .view-tab:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    }
+
   </style>
 </head>
 <body>
@@ -2176,17 +2721,24 @@
     </div>
   </section>
 
+  <div class="week-rail-wrap">
+    <div class="week-rail-head">
+      <strong>Week</strong>
+      <span>Season summary plus every week replayed</span>
+    </div>
+    <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
+    <div class="week-select-wrap">
+      <select id="weekSelect" aria-label="Choose a week"></select>
+    </div>
+  </div>
+
   <main>
 
     <div class="page-toolbar">
       <div class="page-title">
-        <h2>2025 Season</h2>
+        <h2 id="weekTitle">2025 Season</h2>
       </div>
-      <div class="view-tabs" role="tablist" aria-label="Season views">
-        <button class="view-tab active" data-view="regular" role="tab" aria-selected="true">Regular Season</button>
-        <button class="view-tab" data-view="final" role="tab" aria-selected="false">Final Standings</button>
-        <button class="view-tab" data-view="bracket" role="tab" aria-selected="false">Playoff Bracket</button>
-      </div>
+      <div class="view-tabs" id="viewTabs" role="tablist" aria-label="Season views"></div>
     </div>
 
     <section id="regular" class="view-panel active" role="tabpanel">
@@ -2476,6 +3028,11 @@
 
       <div class="source-note">Losers-bracket seeds and advancement paths reflect the league's manually audited 2025 format.</div>
     </section>
+
+    <section id="panel-results" class="view-panel" role="tabpanel"></section>
+    <section id="panel-standings" class="view-panel" role="tabpanel"></section>
+    <section id="panel-picture" class="view-panel" role="tabpanel"></section>
+    <section id="panel-summary" class="view-panel" role="tabpanel"></section>
   </main>
 
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
@@ -2806,17 +3363,6 @@
     backdrop.addEventListener("click", closeTeam);
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeTeam(); });
 
-    document.querySelectorAll(".view-tab").forEach(button => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".view-tab").forEach(tab => {
-          tab.classList.toggle("active", tab === button);
-          tab.setAttribute("aria-selected", tab === button ? "true" : "false");
-        });
-        document.querySelectorAll(".view-panel").forEach(panel => panel.classList.toggle("active", panel.id === button.dataset.view));
-        updateBracketNameAlignment();
-      });
-    });
-
 
     document.querySelectorAll(".sort-button").forEach((button) => {
       button.addEventListener("click", () => {
@@ -2858,6 +3404,803 @@
     renderDivisions();
     renderFinalStandings();
     updateBracketNameAlignment();
+    /* Bulleted recaps, written from the audited weekly scores. */
+    const weeklySummaries = {
+      1: { headline: "The league opens with three blowouts and no clue who is good.",
+        bullets: [
+          "<strong>Hamilton Administration</strong> led the league at 144.26 and buried LaPorta Potty by 36.84.",
+          "<strong>Game of Throws</strong> took the Xavier opener from First and Ted, 124.78–89.72.",
+          "<strong>To infinity and Bijan</strong> upset The Left Tacklers, who bottomed out at a league-low 84.32.",
+          "Five teams left 1–0 and five left 0–1. Nothing learned."
+        ] },
+      2: { headline: "Hawaii survives by a point and a quarter.",
+        bullets: [
+          "<strong>Hawaii McLovins VIII</strong> beat Team Kareem Pie by <strong>1.24</strong> to stay unbeaten.",
+          "<strong>Game of Throws</strong> hung 53.06 on LaPorta Potty, who fell to 0–2 on a league-low 82.68.",
+          "<strong>The Left Tacklers</strong> got off the mat, edging Jared's Pack Attack 106.84–102.58.",
+          "Hamilton, Game of Throws, and Hawaii stood alone at 2–0."
+        ] },
+      3: { headline: "A 327-point shootout, and the last unbeaten standing.",
+        bullets: [
+          "<strong>To infinity and Bijan</strong> outlasted Game of Throws 166.72–160.54 — 327 points in one game.",
+          "<strong>First and Ted</strong> hammered Hamilton by 60.60, the biggest margin of the year so far.",
+          "<strong>Hawaii McLovins VIII</strong> moved to 3–0 and was the only unbeaten team left.",
+          "LaPorta Potty and Jared's Pack Attack both sank to 0–3."
+        ] },
+      4: { headline: "Half a point, a point and a half, and an ambush.",
+        bullets: [
+          "<strong>To infinity and Bijan</strong> beat Jared's Pack Attack by <strong>0.50</strong> — the closest game of the season.",
+          "<strong>Game of Throws</strong> survived The Left Tacklers by 1.50 in the other thriller.",
+          "<strong>LaPorta Potty</strong> ambushed Hawaii 159.94–101.78 for the week's high and its biggest blowout.",
+          "Three of the five games were decided by under five points."
+        ] },
+      5: { headline: "Roll Bill erupts and Bijan takes Xavier alone.",
+        bullets: [
+          "<strong>Roll Bill (Croskey-Merritt)</strong> posted the week's high at 164.82 to climb to 3–2.",
+          "<strong>To infinity and Bijan</strong> handled Hamilton to take sole possession of Xavier at 4–1.",
+          "<strong>LaPorta Potty</strong> won a second straight; Jared's Pack Attack fell to 0–5.",
+          "Roll Bill moved into the playoff field and pushed Team Kareem Pie out."
+        ] },
+      6: { headline: "Hawaii hits 174 and Jared hits rock bottom.",
+        bullets: [
+          "<strong>Hawaii McLovins VIII</strong> dropped 174.34 on The Left Tacklers, the season's best mark to date.",
+          "<strong>First and Ted</strong> routed Jared's Pack Attack by 54.28 — a sixth straight loss.",
+          "<strong>LaPorta Potty</strong> squeezed past Team Kareem Pie by 5.38 for a third straight win.",
+          "Three teams jammed the top of Xavier at 4–2."
+        ] },
+      7: { headline: "The Left Tacklers post 194.68 — the highest score of the season.",
+        bullets: [
+          "<strong>The Left Tacklers</strong> exploded for <strong>194.68</strong> and beat Team Kareem Pie by 63.26.",
+          "<strong>Game of Throws</strong> took Xavier outright at 5–2, beating Hamilton 166.04–126.14.",
+          "<strong>First and Ted</strong> edged To infinity and Bijan by 4.22.",
+          "<strong>LaPorta Potty</strong> won a fourth straight, reached 4–3, and slid into the playoff field."
+        ] },
+      8: { headline: "Xavier collapses into a five-team pile.",
+        bullets: [
+          "<strong>Roll Bill</strong> led the week at 170.52 and beat Jared's Pack Attack 170.52–132.48.",
+          "<strong>First and Ted</strong> beat Game of Throws by 6.84 for a third straight win.",
+          "Xavier read 5–3, 5–3, 4–4, 4–4, 4–4 — one game covering the entire division.",
+          "<strong>Hawaii McLovins VIII</strong> hit 7–1, alone ahead of the whole league."
+        ] },
+      9: { headline: "First and Ted crash the playoff field.",
+        bullets: [
+          "<strong>First and Ted</strong> rolled to a week-high 157.5 and dropped Hamilton to 4–5.",
+          "<strong>Game of Throws</strong> buried Roll Bill by 48.60 to hold Xavier at 6–3.",
+          "<strong>The Left Tacklers</strong> survived LaPorta Potty by 5.48 for a third straight win.",
+          "First and Ted entered the playoff field for the first time; Roll Bill dropped out."
+        ] },
+      10: { headline: "Hamilton wins by two thirds of a point.",
+        bullets: [
+          "<strong>Hamilton Administration</strong> beat Team Kareem Pie by <strong>0.64</strong>, the year's second-closest game.",
+          "<strong>Hawaii McLovins VIII</strong> put up 158.6 and moved to 9–1.",
+          "<strong>The Left Tacklers</strong> beat Game of Throws to stretch their run to four.",
+          "Xavier stayed knotted: 6–4, 6–4, 5–5, 5–5, 5–5."
+        ] },
+      11: { headline: "Jared's Pack Attack finally wins one — and it costs the champ.",
+        bullets: [
+          "<strong>Jared's Pack Attack</strong> broke through at 1–10, taking down Game of Throws 119.16–105.60.",
+          "<strong>Hawaii McLovins VIII</strong> beat First and Ted by 42.50 to reach 10–1.",
+          "<strong>Team Kareem Pie</strong> edged To infinity and Bijan by 3.52 and knocked them out of the field.",
+          "Three teams tied at 6–5 atop Xavier."
+        ] },
+      12: { headline: "Three separate 68-point beatdowns in one week.",
+        bullets: [
+          "<strong>Game of Throws</strong> won by 72.08, <strong>First and Ted</strong> by 70.42, <strong>Hawaii</strong> by 68.14.",
+          "<strong>Hamilton Administration</strong> managed 72.12 — its worst week of the season.",
+          "<strong>The Left Tacklers</strong> hit 165.72 to climb to 9–3.",
+          "<strong>Hawaii McLovins VIII</strong> reached 11–1 with two weeks to play."
+        ] },
+      13: { headline: "The Left Tacklers take down Hawaii and close the gap.",
+        bullets: [
+          "<strong>The Left Tacklers</strong> beat Hawaii 109.42–95.30 to pull within a game of Ignatius.",
+          "<strong>Roll Bill</strong> destroyed To infinity and Bijan by 68.00; Bijan's 64.54 was the season's lowest score.",
+          "<strong>First and Ted</strong> stayed level with Game of Throws at 8–5 atop Xavier.",
+          "Roll Bill's win shoved him back into the final playoff spot."
+        ] },
+      14: { headline: "Rivalry Week ends in a three-way tie and a head-to-head sort.",
+        bullets: [
+          "<strong>Xavier finished in a three-way tie at 8–6</strong> — First and Ted, Game of Throws, and Hamilton.",
+          "Head-to-head among the tied teams broke it: <strong>First and Ted</strong> took the division and the bye, Game of Throws second, Hamilton to a wild card.",
+          "<strong>To infinity and Bijan</strong> beat First and Ted to steal the last playoff spot from Roll Bill.",
+          "<strong>Hawaii McLovins VIII</strong> closed 12–2 and <strong>The Left Tacklers</strong> 11–3 — the league's two best records.",
+          "<strong>Jared's Pack Attack</strong> ended 1–13."
+        ] }
+    };
+
+    /* =================================================================
+       WEEK-BY-WEEK VIEWS
+
+       The season views above (regular standings, final standings, the
+       bracket) are the audited record and never change. Everything below
+       replays the season one week at a time: what happened that week,
+       where the standings stood, and who would have made the playoffs if
+       the season had ended right there. Seeding uses the same rulebook
+       ladder as the final bracket, so the Week 14 picture matches the
+       real one exactly.
+       ================================================================= */
+
+    const REGULAR_WEEKS = 14;
+    const rivalryWeek = 14;
+
+    const fmt1 = (n) => Number(n).toFixed(1);
+    const pctText = (v) => v.toFixed(3).replace(/^0/, "");
+
+    const weekResults = regularGames.reduce((acc, [week, away, awayScore, home, homeScore]) => {
+      (acc[week] = acc[week] || []).push([away, awayScore, home, homeScore]);
+      return acc;
+    }, {});
+
+    const weekSchedule = Object.fromEntries(
+      Object.entries(weekResults).map(([w, games]) => [w, games.map(([a, , b]) => [a, b])])
+    );
+
+    /* =================================================================
+       ENGINE — records, tiebreakers, seeding
+       ================================================================= */
+
+    const TEAM_IDS = Object.keys(teams);
+    const DIVISION_NAMES = Object.keys(divisionOrder);
+
+    const playedWeeks = Object.keys(weekResults)
+      .map(Number)
+      .filter((w) => Array.isArray(weekResults[w]) && weekResults[w].length)
+      .sort((a, b) => a - b);
+
+    const lastPlayedWeek = playedWeeks.length ? playedWeeks[playedWeeks.length - 1] : 0;
+
+    function gamesThrough(week) {
+      const out = [];
+      playedWeeks.filter((w) => w <= week).forEach((w) => {
+        weekResults[w].forEach(([a, as, b, bs]) => out.push({ week: w, a, as, b, bs }));
+      });
+      return out;
+    }
+
+    function blankLine(id) {
+      return {
+        id,
+        wins: 0, losses: 0, ties: 0, gp: 0,
+        pf: 0, pa: 0,
+        divWins: 0, divLosses: 0, divTies: 0,
+        form: []
+      };
+    }
+
+    // Records for every team through the given week.
+    function computeStats(week) {
+      const stats = {};
+      TEAM_IDS.forEach((id) => { stats[id] = blankLine(id); });
+
+      gamesThrough(week).forEach((g) => {
+        const sameDivision = teams[g.a].division === teams[g.b].division;
+        [[g.a, g.as, g.b, g.bs], [g.b, g.bs, g.a, g.as]].forEach(([id, own, oppId, opp]) => {
+          const line = stats[id];
+          line.gp += 1;
+          line.pf += own;
+          line.pa += opp;
+          if (own > opp) { line.wins += 1; if (sameDivision) line.divWins += 1; line.form.push("W"); }
+          else if (own < opp) { line.losses += 1; if (sameDivision) line.divLosses += 1; line.form.push("L"); }
+          else { line.ties += 1; if (sameDivision) line.divTies += 1; line.form.push("T"); }
+        });
+      });
+
+      TEAM_IDS.forEach((id) => {
+        const t = stats[id];
+        t.pct = t.gp ? (t.wins + t.ties * 0.5) / t.gp : 0;
+        t.divGp = t.divWins + t.divLosses + t.divTies;
+        t.divPct = t.divGp ? (t.divWins + t.divTies * 0.5) / t.divGp : 0;
+        t.record = t.ties ? `${t.wins}–${t.losses}–${t.ties}` : `${t.wins}–${t.losses}`;
+        t.divRecord = t.divTies ? `${t.divWins}–${t.divLosses}–${t.divTies}` : `${t.divWins}–${t.divLosses}`;
+        t.pfg = t.gp ? t.pf / t.gp : 0;
+        t.pag = t.gp ? t.pa / t.gp : 0;
+        t.diff = t.pf - t.pa;
+        t.diffPerGame = t.gp ? t.diff / t.gp : 0;
+        t.streak = streakOf(t.form);
+      });
+
+      return stats;
+    }
+
+    function streakOf(form) {
+      if (!form.length) return null;
+      const last = form[form.length - 1];
+      let n = 0;
+      for (let i = form.length - 1; i >= 0 && form[i] === last; i--) n += 1;
+      return { type: last, count: n, text: `${last}${n}` };
+    }
+
+    // Head-to-head record for `a` against `b` through the given week.
+    function headToHead(a, b, week) {
+      let w = 0, l = 0, t = 0;
+      gamesThrough(week).forEach((g) => {
+        let own, opp;
+        if (g.a === a && g.b === b) { own = g.as; opp = g.bs; }
+        else if (g.b === a && g.a === b) { own = g.bs; opp = g.as; }
+        else return;
+        if (own > opp) w += 1; else if (own < opp) l += 1; else t += 1;
+      });
+      return { w, l, t, played: w + l + t };
+    }
+
+    // Head-to-head win percentage against everyone else in a tied group.
+    function groupH2HPct(id, group, week) {
+      let w = 0, l = 0, t = 0;
+      group.forEach((other) => {
+        if (other === id) return;
+        const r = headToHead(id, other, week);
+        w += r.w; l += r.l; t += r.t;
+      });
+      const played = w + l + t;
+      return played ? (w + t * 0.5) / played : null;
+    }
+
+    /* Rulebook 4.1.1 — two-team tie in the division standings:
+       head-to-head, then points for, then intra-division record, then coin flip. */
+    function breakTwoWay(a, b, week, stats, flips) {
+      const h = headToHead(a, b, week);
+      if (h.played && h.w !== h.l) return h.w > h.l ? [a, b] : [b, a];
+      if (stats[a].pf !== stats[b].pf) return stats[a].pf > stats[b].pf ? [a, b] : [b, a];
+      if (stats[a].divPct !== stats[b].divPct) return stats[a].divPct > stats[b].divPct ? [a, b] : [b, a];
+      flips.push([a, b]);
+      return [a, b];
+    }
+
+    /* Rulebook 4.1.2 / 4.1.3 — three- and four-team ties resolve by head-to-head
+       record among the tied teams, then the resulting sub-groups drop back down
+       to the smaller-tie rules. Identical head-to-head across the whole group
+       ranks on points for. */
+    function breakTie(group, week, stats, flips) {
+      if (group.length <= 1) return group.slice();
+      if (group.length === 2) return breakTwoWay(group[0], group[1], week, stats, flips);
+
+      const scored = group.map((id) => ({ id, h2h: groupH2HPct(id, group, week) }));
+      const distinct = [...new Set(scored.map((s) => (s.h2h === null ? "none" : s.h2h.toFixed(6))))];
+
+      if (distinct.length <= 1) {
+        const byPoints = group.slice().sort((a, b) => stats[b].pf - stats[a].pf);
+        for (let i = 1; i < byPoints.length; i++) {
+          if (stats[byPoints[i - 1]].pf === stats[byPoints[i]].pf) flips.push([byPoints[i - 1], byPoints[i]]);
+        }
+        return byPoints;
+      }
+
+      const buckets = [];
+      scored
+        .slice()
+        .sort((a, b) => (b.h2h === null ? -1 : b.h2h) - (a.h2h === null ? -1 : a.h2h))
+        .forEach((entry) => {
+          const key = entry.h2h === null ? "none" : entry.h2h.toFixed(6);
+          const bucket = buckets.find((x) => x.key === key);
+          if (bucket) bucket.ids.push(entry.id);
+          else buckets.push({ key, ids: [entry.id] });
+        });
+
+      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips));
+    }
+
+    // Division standings: record first, ties resolved by the rulebook ladder.
+    function orderDivision(division, week, stats, flips) {
+      const ids = divisionOrder[division].slice();
+      const buckets = [];
+      ids
+        .slice()
+        .sort((a, b) => stats[b].pct - stats[a].pct || stats[b].wins - stats[a].wins)
+        .forEach((id) => {
+          const key = `${stats[id].wins}-${stats[id].losses}-${stats[id].ties}`;
+          const bucket = buckets.find((x) => x.key === key);
+          if (bucket) bucket.ids.push(id);
+          else buckets.push({ key, ids: [id] });
+        });
+      return buckets.flatMap((bucket) => breakTie(bucket.ids, week, stats, flips));
+    }
+
+    /* Wild cards and division-runner-up ordering: games won, then points for,
+       then a coin flip. */
+    function orderByRecordThenPoints(ids, stats, flips) {
+      const ordered = ids.slice().sort((a, b) => (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf));
+      for (let i = 1; i < ordered.length; i++) {
+        const p = stats[ordered[i - 1]], c = stats[ordered[i]];
+        if (p.wins === c.wins && p.pf === c.pf) flips.push([ordered[i - 1], ordered[i]]);
+      }
+      return ordered;
+    }
+
+    /* Toilet Bowl reseeding: games won, points for, head-to-head, coin flip. */
+    function orderToilet(ids, week, stats, flips) {
+      const ordered = ids.slice().sort((a, b) => {
+        if (stats[b].wins !== stats[a].wins) return stats[b].wins - stats[a].wins;
+        if (stats[b].pf !== stats[a].pf) return stats[b].pf - stats[a].pf;
+        const h = headToHead(a, b, week);
+        if (h.played && h.w !== h.l) return h.l - h.w;
+        return 0;
+      });
+      for (let i = 1; i < ordered.length; i++) {
+        const a = ordered[i - 1], b = ordered[i];
+        const h = headToHead(a, b, week);
+        if (stats[a].wins === stats[b].wins && stats[a].pf === stats[b].pf && (!h.played || h.w === h.l)) flips.push([a, b]);
+      }
+      return ordered;
+    }
+
+    /* The whole playoff picture as it stands after the given week. */
+    function buildPicture(week) {
+      const stats = computeStats(week);
+      const flips = [];
+
+      const divisions = {};
+      DIVISION_NAMES.forEach((d) => { divisions[d] = orderDivision(d, week, stats, flips); });
+
+      const champs = DIVISION_NAMES.map((d) => ({ division: d, id: divisions[d][0] }));
+      const runnersUp = DIVISION_NAMES.map((d) => ({ division: d, id: divisions[d][1] }));
+
+      const locked = new Set([...champs, ...runnersUp].map((x) => x.id));
+      const rest = TEAM_IDS.filter((id) => !locked.has(id));
+
+      const wildcardOrder = orderByRecordThenPoints(rest, stats, flips);
+      const wildcards = wildcardOrder.slice(0, 2);
+      const toiletSeeds = orderToilet(wildcardOrder.slice(2), week, stats, flips);
+
+      // The better runner-up faces the worse wild card, and vice versa.
+      const runnerOrder = orderByRecordThenPoints(runnersUp.map((r) => r.id), stats, flips);
+      const betterRunner = runnersUp.find((r) => r.id === runnerOrder[0]);
+      const worseRunner = runnersUp.find((r) => r.id === runnerOrder[1]);
+
+      const sideOf = (runner, wildcard) => ({
+        division: runner.division,
+        one: champs.find((c) => c.division === runner.division).id,
+        two: runner.id,
+        three: wildcard
+      });
+
+      const sides = [sideOf(betterRunner, wildcards[1]), sideOf(worseRunner, wildcards[0])];
+
+      const seedLabels = {};
+      DIVISION_NAMES.forEach((d) => {
+        seedLabels[divisions[d][0]] = { chip: `${d.charAt(0)}1`, kind: "div", note: `${d} leader · Week 15 bye` };
+        seedLabels[divisions[d][1]] = { chip: `${d.charAt(0)}2`, kind: "div", note: `${d} runner-up` };
+      });
+      wildcards.forEach((id, i) => {
+        seedLabels[id] = { chip: `WC${i + 1}`, kind: "wc", note: i === 0 ? "Top wild card" : "Second wild card" };
+      });
+      toiletSeeds.forEach((id, i) => {
+        seedLabels[id] = { chip: `#${i + 7}`, kind: "out", note: `Toilet Bowl seed ${i + 7}` };
+      });
+
+      const flipPairs = flips.filter(([a, b], i, arr) =>
+        arr.findIndex(([x, y]) => (x === a && y === b) || (x === b && y === a)) === i);
+
+      return {
+        week, stats, divisions, champs, runnersUp,
+        wildcards, wildcardOrder, toiletSeeds, sides,
+        seedLabels, flips: flipPairs,
+        playoffField: [
+          ...champs.map((c) => c.id),
+          ...runnersUp.map((r) => r.id),
+          ...wildcards
+        ],
+        firstOut: wildcardOrder[2] || null
+      };
+    }
+
+    // League-wide order used for the overall standings table.
+    function overallOrder(stats) {
+      return TEAM_IDS.slice().sort((a, b) =>
+        (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf) || teams[a].name.localeCompare(teams[b].name));
+    }
+
+    /* =================================================================
+       VIEW STATE
+       ================================================================= */
+
+    const SEASON_VIEWS = [
+      { id: "regular", label: "Regular Season" },
+      { id: "final", label: "Final Standings" },
+      { id: "bracket", label: "Playoff Bracket" }
+    ];
+
+    const WEEK_VIEWS = [
+      { id: "panel-results", label: "Results" },
+      { id: "panel-standings", label: "Standings" },
+      { id: "panel-picture", label: "Playoff Picture" },
+      { id: "panel-summary", label: "Weekly Summary" }
+    ];
+
+    const state = { week: 0, view: "regular" };
+
+    const viewsFor = (week) => (week === 0 ? SEASON_VIEWS : WEEK_VIEWS);
+    const weekLabel = (w) => (w === 0 ? "Season" : `Week ${w}`);
+
+    function miniTeam(id) {
+      const t = teams[id];
+      return `<span class="mini-badge" style="--team-color:${t.color}">${t.icon}</span>`;
+    }
+
+    function cardHead(title, chip, meta) {
+      return `<div class="card-head">
+        <h3>${chip ? `<span class="division-chip">${chip}</span>` : ""}${title}</h3>
+        <span>${meta || ""}</span>
+      </div>`;
+    }
+
+    /* =================================================================
+       WEEK RAIL + VIEW TABS
+       ================================================================= */
+
+    function renderWeekRail() {
+      const weeks = [];
+      for (let w = 0; w <= REGULAR_WEEKS; w++) weeks.push(w);
+
+      document.getElementById("weekRail").innerHTML = weeks.map((w) => {
+        const status = w === 0 ? "Full year" : "Final";
+        return `<button type="button" class="week-pill ${w === state.week ? "active" : ""} played"
+          data-week="${w}" role="tab" aria-selected="${w === state.week}">${w === 0 ? "Season" : `Wk ${w}`}<small>${status}</small></button>`;
+      }).join("");
+
+      document.getElementById("weekSelect").innerHTML = weeks.map((w) =>
+        `<option value="${w}" ${w === state.week ? "selected" : ""}>${w === 0 ? "Season Summary" : `Week ${w}`}</option>`).join("");
+
+      const active = document.querySelector(".week-pill.active");
+      if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
+    }
+
+    function renderViewTabs() {
+      document.getElementById("viewTabs").innerHTML = viewsFor(state.week).map((v) => `
+        <button type="button" class="view-tab ${v.id === state.view ? "active" : ""}" data-view="${v.id}"
+          role="tab" aria-selected="${v.id === state.view}">${v.label}</button>`).join("");
+
+      document.getElementById("weekTitle").textContent = state.week === 0
+        ? "2025 Season"
+        : `Week ${state.week} · 2025`;
+    }
+
+    /* =================================================================
+       RESULTS PANEL
+       ================================================================= */
+
+    function gameCard(week, a, as, b, bs) {
+      const side = (id, score, won) => `
+        <div class="game-side ${won ? "winner" : ""}">
+          <span class="win-flag"></span>
+          ${miniTeam(id)}
+          <button type="button" class="game-team" data-team="${id}" aria-label="Open ${teams[id].name} schedule">
+            <strong>${teams[id].name}</strong><span>${teams[id].owner}</span>
+          </button>
+          <span class="game-score">${fmt(score)}</span>
+        </div>`;
+      return `<article class="game-card">
+        <div class="game-card-head">
+          <span>Week ${week}${week === rivalryWeek ? " · Rivalry" : ""}</span>
+          <span class="game-margin">${as === bs ? "Tie" : `Margin ${fmt(Math.abs(as - bs))}`}</span>
+        </div>
+        ${side(a, as, as > bs)}
+        ${side(b, bs, bs > as)}
+      </article>`;
+    }
+
+    function weekSuperlatives(week) {
+      const games = weekResults[week] || [];
+      if (!games.length) return "";
+      const scores = [];
+      games.forEach(([a, as, b, bs]) => { scores.push({ id: a, score: as }); scores.push({ id: b, score: bs }); });
+      const byScore = scores.slice().sort((x, y) => y.score - x.score);
+      const byMargin = games.slice().sort((x, y) => Math.abs(y[1] - y[3]) - Math.abs(x[1] - x[3]));
+      const blowout = byMargin[0];
+      const nailbiter = byMargin[byMargin.length - 1];
+      const total = scores.reduce((sum, s) => sum + s.score, 0);
+      const item = (label, strong, sub) => `<div class="superlative"><small>${label}</small><strong>${strong}</strong><span>${sub}</span></div>`;
+      const winnerOf = (g) => (g[1] >= g[3] ? g[0] : g[2]);
+      const loserOf = (g) => (g[1] >= g[3] ? g[2] : g[0]);
+
+      return `<div class="summary-superlatives">
+        ${item("High score", teams[byScore[0].id].name, fmt(byScore[0].score))}
+        ${item("Low score", teams[byScore[byScore.length - 1].id].name, fmt(byScore[byScore.length - 1].score))}
+        ${item("Biggest blowout", `${teams[winnerOf(blowout)].name} over ${teams[loserOf(blowout)].name}`, `by ${fmt(Math.abs(blowout[1] - blowout[3]))}`)}
+        ${item("Closest game", `${teams[winnerOf(nailbiter)].name} over ${teams[loserOf(nailbiter)].name}`, `by ${fmt(Math.abs(nailbiter[1] - nailbiter[3]))}`)}
+        ${item("League average", `${fmt1(total / scores.length)} per team`, `${fmt(total)} total points`)}
+      </div>`;
+    }
+
+    function renderResultsPanel(week) {
+      if (week === 0) return;
+      document.getElementById("panel-results").innerHTML = `
+        <div class="panel-stack">
+          <div class="score-grid">
+            ${weekResults[week].map(([a, as, b, bs]) => gameCard(week, a, as, b, bs)).join("")}
+          </div>
+          <article class="card">
+            ${cardHead(`Week ${week} Notes`, "W", "Scoring extremes")}
+            ${weekSuperlatives(week)}
+          </article>
+        </div>
+        <div class="source-note">Week ${week} of the audited 2025 regular season.</div>`;
+    }
+
+    /* =================================================================
+       STANDINGS PANEL
+       ================================================================= */
+
+    function seedRowClass(picture, id) {
+      const label = picture.seedLabels[id];
+      if (!label) return "";
+      if (label.kind === "div") return "seed-div";
+      if (label.kind === "wc") return "seed-wc";
+      return "seed-toilet";
+    }
+
+    function renderStandingsPanel(week) {
+      if (week === 0) return;
+      const picture = buildPicture(week);
+      const stats = picture.stats;
+      const through = `Through Week ${week}`;
+
+      const divisionCards = DIVISION_NAMES.map((division) => `
+        <article class="card">
+          ${cardHead(division, division.charAt(0), `5 teams · ${through}`)}
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
+              <tbody>
+                ${picture.divisions[division].map((id, i) => {
+                  const t = stats[id];
+                  return `<tr class="${seedRowClass(picture, id)}">
+                    <td class="rank">${i + 1}</td>
+                    <td class="team-cell">
+                      ${teamButton(id)}
+                      <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
+                        <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
+                        <span class="mobile-stat"><small>PCT</small><strong>${pctText(t.pct)}</strong></span>
+                        <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
+                        <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
+                        <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
+                      </div>
+                    </td>
+                    <td class="record">${t.record}</td>
+                    <td>${pctText(t.pct)}</td>
+                    <td>${fmt(t.pf)}</td>
+                    <td>${fmt(t.pa)}</td>
+                    <td>${t.divRecord}</td>
+                  </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </article>`).join("");
+
+      const overallCard = `
+        <article class="card final-card">
+          ${cardHead("League Standings", "L", `Ranked by record, then points for · ${through}`)}
+          <div class="table-wrap">
+            <table class="final-table">
+              <thead><tr><th class="place">RK</th><th>Team</th><th>Record</th><th>PF</th><th>PA</th><th>PF/G</th><th>PA/G</th><th>Diff</th></tr></thead>
+              <tbody>
+                ${overallOrder(stats).map((id, i) => {
+                  const t = stats[id];
+                  const d = t.diffPerGame;
+                  const dClass = d > 0 ? "positive" : d < 0 ? "negative" : "";
+                  return `<tr class="${seedRowClass(picture, id)}">
+                    <td class="rank">${i + 1}</td>
+                    <td class="team-cell">
+                      ${teamButton(id)}
+                      <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
+                        <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
+                        <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
+                        <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
+                        <span class="mobile-stat"><small>PF/G</small><strong>${fmt1(t.pfg)}</strong></span>
+                        <span class="mobile-stat"><small>DIFF</small><strong class="${dClass}">${d > 0 ? "+" : ""}${fmt1(d)}</strong></span>
+                      </div>
+                    </td>
+                    <td class="record">${t.record}</td>
+                    <td>${fmt(t.pf)}</td>
+                    <td>${fmt(t.pa)}</td>
+                    <td>${fmt1(t.pfg)}</td>
+                    <td>${fmt1(t.pag)}</td>
+                    <td class="${dClass}">${d > 0 ? "+" : ""}${fmt1(d)}</td>
+                  </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </article>`;
+
+      document.getElementById("panel-standings").innerHTML = `
+        <div class="panel-stack">
+          <div class="division-grid">${divisionCards}</div>
+          <div class="standings-note">
+            <span class="legend-key"><span class="legend-swatch"></span>Division seed (top two)</span>
+            <span class="legend-key"><span class="legend-swatch wildcard"></span>Wild card</span>
+            <span class="legend-key"><span class="legend-swatch toilet"></span>Toilet Bowl</span>
+          </div>
+          ${overallCard}
+        </div>
+        <div class="source-note">Division order applies the rulebook tiebreakers: head-to-head, points for, then division record. Records reflect Weeks 1–${week}.</div>`;
+    }
+
+    /* =================================================================
+       PLAYOFF PICTURE PANEL
+       ================================================================= */
+
+    function seedRow(picture, id) {
+      const label = picture.seedLabels[id];
+      const t = picture.stats[id];
+      return `<div class="seed-row">
+        <span class="seed-chip ${label.kind}">${label.chip}</span>
+        <span class="seed-body">
+          ${miniTeam(id)}
+          <span class="seed-copy">
+            <strong>${teams[id].name}</strong>
+            <span>${teams[id].owner} · ${label.note}</span>
+          </span>
+        </span>
+        <span class="seed-line"><strong>${t.record}</strong><span>${fmt(t.pf)} PF</span></span>
+      </div>`;
+    }
+
+    function projectedGame(title, seedA, idA, seedB, idB, stats) {
+      const line = (seed, id) => `<div class="pg-side"><span class="seed">${seed}</span>${miniTeam(id)}<span class="pg-name">${teams[id].name}</span><span class="pg-rec">${stats[id].record}</span></div>`;
+      return `<div class="projected-game"><div class="pg-head">${title}</div>${line(seedA, idA)}${line(seedB, idB)}</div>`;
+    }
+
+    function byeGame(title, seed, id, stats) {
+      return `<div class="projected-game">
+        <div class="pg-head">${title}</div>
+        <div class="pg-side"><span class="seed">${seed}</span>${miniTeam(id)}<span class="pg-name">${teams[id].name}</span><span class="pg-rec">${stats[id].record}</span></div>
+        <div class="pg-bye">First-round bye · division champion</div>
+      </div>`;
+    }
+
+    function renderPicturePanel(week) {
+      if (week === 0) return;
+      const picture = buildPicture(week);
+      const stats = picture.stats;
+      const final = week === REGULAR_WEEKS;
+
+      const fieldCard = `
+        <article class="card">
+          ${cardHead("Playoff Field", "P", final ? "Final seeding" : `If the season ended after Week ${week}`)}
+          <div class="seed-list">${picture.playoffField.map((id) => seedRow(picture, id)).join("")}</div>
+          ${picture.firstOut ? `<div class="tag-row"><span class="rule-tag">First team out · ${teams[picture.firstOut].name} (${stats[picture.firstOut].record}, ${fmt(stats[picture.firstOut].pf)} PF)</span></div>` : ""}
+        </article>`;
+
+      const bracketCard = `
+        <article class="card">
+          ${cardHead(final ? "Playoff Bracket" : "Projected Bracket", "B", "Weeks 15–17")}
+          <div class="projected-matchups">
+            ${picture.sides.map((side) => `
+              <div class="side-block">
+                <div class="side-title">${side.division} side of the bracket</div>
+                ${byeGame("Week 15 · Bye", "#1", side.one, stats)}
+                ${projectedGame("Week 15 · Wild Card round", "#3", side.three, "#2", side.two, stats)}
+              </div>`).join("")}
+          </div>
+          <div class="tag-row">
+            <span class="rule-tag">Winners meet their division's #1 seed in the Week 16 semifinal</span>
+            <span class="rule-tag">Fantasy Bowl and third-place game in Week 17</span>
+          </div>
+        </article>`;
+
+      const toilet = picture.toiletSeeds;
+      const toiletCard = `
+        <article class="card">
+          ${cardHead("Toilet Bowl Watch", "T", "Seeds 7–10 · loser advances")}
+          <div class="seed-list">${toilet.map((id) => seedRow(picture, id)).join("")}</div>
+          <div class="projected-matchups">
+            ${projectedGame("Game 1 · Week 15", "#7", toilet[0], "#8", toilet[1], stats)}
+            ${projectedGame("Game 2 · Week 15", "#9", toilet[2], "#10", toilet[3], stats)}
+            <div class="projected-game"><div class="pg-head">Game 3 · Week 16</div><div class="pg-bye">Loser of Game 1 vs winner of Game 2.</div></div>
+            <div class="projected-game"><div class="pg-head">Toilet Bowl Championship · Week 17</div><div class="pg-bye">Loser of Game 3 vs loser of Game 2. Win any game before this one and you are safe.</div></div>
+          </div>
+        </article>`;
+
+      const flipNote = picture.flips.length
+        ? `<div class="tag-row" style="padding:0">${picture.flips.map(([a, b]) =>
+            `<span class="rule-tag flip">Coin flip · ${teams[a].name} / ${teams[b].name}</span>`).join("")}</div>`
+        : "";
+
+      document.getElementById("panel-picture").innerHTML = `
+        <div class="panel-stack">
+          <div class="picture-grid">${fieldCard}${bracketCard}</div>
+          ${flipNote}
+          ${toiletCard}
+        </div>
+        <div class="source-note">${final
+          ? "Week 14 seeding — this is the bracket the league actually played."
+          : `Seeding follows the rulebook: divisions first (head-to-head, points for, division record), then the two best remaining records league-wide as wild cards.`}</div>`;
+    }
+
+    /* =================================================================
+       WEEKLY SUMMARY PANEL
+       ================================================================= */
+
+    function renderSummaryPanel(week) {
+      if (week === 0) return;
+      const summary = weeklySummaries[week];
+      const panel = document.getElementById("panel-summary");
+      if (!summary) {
+        panel.innerHTML = `<div class="empty-state"><strong>No recap for Week ${week}</strong><p>The scores are on the Results tab.</p></div>`;
+        return;
+      }
+      panel.innerHTML = `
+        <article class="card summary-card">
+          ${cardHead(`Week ${week} Recap`, String(week), week === rivalryWeek ? "Rivalry Week" : "League recap")}
+          <div class="summary-meta">${summary.headline}</div>
+          <ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>
+        </article>
+        <div class="source-note">Recaps are written from the audited weekly scores.</div>`;
+    }
+
+    /* =================================================================
+       RENDER + ROUTING
+       ================================================================= */
+
+    function showActivePanel() {
+      const ids = [...SEASON_VIEWS, ...WEEK_VIEWS].map((v) => v.id);
+      ids.forEach((id) => {
+        const panel = document.getElementById(id);
+        if (panel) panel.classList.toggle("active", id === state.view);
+      });
+      if (state.view === "bracket") updateBracketNameAlignment();
+    }
+
+    function renderAll() {
+      renderWeekRail();
+      renderViewTabs();
+      renderResultsPanel(state.week);
+      renderStandingsPanel(state.week);
+      renderPicturePanel(state.week);
+      renderSummaryPanel(state.week);
+      showActivePanel();
+    }
+
+    function applyHash() {
+      const match = /^#w(\d{1,2})(?:-([a-z-]+))?$/.exec(window.location.hash || "");
+      if (!match) return false;
+      const week = Number(match[1]);
+      if (week < 0 || week > REGULAR_WEEKS) return false;
+      const views = viewsFor(week);
+      state.week = week;
+      state.view = views.some((v) => v.id === match[2]) ? match[2] : views[0].id;
+      return true;
+    }
+
+    function writeHash() {
+      const next = `#w${state.week}-${state.view}`;
+      if (window.location.hash !== next) history.replaceState(null, "", next);
+    }
+
+    function goToWeek(week) {
+      const views = viewsFor(week);
+      const previous = viewsFor(state.week).findIndex((v) => v.id === state.view);
+      state.week = week;
+      // Keep the reader on the same slot when moving between numbered weeks.
+      state.view = (views[previous] || views[0]).id;
+      renderAll();
+      writeHash();
+    }
+
+    document.getElementById("weekRail").addEventListener("click", (event) => {
+      const pill = event.target.closest(".week-pill");
+      if (pill) goToWeek(Number(pill.dataset.week));
+    });
+
+    document.getElementById("weekSelect").addEventListener("change", (event) => {
+      goToWeek(Number(event.target.value));
+    });
+
+    document.getElementById("viewTabs").addEventListener("click", (event) => {
+      const tab = event.target.closest(".view-tab");
+      if (!tab) return;
+      state.view = tab.dataset.view;
+      renderViewTabs();
+      showActivePanel();
+      writeHash();
+    });
+
+    window.addEventListener("hashchange", () => { if (applyHash()) renderAll(); });
+
+    applyHash();
+    renderAll();
+    writeHash();
+
   </script>
 </body>
 </html>
