@@ -41,6 +41,12 @@
   ],
   "shortcuts": [
     {
+      "name": "2026 Season · Live",
+      "short_name": "2026 Live",
+      "url": "2026.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
       "name": "2025 Season",
       "short_name": "2025",
       "url": "2025.html",
