@@ -1087,11 +1087,13 @@
 
       /* Compact regular-season rows: all stats remain visible inside each team row. */
       #regular .table-wrap,
+      #panel-standings .table-wrap,
       #final .table-wrap {
         overflow: visible;
       }
 
       #regular table,
+      #panel-standings table,
       #regular tbody,
       #final table,
       #final tbody {
@@ -1101,6 +1103,7 @@
       }
 
       #regular thead,
+      #panel-standings thead,
       #final thead {
         display: none;
       }
@@ -1121,6 +1124,7 @@
       }
 
       #regular td,
+      #panel-standings td,
       #final td {
         padding: 0;
         border: 0;
@@ -1129,6 +1133,7 @@
       }
 
       #regular td.rank,
+      #panel-standings td.rank,
       #final td.rank {
         grid-column: 1;
         color: #738090;
@@ -1137,12 +1142,26 @@
       }
 
       #regular td.team-cell,
+      #panel-standings td.team-cell,
       #final td.team-cell {
         grid-column: 2;
         min-width: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
       }
 
+      /* Seed and clinch markers ride beside the name; the stat strip takes
+         the next row. A later rule stretches the button to the full cell,
+         so the width is overridden here. */
+      td.team-cell .team-button { flex: 0 1 auto; width: auto; max-width: 100%; min-width: 0; }
+      td.team-cell .team-button .team-meta { min-width: 0; }
+      td.team-cell .team-button .team-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      td.team-cell .team-flags { flex: 0 0 auto; }
+      td.team-cell .mobile-stat-strip { flex: 1 0 100%; }
+
       #regular td:not(.rank):not(.team-cell),
+      #panel-standings td:not(.rank):not(.team-cell),
       #final td:not(.rank):not(.team-cell) {
         display: none;
       }
@@ -2117,6 +2136,713 @@
     }
 
 
+    /* Week rail ---------------------------------------------------- */
+
+    .week-rail-wrap {
+      width: min(1220px, calc(100% - 32px));
+      margin: 22px auto 0;
+    }
+
+    .week-rail-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .week-rail-head strong {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .week-rail-head span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .week-rail {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      scrollbar-width: thin;
+    }
+
+    .week-pill {
+      flex: 0 0 auto;
+      border: 1px solid transparent;
+      background: transparent;
+      border-radius: 10px;
+      padding: 8px 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      line-height: 1.1;
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .week-pill small {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .week-pill:hover { background: var(--surface-2); }
+
+    .week-pill.active {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .week-pill.active small { color: rgba(255, 255, 255, .66); }
+
+    .week-pill.upcoming { color: var(--muted); }
+
+    .week-pill.played small { color: var(--green); }
+
+    /* Phones get a single dropdown instead of a rail that runs off-screen. */
+    .week-select-wrap { display: none; }
+
+    @media (max-width: 700px) {
+      .week-rail { display: none; }
+
+      .week-select-wrap {
+        display: block;
+        position: relative;
+      }
+
+      .week-select-wrap::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        width: 9px;
+        height: 9px;
+        margin-top: -6px;
+        border-right: 2.5px solid rgba(255, 255, 255, .8);
+        border-bottom: 2.5px solid rgba(255, 255, 255, .8);
+        transform: rotate(45deg);
+        pointer-events: none;
+      }
+
+      #weekSelect {
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        background: linear-gradient(180deg, var(--navy-2), var(--navy));
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, .14);
+        border-radius: 14px;
+        padding: 14px 42px 14px 16px;
+        font-size: 15px;
+        font-weight: 800;
+        box-shadow: var(--shadow);
+      }
+
+      #weekSelect:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    }
+
+    /* Panels ------------------------------------------------------- */
+
+    .panel-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .empty-state {
+      background: var(--surface);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 34px 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--ink);
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .empty-state p { margin: 0 auto; max-width: 52ch; font-size: 13.5px; line-height: 1.55; }
+
+    /* Scoreboard --------------------------------------------------- */
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .game-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .game-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 13px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--line);
+      font-size: 10.5px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .game-card-head .game-margin { color: var(--ink); letter-spacing: .04em; }
+
+    .game-side {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      min-width: 0;
+    }
+
+    .game-side + .game-side { border-top: 1px solid var(--line); }
+
+    .game-side .mini-badge { flex: 0 0 auto; }
+
+    .game-side .game-team {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-align: left;
+      background: none;
+      border: 0;
+      padding: 0;
+    }
+
+    .game-side .game-team strong {
+      font-size: 14px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .game-side .game-team span { font-size: 11.5px; color: var(--muted); }
+
+    .game-side .game-score {
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      font-size: 17px;
+      color: var(--muted);
+    }
+
+    .game-side.winner { background: rgba(22, 131, 74, .06); }
+    .game-side.winner .game-score { color: var(--ink); }
+    .game-side.winner .game-team strong { color: var(--ink); }
+
+    .game-side .win-flag {
+      width: 4px;
+      align-self: stretch;
+      border-radius: 999px;
+      background: transparent;
+      flex: 0 0 auto;
+    }
+
+    .game-side.winner .win-flag { background: var(--green); }
+
+    /* Standings extras --------------------------------------------- */
+
+    .standings-note {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--blue);
+    }
+
+    .legend-swatch.wildcard { background: var(--gold); }
+    .legend-swatch.toilet { background: #9aa6b6; }
+
+    tr.seed-div td:first-child { box-shadow: inset 3px 0 0 var(--blue); }
+    tr.seed-wc td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
+    tr.seed-toilet td:first-child { box-shadow: inset 3px 0 0 #9aa6b6; }
+
+    .result-pill.pending { background: #b9c3cd; }
+
+    .streak {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .streak.win { color: var(--green); }
+    .streak.loss { color: var(--red); }
+
+    /* Playoff picture ---------------------------------------------- */
+
+    .picture-grid {
+      display: grid;
+      align-items: start;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .seed-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .seed-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 15px;
+      border-top: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .seed-row:first-child { border-top: 0; }
+
+    .seed-chip {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 30px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+      background: var(--navy-2);
+      letter-spacing: .02em;
+    }
+
+    .seed-chip.div { background: var(--blue); }
+    .seed-chip.wc { background: var(--gold); color: #3a2a02; }
+    .seed-chip.out { background: #9aa6b6; }
+
+    .seed-row .seed-body {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .seed-row .seed-copy { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .seed-row .seed-copy strong { font-size: 14px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .seed-row .seed-copy span { font-size: 11.5px; color: var(--muted); }
+
+    .seed-row .seed-line {
+      flex: 0 0 auto;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .seed-row .seed-line strong { display: block; font-size: 14px; font-weight: 900; }
+    .seed-row .seed-line span { font-size: 11px; color: var(--muted); }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 15px 13px;
+    }
+
+    .rule-tag {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .rule-tag.flip { background: rgba(246, 183, 60, .16); border-color: rgba(246, 183, 60, .5); color: #7a5605; }
+
+    .projected-matchups {
+      display: grid;
+      gap: 10px;
+      padding: 14px 15px 16px;
+    }
+
+    .side-block { display: grid; gap: 8px; }
+
+    .side-block + .side-block { margin-top: 6px; }
+
+    .side-title {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .projected-game {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface-2);
+    }
+
+    .projected-game .pg-head {
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .projected-game .pg-side {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 12px;
+      min-width: 0;
+    }
+
+    .projected-game .pg-side + .pg-side { border-top: 1px solid var(--line); }
+    .projected-game .pg-side .seed { font-size: 10px; font-weight: 900; color: #758191; white-space: nowrap; min-width: 30px; }
+    .projected-game .pg-side .pg-name { font-size: 13.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto; min-width: 0; }
+    .projected-game .pg-side .pg-rec { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+    .projected-game .pg-bye { padding: 9px 12px; font-size: 11.5px; color: var(--muted); font-weight: 700; }
+
+    /* Weekly summary ------------------------------------------------ */
+
+    .summary-card .summary-body {
+      padding: 4px 20px 20px;
+      font-size: 15px;
+      line-height: 1.68;
+      color: #24354a;
+    }
+
+    .summary-card .summary-body h4 {
+      margin: 20px 0 6px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .summary-card .summary-body p { margin: 0 0 12px; }
+    .summary-card .summary-body p:last-child { margin-bottom: 0; }
+    .summary-card .summary-body strong { color: var(--ink); }
+
+    .summary-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px 0;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .summary-superlatives {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      padding: 4px 20px 20px;
+    }
+
+    .superlative {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-2);
+      padding: 11px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .superlative small {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .superlative strong { font-size: 14px; font-weight: 800; line-height: 1.2; }
+    .superlative span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    @media (max-width: 560px) {
+      .seed-row { padding: 10px 12px; gap: 9px; }
+      .seed-chip { width: 30px; height: 27px; font-size: 10px; }
+      .summary-card .summary-body { padding: 4px 14px 16px; font-size: 14.5px; }
+      .summary-superlatives { padding: 4px 14px 16px; }
+      .summary-meta { padding: 12px 14px 0; }
+    }
+
+    /* Bulleted weekly recap */
+    .recap-list {
+      list-style: none;
+      margin: 0;
+      padding: 4px 20px 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .recap-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #24354a;
+    }
+
+    .recap-list li > span { min-width: 0; }
+
+    .recap-list li::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 7px;
+      height: 7px;
+      margin-top: 8px;
+      border-radius: 2px;
+      background: var(--blue);
+      transform: rotate(45deg);
+    }
+
+    .recap-list strong { color: var(--ink); font-weight: 800; }
+
+    @media (max-width: 560px) {
+      .recap-list { padding: 4px 14px 16px; gap: 9px; }
+      .recap-list li { font-size: 14px; }
+    }
+
+
+    /* The season view has three tabs and a week view has four, so lay them
+       out two-up on phones and let an odd last tab span the full row. */
+    @media (max-width: 700px) {
+      .view-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 15px;
+      }
+
+      .view-tab {
+        display: grid;
+        place-items: center;
+        min-width: 0;
+        min-height: 40px;
+        padding: 9px 6px;
+        border-radius: 11px;
+        font-size: 12.5px;
+        line-height: 1.15;
+        white-space: normal;
+      }
+
+      .view-tab:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    }
+
+
+    /* Seed, clinch, and tiebreaker markers in the standings tables ---- */
+
+    .team-flags {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .seed-tag {
+      font-size: 9.5px;
+      font-weight: 900;
+      letter-spacing: .03em;
+      padding: 3px 5px;
+      border-radius: 5px;
+      color: #fff;
+      background: var(--navy-2);
+      white-space: nowrap;
+    }
+
+    .seed-tag.div { background: var(--blue); }
+    .seed-tag.div.lead { background: var(--green); }
+    .seed-tag.wc { background: var(--gold); color: #3a2a02; }
+    .seed-tag.out { background: #9aa6b6; }
+
+    .clinch-tag {
+      width: 16px;
+      height: 16px;
+      border-radius: 5px;
+      display: inline-grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 900;
+      color: #fff;
+      background: var(--green);
+      flex: 0 0 auto;
+    }
+
+    .clinch-tag.x { background: var(--blue); }
+    .clinch-tag.e { background: #9aa6b6; }
+
+    .why-btn {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      font-style: italic;
+      display: inline-grid;
+      place-items: center;
+      padding: 0;
+      line-height: 1;
+      flex: 0 0 auto;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+
+    .why-btn:hover, .why-btn:focus-visible {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .why-pop {
+      position: fixed;
+      z-index: 90;
+      width: max-content;
+      max-width: min(300px, calc(100vw - 24px));
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      box-shadow: 0 18px 44px rgba(7, 24, 39, .24);
+      padding: 13px 15px;
+    }
+
+    .why-head {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      color: var(--muted);
+      padding-bottom: 9px;
+      margin-bottom: 11px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .why-entry + .why-entry {
+      margin-top: 13px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .why-pop h4 {
+      margin: 0 0 6px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--blue-2);
+    }
+
+    .why-pop p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
+    .why-pop .why-team { margin-top: 8px; font-size: 12px; color: var(--muted); }
+
+    .standings-note .legend-key .seed-tag,
+    .standings-note .legend-key .clinch-tag,
+    .standings-note .legend-key .why-btn { margin-right: 2px; }
+
+    td.gb, th.gb { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* The seed and clinch markers widen the team cell, so let the division
+       tables size it to content instead of holding a 250px floor. */
+    .division-grid .team-cell { min-width: 168px; }
+
+    /* Between the tablet stack point and full width the two-up cards are too
+       narrow for eight columns, so stack them a little earlier. */
+    @media (max-width: 1120px) {
+      .division-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    /* Eight columns in a half-width card: tighten the gutters so DIV fits. */
+    .division-grid th,
+    .division-grid td { padding-left: 9px; padding-right: 9px; }
+
+    /* Full projected bracket ---------------------------------------- */
+
+    .bracket-rounds {
+      display: grid;
+      gap: 14px;
+      padding: 15px 15px 17px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      align-items: start;
+    }
+
+    .bracket-round { display: grid; gap: 9px; align-content: start; }
+
+    .bracket-round .round-label {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .bracket-round .round-label span {
+      display: block;
+      margin-top: 2px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+
+    .pg-name.tbd { color: var(--muted); font-weight: 700; }
+
+    @media (max-width: 700px) {
+      .team-flags { margin-left: 6px; gap: 4px; }
+      .bracket-rounds { padding: 12px 12px 14px; gap: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -2191,22 +2917,30 @@
     </div>
   </section>
 
+  <div class="week-rail-wrap">
+    <div class="week-rail-head">
+      <strong>Week</strong>
+      <span>Season summary plus every week replayed</span>
+    </div>
+    <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
+    <div class="week-select-wrap">
+      <select id="weekSelect" aria-label="Choose a week"></select>
+    </div>
+  </div>
+
   <main>
 
     <div class="page-toolbar">
       <div class="page-title">
-        <h2>2023 Season</h2>
+        <h2 id="weekTitle">2023 Season</h2>
       </div>
-      <div class="view-tabs" role="tablist" aria-label="Season views">
-        <button class="view-tab active" data-view="regular" role="tab" aria-selected="true">Regular Season</button>
-        <button class="view-tab" data-view="final" role="tab" aria-selected="false">Final Standings</button>
-        <button class="view-tab" data-view="bracket" role="tab" aria-selected="false">Playoff Bracket</button>
-      </div>
+      <div class="view-tabs" id="viewTabs" role="tablist" aria-label="Season views"></div>
     </div>
 
     <section id="regular" class="view-panel active" role="tabpanel">
       <div class="division-grid single-standings" id="divisionGrid"></div>
-      <div class="source-note">The 2023 season used one league-wide table with no divisions. Seeds are taken directly from this regular-season order.</div>
+      <div id="regularLegend"></div>
+      <div class="source-note">The 2023 season used one league-wide table with no divisions. Seeds come straight off this order: record, then points for. There was no head-to-head tiebreak this season.</div>
     </section>
 
     <section id="final" class="view-panel" role="tabpanel">
@@ -2407,6 +3141,11 @@
 
       <div class="source-note">The 2023 last-place matchup was manually audited as a cumulative two-week series across NFL Weeks 16 and 17.</div>
     </section>
+
+    <section id="panel-results" class="view-panel" role="tabpanel"></section>
+    <section id="panel-standings" class="view-panel" role="tabpanel"></section>
+    <section id="panel-picture" class="view-panel" role="tabpanel"></section>
+    <section id="panel-summary" class="view-panel" role="tabpanel"></section>
   </main>
 
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
@@ -2532,43 +3271,20 @@
     }
 
     function renderDivisions() {
-      const root = document.getElementById("divisionGrid");
-      root.innerHTML = `
+      // Season-long standings, drawn from the same engine the week views use
+      // so seeds, clinches, and tiebreakers agree across the page.
+      const picture = buildPicture(REGULAR_WEEKS);
+      document.getElementById("divisionGrid").innerHTML = `
         <article class="card">
           <div class="card-head">
             <h3><span class="division-chip">R</span>Regular Season Standings</h3>
             <span>10 teams · no divisions</span>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th>PCT</th><th>PF</th><th>PA</th><th>DIFF</th></tr></thead>
-              <tbody>
-                ${regularOrder.map((id, i) => {
-                  const t = teams[id];
-                  const diff = t.pf - t.pa;
-                  return `<tr>
-                    <td class="rank">${i + 1}</td>
-                    <td class="team-cell">
-                      ${teamButton(id)}
-                      <div class="mobile-stat-strip" aria-label="${t.name} regular-season statistics">
-                        <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
-                        <span class="mobile-stat"><small>PCT</small><strong>${pct(t)}</strong></span>
-                        <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
-                        <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
-                        <span class="mobile-stat"><small>DIFF</small><strong class="${diff >= 0 ? "positive" : "negative"}">${diff >= 0 ? "+" : ""}${fmt(diff)}</strong></span>
-                      </div>
-                    </td>
-                    <td class="record">${t.record}</td>
-                    <td>${pct(t)}</td>
-                    <td>${fmt(t.pf)}</td>
-                    <td>${fmt(t.pa)}</td>
-                    <td class="${diff >= 0 ? "positive" : "negative"}">${diff >= 0 ? "+" : ""}${fmt(diff)}</td>
-                  </tr>`;
-                }).join("")}
-              </tbody>
-            </table>
-          </div>
+          ${standingsTable(picture, "season")}
         </article>`;
+
+      const note = document.getElementById("regularLegend");
+      if (note) note.innerHTML = standingsLegend(picture);
     }
 
     let finalSort = { key: "finalRank", direction: "asc" };
@@ -2758,17 +3474,6 @@
     backdrop.addEventListener("click", closeTeam);
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeTeam(); });
 
-    document.querySelectorAll(".view-tab").forEach(button => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".view-tab").forEach(tab => {
-          tab.classList.toggle("active", tab === button);
-          tab.setAttribute("aria-selected", tab === button ? "true" : "false");
-        });
-        document.querySelectorAll(".view-panel").forEach(panel => panel.classList.toggle("active", panel.id === button.dataset.view));
-        updateBracketNameAlignment();
-      });
-    });
-
 
     document.querySelectorAll(".sort-button").forEach((button) => {
       button.addEventListener("click", () => {
@@ -2815,9 +3520,810 @@
       if (files[year]) window.location.href = files[year];
     });
 
-    renderDivisions();
     renderFinalStandings();
     updateBracketNameAlignment();
+    /* Bulleted recaps, written from the audited weekly scores. */
+    const weeklySummaries = {
+      1: { headline: "One table, no divisions, and a 56-point opener.",
+        bullets: [
+          "<strong>Team Kareem Pie</strong> led the league at 149.56 and beat The Left Tacklers by 56.32.",
+          "<strong>Freiermuth Banana Stand</strong> routed Team Go Packers by 47.80.",
+          "<strong>Hawaii McLovins VIII</strong> edged How I Metcalf Your Mother by 8.64 in the tightest game.",
+          "With no divisions in 2023, everything ran off one league table — five teams at 1–0, five at 0–1."
+        ] },
+      2: { headline: "Hamilton wins by 87, and two games come down to under two points.",
+        bullets: [
+          "<strong>Hamilton Administration</strong> hung 168.78 on Metcalf and won by <strong>87.38</strong>.",
+          "<strong>Freiermuth Banana Stand</strong> survived To infinity and Bijan by 1.34.",
+          "<strong>Team Kareem Pie</strong> edged Team Go Packers by 1.76.",
+          "Four teams stayed unbeaten at 2–0."
+        ] },
+      3: { headline: "The Saint Show posts 189.88 in a shootout week.",
+        bullets: [
+          "<strong>The Saint Show</strong> scored 189.88 and beat Team Go Packers by 33.12.",
+          "<strong>Chubbed Up</strong> blew out Hamilton Administration by 58.74.",
+          "<strong>Freiermuth Banana Stand</strong> stayed perfect, beating Team Kareem Pie by 1.70.",
+          "Hawaii, Saint, and Freiermuth were the last three unbeatens at 3–0."
+        ] },
+      4: { headline: "Freiermuth wins the battle of the unbeatens.",
+        bullets: [
+          "<strong>Freiermuth Banana Stand</strong> beat The Saint Show by 4.74 with both sides 3–0.",
+          "<strong>The Left Tacklers</strong> hit 165.7 for their first win of the year.",
+          "<strong>Chubbed Up</strong> managed 69.98, the week's low, in a 45.70 loss.",
+          "Hawaii and Freiermuth stood alone at 4–0; Team Go Packers fell to 0–4."
+        ] },
+      5: { headline: "The season's lowest score and a 70-point beating.",
+        bullets: [
+          "<strong>To infinity and Bijan</strong> scored <strong>67.24</strong> — the season's lowest — and lost by 70.68.",
+          "<strong>The Left Tacklers</strong> put up 166.86 to beat Freiermuth by 52.",
+          "<strong>Hamilton Administration</strong> handed Hawaii McLovins VIII its first loss.",
+          "Team Go Packers dropped to 0–5."
+        ] },
+      6: { headline: "Hawaii and Freiermuth stay locked together at the top.",
+        bullets: [
+          "<strong>Freiermuth Banana Stand</strong> led the week at 145.64 and beat Hamilton by 35.64.",
+          "<strong>To infinity and Bijan</strong> beat The Left Tacklers, who managed a week-low 76.96.",
+          "<strong>The Saint Show</strong> handled Chubbed Up to sit 4–2.",
+          "Hawaii and Freiermuth stayed level at 5–1; Team Go Packers reached 0–6."
+        ] },
+      7: { headline: "Freiermuth takes first outright as the Packers hit 0–7.",
+        bullets: [
+          "<strong>Freiermuth Banana Stand</strong> beat Chubbed Up by 37.12 to take first alone at 6–1.",
+          "<strong>The Left Tacklers</strong> edged Hamilton Administration by 2.42.",
+          "<strong>The Saint Show</strong> handed Hawaii a second loss, 108.7–92.16.",
+          "<strong>Team Go Packers</strong> fell to 0–7."
+        ] },
+      8: { headline: "The Packers finally win — with the week's best score.",
+        bullets: [
+          "<strong>Team Go Packers</strong> broke through at 0–7, exploding for a week-high <strong>172.36</strong>.",
+          "<strong>Team Kareem Pie</strong> beat Hamilton Administration by 72.90.",
+          "<strong>Hawaii McLovins VIII</strong> survived Freiermuth by 4.86 to pull level at 6–2.",
+          "Six teams sat between 6–2 and 4–4 with the playoff line running through them."
+        ] },
+      9: { headline: "Hawaii takes first alone and the Packers keep rolling.",
+        bullets: [
+          "<strong>The Left Tacklers</strong> beat Freiermuth by 13.52 for a third straight win.",
+          "<strong>Team Go Packers</strong> won again, taking down Hamilton by 54.92.",
+          "<strong>To infinity and Bijan</strong> edged Chubbed Up by 5.18 at the bottom of the table.",
+          "<strong>Hawaii McLovins VIII</strong> moved to 7–2, alone in first."
+        ] },
+      10: { headline: "Hawaii wins by 79 and opens a two-game cushion.",
+        bullets: [
+          "<strong>Hawaii McLovins VIII</strong> scored 171.26 and beat Chubbed Up by <strong>79.06</strong>.",
+          "<strong>Team Go Packers</strong> won a third straight, this time over Freiermuth.",
+          "<strong>Hamilton Administration</strong> lost a fifth straight and fell to 3–7.",
+          "Hawaii reached 8–2, two games clear of the field."
+        ] },
+      11: { headline: "Hawaii hits 9–2 while the Packers make it four in a row.",
+        bullets: [
+          "<strong>Hawaii McLovins VIII</strong> scored 160.3 and beat To infinity and Bijan by 56.32.",
+          "<strong>The Left Tacklers</strong> beat The Saint Show by 35.24 to reach 6–5.",
+          "<strong>Chubbed Up</strong> blew out Hamilton by 40.88 — Hamilton's sixth straight loss.",
+          "<strong>Team Go Packers</strong> won a fourth straight after starting 0–7."
+        ] },
+      12: { headline: "Freiermuth posts the season's best score, 185.96.",
+        bullets: [
+          "<strong>Freiermuth Banana Stand</strong> hit <strong>185.96</strong>, the year's high, and won by 80.50.",
+          "<strong>The Left Tacklers</strong> handed Hawaii a loss, 166.66–152.04.",
+          "<strong>The Saint Show</strong> beat Team Go Packers by 51.28 to reach 8–4.",
+          "Four teams jammed together at 4–8 in the bottom half."
+        ] },
+      13: { headline: "A 96-point demolition pulls The Saint Show level with Hawaii.",
+        bullets: [
+          "<strong>The Saint Show</strong> buried Freiermuth 167.6–71.36 — a <strong>96.24</strong> margin, the season's biggest.",
+          "That win pulled Saint level with <strong>Hawaii McLovins VIII</strong> at 9–4 with a week to play.",
+          "<strong>Chubbed Up</strong> won a third straight to climb off the bottom.",
+          "<strong>Team Go Packers</strong> beat The Left Tacklers to reach 5–8."
+        ] },
+      14: { headline: "A point and a half decides the top seed; points for decides the last one.",
+        bullets: [
+          "<strong>Hamilton Administration</strong> beat The Saint Show by <strong>1.48</strong>, and that margin cost Saint the top seed.",
+          "<strong>Hawaii McLovins VIII</strong> beat Team Kareem Pie to finish 10–4 and take the #1 bye.",
+          "<strong>Three teams tied at 6–8</strong> for the last playoff spot. With no head-to-head tiebreak in 2023 it went to points for: Team Go Packers 1,714.62, ahead of Hamilton 1,616.08 and Team Kareem Pie 1,556.74.",
+          "<strong>Team Go Packers</strong> made the playoffs after starting the season 0–7.",
+          "<strong>To infinity and Bijan</strong> closed 4–10 and drew the #10 seed."
+        ] }
+    };
+
+    /* =================================================================
+       WEEK-BY-WEEK VIEWS
+
+       The season views above are the audited record and never change.
+       Everything below replays the season one week at a time.
+
+       2023 ran without divisions: one league-wide table, seeded straight
+       off record and then points for. There is no head-to-head tiebreak
+       this year, and no division record. The top six made the playoffs,
+       the top two took a bye, and the bottom four went to the Toilet
+       Bowl, whose last-place round was a two-week cumulative series.
+       ================================================================= */
+
+    const REGULAR_WEEKS = 14;
+    // 2023 had no designated rivalry week; the slate was unlabelled.
+    const rivalryWeek = null;
+
+    const weekResults = regularGames.reduce((acc, [week, away, awayScore, home, homeScore]) => {
+      (acc[week] = acc[week] || []).push([away, awayScore, home, homeScore]);
+      return acc;
+    }, {});
+
+    const weekSchedule = Object.fromEntries(
+      Object.entries(weekResults).map(([w, games]) => [w, games.map(([a, , b]) => [a, b])])
+    );
+
+    const TEAM_IDS = Object.keys(teams);
+
+    const playedWeeks = Object.keys(weekResults)
+      .map(Number)
+      .filter((w) => Array.isArray(weekResults[w]) && weekResults[w].length)
+      .sort((a, b) => a - b);
+
+    const fmt1 = (n) => Number(n).toFixed(1);
+    const pctText = (v) => v.toFixed(3).replace(/^0/, "");
+
+    function gamesThrough(week) {
+      const out = [];
+      playedWeeks.filter((w) => w <= week).forEach((w) => {
+        weekResults[w].forEach(([a, as, b, bs]) => out.push({ week: w, a, as, b, bs }));
+      });
+      return out;
+    }
+
+    function streakOf(form) {
+      if (!form.length) return null;
+      const last = form[form.length - 1];
+      let n = 0;
+      for (let i = form.length - 1; i >= 0 && form[i] === last; i--) n += 1;
+      return { type: last, count: n, text: `${last}${n}` };
+    }
+
+    // Records for every team through the given week.
+    function computeStats(week) {
+      const stats = {};
+      TEAM_IDS.forEach((id) => {
+        stats[id] = { id, wins: 0, losses: 0, ties: 0, gp: 0, pf: 0, pa: 0, form: [] };
+      });
+
+      gamesThrough(week).forEach((g) => {
+        [[g.a, g.as, g.bs], [g.b, g.bs, g.as]].forEach(([id, own, opp]) => {
+          const line = stats[id];
+          line.gp += 1;
+          line.pf += own;
+          line.pa += opp;
+          if (own > opp) { line.wins += 1; line.form.push("W"); }
+          else if (own < opp) { line.losses += 1; line.form.push("L"); }
+          else { line.ties += 1; line.form.push("T"); }
+        });
+      });
+
+      TEAM_IDS.forEach((id) => {
+        const t = stats[id];
+        t.pct = t.gp ? (t.wins + t.ties * 0.5) / t.gp : 0;
+        t.record = t.ties ? `${t.wins}–${t.losses}–${t.ties}` : `${t.wins}–${t.losses}`;
+        t.pfg = t.gp ? t.pf / t.gp : 0;
+        t.pag = t.gp ? t.pa / t.gp : 0;
+        t.diff = t.pf - t.pa;
+        t.diffPerGame = t.gp ? t.diff / t.gp : 0;
+        t.streak = streakOf(t.form);
+      });
+
+      return stats;
+    }
+
+    /* Games back of the league leader, the standard baseball formula. */
+    function gamesBack(leader, team) {
+      return ((leader.wins - team.wins) + (team.losses - leader.losses)) / 2;
+    }
+
+    function addReason(reasons, id, entry) {
+      if (!reasons) return;
+      (reasons[id] = reasons[id] || []).push(entry);
+    }
+
+    /* The whole 2023 order: record, then points for. No head-to-head. */
+    function leagueOrder(week, stats, flips, reasons) {
+      const ordered = TEAM_IDS.slice().sort((a, b) =>
+        (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf) || teams[a].name.localeCompare(teams[b].name));
+
+      // Any run of teams level on record was separated by points for alone,
+      // so each of them gets an explanation.
+      let i = 0;
+      while (i < ordered.length) {
+        let j = i;
+        while (j + 1 < ordered.length && stats[ordered[j + 1]].wins === stats[ordered[i]].wins) j += 1;
+        if (j > i) {
+          const group = ordered.slice(i, j + 1);
+          const ladder = group.map((id) => `${teams[id].name} ${fmt(stats[id].pf)}`).join(", ");
+          const detail = `${group.length} teams finished ${stats[group[0]].record}. 2023 had no divisions and no head-to-head tiebreak, so the order is points for: ${ladder}.`;
+          group.forEach((id, k) => {
+            addReason(reasons, id, { race: "League standings", criterion: "Points for", detail,
+              over: group[k + 1] || null, under: k ? group[k - 1] : null });
+          });
+          for (let k = 1; k < group.length; k++) {
+            if (stats[group[k - 1]].pf === stats[group[k]].pf) flips.push([group[k - 1], group[k]]);
+          }
+        }
+        i = j + 1;
+      }
+
+      return ordered;
+    }
+
+    /* Clinch and elimination flags. With one table and no head-to-head, every
+       test is a simple count of who can still pass whom, and each is a
+       *sufficient* condition: a badge never appears before it is settled. */
+    function clinchFlags(stats, order) {
+      const maxWins = (id) => stats[id].wins + Math.max(0, REGULAR_WEEKS - stats[id].gp);
+      const seasonOver = TEAM_IDS.every((id) => stats[id].gp >= REGULAR_WEEKS);
+      const flags = {};
+
+      TEAM_IDS.forEach((id) => {
+        if (seasonOver) {
+          const seed = order.indexOf(id) + 1;
+          flags[id] = seed <= 2 ? "z" : seed <= 6 ? "x" : "e";
+          return;
+        }
+        // Teams that can still reach or pass this one.
+        const couldPass = TEAM_IDS.filter((x) => x !== id && maxWins(x) >= stats[id].wins).length;
+        if (couldPass <= 1) { flags[id] = "z"; return; }
+        if (couldPass <= 5) { flags[id] = "x"; return; }
+        const beaten = TEAM_IDS.filter((x) => x !== id && stats[x].wins > maxWins(id)).length;
+        flags[id] = beaten >= 6 ? "e" : null;
+      });
+
+      return flags;
+    }
+
+    const CLINCH_KEY = {
+      z: { label: "z", title: "Clinched a top-two seed and a first-round bye" },
+      x: { label: "x", title: "Clinched a playoff berth" },
+      e: { label: "e", title: "Eliminated from playoff contention" }
+    };
+
+    /* The playoff picture as it stands after the given week. Six teams
+       advance: #1 and #2 rest in Week 15 while #3 hosts #6 and #4 hosts #5.
+       Seeds 7 through 10 fall to the Toilet Bowl. */
+    function buildPicture(week) {
+      const stats = computeStats(week);
+      const flips = [];
+      const reasons = {};
+
+      const order = leagueOrder(week, stats, flips, reasons);
+      const playoffField = order.slice(0, 6);
+      const toiletSeeds = order.slice(6);
+
+      const seedLabels = {};
+      order.forEach((id, i) => {
+        const seed = i + 1;
+        seedLabels[id] = seed <= 2
+          ? { chip: `#${seed}`, kind: "div", note: "First-round bye" }
+          : seed === 6
+            ? { chip: "#6", kind: "wc", note: "Last team in" }
+            : seed <= 5
+              ? { chip: `#${seed}`, kind: "div", note: `Playoff seed ${seed}` }
+              : { chip: `#${seed}`, kind: "out", note: `Toilet Bowl seed ${seed}` };
+      });
+
+      const flipPairs = flips.filter(([a, b], i, arr) =>
+        arr.findIndex(([x, y]) => (x === a && y === b) || (x === b && y === a)) === i);
+
+      const result = {
+        week, stats, order, playoffField, toiletSeeds, seedLabels,
+        byes: order.slice(0, 2),
+        quarterfinals: [[order[3], order[4]], [order[2], order[5]]],
+        champs: order.slice(0, 2).map((id) => ({ id })),
+        flips: flipPairs, reasons
+      };
+
+      result.flags = clinchFlags(stats, order);
+      return result;
+    }
+    /* =================================================================
+       VIEW STATE
+       ================================================================= */
+
+    const SEASON_VIEWS = [
+      { id: "regular", label: "Regular Season" },
+      { id: "final", label: "Final Standings" },
+      { id: "bracket", label: "Playoff Bracket" }
+    ];
+
+    const WEEK_VIEWS = [
+      { id: "panel-results", label: "Results" },
+      { id: "panel-standings", label: "Standings" },
+      { id: "panel-picture", label: "Playoff Picture" },
+      { id: "panel-summary", label: "Weekly Summary" }
+    ];
+
+    const state = { week: 0, view: "regular" };
+
+    const viewsFor = (week) => (week === 0 ? SEASON_VIEWS : WEEK_VIEWS);
+    const weekLabel = (w) => (w === 0 ? "Season" : `Week ${w}`);
+
+    function miniTeam(id) {
+      const t = teams[id];
+      return `<span class="mini-badge" style="--team-color:${t.color}">${t.icon}</span>`;
+    }
+
+    function cardHead(title, chip, meta) {
+      return `<div class="card-head">
+        <h3>${chip ? `<span class="division-chip">${chip}</span>` : ""}${title}</h3>
+        ${meta ? `<span>${meta}</span>` : ""}
+      </div>`;
+    }
+
+
+    /* =================================================================
+       STANDINGS MARKERS — seeds, clinch flags, tiebreak explanations
+       ================================================================= */
+
+    // Populated as standings render; the popover reads explanations from here.
+    const whyStore = {};
+
+    function seedTag(picture, id) {
+      const label = picture.seedLabels[id];
+      if (!label) return "";
+      const isBye = picture.champs.some((c) => c.id === id);
+      const cls = label.kind === "div" ? (isBye ? "div lead" : "div") : label.kind;
+      const title = isBye ? `${label.note}` : label.note;
+      return `<span class="seed-tag ${cls}" title="${title}">${label.chip}</span>`;
+    }
+
+    function clinchTag(picture, id) {
+      const flag = picture.flags[id];
+      if (!flag) return "";
+      return `<span class="clinch-tag ${flag}" title="${CLINCH_KEY[flag].title}">${CLINCH_KEY[flag].label}</span>`;
+    }
+
+    function whyButton(picture, id, scope) {
+      const entries = picture.reasons[id];
+      if (!entries || !entries.length) return "";
+      const key = `${scope}:${id}`;
+      whyStore[key] = {
+        team: teams[id].name,
+        entries: entries.map((r) => ({
+          race: r.race,
+          criterion: r.criterion,
+          detail: r.detail,
+          note: r.note || null,
+          over: r.over ? teams[r.over].name : null,
+          under: r.under ? teams[r.under].name : null
+        }))
+      };
+      return `<button type="button" class="why-btn" data-why="${key}"
+        aria-label="Tiebreakers involving ${teams[id].name}">i</button>`;
+    }
+
+    function teamFlags(picture, id, scope) {
+      const inner = seedTag(picture, id) + clinchTag(picture, id) + whyButton(picture, id, scope);
+      return inner ? `<span class="team-flags">${inner}</span>` : "";
+    }
+
+    function gbText(leader, t) {
+      const back = gamesBack(leader, t);
+      return back <= 0 ? "—" : (back % 1 ? back.toFixed(1) : String(back));
+    }
+
+
+    function standingsLegend(picture) {
+      const anyFlag = TEAM_IDS.some((id) => picture.flags[id]);
+      return `<div class="standings-note">
+        <span class="legend-key"><span class="seed-tag div lead">#1</span>Top two · first-round bye</span>
+        <span class="legend-key"><span class="seed-tag div">#3</span>Playoff seed</span>
+        <span class="legend-key"><span class="seed-tag wc">#6</span>Last team in</span>
+        <span class="legend-key"><span class="seed-tag out">#7</span>Toilet Bowl</span>
+        ${anyFlag ? `<span class="legend-key"><span class="clinch-tag z">z</span>Clinched a bye</span>
+        <span class="legend-key"><span class="clinch-tag x">x</span>Clinched a berth</span>
+        <span class="legend-key"><span class="clinch-tag e">e</span>Eliminated</span>` : ""}
+        <span class="legend-key"><span class="why-btn" aria-hidden="true">i</span>Tap for the tiebreaker</span>
+      </div>`;
+    }
+
+    /* =================================================================
+       STANDINGS PANEL — one league-wide table, no divisions
+       ================================================================= */
+
+    function seedRowClass(picture, id) {
+      const label = picture.seedLabels[id];
+      if (!label) return "";
+      if (label.kind === "div") return "seed-div";
+      if (label.kind === "wc") return "seed-wc";
+      return "seed-toilet";
+    }
+
+    function standingsTable(picture, scope) {
+      const stats = picture.stats;
+      const order = picture.order;
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIFF</th></tr></thead>
+            <tbody>
+              ${order.map((id, i) => {
+                const t = stats[id];
+                const gb = gbText(stats[order[0]], t);
+                const d = t.diff;
+                const dClass = d > 0 ? "positive" : d < 0 ? "negative" : "";
+                return `<tr class="${seedRowClass(picture, id)}">
+                  <td class="rank">${i + 1}</td>
+                  <td class="team-cell">
+                    ${teamButton(id)}${teamFlags(picture, id, scope)}
+                    <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
+                      <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
+                      <span class="mobile-stat"><small>GB</small><strong>${gb}</strong></span>
+                      <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
+                      <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
+                      <span class="mobile-stat"><small>DIFF</small><strong class="${dClass}">${d > 0 ? "+" : ""}${fmt(d)}</strong></span>
+                    </div>
+                  </td>
+                  <td class="record">${t.record}</td>
+                  <td class="gb">${gb}</td>
+                  <td>${pctText(t.pct)}</td>
+                  <td>${fmt(t.pf)}</td>
+                  <td>${fmt(t.pa)}</td>
+                  <td class="${dClass}">${d > 0 ? "+" : ""}${fmt(d)}</td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderStandingsPanel(week) {
+      if (week === 0) return;
+      const picture = buildPicture(week);
+      document.getElementById("panel-standings").innerHTML = `
+        <div class="panel-stack">
+          <article class="card">
+            ${cardHead("Regular Season Standings", "R")}
+            ${standingsTable(picture, `w${week}`)}
+          </article>
+          ${standingsLegend(picture)}
+        </div>
+        <div class="source-note">2023 used one league-wide table. Ties are broken on points for — there was no head-to-head tiebreak this season. Records reflect Weeks 1–${week}.</div>`;
+    }
+
+    /* =================================================================
+       PLAYOFF PICTURE PANEL
+       ================================================================= */
+
+    function seedRow(picture, id) {
+      const label = picture.seedLabels[id];
+      const t = picture.stats[id];
+      return `<div class="seed-row">
+        <span class="seed-chip ${label.kind}">${label.chip}</span>
+        <span class="seed-body">
+          ${miniTeam(id)}
+          <span class="seed-copy">
+            <strong>${teams[id].name}</strong>
+            <span>${teams[id].owner} · ${label.note}</span>
+          </span>
+        </span>
+        <span class="seed-line"><strong>${t.record}</strong><span>${fmt(t.pf)} PF</span></span>
+      </div>`;
+    }
+
+    function projectedGame(title, seedA, idA, seedB, idB, stats) {
+      const line = (seed, id) => `<div class="pg-side"><span class="seed">${seed}</span>${miniTeam(id)}<span class="pg-name">${teams[id].name}</span><span class="pg-rec">${stats[id].record}</span></div>`;
+      return `<div class="projected-game"><div class="pg-head">${title}</div>${line(seedA, idA)}${line(seedB, idB)}</div>`;
+    }
+
+    function renderPicturePanel(week) {
+      if (week === 0) return;
+      const picture = buildPicture(week);
+      const stats = picture.stats;
+      const order = picture.order;
+      const final = week === REGULAR_WEEKS;
+      const seedOf = (id) => `#${order.indexOf(id) + 1}`;
+
+      const bracketCard = `
+        <article class="card">
+          ${cardHead(final ? "Playoff Bracket" : "Projected Bracket", "B", "Weeks 15–17")}
+          <div class="bracket-rounds">
+            <div class="bracket-round">
+              <div class="round-label">Round 1<span>Week 15</span></div>
+              ${projectedGame("Quarterfinal", "#4", order[3], "#5", order[4], stats)}
+              ${projectedGame("Quarterfinal", "#3", order[2], "#6", order[5], stats)}
+              <div class="projected-game">
+                <div class="pg-head">Byes</div>
+                <div class="pg-side"><span class="seed">#1</span>${miniTeam(order[0])}<span class="pg-name">${teams[order[0]].name}</span><span class="pg-rec">${stats[order[0]].record}</span></div>
+                <div class="pg-side"><span class="seed">#2</span>${miniTeam(order[1])}<span class="pg-name">${teams[order[1]].name}</span><span class="pg-rec">${stats[order[1]].record}</span></div>
+              </div>
+            </div>
+            <div class="bracket-round">
+              <div class="round-label">Semifinals<span>Week 16</span></div>
+              <div class="projected-game">
+                <div class="pg-head">Top half</div>
+                <div class="pg-side"><span class="seed">#1</span>${miniTeam(order[0])}<span class="pg-name">${teams[order[0]].name}</span><span class="pg-rec">${stats[order[0]].record}</span></div>
+                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of #4 vs #5</span></div>
+              </div>
+              <div class="projected-game">
+                <div class="pg-head">Bottom half</div>
+                <div class="pg-side"><span class="seed">#2</span>${miniTeam(order[1])}<span class="pg-name">${teams[order[1]].name}</span><span class="pg-rec">${stats[order[1]].record}</span></div>
+                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of #3 vs #6</span></div>
+              </div>
+            </div>
+            <div class="bracket-round">
+              <div class="round-label">Championship<span>Week 17</span></div>
+              <div class="projected-game">
+                <div class="pg-head">Title game</div>
+                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of the top half</span></div>
+                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of the bottom half</span></div>
+              </div>
+            </div>
+          </div>
+        </article>`;
+
+      const toilet = picture.toiletSeeds;
+      const toiletCard = `
+        <article class="card">
+          ${cardHead("Toilet Bowl Watch", "T", "Seeds 7–10")}
+          <div class="seed-list">${toilet.map((id) => seedRow(picture, id)).join("")}</div>
+          <div class="projected-matchups">
+            ${projectedGame("Round 1 · Week 15", "#7", toilet[0], "#10", toilet[3], stats)}
+            ${projectedGame("Round 1 · Week 15", "#8", toilet[1], "#9", toilet[2], stats)}
+            <div class="projected-game">
+              <div class="pg-head">Last-Place Series · Weeks 16–17</div>
+              <div class="pg-bye">The two Round 1 losers play a two-week series, and the team with the lower two-week total finishes last. 2023 scored this as one cumulative matchup rather than two separate games.</div>
+            </div>
+          </div>
+        </article>`;
+
+      const flipNote = picture.flips.length
+        ? `<div class="tag-row" style="padding:0">${picture.flips.map(([a, b]) =>
+            `<span class="rule-tag flip">Coin flip · ${teams[a].name} / ${teams[b].name}</span>`).join("")}</div>`
+        : "";
+
+      document.getElementById("panel-picture").innerHTML = `
+        <div class="panel-stack">
+          ${bracketCard}
+          ${flipNote}
+          ${toiletCard}
+        </div>
+        <div class="source-note">${final
+          ? "Week 14 seeding — this is the bracket the league actually played."
+          : "Seeds come straight off the league table: record first, then points for."}</div>`;
+    }
+    /* Tiebreaker popover ------------------------------------------- */
+
+    let whyPop = null;
+
+    function closeWhy() {
+      if (whyPop) { whyPop.remove(); whyPop = null; }
+    }
+
+    function openWhy(button) {
+      closeWhy();
+      const info = whyStore[button.dataset.why];
+      if (!info) return;
+
+      const pop = document.createElement("div");
+      pop.className = "why-pop";
+      pop.setAttribute("role", "dialog");
+      pop.innerHTML = `
+        <div class="why-head">${info.team} · ${info.entries.length} tiebreak${info.entries.length === 1 ? "" : "s"}</div>
+        ${info.entries.map((e) => `
+          <div class="why-entry">
+            <h4>${e.race} · ${e.criterion}</h4>
+            <p>${e.detail}</p>
+            ${e.note ? `<div class="why-team">${e.note}</div>`
+              : e.over ? `<div class="why-team">Placed ahead of ${e.over}.</div>`
+              : e.under ? `<div class="why-team">Placed behind ${e.under}.</div>` : ""}
+          </div>`).join("")}`;
+      document.body.appendChild(pop);
+
+      const anchor = button.getBoundingClientRect();
+      const box = pop.getBoundingClientRect();
+      const margin = 12;
+      let left = anchor.left + anchor.width / 2 - box.width / 2;
+      left = Math.max(margin, Math.min(left, window.innerWidth - box.width - margin));
+      let top = anchor.bottom + 8;
+      if (top + box.height > window.innerHeight - margin) top = Math.max(margin, anchor.top - box.height - 8);
+      pop.style.left = `${left}px`;
+      pop.style.top = `${top}px`;
+      whyPop = pop;
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".why-btn[data-why]");
+      if (button) { event.stopPropagation(); openWhy(button); return; }
+      if (whyPop && !event.target.closest(".why-pop")) closeWhy();
+    });
+
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeWhy(); });
+    window.addEventListener("resize", closeWhy);
+    window.addEventListener("scroll", closeWhy, true);
+
+    /* =================================================================
+       WEEK RAIL + VIEW TABS
+       ================================================================= */
+
+    function renderWeekRail() {
+      const weeks = [];
+      for (let w = 0; w <= REGULAR_WEEKS; w++) weeks.push(w);
+
+      document.getElementById("weekRail").innerHTML = weeks.map((w) => {
+        const status = w === 0 ? "Full year" : "Final";
+        return `<button type="button" class="week-pill ${w === state.week ? "active" : ""} played"
+          data-week="${w}" role="tab" aria-selected="${w === state.week}">${w === 0 ? "Season" : `Wk ${w}`}<small>${status}</small></button>`;
+      }).join("");
+
+      document.getElementById("weekSelect").innerHTML = weeks.map((w) =>
+        `<option value="${w}" ${w === state.week ? "selected" : ""}>${w === 0 ? "Season Summary" : `Week ${w}`}</option>`).join("");
+
+      const active = document.querySelector(".week-pill.active");
+      if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
+    }
+
+    function renderViewTabs() {
+      document.getElementById("viewTabs").innerHTML = viewsFor(state.week).map((v) => `
+        <button type="button" class="view-tab ${v.id === state.view ? "active" : ""}" data-view="${v.id}"
+          role="tab" aria-selected="${v.id === state.view}">${v.label}</button>`).join("");
+
+      document.getElementById("weekTitle").textContent = state.week === 0
+        ? "2023 Season"
+        : `Week ${state.week} · 2023`;
+    }
+
+    /* =================================================================
+       RESULTS PANEL
+       ================================================================= */
+
+    function gameCard(week, a, as, b, bs) {
+      const side = (id, score, won) => `
+        <div class="game-side ${won ? "winner" : ""}">
+          <span class="win-flag"></span>
+          ${miniTeam(id)}
+          <button type="button" class="game-team" data-team="${id}" aria-label="Open ${teams[id].name} schedule">
+            <strong>${teams[id].name}</strong><span>${teams[id].owner}</span>
+          </button>
+          <span class="game-score">${fmt(score)}</span>
+        </div>`;
+      return `<article class="game-card">
+        <div class="game-card-head">
+          <span>Week ${week}${week === rivalryWeek ? " · Rivalry" : ""}</span>
+          <span class="game-margin">${as === bs ? "Tie" : `Margin ${fmt(Math.abs(as - bs))}`}</span>
+        </div>
+        ${side(a, as, as > bs)}
+        ${side(b, bs, bs > as)}
+      </article>`;
+    }
+
+    function weekSuperlatives(week) {
+      const games = weekResults[week] || [];
+      if (!games.length) return "";
+      const scores = [];
+      games.forEach(([a, as, b, bs]) => { scores.push({ id: a, score: as }); scores.push({ id: b, score: bs }); });
+      const byScore = scores.slice().sort((x, y) => y.score - x.score);
+      const byMargin = games.slice().sort((x, y) => Math.abs(y[1] - y[3]) - Math.abs(x[1] - x[3]));
+      const blowout = byMargin[0];
+      const nailbiter = byMargin[byMargin.length - 1];
+      const total = scores.reduce((sum, s) => sum + s.score, 0);
+      const item = (label, strong, sub) => `<div class="superlative"><small>${label}</small><strong>${strong}</strong><span>${sub}</span></div>`;
+      const winnerOf = (g) => (g[1] >= g[3] ? g[0] : g[2]);
+      const loserOf = (g) => (g[1] >= g[3] ? g[2] : g[0]);
+
+      return `<div class="summary-superlatives">
+        ${item("High score", teams[byScore[0].id].name, fmt(byScore[0].score))}
+        ${item("Low score", teams[byScore[byScore.length - 1].id].name, fmt(byScore[byScore.length - 1].score))}
+        ${item("Biggest blowout", `${teams[winnerOf(blowout)].name} over ${teams[loserOf(blowout)].name}`, `by ${fmt(Math.abs(blowout[1] - blowout[3]))}`)}
+        ${item("Closest game", `${teams[winnerOf(nailbiter)].name} over ${teams[loserOf(nailbiter)].name}`, `by ${fmt(Math.abs(nailbiter[1] - nailbiter[3]))}`)}
+        ${item("League average", `${fmt1(total / scores.length)} per team`, `${fmt(total)} total points`)}
+      </div>`;
+    }
+
+    function renderResultsPanel(week) {
+      if (week === 0) return;
+      document.getElementById("panel-results").innerHTML = `
+        <div class="panel-stack">
+          <div class="score-grid">
+            ${weekResults[week].map(([a, as, b, bs]) => gameCard(week, a, as, b, bs)).join("")}
+          </div>
+          <article class="card">
+            ${cardHead(`Week ${week} Notes`, "W", "Scoring extremes")}
+            ${weekSuperlatives(week)}
+          </article>
+        </div>
+        <div class="source-note">Week ${week} of the audited 2023 regular season.</div>`;
+    }
+
+    /* =================================================================
+       WEEKLY SUMMARY PANEL
+       ================================================================= */
+
+    function renderSummaryPanel(week) {
+      if (week === 0) return;
+      const summary = weeklySummaries[week];
+      const panel = document.getElementById("panel-summary");
+      if (!summary) {
+        panel.innerHTML = `<div class="empty-state"><strong>No recap for Week ${week}</strong><p>The scores are on the Results tab.</p></div>`;
+        return;
+      }
+      panel.innerHTML = `
+        <article class="card summary-card">
+          ${cardHead(`Week ${week} Recap`, String(week), week === rivalryWeek ? "Rivalry Week" : "League recap")}
+          <div class="summary-meta">${summary.headline}</div>
+          <ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>
+        </article>
+        <div class="source-note">Recaps are written from the audited weekly scores.</div>`;
+    }
+
+    /* =================================================================
+       RENDER + ROUTING
+       ================================================================= */
+
+    function showActivePanel() {
+      const ids = [...SEASON_VIEWS, ...WEEK_VIEWS].map((v) => v.id);
+      ids.forEach((id) => {
+        const panel = document.getElementById(id);
+        if (panel) panel.classList.toggle("active", id === state.view);
+      });
+      if (state.view === "bracket") updateBracketNameAlignment();
+    }
+
+    function renderAll() {
+      renderWeekRail();
+      renderViewTabs();
+      renderResultsPanel(state.week);
+      renderStandingsPanel(state.week);
+      renderPicturePanel(state.week);
+      renderSummaryPanel(state.week);
+      showActivePanel();
+    }
+
+    function applyHash() {
+      const match = /^#w(\d{1,2})(?:-([a-z-]+))?$/.exec(window.location.hash || "");
+      if (!match) return false;
+      const week = Number(match[1]);
+      if (week < 0 || week > REGULAR_WEEKS) return false;
+      const views = viewsFor(week);
+      state.week = week;
+      state.view = views.some((v) => v.id === match[2]) ? match[2] : views[0].id;
+      return true;
+    }
+
+    function writeHash() {
+      const next = `#w${state.week}-${state.view}`;
+      if (window.location.hash !== next) history.replaceState(null, "", next);
+    }
+
+    function goToWeek(week) {
+      const views = viewsFor(week);
+      const previous = viewsFor(state.week).findIndex((v) => v.id === state.view);
+      state.week = week;
+      // Keep the reader on the same slot when moving between numbered weeks.
+      state.view = (views[previous] || views[0]).id;
+      renderAll();
+      writeHash();
+    }
+
+    document.getElementById("weekRail").addEventListener("click", (event) => {
+      const pill = event.target.closest(".week-pill");
+      if (pill) goToWeek(Number(pill.dataset.week));
+    });
+
+    document.getElementById("weekSelect").addEventListener("change", (event) => {
+      goToWeek(Number(event.target.value));
+    });
+
+    document.getElementById("viewTabs").addEventListener("click", (event) => {
+      const tab = event.target.closest(".view-tab");
+      if (!tab) return;
+      state.view = tab.dataset.view;
+      renderViewTabs();
+      showActivePanel();
+      writeHash();
+    });
+
+    window.addEventListener("hashchange", () => { if (applyHash()) renderAll(); });
+
+    renderDivisions();
+    renderDivisions();
+    applyHash();
+    renderAll();
+    writeHash();
+
+
   </script>
 </body>
 </html>
