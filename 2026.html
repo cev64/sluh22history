@@ -3000,6 +3000,139 @@
     }
 
 
+
+    /* Strength of schedule -------------------------------------------
+       A diverging bar around a .500 baseline: red right of centre is a
+       harder slate than average, blue left of centre is easier. The pair
+       is the site's own red and blue, which clear the CVD separation and
+       contrast checks against a white card. */
+
+    .sos-lede {
+      margin: 0;
+      padding: 16px 20px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #24354a;
+      max-width: 78ch;
+    }
+
+    .sos-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: center;
+      padding: 13px 20px 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .sos-swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      background: var(--blue);
+    }
+
+    .sos-swatch.tough { background: var(--red); }
+    .sos-swatch.even { background: #b9c3cd; }
+
+    .sos-list { padding: 8px 8px 16px; }
+
+    .sos-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 12px;
+      border-radius: 11px;
+      min-width: 0;
+    }
+
+    .sos-row:nth-child(odd) { background: var(--surface-2); }
+
+    .sos-rank {
+      flex: 0 0 auto;
+      width: 20px;
+      text-align: right;
+      font-weight: 900;
+      font-size: 12.5px;
+      color: #7a8796;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sos-team {
+      flex: 1 1 168px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .sos-team strong { font-size: 14px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sos-team span { font-size: 11.5px; color: var(--muted); }
+
+    .sos-plot {
+      flex: 1 1 210px;
+      position: relative;
+      height: 14px;
+      min-width: 120px;
+    }
+
+    /* The .500 baseline the bars diverge from. */
+    .sos-axis {
+      position: absolute;
+      left: 50%;
+      top: -2px;
+      bottom: -2px;
+      width: 1px;
+      background: var(--line);
+    }
+
+    .sos-bar {
+      position: absolute;
+      top: 2px;
+      height: 10px;
+      background: var(--blue);
+    }
+
+    /* Rounded at the data end, square against the baseline. */
+    .sos-bar.tough {
+      left: 50%;
+      background: var(--red);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .sos-bar.easy {
+      right: 50%;
+      background: var(--blue);
+      border-radius: 4px 0 0 4px;
+    }
+
+    .sos-value {
+      flex: 0 0 auto;
+      width: 74px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sos-value strong { display: block; font-size: 14.5px; font-weight: 900; }
+    .sos-value span { font-size: 11px; color: var(--muted); }
+
+    .sos-notes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .sos-lede { padding: 14px 15px 0; font-size: 13.5px; }
+      .sos-legend { padding: 11px 15px 4px; }
+      .sos-list { padding: 6px 6px 12px; }
+      .sos-row { flex-wrap: wrap; gap: 8px; padding: 10px; }
+      .sos-team { flex: 1 1 auto; }
+      .sos-plot { order: 3; flex: 1 1 100%; min-width: 0; }
+      .sos-value { width: auto; }
+    }
+
   </style>
 </head>
 <body>
@@ -3061,6 +3194,7 @@
     <section id="panel-standings" class="live-panel" role="tabpanel"></section>
     <section id="panel-picture" class="live-panel" role="tabpanel"></section>
     <section id="panel-summary" class="live-panel" role="tabpanel"></section>
+    <section id="panel-sos" class="live-panel" role="tabpanel"></section>
   </main>
 
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
@@ -3140,6 +3274,19 @@
     };
 
     const rivalryWeek = 14;
+
+    /* -----------------------------------------------------------------
+       PRIOR SEASON — each franchise's 2025 regular-season record, used
+       only for the preseason strength-of-schedule tab. Update these to
+       the previous year's finish when the season rolls over.
+       ----------------------------------------------------------------- */
+    const priorSeason = {
+      year: 2025,
+      records: {
+        first: [8, 6], game: [8, 6], hamilton: [8, 6], roll: [7, 7], infinity: [7, 7],
+        hawaii: [12, 2], left: [11, 3], kareem: [4, 10], laporta: [4, 10], jared: [1, 13]
+      }
+    };
 
     /* -----------------------------------------------------------------
        RESULTS — add one entry per week as the screenshots come in.
@@ -3601,10 +3748,117 @@
 
 
     /* =================================================================
+       STRENGTH OF SCHEDULE
+
+       Every opponent on the 2026 slate, weighted by how often they are
+       played, scored on their record from the season before. A team never
+       appears on its own schedule, which is what makes the measure invert:
+       last year's worst teams draw the hardest slates precisely because
+       they are the ones nobody has to play.
+       ================================================================= */
+
+    function strengthOfSchedule() {
+      const priorPct = (id) => {
+        const [w, l] = priorSeason.records[id] || [0, 0];
+        return w + l ? w / (w + l) : 0;
+      };
+
+      const opponents = {};
+      TEAM_IDS.forEach((id) => { opponents[id] = []; });
+      Object.values(schedule).forEach((games) => {
+        games.forEach(([a, b]) => { opponents[a].push(b); opponents[b].push(a); });
+      });
+
+      const rows = TEAM_IDS.map((id) => {
+        const opps = opponents[id];
+        const wins = opps.reduce((n, x) => n + (priorSeason.records[x] || [0, 0])[0], 0);
+        const losses = opps.reduce((n, x) => n + (priorSeason.records[x] || [0, 0])[1], 0);
+        const counts = opps.reduce((acc, x) => { acc[x] = (acc[x] || 0) + 1; return acc; }, {});
+        const twice = Object.keys(counts)
+          .filter((x) => counts[x] > 1)
+          .sort((a, b) => priorPct(b) - priorPct(a));
+        return { id, games: opps.length, wins, losses, twice, sos: wins + losses ? wins / (wins + losses) : 0 };
+      });
+
+      rows.sort((a, b) => b.sos - a.sos || teams[a.id].name.localeCompare(teams[b.id].name));
+      const spread = Math.max(...rows.map((r) => Math.abs(r.sos - 0.5))) || 1;
+      rows.forEach((r) => { r.deviation = r.sos - 0.5; r.magnitude = Math.abs(r.deviation) / spread; });
+      return rows;
+    }
+
+    function renderSosPanel() {
+      const rows = strengthOfSchedule();
+      const pct3 = (v) => v.toFixed(3).replace(/^0/, "");
+      const hardest = rows[0];
+      const easiest = rows[rows.length - 1];
+
+      const row = (r, i) => {
+        const side = r.deviation > 0 ? "tough" : r.deviation < 0 ? "easy" : "even";
+        // The bar diverges from a .500 baseline: right of centre is a harder
+        // slate than average, left is easier. Length is scaled to the widest
+        // deviation in the league, so the shape reads at this small a spread.
+        const width = (r.magnitude * 46).toFixed(2);
+        return `<div class="sos-row">
+          <span class="sos-rank">${i + 1}</span>
+          ${miniTeam(r.id)}
+          <span class="sos-team">
+            <strong>${teams[r.id].name}</strong>
+            <span>${teams[r.id].owner}</span>
+          </span>
+          <span class="sos-plot" role="img"
+            aria-label="${pct3(r.sos)} opponent win percentage, ${side === "even" ? "exactly average" : side === "tough" ? "above average" : "below average"}">
+            <span class="sos-axis"></span>
+            ${side === "even" ? "" : `<span class="sos-bar ${side}" style="width:${width}%"></span>`}
+          </span>
+          <span class="sos-value">
+            <strong>${pct3(r.sos)}</strong>
+            <span>${r.wins}–${r.losses}</span>
+          </span>
+        </div>`;
+      };
+
+      document.getElementById("panel-sos").innerHTML = `
+        <div class="panel-stack">
+          <article class="card">
+            ${cardHead(`Strength of Schedule`, "S", `Opponents' ${priorSeason.year} records`)}
+            <p class="sos-lede">Every 2026 opponent, counted as often as they are played, scored on their ${priorSeason.year} record. Nobody plays themselves, so the measure inverts: last year's weakest teams face the toughest slates, and last year's best face the softest.</p>
+            <div class="sos-legend">
+              <span class="legend-key"><span class="sos-swatch tough"></span>Tougher than average</span>
+              <span class="legend-key"><span class="sos-swatch easy"></span>Easier than average</span>
+              <span class="legend-key"><span class="sos-swatch even"></span>Baseline .500</span>
+            </div>
+            <div class="sos-list">${rows.map(row).join("")}</div>
+          </article>
+          <div class="sos-notes">
+            <div class="superlative">
+              <small>Toughest slate</small>
+              <strong>${teams[hardest.id].name}</strong>
+              <span>${pct3(hardest.sos)} · opponents went ${hardest.wins}–${hardest.losses}</span>
+            </div>
+            <div class="superlative">
+              <small>Easiest slate</small>
+              <strong>${teams[easiest.id].name}</strong>
+              <span>${pct3(easiest.sos)} · opponents went ${easiest.wins}–${easiest.losses}</span>
+            </div>
+            <div class="superlative">
+              <small>Spread</small>
+              <strong>${pct3(hardest.sos - easiest.sos)} of win percentage</strong>
+              <span>between the hardest and easiest schedules</span>
+            </div>
+          </div>
+        </div>
+        <div class="source-note">Opponent win percentage across all ${rows[0].games} scheduled games, using ${priorSeason.year} regular-season records. It measures who is on the schedule, not how good those teams are now.</div>`;
+    }
+
+    /* =================================================================
        VIEW STATE
        ================================================================= */
 
-    const VIEWS = ["results", "standings", "picture", "summary"];
+    const VIEWS = ["results", "standings", "picture", "summary", "sos"];
+
+    // Strength of schedule is a preseason view; once games are played the
+    // week tabs carry results instead.
+    const viewsFor = (week) => (week === 0 ? VIEWS : VIEWS.filter((v) => v !== "sos"));
 
     const state = {
       week: lastPlayedWeek,
@@ -3622,7 +3876,7 @@
     const isPlayed = (w) => playedWeeks.includes(w);
 
     function viewLabels(week) {
-      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoff Picture", summary: "Preseason" };
+      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoff Picture", summary: "Preseason", sos: "Strength of Schedule" };
       if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary" };
       return { results: "Matchups", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary" };
     }
@@ -3891,7 +4145,7 @@
 
     function renderViewTabs() {
       const labels = viewLabels(state.week);
-      document.getElementById("viewTabs").innerHTML = VIEWS.map((v) => `
+      document.getElementById("viewTabs").innerHTML = viewsFor(state.week).map((v) => `
         <button type="button" class="view-tab ${v === state.view ? "active" : ""}" data-view="${v}"
           role="tab" aria-selected="${v === state.view}">${labels[v]}</button>`).join("");
 
@@ -4331,18 +4585,20 @@
       renderStandingsPanel(state.week);
       renderPicturePanel(state.week);
       renderSummaryPanel(state.week);
+      if (state.week === 0) renderSosPanel();
       document.querySelectorAll(".live-panel").forEach((panel) => {
         panel.classList.toggle("active", panel.id === `panel-${state.view}`);
       });
     }
 
     function applyHash() {
-      const match = /^#w(\d{1,2})(?:-(results|standings|picture|summary))?$/.exec(window.location.hash || "");
+      const match = /^#w(\d{1,2})(?:-(results|standings|picture|summary|sos))?$/.exec(window.location.hash || "");
       if (!match) return false;
       const week = Number(match[1]);
       if (week < 0 || week > REGULAR_WEEKS) return false;
       state.week = week;
-      state.view = match[2] || "results";
+      const allowed = viewsFor(week);
+      state.view = allowed.includes(match[2]) ? match[2] : allowed[0];
       return true;
     }
 
@@ -4386,7 +4642,11 @@
     backdrop.addEventListener("click", closeTeam);
     document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeTeam(); });
 
-    window.addEventListener("hashchange", () => { if (applyHash()) renderAll(); });
+    window.addEventListener("hashchange", () => {
+      // applyHash may substitute a view the week does not offer, so rewrite
+      // the URL to whatever actually rendered.
+      if (applyHash()) { renderAll(); writeHash(); }
+    });
 
     document.getElementById("yearSelect").addEventListener("change", (event) => {
       const files = {
