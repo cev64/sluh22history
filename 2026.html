@@ -3007,21 +3007,12 @@
        is the site's own red and blue, which clear the CVD separation and
        contrast checks against a white card. */
 
-    .sos-lede {
-      margin: 0;
-      padding: 16px 20px 0;
-      font-size: 14px;
-      line-height: 1.6;
-      color: #24354a;
-      max-width: 78ch;
-    }
-
     .sos-legend {
       display: flex;
       flex-wrap: wrap;
       gap: 8px 16px;
       align-items: center;
-      padding: 13px 20px 4px;
+      padding: 16px 20px 4px;
       font-size: 12px;
       color: var(--muted);
     }
@@ -3124,7 +3115,6 @@
     }
 
     @media (max-width: 700px) {
-      .sos-lede { padding: 14px 15px 0; font-size: 13.5px; }
       .sos-legend { padding: 11px 15px 4px; }
       .sos-list { padding: 6px 6px 12px; }
       .sos-row { flex-wrap: wrap; gap: 8px; padding: 10px; }
@@ -3821,7 +3811,6 @@
         <div class="panel-stack">
           <article class="card">
             ${cardHead(`Strength of Schedule`, "S", `Opponents' ${priorSeason.year} records`)}
-            <p class="sos-lede">Every 2026 opponent, counted as often as they are played, scored on their ${priorSeason.year} record. Nobody plays themselves, so the measure inverts: last year's weakest teams face the toughest slates, and last year's best face the softest.</p>
             <div class="sos-legend">
               <span class="legend-key"><span class="sos-swatch tough"></span>Tougher than average</span>
               <span class="legend-key"><span class="sos-swatch easy"></span>Easier than average</span>
