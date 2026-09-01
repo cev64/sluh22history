@@ -19,6 +19,9 @@ const FAKE = process.argv.includes('--fake');
 const BOX_FILE = arg('--box', null);
 const OUT_DIR = arg('--out', '.');
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const IMPORTED_PATH = path.join(ROOT, 'boxscores', String(SEASON), `week-${WEEK}.json`);
+const imported = (!BOX_FILE && !FAKE && fs.existsSync(IMPORTED_PATH))
+  ? JSON.parse(fs.readFileSync(IMPORTED_PATH, 'utf8')) : null;
 
 /* Playwright may be a local dev dependency or a global install; try both
    rather than assuming a layout. */
@@ -33,8 +36,35 @@ async function loadChromium() {
 const E = await loadSeason(SEASON, ROOT);
 if (!E.playoffOdds) throw new Error(`${SEASON}.html has no playoff-odds engine`);
 if (!E.RESULTS[WEEK] || !E.RESULTS[WEEK].length) throw new Error(`no results posted for ${SEASON} week ${WEEK}`);
-if (!BOX_FILE && !FAKE) throw new Error('supply --box <file.json> with real box scores, or pass --fake for a sample');
-const realBox = BOX_FILE ? JSON.parse(fs.readFileSync(BOX_FILE, 'utf8')) : null;
+if (!BOX_FILE && !FAKE && !fs.existsSync(IMPORTED_PATH)) throw new Error(`no box scores for ${SEASON} week ${WEEK}: import them with tools/boxscores/import.mjs, pass --box <file.json>, or pass --fake for a sample`);
+/* Real player lines for this week, if they have been imported. The site reads
+   the same file for its box-score modal, so the sheet and the page can never
+   disagree about who scored what. Explicit flags still win: --box points at a
+   different file, --fake deliberately fabricates. */
+
+/* The newsletter wants { teamId: { starters, bench } }. Injured reserve is
+   deliberately left out of the bench: an IR player could not have been
+   started, so counting him as a bench call would invent a manager's mistake
+   that was never available. */
+function boxFromImport(data) {
+  const entry = (pl) => ({ pos: pl.pos === 'DST' ? 'D/ST' : pl.pos, slot: pl.slot,
+                           name: pl.name, pts: pl.pts, nfl: pl.nfl, proj: pl.proj });
+  const out = {};
+  for (const g of data.games) {
+    for (const id of [g.home, g.away]) {
+      const lineup = g.lineups[id] || [];
+      out[id] = {
+        starters: lineup.filter((pl) => pl.starter).map(entry),
+        bench: lineup.filter((pl) => !pl.starter && pl.slot === 'BE').map(entry),
+      };
+    }
+  }
+  return out;
+}
+
+const realBox = BOX_FILE ? JSON.parse(fs.readFileSync(BOX_FILE, 'utf8'))
+  : imported ? boxFromImport(imported) : null;
+const FABRICATED = !realBox;
 const F2 = n => Number(n).toFixed(2);
 const N = id => E.teams[id].name;
 const P1 = n => Number(n).toFixed(1);
@@ -92,6 +122,18 @@ upcoming.sort((x, y) => y.weight - x.weight);
 const chip = id => `<span class="chip" style="--c:${E.teams[id].color}">${E.teams[id].icon}</span>`;
 const short = id => N(id).replace(/ \(.*\)/, '').replace('Administration', 'Admin').replace(' McLovins VIII', ' McLovins');
 
+/* Same palette the season page uses for its box-score modal — season.mjs
+   exports it, so there is one copy of these colours, not two. */
+const posPill = (pl) => {
+  const c = (E.POS_COLORS || {})[pl.pos === 'D/ST' ? 'DST' : pl.pos] || '#475569';
+  return `<span class="pill" style="background:${c}">${pl.pos}</span>`;
+};
+const nflPill = (pl) => {
+  if (!pl.nfl || !E.NFL_TEAMS) return '';
+  const c = E.NFL_TEAMS[pl.nfl] || E.NFL_TEAMS.FA;
+  return `<span class="pill" style="background:${c};color:${E.readableInk(c)}">${pl.nfl}</span>`;
+};
+
 const gameCard = g => `
   <div class="g">
     <div class="gh">${g.margin < 10 ? `<b class="tag">${F2(g.margin)} pts</b>` : `Margin ${F2(g.margin)}`}</div>
@@ -120,6 +162,8 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
   .gh { font-size:6.2pt; font-weight:900; letter-spacing:.07em; text-transform:uppercase; color:#8a95a2;
         background:#f5f7fa; padding:2.5px 5px; border-bottom:1px solid #eef2f6; }
   .gh .tag { color:#d71920; }
+  .pill { display:inline-block; padding:0 3px; border-radius:3px; font-size:5.4pt; font-weight:900;
+          color:#fff; margin-right:3px; letter-spacing:.03em; vertical-align:1.2px; }
   .gs { display:flex; align-items:center; gap:4px; padding:3.5px 5px; }
   .gs.w { background:rgba(22,131,74,.07); }
   .gs.w .gn, .gs.w .gp { font-weight:900; color:#0b1726; }
@@ -172,9 +216,9 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
 
     <h2>Studs &amp; Duds</h2>
     <div class="rows">
-      ${perf.slice(0,5).map(p => `<div>${chip(p.team)}<span class="nm">${p.name} <span class="sub">${p.pos} · ${short(p.team)}</span></span><span class="vl">${P1(p.pts)}</span></div>`).join('')}
+      ${perf.slice(0,5).map(p => `<div>${chip(p.team)}<span class="nm">${posPill(p)}${nflPill(p)}${p.name} <span class="sub">${short(p.team)}</span></span><span class="vl">${P1(p.pts)}</span></div>`).join('')}
       ${perf.filter(p => p.pos !== 'D/ST').slice(-2).map(d =>
-        `<div>${chip(d.team)}<span class="nm">${d.name} <span class="sub">${d.pos} · ${short(d.team)} · started</span></span><span class="vl dn">${P1(d.pts)}</span></div>`).join('')}
+        `<div>${chip(d.team)}<span class="nm">${posPill(d)}${nflPill(d)}${d.name} <span class="sub">${short(d.team)} · started</span></span><span class="vl dn">${P1(d.pts)}</span></div>`).join('')}
     </div>
 
     <h2>Start / Sit</h2>
@@ -222,7 +266,7 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
 
 <div class="foot">
   <span>League History · leaguehistory site · standings and odds computed from the league rulebook</span>
-  <span>${FAKE ? '<b>SAMPLE — player-level box scores are fabricated for layout review. Team scores are real.</b>' : `Week ${WEEK} box scores as recorded`}</span>
+  <span>${FABRICATED ? '<b>SAMPLE — player-level box scores are fabricated for layout review. Team scores are real.</b>' : `Week ${WEEK} box scores as recorded`}</span>
 </div>`;
 
 /* The season pages read this index to decide which weeks offer a download.
@@ -255,6 +299,7 @@ if (height > PAGE_PX) {
   console.warn(`WARNING: content is ${height}px against a ${Math.round(PAGE_PX)}px page — it will spill to a second sheet.`);
 }
 const published = writeNewsletterIndex(OUT_DIR);
-console.log(JSON.stringify({ pdf: pdfPath, week: WEEK, season: SEASON, fake: FAKE,
+console.log(JSON.stringify({ pdf: pdfPath, week: WEEK, season: SEASON, fake: FABRICATED,
+  boxSource: BOX_FILE ? 'flag' : FABRICATED ? 'fabricated' : 'imported',
   heightPx: height, onePage: height <= PAGE_PX, benchBlunders: blunders.length,
   published }, null, 2));
