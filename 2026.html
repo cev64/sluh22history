@@ -2692,6 +2692,194 @@
     .summary-card .summary-body p:last-child { margin-bottom: 0; }
     .summary-card .summary-body strong { color: var(--ink); }
 
+    /* Box score modal ------------------------------------------------ */
+
+    .bx-cue {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .bx-cue::after { content: "\203A"; font-size: 13px; line-height: 1; }
+
+    .game-card.bx-has { cursor: pointer; transition: border-color .15s ease, transform .15s ease; }
+    .game-card.bx-has:hover { border-color: var(--blue); transform: translateY(-1px); }
+    .game-card.bx-has:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    .bx-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(7, 24, 39, .55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+    }
+
+    .bx-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .bx-modal {
+      position: fixed;
+      z-index: 61;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -48%) scale(.98);
+      width: min(880px, calc(100vw - 32px));
+      max-height: min(88vh, 900px);
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: 0 30px 70px rgba(7, 24, 39, .35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      overflow: hidden;
+    }
+
+    .bx-modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+
+    .bx-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--navy);
+      color: #fff;
+      flex: 0 0 auto;
+    }
+
+    .bx-head h3 { margin: 0; font-size: 14px; letter-spacing: -.02em; }
+    .bx-head .bx-sub { display: block; font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.62); margin-top: 3px; }
+
+    .bx-close {
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .bx-close:hover { background: rgba(255,255,255,.22); }
+
+    .bx-cols { overflow-y: auto; flex: 1 1 auto; }
+
+    /* One row per lineup slot, the slot itself running down the middle with
+       each team's points tucked against it — the layout the league already
+       reads on their phones. The same grid serves every width, so there is
+       one thing to get right rather than a phone version and a desktop one. */
+    .bx-sb, .bx-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 52px 48px 52px minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .bx-sb {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 1;
+    }
+
+    .bx-sb .bx-name { font-weight: 900; font-size: 13.5px; }
+    .bx-sb .bx-p { padding: 0; }
+    .bx-sb .bx-p.bx-l { padding-right: 10px; }
+    .bx-sb .bx-p.bx-r { padding-left: 10px; }
+    .bx-total b { font-size: 18px; }
+    .bx-total.bx-won b { color: var(--green); }
+
+    .bx-row { padding: 0 14px; border-top: 1px solid rgba(220, 227, 235, .6); }
+
+    .bx-p {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      padding: 7px 0;
+    }
+
+    .bx-p.bx-r { justify-content: flex-end; }
+
+    .bx-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--ink);
+    }
+
+    .bx-nfl {
+      flex: 0 0 auto;
+      min-width: 28px;
+      text-align: center;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 8.5px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .bx-inj { flex: 0 0 auto; font-size: 9px; font-weight: 900; color: var(--red); }
+
+    .bx-sc { text-align: center; padding: 5px 0; }
+    .bx-sc b { display: block; font-size: 12.5px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .bx-sc small { display: block; font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 1px; }
+
+    /* Stretching the centre cell is what makes the slot column read as one
+       continuous strip instead of a stack of separate chips. */
+    .bx-slot {
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-2);
+      font-size: 9.5px;
+      font-weight: 900;
+      letter-spacing: .03em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .bx-grouphead { background: var(--page); border-top: 1px solid var(--line); }
+    .bx-grouphead .bx-slot { background: var(--page); }
+    .bx-glabel { font-size: 9px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .bx-grouphead .bx-p { padding: 5px 0; }
+
+    .bx-foot {
+      flex: 0 0 auto;
+      padding: 9px 14px;
+      border-top: 1px solid var(--line);
+      background: var(--surface-2);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 760px) {
+      .bx-modal { width: calc(100vw - 14px); max-height: 92vh; }
+      .bx-head { padding: 10px 12px; }
+      .bx-head h3 { font-size: 12.5px; }
+      .bx-sb, .bx-row { grid-template-columns: minmax(0, 1fr) 42px 40px 42px minmax(0, 1fr); }
+      .bx-sb, .bx-row { padding-left: 8px; padding-right: 8px; }
+      .bx-name { font-size: 11.5px; }
+      .bx-sb .bx-name { font-size: 12px; }
+      .bx-nfl { min-width: 24px; font-size: 7.5px; padding: 1.5px 3px; }
+      .bx-sc b { font-size: 11.5px; }
+      .bx-total b { font-size: 15px; }
+      .bx-p { gap: 4px; }
+    }
+
     /* Weekly newsletter download ------------------------------------ */
 
     .nl-card { margin-bottom: 14px; }
@@ -3335,6 +3523,18 @@
     <section id="panel-sos" class="live-panel" role="tabpanel"></section>
   </main>
 
+  <div class="bx-backdrop" id="bxBackdrop"></div>
+  <div class="bx-modal" id="bxModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="bxTitle">
+    <div class="bx-head">
+      <div>
+        <h3 id="bxTitle">Box score</h3>
+        <span class="bx-sub" id="bxSub"></span>
+      </div>
+      <button type="button" class="bx-close" id="bxClose" aria-label="Close box score">&times;</button>
+    </div>
+    <div class="bx-cols" id="bxCols"></div>
+    <div class="bx-foot" id="bxFoot"></div>
+  </div>
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
   <aside class="team-drawer" id="teamDrawer" aria-hidden="true" aria-label="Team schedule">
     <div class="drawer-hero" id="drawerHero">
@@ -3458,6 +3658,29 @@
        ================================================================= */
 
     const TEAM_IDS = Object.keys(teams);
+
+    /* Primary club colours, with the ink that stays legible on each. */
+    const NFL_TEAMS = {
+      ARI: "#97233F", ATL: "#A71930", BAL: "#241773", BUF: "#00338D",
+      CAR: "#0085CA", CHI: "#0B162A", CIN: "#FB4F14", CLE: "#311D00",
+      DAL: "#041E42", DEN: "#FB4F14", DET: "#0076B6", GB:  "#203731",
+      HOU: "#03202F", IND: "#002C5F", JAX: "#101820", KC:  "#E31837",
+      LAC: "#0080C6", LAR: "#003594", LV:  "#111111", MIA: "#008E97",
+      MIN: "#4F2683", NE:  "#002244", NO:  "#A08A5B", NYG: "#0B2265",
+      NYJ: "#125740", PHI: "#004C54", PIT: "#FFB612", SEA: "#002244",
+      SF:  "#AA0000", TB:  "#D50A0A", TEN: "#0C2340", WSH: "#5A1414",
+      FA:  "#8A94A1"
+    };
+
+
+    /* Pittsburgh's yellow needs black text where Philadelphia's green needs
+       white, so the ink is derived from the colour rather than assumed. */
+    function readableInk(hex) {
+      const n = parseInt(hex.slice(1), 16);
+      const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+      return lum > 0.62 ? "#0b1726" : "#ffffff";
+    }
+
     const DIVISION_NAMES = Object.keys(divisionOrder);
 
     const playedWeeks = Object.keys(results)
@@ -4615,6 +4838,7 @@
             </article>
           </div>
           <div class="source-note">Scores audited from the league's Week ${week} results screenshot.</div>`;
+        markBoxScores(week);
         return;
       }
 
@@ -4838,6 +5062,200 @@
     /* =================================================================
        WEEKLY SUMMARY PANEL
        ================================================================= */
+
+    /* =================================================================
+       BOX SCORES
+
+       Player-level lineups for a week, read from boxscores/<season>/ and
+       fetched only when someone opens a matchup — the files are far larger
+       than the page and most visits never need them.
+
+       Two things about the source data are worth knowing. The league export
+       ships a `position` field that is shifted by one (every tight end reads
+       as "WR"); tools/boxscores/import.mjs corrects it on the way in and
+       fails the import if a starter's position ever disagrees with the slot
+       it started in, so `pos` here can be trusted. And the NFL badge is the
+       club's abbreviation in the club's colour rather than its logo, which
+       keeps a trademarked image off the page and costs no external request.
+       ================================================================= */
+
+    const BOX_SEASON = 2026;
+
+
+    let boxIndexPromise = null;
+    const boxWeekCache = {};
+
+    function boxWeeks() {
+      if (!boxIndexPromise) {
+        boxIndexPromise = fetch(`boxscores/${BOX_SEASON}/index.json`)
+          .then((res) => (res.ok ? res.json() : []))
+          .then((list) => new Set(list))
+          .catch(() => new Set());
+      }
+      return boxIndexPromise;
+    }
+
+    function boxWeek(week) {
+      if (!boxWeekCache[week]) {
+        boxWeekCache[week] = fetch(`boxscores/${BOX_SEASON}/week-${week}.json`)
+          .then((res) => (res.ok ? res.json() : null))
+          .catch(() => null);
+      }
+      return boxWeekCache[week];
+    }
+
+    /* Turn this week's game cards into buttons, but only once the index says
+       the week actually has lineups. A card that cannot open anything must
+       not look like it can. */
+    function markBoxScores(week) {
+      const panel = document.getElementById("panel-results");
+      if (!panel) return;
+      boxWeeks().then((weeks) => {
+        if (!weeks.has(week) || state.week !== week) return;
+        panel.querySelectorAll(".game-card").forEach((card) => {
+          if (card.classList.contains("bx-has")) return;
+          const ids = [...card.querySelectorAll("[data-team]")].map((el) => el.dataset.team);
+          if (ids.length !== 2) return;
+          card.classList.add("bx-has");
+          card.dataset.bxA = ids[0];
+          card.dataset.bxB = ids[1];
+          card.tabIndex = 0;
+          card.setAttribute("role", "button");
+          card.setAttribute("aria-label", `Box score: ${teams[ids[0]].name} versus ${teams[ids[1]].name}`);
+          const head = card.querySelector(".game-card-head");
+          if (head) head.insertAdjacentHTML("beforeend", `<span class="bx-cue">Box score</span>`);
+        });
+      });
+    }
+
+    /* ESPN abbreviates the first name; at phone widths it is the difference
+       between reading the row and eliding it. Defences carry no first name. */
+    function bxShortName(name) {
+      const parts = name.split(" ");
+      if (parts.length < 2 || /D\/ST$/.test(name)) return name;
+      return `${parts[0].charAt(0)}. ${parts.slice(1).join(" ")}`;
+    }
+
+    function bxClub(abbr) {
+      const c = NFL_TEAMS[abbr] || NFL_TEAMS.FA;
+      return `<span class="bx-nfl" style="background:${c};color:${readableInk(c)}">${abbr || "FA"}</span>`;
+    }
+
+    function bxPlayer(player, side) {
+      if (!player) return `<div class="bx-p bx-${side}"></div>`;
+      return `<div class="bx-p bx-${side}">
+        <span class="bx-name">${bxShortName(player.name)}</span>
+        ${bxClub(player.nfl)}
+        ${player.injury ? `<span class="bx-inj" title="${player.injury}">${player.injury.charAt(0)}</span>` : ""}
+      </div>`;
+    }
+
+    function bxScore(player) {
+      if (!player) return `<div class="bx-sc"></div>`;
+      return `<div class="bx-sc"><b>${fmt(player.pts)}</b><small>${fmt(player.proj)}</small></div>`;
+    }
+
+    /* Both teams field the same nine slots in the same order, so pairing by
+       index lines the row up with its slot. The bench does not pair that
+       neatly — one side can carry more — so a missing player leaves an empty
+       cell rather than shifting the other team's row out of line. */
+    function bxGroup(label, left, right) {
+      const rows = Math.max(left.length, right.length);
+      if (!rows) return "";
+      let out = `<div class="bx-row bx-grouphead">
+        <div class="bx-p"><span class="bx-glabel">${label}</span></div>
+        <div class="bx-sc"></div><div class="bx-slot"></div><div class="bx-sc"></div>
+        <div class="bx-p"></div>
+      </div>`;
+      for (let i = 0; i < rows; i++) {
+        const l = left[i] || null, r = right[i] || null;
+        const slot = (l || r).slot;
+        out += `<div class="bx-row">
+          ${bxPlayer(l, "l")}
+          ${bxScore(l)}
+          <div class="bx-slot">${slot}</div>
+          ${bxScore(r)}
+          ${bxPlayer(r, "r")}
+        </div>`;
+      }
+      return out;
+    }
+
+    const bxModal = document.getElementById("bxModal");
+    const bxBackdrop = document.getElementById("bxBackdrop");
+
+    function closeBox() {
+      if (!bxModal) return;
+      bxModal.classList.remove("open");
+      bxBackdrop.classList.remove("open");
+      bxModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function openBox(week, idA, idB) {
+      if (!bxModal) return;
+      boxWeek(week).then((data) => {
+        if (!data) return;
+        const game = data.games.find((g) =>
+          (g.home === idA && g.away === idB) || (g.home === idB && g.away === idA));
+        if (!game) return;
+
+        const scoreOf = (id) => (game.home === id ? game.homeScore : game.awayScore);
+        // Columns follow the order of the card that was clicked, so the modal
+        // reads the same way round as the thing the reader just pressed.
+        const a = { id: idA, score: scoreOf(idA) };
+        const b = { id: idB, score: scoreOf(idB) };
+
+        document.getElementById("bxTitle").textContent =
+          `${teams[idA].name} ${fmt(a.score)} — ${fmt(b.score)} ${teams[idB].name}`;
+        document.getElementById("bxSub").textContent = `${BOX_SEASON} · Week ${week}`;
+
+        const lu = (id, test) => (game.lineups[id] || []).filter(test);
+        const starters = (p) => p.starter;
+        const benched = (p) => !p.starter && p.slot === "BE";
+        const reserve = (p) => p.slot === "IR";
+
+        document.getElementById("bxCols").innerHTML = `
+          <div class="bx-sb">
+            <div class="bx-p bx-l">${miniTeam(a.id)}<span class="bx-name">${teams[a.id].name}</span></div>
+            <div class="bx-sc bx-total${a.score > b.score ? " bx-won" : ""}"><b>${fmt(a.score)}</b></div>
+            <div class="bx-slot"></div>
+            <div class="bx-sc bx-total${b.score > a.score ? " bx-won" : ""}"><b>${fmt(b.score)}</b></div>
+            <div class="bx-p bx-r"><span class="bx-name">${teams[b.id].name}</span>${miniTeam(b.id)}</div>
+          </div>
+          ${bxGroup("Starters", lu(a.id, starters), lu(b.id, starters))}
+          ${bxGroup("Bench", lu(a.id, benched), lu(b.id, benched))}
+          ${bxGroup("Injured reserve", lu(a.id, reserve), lu(b.id, reserve))}`;
+
+        document.getElementById("bxFoot").textContent =
+          "Projected points sit under each score. The badge is the player's NFL club.";
+
+        document.getElementById("bxCols").scrollTop = 0;
+
+        bxModal.classList.add("open");
+        bxBackdrop.classList.add("open");
+        bxModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        document.getElementById("bxClose").focus();
+      });
+    }
+
+    if (bxModal) {
+      document.addEventListener("click", (event) => {
+        if (event.target.closest("#bxClose") || event.target.closest("#bxBackdrop")) { closeBox(); return; }
+        // The team buttons inside a card open the team drawer; leave them alone.
+        if (event.target.closest("[data-team]")) return;
+        const card = event.target.closest(".game-card.bx-has");
+        if (card) openBox(state.week, card.dataset.bxA, card.dataset.bxB);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && bxModal.classList.contains("open")) { closeBox(); return; }
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const card = event.target.closest && event.target.closest(".game-card.bx-has");
+        if (card) { event.preventDefault(); openBox(state.week, card.dataset.bxA, card.dataset.bxB); }
+      });
+    }
 
     /* =================================================================
        WEEKLY NEWSLETTER

@@ -17,12 +17,20 @@ node tools/newsletter/build.mjs --season 2025 --week 7 --fake
 |---|---|
 | `--season` | Season page to read. Needs the week-by-week engine, so 2025 or later. |
 | `--week` | Week number. Must already have results posted on the page. |
-| `--box` | JSON of real box scores (see shape below). |
+| `--box` | JSON of real box scores (see shape below). Overrides the imported file. |
 | `--fake` | Fabricate player lines instead. Stamps the PDF as a SAMPLE. |
 | `--out` | Output directory. Defaults to the working directory. |
 
-One of `--box` or `--fake` is required, so a fabricated lineup can never be
-mistaken for a real one.
+Box scores come from `boxscores/<season>/week-<n>.json` automatically when that
+week has been imported (see `boxscores/README.md`), and the sheet then reports
+its lines as recorded. Where a week has not been imported, one of `--box` or
+`--fake` is required, so a fabricated lineup can never be mistaken for a real
+one. Explicit flags win over the imported file: `--box` reads somewhere else,
+`--fake` deliberately fabricates.
+
+The printed JSON reports `boxSource` (`imported`, `flag` or `fabricated`) and
+`fake`, which now follows what was actually used rather than what was asked
+for.
 
 ### Box score shape
 
@@ -67,6 +75,6 @@ The service worker serves same-origin files cache-first and refreshes them in
 the background, so a reader who already has the site installed may not see a
 brand-new week's button until their next visit.
 
-Only commit newsletters built with `--box`. `--fake` fabricates player lines
-and stamps the sheet SAMPLE — fine for checking layout, not for the league to
-read.
+Only commit newsletters whose `fake` comes back `false` — that is, built from
+imported box scores or `--box`. `--fake` fabricates player lines and stamps the
+sheet SAMPLE, which is fine for checking layout and not for the league to read.

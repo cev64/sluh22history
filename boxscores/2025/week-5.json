@@ -1,0 +1,1636 @@
+{
+ "season": 2025,
+ "week": 5,
+ "games": [
+  {
+   "home": "kareem",
+   "away": "roll",
+   "homeScore": 129.74,
+   "awayScore": 164.82,
+   "lineups": {
+    "kareem": [
+     {
+      "name": "Justin Herbert",
+      "pos": "QB",
+      "nfl": "LAC",
+      "slot": "QB",
+      "pts": 14.64,
+      "proj": 20.82,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Jonathan Taylor",
+      "pos": "RB",
+      "nfl": "IND",
+      "slot": "RB",
+      "pts": 31.6,
+      "proj": 22.57,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Derrick Henry",
+      "pos": "RB",
+      "nfl": "BAL",
+      "slot": "RB",
+      "pts": 9.3,
+      "proj": 15.14,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Puka Nacua",
+      "pos": "WR",
+      "nfl": "LAR",
+      "slot": "WR",
+      "pts": 24.5,
+      "proj": 21.18,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Xavier Worthy",
+      "pos": "WR",
+      "nfl": "KC",
+      "slot": "WR",
+      "pts": 11.1,
+      "proj": 15.04,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "T.J. Hockenson",
+      "pos": "TE",
+      "nfl": "MIN",
+      "slot": "TE",
+      "pts": 9.8,
+      "proj": 9.06,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Tee Higgins",
+      "pos": "WR",
+      "nfl": "CIN",
+      "slot": "FLEX",
+      "pts": 11.2,
+      "proj": 12.79,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Chris Godwin Jr.",
+      "pos": "WR",
+      "nfl": "TB",
+      "slot": "FLEX",
+      "pts": 5.6,
+      "proj": 13.22,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Texans D/ST",
+      "pos": "DST",
+      "nfl": "HOU",
+      "slot": "D/ST",
+      "pts": 12,
+      "proj": 5.54,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Baker Mayfield",
+      "pos": "QB",
+      "nfl": "TB",
+      "slot": "BE",
+      "pts": 26.66,
+      "proj": 15.68,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Kyler Murray",
+      "pos": "QB",
+      "nfl": "ARI",
+      "slot": "BE",
+      "pts": 15.3,
+      "proj": 19.27,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Jordan Addison",
+      "pos": "WR",
+      "nfl": "MIN",
+      "slot": "BE",
+      "pts": 15.1,
+      "proj": 10.82,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Mark Andrews",
+      "pos": "TE",
+      "nfl": "BAL",
+      "slot": "BE",
+      "pts": 4.2,
+      "proj": 8.92,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Brock Purdy",
+      "pos": "QB",
+      "nfl": "SF",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "James Conner",
+      "pos": "RB",
+      "nfl": "ARI",
+      "slot": "IR",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     }
+    ],
+    "roll": [
+     {
+      "name": "Patrick Mahomes",
+      "pos": "QB",
+      "nfl": "KC",
+      "slot": "QB",
+      "pts": 26.72,
+      "proj": 17.66,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Breece Hall",
+      "pos": "RB",
+      "nfl": "NYJ",
+      "slot": "RB",
+      "pts": 17.5,
+      "proj": 18.1,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Nick Chubb",
+      "pos": "RB",
+      "nfl": "HOU",
+      "slot": "RB",
+      "pts": 12.1,
+      "proj": 10.09,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Ja'Marr Chase",
+      "pos": "WR",
+      "nfl": "CIN",
+      "slot": "WR",
+      "pts": 29,
+      "proj": 16.06,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Nico Collins",
+      "pos": "WR",
+      "nfl": "HOU",
+      "slot": "WR",
+      "pts": 16,
+      "proj": 17.49,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Travis Kelce",
+      "pos": "TE",
+      "nfl": "KC",
+      "slot": "TE",
+      "pts": 19.1,
+      "proj": 9.2,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Deebo Samuel",
+      "pos": "WR",
+      "nfl": "WSH",
+      "slot": "FLEX",
+      "pts": 23.6,
+      "proj": 14.47,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Marvin Harrison Jr.",
+      "pos": "WR",
+      "nfl": "ARI",
+      "slot": "FLEX",
+      "pts": 13.8,
+      "proj": 12.85,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Browns D/ST",
+      "pos": "DST",
+      "nfl": "CLE",
+      "slot": "D/ST",
+      "pts": 7,
+      "proj": 7.38,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Jacory Croskey-Merritt",
+      "pos": "RB",
+      "nfl": "WSH",
+      "slot": "BE",
+      "pts": 27,
+      "proj": 7.77,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Dallas Goedert",
+      "pos": "TE",
+      "nfl": "PHI",
+      "slot": "BE",
+      "pts": 10.9,
+      "proj": 8.34,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Steelers D/ST",
+      "pos": "DST",
+      "nfl": "PIT",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Matthew Golden",
+      "pos": "WR",
+      "nfl": "GB",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Tucker Kraft",
+      "pos": "TE",
+      "nfl": "GB",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Ollie Gordon II",
+      "pos": "RB",
+      "nfl": "MIA",
+      "slot": "BE",
+      "pts": -0.2,
+      "proj": 5.9,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Chuba Hubbard",
+      "pos": "RB",
+      "nfl": "CAR",
+      "slot": "IR",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     }
+    ]
+   }
+  },
+  {
+   "home": "hawaii",
+   "away": "game",
+   "homeScore": 162.88,
+   "awayScore": 133.2,
+   "lineups": {
+    "hawaii": [
+     {
+      "name": "Dak Prescott",
+      "pos": "QB",
+      "nfl": "DAL",
+      "slot": "QB",
+      "pts": 28.28,
+      "proj": 16.84,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Rico Dowdle",
+      "pos": "RB",
+      "nfl": "CAR",
+      "slot": "RB",
+      "pts": 32.4,
+      "proj": 14.54,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Jordan Mason",
+      "pos": "RB",
+      "nfl": "MIN",
+      "slot": "RB",
+      "pts": 12.6,
+      "proj": 13.12,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Jaxon Smith-Njigba",
+      "pos": "WR",
+      "nfl": "SEA",
+      "slot": "WR",
+      "pts": 27.2,
+      "proj": 15.89,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Ladd McConkey",
+      "pos": "WR",
+      "nfl": "LAC",
+      "slot": "WR",
+      "pts": 14.9,
+      "proj": 12.84,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Juwan Johnson",
+      "pos": "TE",
+      "nfl": "NO",
+      "slot": "TE",
+      "pts": 3.7,
+      "proj": 7.86,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Stefon Diggs",
+      "pos": "WR",
+      "nfl": "NE",
+      "slot": "FLEX",
+      "pts": 24.6,
+      "proj": 12.87,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Zay Flowers",
+      "pos": "WR",
+      "nfl": "BAL",
+      "slot": "FLEX",
+      "pts": 12.2,
+      "proj": 13.05,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Broncos D/ST",
+      "pos": "DST",
+      "nfl": "DEN",
+      "slot": "D/ST",
+      "pts": 7,
+      "proj": 5.53,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Daniel Jones",
+      "pos": "QB",
+      "nfl": "IND",
+      "slot": "BE",
+      "pts": 16.68,
+      "proj": 18.26,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Isiah Pacheco",
+      "pos": "RB",
+      "nfl": "KC",
+      "slot": "BE",
+      "pts": 8.6,
+      "proj": 7.74,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "RJ Harvey",
+      "pos": "RB",
+      "nfl": "DEN",
+      "slot": "BE",
+      "pts": 6,
+      "proj": 8.28,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Josh Jacobs",
+      "pos": "RB",
+      "nfl": "GB",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "George Kittle",
+      "pos": "TE",
+      "nfl": "SF",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "CeeDee Lamb",
+      "pos": "WR",
+      "nfl": "DAL",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Malik Nabers",
+      "pos": "WR",
+      "nfl": "NYG",
+      "slot": "IR",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     }
+    ],
+    "game": [
+     {
+      "name": "Jalen Hurts",
+      "pos": "QB",
+      "nfl": "PHI",
+      "slot": "QB",
+      "pts": 19.5,
+      "proj": 19.33,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Christian McCaffrey",
+      "pos": "RB",
+      "nfl": "SF",
+      "slot": "RB",
+      "pts": 27.9,
+      "proj": 22.17,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "James Cook III",
+      "pos": "RB",
+      "nfl": "BUF",
+      "slot": "RB",
+      "pts": 4.9,
+      "proj": 18.42,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Davante Adams",
+      "pos": "WR",
+      "nfl": "LAR",
+      "slot": "WR",
+      "pts": 13.8,
+      "proj": 15.67,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Jakobi Meyers",
+      "pos": "WR",
+      "nfl": "JAX",
+      "slot": "WR",
+      "pts": 7.2,
+      "proj": 13.95,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Jake Ferguson",
+      "pos": "TE",
+      "nfl": "DAL",
+      "slot": "TE",
+      "pts": 23.9,
+      "proj": 11.99,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Rachaad White",
+      "pos": "RB",
+      "nfl": "TB",
+      "slot": "FLEX",
+      "pts": 23.1,
+      "proj": 13.73,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Chris Olave",
+      "pos": "WR",
+      "nfl": "NO",
+      "slot": "FLEX",
+      "pts": 12.9,
+      "proj": 12.79,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Giants D/ST",
+      "pos": "DST",
+      "nfl": "NYG",
+      "slot": "D/ST",
+      "pts": 0,
+      "proj": 6.23,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Khalil Shakir",
+      "pos": "WR",
+      "nfl": "BUF",
+      "slot": "BE",
+      "pts": 11,
+      "proj": 10.21,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Elic Ayomanor",
+      "pos": "WR",
+      "nfl": "TEN",
+      "slot": "BE",
+      "pts": 3.8,
+      "proj": 10.41,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Blake Corum",
+      "pos": "RB",
+      "nfl": "LAR",
+      "slot": "BE",
+      "pts": 1.3,
+      "proj": 5.96,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Brian Robinson Jr.",
+      "pos": "RB",
+      "nfl": "SF",
+      "slot": "BE",
+      "pts": 1.2,
+      "proj": 3.79,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Bucky Irving",
+      "pos": "RB",
+      "nfl": "TB",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Ricky Pearsall",
+      "pos": "WR",
+      "nfl": "SF",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Mike Evans",
+      "pos": "WR",
+      "nfl": "TB",
+      "slot": "IR",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     }
+    ]
+   }
+  },
+  {
+   "home": "first",
+   "away": "left",
+   "homeScore": 111.04,
+   "awayScore": 138.12,
+   "lineups": {
+    "first": [
+     {
+      "name": "Jayden Daniels",
+      "pos": "QB",
+      "nfl": "WSH",
+      "slot": "QB",
+      "pts": 17.14,
+      "proj": 18.95,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "De'Von Achane",
+      "pos": "RB",
+      "nfl": "MIA",
+      "slot": "RB",
+      "pts": 16.6,
+      "proj": 19.63,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Ashton Jeanty",
+      "pos": "RB",
+      "nfl": "LV",
+      "slot": "RB",
+      "pts": 15.9,
+      "proj": 14.97,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Brian Thomas Jr.",
+      "pos": "WR",
+      "nfl": "JAX",
+      "slot": "WR",
+      "pts": 12,
+      "proj": 13.02,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "A.J. Brown",
+      "pos": "WR",
+      "nfl": "PHI",
+      "slot": "WR",
+      "pts": 9.3,
+      "proj": 13.68,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Dalton Kincaid",
+      "pos": "TE",
+      "nfl": "BUF",
+      "slot": "TE",
+      "pts": 16.8,
+      "proj": 7.96,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Courtland Sutton",
+      "pos": "WR",
+      "nfl": "DEN",
+      "slot": "FLEX",
+      "pts": 17.9,
+      "proj": 12.9,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Woody Marks",
+      "pos": "RB",
+      "nfl": "HOU",
+      "slot": "FLEX",
+      "pts": 2.4,
+      "proj": 12.05,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Vikings D/ST",
+      "pos": "DST",
+      "nfl": "MIN",
+      "slot": "D/ST",
+      "pts": 3,
+      "proj": 7.62,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "David Njoku",
+      "pos": "TE",
+      "nfl": "CLE",
+      "slot": "BE",
+      "pts": 18.7,
+      "proj": 8.11,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Josh Downs",
+      "pos": "WR",
+      "nfl": "IND",
+      "slot": "BE",
+      "pts": 11.4,
+      "proj": 8.75,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Troy Franklin",
+      "pos": "WR",
+      "nfl": "DEN",
+      "slot": "BE",
+      "pts": 8.5,
+      "proj": 10.66,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Rashee Rice",
+      "pos": "WR",
+      "nfl": "KC",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Caleb Williams",
+      "pos": "QB",
+      "nfl": "CHI",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Romeo Doubs",
+      "pos": "WR",
+      "nfl": "GB",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     }
+    ],
+    "left": [
+     {
+      "name": "Jared Goff",
+      "pos": "QB",
+      "nfl": "DET",
+      "slot": "QB",
+      "pts": 20.12,
+      "proj": 16.7,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Kyren Williams",
+      "pos": "RB",
+      "nfl": "LAR",
+      "slot": "RB",
+      "pts": 31.1,
+      "proj": 15.84,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Cam Skattebo",
+      "pos": "RB",
+      "nfl": "NYG",
+      "slot": "RB",
+      "pts": 14.4,
+      "proj": 17.08,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Amon-Ra St. Brown",
+      "pos": "WR",
+      "nfl": "DET",
+      "slot": "WR",
+      "pts": 18,
+      "proj": 17.75,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "George Pickens",
+      "pos": "WR",
+      "nfl": "DAL",
+      "slot": "WR",
+      "pts": 13.7,
+      "proj": 16.48,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Trey McBride",
+      "pos": "TE",
+      "nfl": "ARI",
+      "slot": "TE",
+      "pts": 9.1,
+      "proj": 15.46,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Michael Pittman Jr.",
+      "pos": "WR",
+      "nfl": "IND",
+      "slot": "FLEX",
+      "pts": 14.9,
+      "proj": 13.2,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Keenan Allen",
+      "pos": "WR",
+      "nfl": "LAC",
+      "slot": "FLEX",
+      "pts": 10.8,
+      "proj": 14.6,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Bills D/ST",
+      "pos": "DST",
+      "nfl": "BUF",
+      "slot": "D/ST",
+      "pts": 6,
+      "proj": 5.83,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Matthew Stafford",
+      "pos": "QB",
+      "nfl": "LAR",
+      "slot": "BE",
+      "pts": 25.56,
+      "proj": 15.86,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "DeVonta Smith",
+      "pos": "WR",
+      "nfl": "PHI",
+      "slot": "BE",
+      "pts": 19.4,
+      "proj": 10.61,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Chase Brown",
+      "pos": "RB",
+      "nfl": "CIN",
+      "slot": "BE",
+      "pts": 11.8,
+      "proj": 13.91,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Travis Hunter",
+      "pos": "WR",
+      "nfl": "JAX",
+      "slot": "BE",
+      "pts": 9.4,
+      "proj": 8.87,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Kendre Miller",
+      "pos": "RB",
+      "nfl": "NO",
+      "slot": "BE",
+      "pts": 5.9,
+      "proj": 5.56,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Kyle Pitts Sr.",
+      "pos": "TE",
+      "nfl": "ATL",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Joe Burrow",
+      "pos": "QB",
+      "nfl": "CIN",
+      "slot": "IR",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     }
+    ]
+   }
+  },
+  {
+   "home": "laporta",
+   "away": "jared",
+   "homeScore": 155.22,
+   "awayScore": 108.48,
+   "lineups": {
+    "laporta": [
+     {
+      "name": "Justin Fields",
+      "pos": "QB",
+      "nfl": "NYJ",
+      "slot": "QB",
+      "pts": 25.92,
+      "proj": 21.74,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Quinshon Judkins",
+      "pos": "RB",
+      "nfl": "CLE",
+      "slot": "RB",
+      "pts": 13.8,
+      "proj": 14.58,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Omarion Hampton",
+      "pos": "RB",
+      "nfl": "LAC",
+      "slot": "RB",
+      "pts": 13,
+      "proj": 18.62,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Justin Jefferson",
+      "pos": "WR",
+      "nfl": "MIN",
+      "slot": "WR",
+      "pts": 19.3,
+      "proj": 16.28,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Quentin Johnston",
+      "pos": "WR",
+      "nfl": "LAC",
+      "slot": "WR",
+      "pts": 6.9,
+      "proj": 17.48,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Sam LaPorta",
+      "pos": "TE",
+      "nfl": "DET",
+      "slot": "TE",
+      "pts": 20.2,
+      "proj": 10.09,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Emeka Egbuka",
+      "pos": "WR",
+      "nfl": "TB",
+      "slot": "FLEX",
+      "pts": 31.3,
+      "proj": 14.23,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Travis Etienne Jr.",
+      "pos": "RB",
+      "nfl": "JAX",
+      "slot": "FLEX",
+      "pts": 8.8,
+      "proj": 13.91,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Colts D/ST",
+      "pos": "DST",
+      "nfl": "IND",
+      "slot": "D/ST",
+      "pts": 16,
+      "proj": 6.13,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Darren Waller",
+      "pos": "TE",
+      "nfl": "MIA",
+      "slot": "BE",
+      "pts": 18.8,
+      "proj": 7.93,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Calvin Ridley",
+      "pos": "WR",
+      "nfl": "TEN",
+      "slot": "BE",
+      "pts": 18.1,
+      "proj": 10.61,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Drake Maye",
+      "pos": "QB",
+      "nfl": "NE",
+      "slot": "BE",
+      "pts": 12.12,
+      "proj": 18.73,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Emari Demercado",
+      "pos": "RB",
+      "nfl": "ARI",
+      "slot": "BE",
+      "pts": 6.1,
+      "proj": 11.2,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Jameson Williams",
+      "pos": "WR",
+      "nfl": "DET",
+      "slot": "BE",
+      "pts": 2,
+      "proj": 11.84,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "D'Andre Swift",
+      "pos": "RB",
+      "nfl": "CHI",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Terry McLaurin",
+      "pos": "WR",
+      "nfl": "WSH",
+      "slot": "IR",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     }
+    ],
+    "jared": [
+     {
+      "name": "Bo Nix",
+      "pos": "QB",
+      "nfl": "DEN",
+      "slot": "QB",
+      "pts": 17.88,
+      "proj": 16.09,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Saquon Barkley",
+      "pos": "RB",
+      "nfl": "PHI",
+      "slot": "RB",
+      "pts": 17.8,
+      "proj": 17.95,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "J.K. Dobbins",
+      "pos": "RB",
+      "nfl": "DEN",
+      "slot": "RB",
+      "pts": 15.4,
+      "proj": 12.17,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Tetairoa McMillan",
+      "pos": "WR",
+      "nfl": "CAR",
+      "slot": "WR",
+      "pts": 13.3,
+      "proj": 14.21,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Wan'Dale Robinson",
+      "pos": "WR",
+      "nfl": "NYG",
+      "slot": "WR",
+      "pts": 8.2,
+      "proj": 10.65,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Brenton Strange",
+      "pos": "TE",
+      "nfl": "JAX",
+      "slot": "TE",
+      "pts": 3.2,
+      "proj": 8.96,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Tony Pollard",
+      "pos": "RB",
+      "nfl": "TEN",
+      "slot": "FLEX",
+      "pts": 14.8,
+      "proj": 11.99,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Cooper Kupp",
+      "pos": "WR",
+      "nfl": "SEA",
+      "slot": "FLEX",
+      "pts": 11.9,
+      "proj": 10.53,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Cardinals D/ST",
+      "pos": "DST",
+      "nfl": "ARI",
+      "slot": "D/ST",
+      "pts": 6,
+      "proj": 6.3,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Brock Bowers",
+      "pos": "TE",
+      "nfl": "LV",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "DK Metcalf",
+      "pos": "WR",
+      "nfl": "PIT",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Jauan Jennings",
+      "pos": "WR",
+      "nfl": "SF",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Jordan Love",
+      "pos": "QB",
+      "nfl": "GB",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "DJ Moore",
+      "pos": "WR",
+      "nfl": "CHI",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Kenneth Gainwell",
+      "pos": "RB",
+      "nfl": "PIT",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Aaron Jones Sr.",
+      "pos": "RB",
+      "nfl": "MIN",
+      "slot": "IR",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     }
+    ]
+   }
+  },
+  {
+   "home": "hamilton",
+   "away": "infinity",
+   "homeScore": 105.52,
+   "awayScore": 130.7,
+   "lineups": {
+    "hamilton": [
+     {
+      "name": "Josh Allen",
+      "pos": "QB",
+      "nfl": "BUF",
+      "slot": "QB",
+      "pts": 19.42,
+      "proj": 22.29,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Rhamondre Stevenson",
+      "pos": "RB",
+      "nfl": "NE",
+      "slot": "RB",
+      "pts": 14.7,
+      "proj": 10.11,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Alvin Kamara",
+      "pos": "RB",
+      "nfl": "NO",
+      "slot": "RB",
+      "pts": 9.5,
+      "proj": 16.1,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Tre Tucker",
+      "pos": "WR",
+      "nfl": "LV",
+      "slot": "WR",
+      "pts": 11.1,
+      "proj": 10.47,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Darius Slayton",
+      "pos": "WR",
+      "nfl": "NYG",
+      "slot": "WR",
+      "pts": 4.1,
+      "proj": 9.19,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Tyler Warren",
+      "pos": "TE",
+      "nfl": "IND",
+      "slot": "TE",
+      "pts": 14.4,
+      "proj": 11.23,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Michael Carter",
+      "pos": "RB",
+      "nfl": "ARI",
+      "slot": "FLEX",
+      "pts": 18.3,
+      "proj": 10.67,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Malik Washington",
+      "pos": "WR",
+      "nfl": "MIA",
+      "slot": "FLEX",
+      "pts": 4,
+      "proj": 8.98,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Lions D/ST",
+      "pos": "DST",
+      "nfl": "DET",
+      "slot": "D/ST",
+      "pts": 10,
+      "proj": 7.18,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Tyjae Spears",
+      "pos": "RB",
+      "nfl": "TEN",
+      "slot": "BE",
+      "pts": 1.4,
+      "proj": 5.39,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Drake London",
+      "pos": "WR",
+      "nfl": "ATL",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Bijan Robinson",
+      "pos": "RB",
+      "nfl": "ATL",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Rome Odunze",
+      "pos": "WR",
+      "nfl": "CHI",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Jaylen Warren",
+      "pos": "RB",
+      "nfl": "PIT",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Jalen Coker",
+      "pos": "WR",
+      "nfl": "CAR",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Tyrone Tracy Jr.",
+      "pos": "RB",
+      "nfl": "NYG",
+      "slot": "IR",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     }
+    ],
+    "infinity": [
+     {
+      "name": "Jaxson Dart",
+      "pos": "QB",
+      "nfl": "NYG",
+      "slot": "QB",
+      "pts": 15.58,
+      "proj": 16.18,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Javonte Williams",
+      "pos": "RB",
+      "nfl": "DAL",
+      "slot": "RB",
+      "pts": 26.9,
+      "proj": 16.65,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Jahmyr Gibbs",
+      "pos": "RB",
+      "nfl": "DET",
+      "slot": "RB",
+      "pts": 16.7,
+      "proj": 22.07,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Jaylen Waddle",
+      "pos": "WR",
+      "nfl": "MIA",
+      "slot": "WR",
+      "pts": 23,
+      "proj": 13.71,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Garrett Wilson",
+      "pos": "WR",
+      "nfl": "NYJ",
+      "slot": "WR",
+      "pts": 19.1,
+      "proj": 15.96,
+      "starter": true,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Hunter Henry",
+      "pos": "TE",
+      "nfl": "NE",
+      "slot": "TE",
+      "pts": 6.6,
+      "proj": 11.12,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "David Montgomery",
+      "pos": "RB",
+      "nfl": "HOU",
+      "slot": "FLEX",
+      "pts": 18.22,
+      "proj": 12.85,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Kenneth Walker III",
+      "pos": "RB",
+      "nfl": "SEA",
+      "slot": "FLEX",
+      "pts": 9.6,
+      "proj": 14.63,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Seahawks D/ST",
+      "pos": "DST",
+      "nfl": "SEA",
+      "slot": "D/ST",
+      "pts": -5,
+      "proj": 5.77,
+      "starter": true,
+      "injury": null
+     },
+     {
+      "name": "Zach Charbonnet",
+      "pos": "RB",
+      "nfl": "SEA",
+      "slot": "BE",
+      "pts": 11.8,
+      "proj": 9.2,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     },
+     {
+      "name": "Keon Coleman",
+      "pos": "WR",
+      "nfl": "BUF",
+      "slot": "BE",
+      "pts": 10.3,
+      "proj": 10.22,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "TreVeyon Henderson",
+      "pos": "RB",
+      "nfl": "NE",
+      "slot": "BE",
+      "pts": 4.7,
+      "proj": 8.6,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Jerry Jeudy",
+      "pos": "WR",
+      "nfl": "CLE",
+      "slot": "BE",
+      "pts": 3.5,
+      "proj": 10.07,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Lamar Jackson",
+      "pos": "QB",
+      "nfl": "BAL",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 0,
+      "starter": false,
+      "injury": null
+     },
+     {
+      "name": "Zach Ertz",
+      "pos": "TE",
+      "nfl": "WSH",
+      "slot": "BE",
+      "pts": 0,
+      "proj": 9.18,
+      "starter": false,
+      "injury": "QUESTIONABLE"
+     }
+    ]
+   }
+  }
+ ]
+}
