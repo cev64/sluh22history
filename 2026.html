@@ -2692,6 +2692,57 @@
     .summary-card .summary-body p:last-child { margin-bottom: 0; }
     .summary-card .summary-body strong { color: var(--ink); }
 
+    /* Weekly newsletter download ------------------------------------ */
+
+    .nl-card { margin-bottom: 14px; }
+
+    .nl-body {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      padding: 14px 20px 18px;
+    }
+
+    .nl-copy {
+      flex: 1 1 260px;
+      min-width: 0;
+      margin: 0;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: #24354a;
+    }
+
+    .nl-download {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 17px;
+      border-radius: 999px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      text-decoration: none;
+      transition: background .15s ease;
+    }
+
+    .nl-download::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 3px rgba(215, 25, 32, .22);
+    }
+
+    .nl-download:hover { background: var(--navy-2); }
+    .nl-download:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
     .summary-meta {
       display: flex;
       align-items: center;
@@ -2798,6 +2849,8 @@
       .summary-card .summary-body { padding: 4px 14px 16px; font-size: 14.5px; }
       .summary-superlatives { padding: 4px 14px 16px; }
       .summary-meta { padding: 12px 14px 0; }
+      .nl-body { padding: 12px 14px 16px; }
+      .nl-download { width: 100%; justify-content: center; }
     }
 
     /* Seed, clinch, and tiebreaker markers in the standings tables ---- */
@@ -4786,6 +4839,63 @@
        WEEKLY SUMMARY PANEL
        ================================================================= */
 
+    /* =================================================================
+       WEEKLY NEWSLETTER
+
+       The one-page PDF built by tools/newsletter/build.mjs, committed to
+       newsletters/ and served straight off Pages. Which weeks have one is
+       not written down here: build.mjs rebuilds newsletters/index.json from
+       that folder's own contents every run, and this reads it. Publishing a
+       week is therefore building it into the folder and committing, and a
+       week with no file gets no button.
+       ================================================================= */
+
+    const NEWSLETTER_SEASON = 2026;
+    let newsletterIndex = null;
+
+    const newsletterUrl = (week) =>
+      `newsletters/SLUH22-${NEWSLETTER_SEASON}-Week${week}-Newsletter.pdf`;
+
+    /* One request for the folder's index rather than a HEAD probe per week.
+       Asking for each file directly also works, but every week without a
+       newsletter then logs a 404 in the console, and thirteen expected 404s
+       would bury a real error. build.mjs rebuilds this file from the folder
+       every time it writes a PDF, so it is still the files on disk talking,
+       not a hand-kept list. A missing or unreadable index means no buttons,
+       which is the right way to fail. */
+    function newsletterWeeks() {
+      if (!newsletterIndex) {
+        newsletterIndex = fetch("newsletters/index.json")
+          .then((res) => (res.ok ? res.json() : {}))
+          .then((index) => new Set(index[String(NEWSLETTER_SEASON)] || []))
+          .catch(() => new Set());
+      }
+      return newsletterIndex;
+    }
+
+    function newsletterCard(week) {
+      return `<article class="card nl-card">
+        ${cardHead("Weekly Newsletter", "PDF", "One-page recap")}
+        <div class="nl-body">
+          <p class="nl-copy">Week ${week} on one printable sheet: every result, the standings and seeding as they stood, and the box scores behind them.</p>
+          <a class="nl-download" href="${newsletterUrl(week)}" download>Download PDF</a>
+        </div>
+      </article>`;
+    }
+
+    /* The index arrives asynchronously, so the reader can move to another week
+       before it lands. Check that the week is still the one on screen, and
+       that a re-render has not already placed the card, before inserting. */
+    function renderNewsletterLink(week) {
+      const panel = document.getElementById("panel-summary");
+      if (!panel || week < 1) return;
+      newsletterWeeks().then((weeks) => {
+        if (!weeks.has(week) || state.week !== week) return;
+        if (panel.querySelector(".nl-card")) return;
+        panel.insertAdjacentHTML("afterbegin", newsletterCard(week));
+      });
+    }
+
     function renderSummaryPanel(week) {
       const panel = document.getElementById("panel-summary");
       const summary = weeklySummaries[week];
@@ -4796,6 +4906,7 @@
           isPlayed(week)
             ? "The scores are in but the write-up has not been added for this week."
             : "The recap goes up once the week's results are posted.");
+        renderNewsletterLink(week);
         return;
       }
 
@@ -4808,6 +4919,7 @@
             : `<div class="summary-body">${summary.body.map((para) => `<p>${para}</p>`).join("")}</div>`}
         </article>
         <div class="source-note">Recaps are written from the posted results and do not change any standings on this page.</div>`;
+      renderNewsletterLink(week);
     }
 
     /* =================================================================

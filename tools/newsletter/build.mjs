@@ -225,6 +225,22 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
   <span>${FAKE ? '<b>SAMPLE — player-level box scores are fabricated for layout review. Team scores are real.</b>' : `Week ${WEEK} box scores as recorded`}</span>
 </div>`;
 
+/* The season pages read this index to decide which weeks offer a download.
+   It is rebuilt from the folder's own contents rather than appended to, so
+   deleting a PDF and rebuilding is enough to withdraw the link, and a build
+   that lands somewhere else can never claim a week it did not write. */
+function writeNewsletterIndex(dir) {
+  const index = {};
+  for (const name of fs.readdirSync(dir)) {
+    const m = /^SLUH22-(\d{4})-Week(\d{1,2})-Newsletter\.pdf$/.exec(name);
+    if (!m) continue;
+    (index[m[1]] = index[m[1]] || []).push(Number(m[2]));
+  }
+  for (const year of Object.keys(index)) index[year].sort((a, b) => a - b);
+  fs.writeFileSync(path.join(dir, 'index.json'), JSON.stringify(index, null, 2) + '\n');
+  return index;
+}
+
 const pdfPath = path.join(OUT_DIR, `SLUH22-${SEASON}-Week${WEEK}-Newsletter.pdf`);
 const chromium = await loadChromium();
 const b = await chromium.launch();
@@ -238,5 +254,7 @@ const PAGE_PX = 11 * 96 - 2 * 0.42 * 96;
 if (height > PAGE_PX) {
   console.warn(`WARNING: content is ${height}px against a ${Math.round(PAGE_PX)}px page — it will spill to a second sheet.`);
 }
+const published = writeNewsletterIndex(OUT_DIR);
 console.log(JSON.stringify({ pdf: pdfPath, week: WEEK, season: SEASON, fake: FAKE,
-  heightPx: height, onePage: height <= PAGE_PX, benchBlunders: blunders.length }, null, 2));
+  heightPx: height, onePage: height <= PAGE_PX, benchBlunders: blunders.length,
+  published }, null, 2));
