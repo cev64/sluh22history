@@ -2878,12 +2878,27 @@
 
     .odds-head .odds-track { background: none; height: auto; }
 
-    .odds-fill {
-      display: block;
-      height: 100%;
-      border-radius: 999px;
-      background: var(--blue);
+    .odds-track { display: flex; gap: 2px; }
+    .odds-head .odds-track { display: block; }
+
+    .odds-seg { height: 100%; flex: 0 0 auto; }
+    .odds-seg.s-bye { background: #0f4c9e; }
+    .odds-seg.s-in { background: #5a9bec; }
+
+    .odds-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 15px;
+      align-items: center;
+      padding: 13px 16px 2px;
+      font-size: 11.5px;
+      color: var(--muted);
     }
+
+    .odds-key { width: 11px; height: 11px; min-height: 0; border-radius: 3px; background: #e7ebf0; display: block; flex: 0 0 auto; }
+    .odds-key.s-bye { background: #0f4c9e; }
+    .odds-key.s-in { background: #5a9bec; }
+    .odds-legend .sub-note { font-style: italic; }
 
     .odds-pct {
       flex: 0 0 auto;
@@ -4236,24 +4251,22 @@
     /* =================================================================
        PLAYOFF ODDS
 
-       A Monte Carlo run over the games that have not been played. Each
-       team gets a scoring distribution from its own results so far, the
-       remaining schedule is simulated, and the finished season is
-       re-seeded with the same rulebook tiebreakers the rest of the page
-       uses. The odds are the share of simulations in which a team lands
-       in the field.
+       Every game still to be played is treated as a coin flip. Nothing
+       is assumed about how good a team is — the odds come only from the
+       record already banked, who is still on the schedule, and how the
+       rulebook breaks ties. That makes the number a statement about
+       position in the race rather than a forecast, and it keeps a hot
+       month from pinning anyone at 99% in September.
 
-       Two deliberate choices worth knowing when reading the numbers:
+       Points for is held at its current value wherever a tiebreaker
+       needs it. Projecting one team to outscore another is exactly the
+       assumption a coin flip exists to avoid.
 
-       - Early-season means are shrunk toward the league average. Three
-         games is not enough to believe a team really scores 160 a week,
-         and without the shrink Week 1 odds swing wildly on one result.
-       - The generator is seeded per week, so the same week always
-         produces the same odds. Reloading the page never changes them.
+       The generator is seeded per week, so a given week always produces
+       the same odds and reloading never changes them.
        ================================================================= */
 
-    const ODDS_ITERATIONS = 4000;
-    const ODDS_PRIOR_GAMES = 3;
+    const ODDS_ITERATIONS = 10000;
 
     function mulberry32(seed) {
       return function () {
@@ -4270,29 +4283,6 @@
       if (oddsCache[week]) return oddsCache[week];
 
       const played = gamesThrough(week);
-      const scores = {};
-      TEAM_IDS.forEach((id) => { scores[id] = []; });
-      played.forEach((g) => { scores[g.a].push(g.as); scores[g.b].push(g.bs); });
-
-      const all = played.flatMap((g) => [g.as, g.bs]);
-      const leagueMean = all.length ? all.reduce((s, x) => s + x, 0) / all.length : 110;
-      const leagueSd = all.length > 1
-        ? Math.sqrt(all.reduce((s, x) => s + (x - leagueMean) ** 2, 0) / (all.length - 1))
-        : 25;
-
-      // Shrink each team's mean toward the league average by a few phantom
-      // games, so a small sample cannot run away with the projection.
-      const model = {};
-      TEAM_IDS.forEach((id) => {
-        const own = scores[id];
-        const n = own.length;
-        const sum = own.reduce((s, x) => s + x, 0);
-        const mean = (sum + ODDS_PRIOR_GAMES * leagueMean) / (n + ODDS_PRIOR_GAMES);
-        const sd = n > 2
-          ? Math.sqrt(own.reduce((s, x) => s + (x - sum / n) ** 2, 0) / (n - 1)) * 0.6 + leagueSd * 0.4
-          : leagueSd;
-        model[id] = { mean, sd: Math.max(sd, 8) };
-      });
 
       // Base state carried into every simulation.
       const base = {};
@@ -4320,10 +4310,6 @@
       TEAM_IDS.forEach((id) => { tally[id] = { playoff: 0, division: 0, toilet: 0 }; });
 
       const rand = mulberry32(week * 7919 + 13);
-      const gauss = () => {
-        const u = Math.max(rand(), 1e-9), v = rand();
-        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-      };
 
       for (let iter = 0; iter < ODDS_ITERATIONS; iter++) {
         const sim = {};
@@ -4332,10 +4318,7 @@
         TEAM_IDS.forEach((a) => { h2h[a] = Object.assign({}, baseH2H[a]); });
 
         remaining.forEach(([a, b]) => {
-          const sa = Math.max(0, model[a].mean + model[a].sd * gauss());
-          const sb = Math.max(0, model[b].mean + model[b].sd * gauss());
-          sim[a].pf += sa; sim[b].pf += sb;
-          const [win, lose] = sa >= sb ? [a, b] : [b, a];
+          const [win, lose] = rand() < 0.5 ? [a, b] : [b, a];
           sim[win].wins += 1; sim[lose].losses += 1;
           h2h[win][lose] += 1;
           if (teams[a].division === teams[b].division) {
@@ -4399,12 +4382,21 @@
         odds[b].division - odds[a].division ||
         teams[a].name.localeCompare(teams[b].name));
 
+      // One bar per team split into the three things a season can end as:
+      // a bye, a playoff place without one, or missing out. Whole-season
+      // shape reads better than a single number that saturates near the top.
       const row = (id) => {
         const o = odds[id];
+        const bye = o.division * 100;
+        const inNoBye = Math.max(0, (o.playoff - o.division) * 100);
         return `<div class="odds-row">
           ${miniTeam(id)}
           <span class="odds-team">${teams[id].name}</span>
-          <span class="odds-track"><span class="odds-fill" style="width:${(o.playoff * 100).toFixed(1)}%"></span></span>
+          <span class="odds-track" role="img"
+            aria-label="${oddsText(o.division)} bye, ${oddsText(o.playoff)} playoffs, ${oddsText(o.toilet)} out">
+            ${bye > 0.4 ? `<span class="odds-seg s-bye" style="width:${bye.toFixed(1)}%"></span>` : ""}
+            ${inNoBye > 0.4 ? `<span class="odds-seg s-in" style="width:${inNoBye.toFixed(1)}%"></span>` : ""}
+          </span>
           <span class="odds-pct primary">${oddsText(o.playoff)}</span>
           <span class="odds-pct">${oddsText(o.division)}</span>
           <span class="odds-pct">${oddsText(o.toilet)}</span>
@@ -4412,13 +4404,19 @@
       };
 
       return `<article class="card">
-        ${cardHead("Playoff Odds", "%", `If the rest of the season were played out from here`)}
+        ${cardHead("Playoff Odds", "%", `Every remaining game a coin flip`)}
+        <div class="odds-legend">
+          <span class="legend-key"><span class="odds-key s-bye"></span>First-round bye</span>
+          <span class="legend-key"><span class="odds-key s-in"></span>Playoffs, no bye</span>
+          <span class="legend-key"><span class="odds-key out"></span>Missed</span>
+          <span class="legend-key sub-note">Six of ten make it, so the league average is 60%.</span>
+        </div>
         <div class="odds-head">
           <span class="odds-team">Team</span>
           <span class="odds-track"></span>
           <span class="odds-pct primary">Playoff</span>
-          <span class="odds-pct">Division</span>
-          <span class="odds-pct">Toilet</span>
+          <span class="odds-pct">Bye</span>
+          <span class="odds-pct">Out</span>
         </div>
         <div class="odds-grid">${ranked.map(row).join("")}</div>
       </article>`;
