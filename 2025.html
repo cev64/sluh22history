@@ -2585,7 +2585,7 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -48%) scale(.98);
-      width: min(1040px, calc(100vw - 32px));
+      width: min(880px, calc(100vw - 32px));
       max-height: min(88vh, 900px);
       display: flex;
       flex-direction: column;
@@ -2605,14 +2605,14 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       background: var(--navy);
       color: #fff;
       flex: 0 0 auto;
     }
 
-    .bx-head h3 { margin: 0; font-size: 15px; letter-spacing: -.02em; }
-    .bx-head .bx-sub { display: block; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.62); margin-top: 3px; }
+    .bx-head h3 { margin: 0; font-size: 14px; letter-spacing: -.02em; }
+    .bx-head .bx-sub { display: block; font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.62); margin-top: 3px; }
 
     .bx-close {
       flex: 0 0 auto;
@@ -2629,22 +2629,20 @@
 
     .bx-close:hover { background: rgba(255,255,255,.22); }
 
-    .bx-cols {
+    .bx-cols { overflow-y: auto; flex: 1 1 auto; }
+
+    /* One row per lineup slot, the slot itself running down the middle with
+       each team's points tucked against it — the layout the league already
+       reads on their phones. The same grid serves every width, so there is
+       one thing to get right rather than a phone version and a desktop one. */
+    .bx-sb, .bx-row {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0;
-      overflow-y: auto;
-      flex: 1 1 auto;
+      grid-template-columns: minmax(0, 1fr) 52px 48px 52px minmax(0, 1fr);
+      align-items: center;
     }
 
-    .bx-col { min-width: 0; padding: 0 0 16px; }
-    .bx-col + .bx-col { border-left: 1px solid var(--line); }
-
-    .bx-team {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 13px 15px 11px;
+    .bx-sb {
+      padding: 11px 14px;
       border-bottom: 1px solid var(--line);
       position: sticky;
       top: 0;
@@ -2652,44 +2650,38 @@
       z-index: 1;
     }
 
-    .bx-team .bx-tname { flex: 1 1 auto; min-width: 0; font-weight: 900; font-size: 13.5px; letter-spacing: -.01em; }
-    .bx-team .bx-tname small { display: block; font-weight: 700; font-size: 10.5px; color: var(--muted); letter-spacing: 0; }
-    .bx-team .bx-tscore { flex: 0 0 auto; font-size: 19px; font-weight: 900; font-variant-numeric: tabular-nums; }
-    .bx-team.bx-won .bx-tscore { color: var(--green); }
+    .bx-sb .bx-name { font-weight: 900; font-size: 13.5px; }
+    .bx-sb .bx-p { padding: 0; }
+    .bx-sb .bx-p.bx-l { padding-right: 10px; }
+    .bx-sb .bx-p.bx-r { padding-left: 10px; }
+    .bx-total b { font-size: 18px; }
+    .bx-total.bx-won b { color: var(--green); }
 
-    .bx-group {
-      padding: 10px 15px 2px;
-      font-size: 9.5px;
-      font-weight: 900;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+    .bx-row { padding: 0 14px; border-top: 1px solid rgba(220, 227, 235, .6); }
 
-    .bx-row {
+    .bx-p {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 5px 15px;
-      font-size: 12.5px;
+      gap: 6px;
+      min-width: 0;
+      padding: 7px 0;
     }
 
-    .bx-row + .bx-row { border-top: 1px solid rgba(220, 227, 235, .55); }
-    .bx-row.bx-bench { color: #55617180; }
-    .bx-row.bx-bench .bx-name { color: #556171; }
+    .bx-p.bx-r { justify-content: flex-end; }
 
-    .bx-slot {
-      flex: 0 0 34px;
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: .06em;
-      color: var(--muted);
-      text-transform: uppercase;
+    .bx-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--ink);
     }
 
     .bx-nfl {
       flex: 0 0 auto;
-      min-width: 30px;
+      min-width: 28px;
       text-align: center;
       padding: 2px 4px;
       border-radius: 4px;
@@ -2698,52 +2690,53 @@
       letter-spacing: .04em;
     }
 
-    .bx-pos {
-      flex: 0 0 auto;
-      min-width: 26px;
-      text-align: center;
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-size: 8.5px;
+    .bx-inj { flex: 0 0 auto; font-size: 9px; font-weight: 900; color: var(--red); }
+
+    .bx-sc { text-align: center; padding: 5px 0; }
+    .bx-sc b { display: block; font-size: 12.5px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .bx-sc small { display: block; font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 1px; }
+
+    /* Stretching the centre cell is what makes the slot column read as one
+       continuous strip instead of a stack of separate chips. */
+    .bx-slot {
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-2);
+      font-size: 9.5px;
       font-weight: 900;
-      color: #fff;
-      letter-spacing: .04em;
+      letter-spacing: .03em;
+      color: var(--muted);
+      text-transform: uppercase;
     }
 
-    .bx-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; color: var(--ink); }
-    .bx-inj { flex: 0 0 auto; font-size: 8.5px; font-weight: 900; color: var(--red); letter-spacing: .04em; }
-
-    .bx-pts {
-      flex: 0 0 46px;
-      text-align: right;
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .bx-proj { flex: 0 0 44px; text-align: right; font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .bx-grouphead { background: var(--page); border-top: 1px solid var(--line); }
+    .bx-grouphead .bx-slot { background: var(--page); }
+    .bx-glabel { font-size: 9px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .bx-grouphead .bx-p { padding: 5px 0; }
 
     .bx-foot {
       flex: 0 0 auto;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 4px 12px;
-      padding: 9px 15px;
+      padding: 9px 14px;
       border-top: 1px solid var(--line);
       background: var(--surface-2);
       font-size: 10px;
       color: var(--muted);
     }
 
-    .bx-legend { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; }
-
     @media (max-width: 760px) {
-      .bx-modal { width: calc(100vw - 16px); max-height: 92vh; }
-      .bx-cols { grid-template-columns: minmax(0, 1fr); }
-      .bx-col + .bx-col { border-left: 0; border-top: 8px solid var(--page); }
-      .bx-proj { display: none; }
-      .bx-row { padding-left: 11px; padding-right: 11px; }
-      .bx-team { padding-left: 11px; padding-right: 11px; }
+      .bx-modal { width: calc(100vw - 14px); max-height: 92vh; }
+      .bx-head { padding: 10px 12px; }
+      .bx-head h3 { font-size: 12.5px; }
+      .bx-sb, .bx-row { grid-template-columns: minmax(0, 1fr) 42px 40px 42px minmax(0, 1fr); }
+      .bx-sb, .bx-row { padding-left: 8px; padding-right: 8px; }
+      .bx-name { font-size: 11.5px; }
+      .bx-sb .bx-name { font-size: 12px; }
+      .bx-nfl { min-width: 24px; font-size: 7.5px; padding: 1.5px 3px; }
+      .bx-sc b { font-size: 11.5px; }
+      .bx-total b { font-size: 15px; }
+      .bx-p { gap: 4px; }
     }
 
     /* Weekly newsletter download ------------------------------------ */
@@ -4099,7 +4092,6 @@
       FA:  "#8A94A1"
     };
 
-    const POS_COLORS = { QB: "#c2410c", RB: "#15803d", WR: "#1d4ed8", TE: "#7e22ce", DST: "#475569", K: "#b45309" };
 
     /* Pittsburgh's yellow needs black text where Philadelphia's green needs
        white, so the ink is derived from the colour rather than assumed. */
@@ -5240,41 +5232,57 @@
       });
     }
 
-    function bxChip(player) {
-      const nfl = NFL_TEAMS[player.nfl] || NFL_TEAMS.FA;
-      const pos = POS_COLORS[player.pos] || POS_COLORS.DST;
-      return `<span class="bx-nfl" style="background:${nfl};color:${readableInk(nfl)}">${player.nfl || "FA"}</span>
-        <span class="bx-pos" style="background:${pos}">${player.pos === "DST" ? "D/ST" : player.pos}</span>`;
+    /* ESPN abbreviates the first name; at phone widths it is the difference
+       between reading the row and eliding it. Defences carry no first name. */
+    function bxShortName(name) {
+      const parts = name.split(" ");
+      if (parts.length < 2 || /D\/ST$/.test(name)) return name;
+      return `${parts[0].charAt(0)}. ${parts.slice(1).join(" ")}`;
     }
 
-    function bxRow(player) {
-      const bench = !player.starter;
-      return `<div class="bx-row${bench ? " bx-bench" : ""}">
-        <span class="bx-slot">${player.slot === "BE" ? "Bench" : player.slot}</span>
-        ${bxChip(player)}
-        <span class="bx-name">${player.name}</span>
-        ${player.injury ? `<span class="bx-inj">${player.injury.slice(0, 1)}</span>` : ""}
-        <span class="bx-proj">${fmt(player.proj)}</span>
-        <span class="bx-pts">${fmt(player.pts)}</span>
+    function bxClub(abbr) {
+      const c = NFL_TEAMS[abbr] || NFL_TEAMS.FA;
+      return `<span class="bx-nfl" style="background:${c};color:${readableInk(c)}">${abbr || "FA"}</span>`;
+    }
+
+    function bxPlayer(player, side) {
+      if (!player) return `<div class="bx-p bx-${side}"></div>`;
+      return `<div class="bx-p bx-${side}">
+        <span class="bx-name">${bxShortName(player.name)}</span>
+        ${bxClub(player.nfl)}
+        ${player.injury ? `<span class="bx-inj" title="${player.injury}">${player.injury.charAt(0)}</span>` : ""}
       </div>`;
     }
 
-    function bxColumn(id, lineup, score, won) {
-      const group = (label, rows) => (rows.length
-        ? `<div class="bx-group">${label}</div>${rows.map(bxRow).join("")}` : "");
-      const starters = lineup.filter((p) => p.starter);
-      const bench = lineup.filter((p) => !p.starter && p.slot === "BE");
-      const ir = lineup.filter((p) => p.slot === "IR");
-      return `<div class="bx-col">
-        <div class="bx-team${won ? " bx-won" : ""}">
-          ${miniTeam(id)}
-          <span class="bx-tname">${teams[id].name}<small>${teams[id].owner}</small></span>
-          <span class="bx-tscore">${fmt(score)}</span>
-        </div>
-        ${group("Starters", starters)}
-        ${group("Bench", bench)}
-        ${group("Injured reserve", ir)}
+    function bxScore(player) {
+      if (!player) return `<div class="bx-sc"></div>`;
+      return `<div class="bx-sc"><b>${fmt(player.pts)}</b><small>${fmt(player.proj)}</small></div>`;
+    }
+
+    /* Both teams field the same nine slots in the same order, so pairing by
+       index lines the row up with its slot. The bench does not pair that
+       neatly — one side can carry more — so a missing player leaves an empty
+       cell rather than shifting the other team's row out of line. */
+    function bxGroup(label, left, right) {
+      const rows = Math.max(left.length, right.length);
+      if (!rows) return "";
+      let out = `<div class="bx-row bx-grouphead">
+        <div class="bx-p"><span class="bx-glabel">${label}</span></div>
+        <div class="bx-sc"></div><div class="bx-slot"></div><div class="bx-sc"></div>
+        <div class="bx-p"></div>
       </div>`;
+      for (let i = 0; i < rows; i++) {
+        const l = left[i] || null, r = right[i] || null;
+        const slot = (l || r).slot;
+        out += `<div class="bx-row">
+          ${bxPlayer(l, "l")}
+          ${bxScore(l)}
+          <div class="bx-slot">${slot}</div>
+          ${bxScore(r)}
+          ${bxPlayer(r, "r")}
+        </div>`;
+      }
+      return out;
     }
 
     const bxModal = document.getElementById("bxModal");
@@ -5305,15 +5313,29 @@
         document.getElementById("bxTitle").textContent =
           `${teams[idA].name} ${fmt(a.score)} — ${fmt(b.score)} ${teams[idB].name}`;
         document.getElementById("bxSub").textContent = `${BOX_SEASON} · Week ${week}`;
-        document.getElementById("bxCols").innerHTML =
-          bxColumn(a.id, game.lineups[a.id], a.score, a.score > b.score) +
-          bxColumn(b.id, game.lineups[b.id], b.score, b.score > a.score);
-        document.getElementById("bxFoot").innerHTML =
-          Object.keys(POS_COLORS).filter((p) => p !== "K").map((p) =>
-            `<span class="bx-legend"><span class="bx-pos" style="background:${POS_COLORS[p]}">${p === "DST" ? "D/ST" : p}</span></span>`).join("") +
-          `<span>Projected points sit left of the score. Badges show the player's NFL club.</span>`;
+
+        const lu = (id, test) => (game.lineups[id] || []).filter(test);
+        const starters = (p) => p.starter;
+        const benched = (p) => !p.starter && p.slot === "BE";
+        const reserve = (p) => p.slot === "IR";
+
+        document.getElementById("bxCols").innerHTML = `
+          <div class="bx-sb">
+            <div class="bx-p bx-l">${miniTeam(a.id)}<span class="bx-name">${teams[a.id].name}</span></div>
+            <div class="bx-sc bx-total${a.score > b.score ? " bx-won" : ""}"><b>${fmt(a.score)}</b></div>
+            <div class="bx-slot"></div>
+            <div class="bx-sc bx-total${b.score > a.score ? " bx-won" : ""}"><b>${fmt(b.score)}</b></div>
+            <div class="bx-p bx-r"><span class="bx-name">${teams[b.id].name}</span>${miniTeam(b.id)}</div>
+          </div>
+          ${bxGroup("Starters", lu(a.id, starters), lu(b.id, starters))}
+          ${bxGroup("Bench", lu(a.id, benched), lu(b.id, benched))}
+          ${bxGroup("Injured reserve", lu(a.id, reserve), lu(b.id, reserve))}`;
+
+        document.getElementById("bxFoot").textContent =
+          "Projected points sit under each score. The badge is the player's NFL club.";
 
         document.getElementById("bxCols").scrollTop = 0;
+
         bxModal.classList.add("open");
         bxBackdrop.classList.add("open");
         bxModal.setAttribute("aria-hidden", "false");

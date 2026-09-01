@@ -46,7 +46,7 @@ export async function loadSeason(season, repoRoot) {
   // differ (no divisions in 2022-23, no odds engine before 2025).
   const names = ['teams', 'divisionOrder', 'weekResults', 'weekSchedule', 'schedule', 'results',
     'REGULAR_WEEKS', 'TEAM_IDS', 'DIVISION_NAMES', 'computeStats', 'buildPicture',
-    'NFL_TEAMS', 'POS_COLORS', 'readableInk',
+    'NFL_TEAMS', 'readableInk',
     'playoffOdds', 'oddsText', 'gamesThrough', 'fmt'];
   const body = pieces.join('\n');
   const defined = names.filter((n) => new RegExp(`(const|function) ${n}\\b`).test(body));

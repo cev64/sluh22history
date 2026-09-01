@@ -122,12 +122,9 @@ upcoming.sort((x, y) => y.weight - x.weight);
 const chip = id => `<span class="chip" style="--c:${E.teams[id].color}">${E.teams[id].icon}</span>`;
 const short = id => N(id).replace(/ \(.*\)/, '').replace('Administration', 'Admin').replace(' McLovins VIII', ' McLovins');
 
-/* Same palette the season page uses for its box-score modal — season.mjs
-   exports it, so there is one copy of these colours, not two. */
-const posPill = (pl) => {
-  const c = (E.POS_COLORS || {})[pl.pos === 'D/ST' ? 'DST' : pl.pos] || '#475569';
-  return `<span class="pill" style="background:${c}">${pl.pos}</span>`;
-};
+/* The club palette comes from the season page through season.mjs, so the
+   sheet and the site badge a player the same way. Positions are deliberately
+   not colour-coded — they read as plain text next to the club. */
 const nflPill = (pl) => {
   if (!pl.nfl || !E.NFL_TEAMS) return '';
   const c = E.NFL_TEAMS[pl.nfl] || E.NFL_TEAMS.FA;
@@ -216,9 +213,9 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
 
     <h2>Studs &amp; Duds</h2>
     <div class="rows">
-      ${perf.slice(0,5).map(p => `<div>${chip(p.team)}<span class="nm">${posPill(p)}${nflPill(p)}${p.name} <span class="sub">${short(p.team)}</span></span><span class="vl">${P1(p.pts)}</span></div>`).join('')}
+      ${perf.slice(0,5).map(p => `<div>${chip(p.team)}<span class="nm">${nflPill(p)}${p.name} <span class="sub">${p.pos} · ${short(p.team)}</span></span><span class="vl">${P1(p.pts)}</span></div>`).join('')}
       ${perf.filter(p => p.pos !== 'D/ST').slice(-2).map(d =>
-        `<div>${chip(d.team)}<span class="nm">${posPill(d)}${nflPill(d)}${d.name} <span class="sub">${short(d.team)} · started</span></span><span class="vl dn">${P1(d.pts)}</span></div>`).join('')}
+        `<div>${chip(d.team)}<span class="nm">${nflPill(d)}${d.name} <span class="sub">${d.pos} · ${short(d.team)} · started</span></span><span class="vl dn">${P1(d.pts)}</span></div>`).join('')}
     </div>
 
     <h2>Start / Sit</h2>
