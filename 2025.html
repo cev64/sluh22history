@@ -4992,7 +4992,12 @@
        that a re-render has not already placed the card, before inserting. */
     function renderNewsletterLink(week) {
       const panel = document.getElementById("panel-summary");
-      if (!panel || week < 1) return;
+      if (!panel) return;
+      // A week without a newsletter must not inherit the last week's card,
+      // and not every path through the panel rewrites its contents.
+      const stale = panel.querySelector(".nl-card");
+      if (stale) stale.remove();
+      if (week < 1) return;
       newsletterWeeks().then((weeks) => {
         if (!weeks.has(week) || state.week !== week) return;
         if (panel.querySelector(".nl-card")) return;
@@ -5001,7 +5006,7 @@
     }
 
     function renderSummaryPanel(week) {
-      if (week === 0) return;
+      if (week === 0) { renderNewsletterLink(week); return; }
       const summary = weeklySummaries[week];
       const panel = document.getElementById("panel-summary");
       if (!summary) {
