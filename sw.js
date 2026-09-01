@@ -5,13 +5,14 @@
      - Google Fonts: stale-while-revalidate in a separate cache
    Bump CACHE_VERSION whenever the precache list or these rules change. */
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const SHELL_CACHE = `league-history-shell-${CACHE_VERSION}`;
 const FONT_CACHE = `league-history-fonts-${CACHE_VERSION}`;
 
 const PRECACHE = [
   './',
   './index.html',
+  './alltime.html',
   './2021.html',
   './2022.html',
   './2023.html',
@@ -64,7 +65,7 @@ async function networkFirst(request) {
     if (response && response.ok) cache.put(request, response.clone());
     return response;
   } catch (err) {
-    const cached = await cache.match(request) || await cache.match('./index.html');
+    const cached = await cache.match(request) || await cache.match('./2026.html');
     if (cached) return cached;
     throw err;
   }

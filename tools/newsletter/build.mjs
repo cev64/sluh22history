@@ -103,6 +103,28 @@ const now = E.buildPicture(WEEK), prev = WEEK > 1 ? E.buildPicture(WEEK - 1) : n
 const odds = E.playoffOdds(WEEK), oddsPrev = WEEK > 1 ? E.playoffOdds(WEEK - 1) : null;
 const stats = now.stats;
 
+/* The clinch test is a proof, not an estimate. Where it fires, the sheet must
+   print a flat 100% or 0% rather than the simulation's ">99%" — by Week 14 the
+   regular season is over and six teams have not "probably" made it, they have
+   made it. This is the same deference the season page's odds card makes. */
+const FLAGS = now.flags || {};
+const settledPlayoff = (id) => (FLAGS[id] === 'z' || FLAGS[id] === 'x' ? 1
+  : FLAGS[id] === 'e' ? 0 : null);
+const playoffPct = (id) => {
+  const settled = settledPlayoff(id);
+  return settled === null ? E.oddsText(odds[id].playoff) : `${settled * 100}%`;
+};
+const playoffBar = (id) => {
+  const settled = settledPlayoff(id);
+  return ((settled === null ? odds[id].playoff : settled) * 100).toFixed(1);
+};
+/* Missing the playoffs and going to the Toilet Bowl are the same event, so a
+   proof about one settles the other. */
+const toiletPct = (id) => {
+  const settled = settledPlayoff(id);
+  return settled === null ? E.oddsText(odds[id].toilet) : `${(1 - settled) * 100}%`;
+};
+
 const movers = oddsPrev ? E.TEAM_IDS
   .map(id => ({ id, delta: odds[id].playoff - oddsPrev[id].playoff }))
   .sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta)).slice(0, 3) : [];
@@ -139,7 +161,8 @@ const nflPill = (pl) => {
    behind it, so it simply gets no panel. */
 const H = await loadHistory(ROOT, SEASON);
 const panelBullets = H.empty ? [] : talkShow({
-  E, H, week: WEEK, season: SEASON, games, stats, odds, oddsPrev, now, F2, P1, short,
+  E, H, week: WEEK, season: SEASON, games, stats, odds, oddsPrev, now, prev,
+  playoffPct, settledPlayoff, F2, P1, short,
 });
 
 const panelHtml = panelBullets.length ? `
@@ -247,7 +270,7 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
         `<b>${short(id)}</b> ${stats[id].streak.type === 'W' ? 'has won' : 'has lost'} ${stats[id].streak.count} straight`).join('; ')}.</li>` : ''}
       ${(() => { const hi = games.flatMap(g => [[g.a,g.as],[g.b,g.bs]]).sort((x,y)=>x[1]-y[1])[0];
         return `<li>Quietest afternoon: <b>${short(hi[0])}</b> managed ${F2(hi[1])}.</li>`; })()}
-      ${movers.length ? `<li><b>${short(movers[0].id)}</b> saw the week's biggest swing in playoff odds, ${movers[0].delta>=0?'up':'down'} ${Math.abs(Math.round(movers[0].delta*100))} points to ${E.oddsText(odds[movers[0].id].playoff)}.</li>` : ''}
+      ${movers.length ? `<li><b>${short(movers[0].id)}</b> saw the week's biggest swing in playoff odds, ${movers[0].delta>=0?'up':'down'} ${Math.abs(Math.round(movers[0].delta*100))} points to ${playoffPct(movers[0].id)}.</li>` : ''}
     </ul>
 
     <h2>Studs &amp; Duds</h2>
@@ -276,8 +299,8 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
     <div class="odds">
       ${E.TEAM_IDS.slice().sort((a,b)=>odds[b].playoff-odds[a].playoff).map(id => `
         <div>${chip(id)}<span class="onm">${tiny(id)}</span>
-        <span class="trk"><span class="fil" style="width:${(odds[id].playoff*100).toFixed(1)}%"></span></span>
-        <span class="pc">${E.oddsText(odds[id].playoff)}</span></div>`).join('')}
+        <span class="trk"><span class="fil" style="width:${playoffBar(id)}%"></span></span>
+        <span class="pc">${playoffPct(id)}</span></div>`).join('')}
     </div>
 
     ${movers.length ? `<h2>Biggest Movers</h2><div class="rows">
@@ -289,13 +312,13 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
     <div class="rows">
       ${E.TEAM_IDS.slice().sort((a,b)=>odds[b].toilet-odds[a].toilet).slice(0,4).map(id => `
         <div>${chip(id)}<span class="nm">${short(id)} <span class="sub">${stats[id].record}</span></span>
-        <span class="vl" style="color:#8a95a2">${E.oddsText(odds[id].toilet)}</span></div>`).join('')}
+        <span class="vl" style="color:#8a95a2">${toiletPct(id)}</span></div>`).join('')}
     </div>
 
     <h2>Coming Up</h2>
     <ul>
       ${upcoming.slice(0,4).map(u => `<li>Wk ${u.w}: <b>${short(u.a)}</b> vs <b>${short(u.b)}</b>
-        <span class="sub">(${E.oddsText(odds[u.a].playoff)} / ${E.oddsText(odds[u.b].playoff)})</span></li>`).join('')}
+        <span class="sub">(${playoffPct(u.a)} / ${playoffPct(u.b)})</span></li>`).join('')}
     </ul>
   </div>
 </div>

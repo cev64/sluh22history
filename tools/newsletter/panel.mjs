@@ -44,7 +44,7 @@ function liveRows(E, season, week) {
 }
 
 export function talkShow(ctx) {
-  const { E, H, week, season, games, stats, odds, oddsPrev, F2, P1, short } = ctx;
+  const { E, H, week, season, games, stats, odds, oddsPrev, now, prev, playoffPct, F2, P1, short } = ctx;
   if (!H || H.empty) return [];
 
   const ownerOf = (id) => E.teams[id].owner;
@@ -441,6 +441,126 @@ export function talkShow(ctx) {
     const total = careerRecord(owner).wins;
     if (total > 0 && total % 25 === 0 && thisWeek.some((r) => r.teamId === id && r.won)) {
       add(NUM, 54, [id], `That win was ${first(owner)}'s ${total}th since ${H.years[0]}.`);
+    }
+  }
+
+  /* ================= THE PLAYOFF RACE =================
+
+     From the back half of the season this is the story, so it carries the
+     highest priorities in the panel and survives the trim last.
+
+     Certainty comes from the engine's clinch test, which is a proof rather
+     than a simulation — a team is "in" because no remaining result can put it
+     out, not because the odds rounded to 100. Everything else here is stated
+     as arithmetic the reader can check: wins banked, games left, and what a
+     ceiling actually reaches. Nothing claims a clinch the proof has not made. */
+
+  const flags = (now && now.flags) || {};
+  const wasFlags = (prev && prev.flags) || {};
+  const played = (id) => stats[id].wins + stats[id].losses;
+  const left = (id) => E.REGULAR_WEEKS - played(id);
+  const ceiling = (id) => stats[id].wins + left(id);
+  const divisionOf = (id) => E.teams[id].division;
+
+  // Clinches and eliminations, the week they happen
+  for (const id of E.TEAM_IDS) {
+    const f = flags[id], was = wasFlags[id];
+    if (f === 'z' && was !== 'z') {
+      add(COLD, 99, [id], was === 'x'
+        ? `${b(id)} locked up the <b>${divisionOf(id)}</b> division and the Week 15 bye.`
+        : `${b(id)} clinched the <b>${divisionOf(id)}</b> division and the Week 15 bye.`);
+    } else if (f === 'x' && was !== 'x' && was !== 'z') {
+      add(COLD, 99, [id], `${b(id)} clinched a playoff berth.`);
+    }
+    if (f === 'e' && was !== 'e') {
+      add(COLD, 98, [id], `${b(id)} was eliminated from playoff contention.`);
+    }
+  }
+
+  // Who is already through, once it is more than a one-off
+  {
+    const inAlready = E.TEAM_IDS.filter((id) => flags[id] === 'x' || flags[id] === 'z');
+    const outAlready = E.TEAM_IDS.filter((id) => flags[id] === 'e');
+    if (inAlready.length >= 2 && inAlready.length < 6) {
+      add(COLD, 75, [], `${inAlready.length} teams are already in: ${list(inAlready.map((id) => short(id)))}.`);
+    }
+    if (outAlready.length >= 2 && outAlready.length < 4) {
+      add(COLD, 73, [], `${outAlready.length} teams are already out: ${list(outAlready.map((id) => short(id)))}.`);
+    }
+  }
+
+  if (week >= 7 && week < E.REGULAR_WEEKS) {
+    // The cut line
+    const field = (now && now.playoffField) || [];
+    const lastIn = field[field.length - 1];
+    const firstOut = now && now.firstOut;
+    if (lastIn && firstOut) {
+      const gap = stats[lastIn].wins - stats[firstOut].wins;
+      const apart = gap === 0
+        ? `level on ${stats[lastIn].wins} wins, split by the tiebreak`
+        : `${gap} ${gap === 1 ? 'game' : 'games'} apart`;
+      add(COLD, 88, [lastIn, firstOut],
+        `The cut line: ${b(lastIn)} (${stats[lastIn].record}) holds the last spot, ` +
+        `${b(firstOut)} (${stats[firstOut].record}) is first out — ${apart} with ${left(firstOut)} to play.`);
+    }
+
+    // Next week's biggest game: both live, both close to the line
+    const liveness = (id) => (flags[id] ? 0 : 1 - Math.abs(odds[id].playoff - 0.5) * 2);
+    const next = (E.SCHEDULE && E.SCHEDULE[week + 1]) || [];
+    const bigGame = next
+      .map(([a, c]) => ({ a, c, weight: liveness(a) + liveness(c) }))
+      .sort((x, y) => y.weight - x.weight)[0];
+    if (bigGame && bigGame.weight > 0.6) {
+      add(COLD, 87, [bigGame.a, bigGame.c],
+        `Week ${week + 1}'s biggest game: ${b(bigGame.a)} (${playoffPct(bigGame.a)}) against ` +
+        `${b(bigGame.c)} (${playoffPct(bigGame.c)}), with both still live.`);
+    }
+
+    // What winning out is actually worth
+    {
+      const live = E.TEAM_IDS.filter((id) => !flags[id] && left(id) > 0);
+      const target = live.map((id) => ({ id, top: ceiling(id) }))
+        .sort((x, y) => y.top - x.top || odds[y.id].playoff - odds[x.id].playoff)[0];
+      if (target) {
+        const rivals = E.TEAM_IDS.filter((id) => id !== target.id && ceiling(id) > target.top).length;
+        const tail = rivals === 0
+          ? 'nobody else can finish above that'
+          : `only ${rivals} ${rivals === 1 ? 'team' : 'teams'} can finish above that`;
+        add(COLD, 82, [target.id],
+          `${b(target.id)} wins out and finishes ${target.top}–${E.REGULAR_WEEKS - target.top}; ${tail}.`);
+      }
+    }
+
+    // A team whose ceiling is running out
+    {
+      const cutWins = lastIn ? stats[lastIn].wins : null;
+      const brink = E.TEAM_IDS
+        .filter((id) => !flags[id] && cutWins !== null && ceiling(id) <= cutWins + 1 && left(id) > 0)
+        .sort((x, y) => ceiling(x) - ceiling(y))[0];
+      if (brink) {
+        add(COLD, 79, [brink],
+          `${b(brink)} has ${left(brink)} left and a ceiling of ${ceiling(brink)} wins — ` +
+          `the last team in is on ${cutWins}.`);
+      }
+    }
+
+    // The race for the byes
+    if (week >= 9) {
+      const leaders = E.DIVISION_NAMES.map((d) => (now.divisions[d] || [])[0]).filter(Boolean);
+      const chasers = E.DIVISION_NAMES.map((d) => (now.divisions[d] || [])[1]).filter(Boolean);
+      const tight = leaders
+        .map((id, i) => ({ id, chaser: chasers[i], gap: stats[id].wins - stats[chasers[i]].wins }))
+        .filter((r) => r.chaser && r.gap <= 1 && flags[r.id] !== 'z')
+        .sort((x, y) => x.gap - y.gap)[0];
+      if (tight) {
+        // Level on wins is the common case here, and "leads by 0" reads as a
+        // bug even though the arithmetic is right.
+        const standing = tight.gap === 0
+          ? `${b(tight.id)} and ${b(tight.chaser)} are level on ${stats[tight.id].wins} wins`
+          : `${b(tight.id)} leads ${b(tight.chaser)} by ${tight.gap}`;
+        add(COLD, 76, [tight.id, tight.chaser],
+          `The <b>${divisionOf(tight.id)}</b> bye is still open: ${standing} with ${left(tight.id)} to play.`);
+      }
     }
   }
 
