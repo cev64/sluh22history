@@ -48,8 +48,13 @@ dropped to make the page fit).
 
 Starters should be the nine lineup slots (QB, RB, RB, WR, WR, TE, FLEX, FLEX,
 D/ST) and ideally sum to the team's posted score. The bench drives the
-start/sit section: a bench player is only called out when swapping him for the
-worst starter would have flipped the result.
+start/sit section: a bench player is only called out when a **legal** swap
+would have flipped the result. The two flex spots take a running back, receiver
+or tight end, but a quarterback can only replace a quarterback and a defence
+only a defence — so the section reports the best swing across every eligible
+pairing, not the biggest gap on the roster. Comparing the best bench player
+against the worst starter outright suggests things like starting a quarterback
+over a defence, which was never a choice the manager had.
 
 ### The Panel
 
