@@ -4309,7 +4309,17 @@
       const tally = {};
       TEAM_IDS.forEach((id) => { tally[id] = { playoff: 0, division: 0, toilet: 0 }; });
 
+      // Both sides of a future game draw from the SAME league-wide pool of
+      // scores actually posted this season, so every matchup is still exactly
+      // a coin flip — but the points come along too. That matters: points for
+      // is the second tiebreaker, and freezing it at today's value made every
+      // future tie resolve with certainty, which quietly removed real
+      // uncertainty from the answer.
       const rand = mulberry32(week * 7919 + 13);
+      const pool = played.flatMap((g) => [g.as, g.bs]);
+      const draw = pool.length >= 10
+        ? () => pool[Math.floor(rand() * pool.length)]
+        : () => 100 + rand() * 40;
 
       for (let iter = 0; iter < ODDS_ITERATIONS; iter++) {
         const sim = {};
@@ -4318,7 +4328,9 @@
         TEAM_IDS.forEach((a) => { h2h[a] = Object.assign({}, baseH2H[a]); });
 
         remaining.forEach(([a, b]) => {
-          const [win, lose] = rand() < 0.5 ? [a, b] : [b, a];
+          const sa = draw(), sb = draw();
+          sim[a].pf += sa; sim[b].pf += sb;
+          const [win, lose] = sa >= sb ? [a, b] : [b, a];
           sim[win].wins += 1; sim[lose].losses += 1;
           h2h[win][lose] += 1;
           if (teams[a].division === teams[b].division) {
