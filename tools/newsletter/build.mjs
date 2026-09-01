@@ -3,6 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadSeason } from './season.mjs';
 import { boxScore } from './fake-box-scores.mjs';
+import { loadHistory } from './history.mjs';
+import { talkShow, SEGMENTS } from './panel.mjs';
 
 /* Usage:
      node tools/newsletter/build.mjs --season 2026 --week 5
@@ -131,6 +133,31 @@ const nflPill = (pl) => {
   return `<span class="pill" style="background:${c};color:${E.readableInk(c)}">${pl.nfl}</span>`;
 };
 
+/* The Panel. History is every season before this one; "all-time" inside
+   panel.mjs also folds in this season's earlier weeks, so a record claim
+   cannot ignore the season it is printed in. A first season has no archive
+   behind it, so it simply gets no panel. */
+const H = await loadHistory(ROOT, SEASON);
+const panelBullets = H.empty ? [] : talkShow({
+  E, H, week: WEEK, season: SEASON, games, stats, odds, oddsPrev, now, F2, P1, short,
+});
+
+const panelHtml = panelBullets.length ? `
+<div class="panel">
+  <div class="phead">
+    <h2>The Panel</h2>
+    <span>the week, argued out loud &mdash; every line computed from ${H.years[0]}&ndash;${SEASON} league data</span>
+  </div>
+  <div class="pcols">
+    ${SEGMENTS.map(seg => {
+      const rows = panelBullets.filter(x => x.seg === seg.id);
+      if (!rows.length) return '';
+      return `<div class="pcol"><h3>${seg.label}</h3><ul>${rows.map(r =>
+        `<li data-pri="${r.pri}">${r.html}</li>`).join('')}</ul></div>`;
+    }).join('')}
+  </div>
+</div>` : '';
+
 const gameCard = g => `
   <div class="g">
     <div class="gh">${g.margin < 10 ? `<b class="tag">${F2(g.margin)} pts</b>` : `Margin ${F2(g.margin)}`}</div>
@@ -170,6 +197,18 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
   .chip { width:13px; height:13px; border-radius:3.5px; background:var(--c); display:inline-grid;
           place-items:center; font-size:7pt; flex:0 0 auto; }
   .cols { display:grid; grid-template-columns:1.15fr 1fr; gap:14px; margin-top:2px; }
+  .panel { margin-top:10px; padding-top:7px; border-top:2.5px solid #d71920; }
+  .phead { display:flex; align-items:baseline; gap:8px; margin-bottom:5px; }
+  .phead h2 { margin:0; font-size:8.4pt; color:#0b1726; letter-spacing:.13em;
+              text-transform:uppercase; font-weight:900; }
+  .phead span { font-size:6.5pt; color:#8a95a2; }
+  .pcols { display:grid; grid-template-columns:repeat(3,1fr); gap:0 15px; align-items:start; }
+  .pcol h3 { margin:0 0 3px; font-size:6.5pt; font-weight:900; letter-spacing:.13em;
+             text-transform:uppercase; color:#d71920; }
+  .pcol ul { margin:0; padding:0; list-style:none; }
+  .pcol li { position:relative; margin:0 0 3.4px; padding-left:8px; font-size:7.3pt; line-height:1.33; }
+  .pcol li::before { content:"\\2023"; position:absolute; left:0; top:-.5px; color:#c3ccd6; }
+  .pcol li b { font-weight:900; }
   ul { margin:0; padding-left:12px; }
   li { margin-bottom:3px; }
   b { color:#0b1726; }
@@ -260,7 +299,7 @@ const html = `<!doctype html><meta charset="utf-8"><title>Week ${WEEK} Recap</ti
     </ul>
   </div>
 </div>
-
+${panelHtml}
 <div class="foot">
   <span>League History · leaguehistory site · standings and odds computed from the league rulebook</span>
   <span>${FABRICATED ? '<b>SAMPLE — player-level box scores are fabricated for layout review. Team scores are real.</b>' : `Week ${WEEK} box scores as recorded`}</span>
@@ -282,16 +321,51 @@ function writeNewsletterIndex(dir) {
   return index;
 }
 
+const PAGE_PX = Number(process.env.NEWSLETTER_PAGE_PX || (11 * 96 - 2 * 0.42 * 96));
+
 const pdfPath = path.join(OUT_DIR, `SLUH22-${SEASON}-Week${WEEK}-Newsletter.pdf`);
 const chromium = await loadChromium();
 const b = await chromium.launch();
-const p = await b.newPage();
+/* Measure at the width the sheet actually prints at. A default 1280px viewport
+   wraps the text far less than a 7.66in column does, so scrollHeight there
+   reports a page that fits while the PDF quietly runs onto a second sheet. */
+const PRINT_W = Math.round(8.5 * 96 - 2 * 0.42 * 96);
+const p = await b.newPage({ viewport: { width: PRINT_W, height: Math.round(PAGE_PX) } });
 await p.setContent(html, { waitUntil: 'networkidle' });
+
+/* The panel is the sheet's shock absorber. Everything above it is fixed by
+   the week itself, so the only way to keep a loud week and a quiet week on
+   the same single sheet is to render every bullet and then shed the least
+   important ones until the page fits. Measuring beats guessing: bullet
+   heights depend on how the text wraps, which nothing can predict. */
+const panelTrimmed = await p.evaluate((limit) => {
+  const dropped = [];
+  for (;;) {
+    if (document.body.scrollHeight <= limit) break;
+    const columns = [...document.querySelectorAll('.pcol')].filter((c) => c.querySelector('li[data-pri]'));
+    if (!columns.length) {
+      const panel = document.querySelector('.panel');
+      if (panel) { panel.remove(); continue; }               // nothing left to shed
+      break;
+    }
+    // The band is as tall as its tallest column, so shedding from a short one
+    // changes nothing. Take the least important bullet out of the tallest.
+    const tallest = columns.reduce((m, c) => (c.offsetHeight > m.offsetHeight ? c : m));
+    const bullets = [...tallest.querySelectorAll('li[data-pri]')];
+    const lowest = bullets.reduce((m, el) =>
+      (Number(el.dataset.pri) < Number(m.dataset.pri) ? el : m));
+    dropped.push(lowest.textContent.replace(/\s+/g, ' ').trim().slice(0, 70));
+    lowest.remove();
+    if (!tallest.querySelector('li')) tallest.remove();
+  }
+  return dropped;
+}, PAGE_PX);
+
+const panelPrinted = await p.evaluate(() => document.querySelectorAll('.pcol li[data-pri]').length);
 await p.pdf({ path: pdfPath, format: 'Letter', printBackground: true });
 const height = await p.evaluate(() => document.body.scrollHeight);
 await b.close();
 
-const PAGE_PX = 11 * 96 - 2 * 0.42 * 96;
 if (height > PAGE_PX) {
   console.warn(`WARNING: content is ${height}px against a ${Math.round(PAGE_PX)}px page — it will spill to a second sheet.`);
 }
@@ -299,4 +373,5 @@ const published = writeNewsletterIndex(OUT_DIR);
 console.log(JSON.stringify({ pdf: pdfPath, week: WEEK, season: SEASON, fake: FABRICATED,
   boxSource: BOX_FILE ? 'flag' : FABRICATED ? 'fabricated' : 'imported',
   heightPx: height, onePage: height <= PAGE_PX, benchBlunders: blunders.length,
+  panelBullets: panelPrinted, panelTrimmed,
   published }, null, 2));
