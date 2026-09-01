@@ -9,8 +9,9 @@ boxscores/<season>/index.json      the weeks that exist, rebuilt on every import
 
 Two things read these files and nothing else does:
 
-- the season page, which fetches a week only when someone opens a matchup —
-  the files are larger than the page itself, so they are never loaded up front
+- the season page, which fetches a week only when someone opens a matchup, on
+  the weekly Results tab or in the playoff bracket — the files are larger than
+  the page itself, so they are never loaded up front
 - `tools/newsletter/build.mjs`, which picks the file up automatically and stops
   stamping the sheet SAMPLE
 
@@ -31,6 +32,14 @@ Nothing is written unless every week validates against the season page: the
 same pairings, the same scores, and every team's starters summing to its posted
 score. A box score that disagrees with the standings is a bad import, not a new
 fact, so the run fails whole rather than writing part of it.
+
+Regular-season weeks are checked against `results`, playoff weeks against
+`postseason` — the block the bracket is drawn from. The page does not record
+every playoff game: it carries the nine the bracket shows, while the export
+also has the consolation games nobody displays. Those extra games are still
+imported, but nothing on the page can vouch for them, so the run reports
+`gamesCheckedAgainstPage` and `gamesCheckedOnlyBySum` separately rather than
+implying they were all verified the same way.
 
 ## Two things about the raw data
 
