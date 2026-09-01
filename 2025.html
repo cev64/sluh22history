@@ -2878,12 +2878,27 @@
 
     .odds-head .odds-track { background: none; height: auto; }
 
-    .odds-fill {
-      display: block;
-      height: 100%;
-      border-radius: 999px;
-      background: var(--blue);
+    .odds-track { display: flex; gap: 2px; }
+    .odds-head .odds-track { display: block; }
+
+    .odds-seg { height: 100%; flex: 0 0 auto; }
+    .odds-seg.s-bye { background: #0f4c9e; }
+    .odds-seg.s-in { background: #5a9bec; }
+
+    .odds-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 15px;
+      align-items: center;
+      padding: 13px 16px 2px;
+      font-size: 11.5px;
+      color: var(--muted);
     }
+
+    .odds-key { width: 11px; height: 11px; min-height: 0; border-radius: 3px; background: #e7ebf0; display: block; flex: 0 0 auto; }
+    .odds-key.s-bye { background: #0f4c9e; }
+    .odds-key.s-in { background: #5a9bec; }
+    .odds-legend .sub-note { font-style: italic; }
 
     .odds-pct {
       flex: 0 0 auto;
@@ -4367,12 +4382,21 @@
         odds[b].division - odds[a].division ||
         teams[a].name.localeCompare(teams[b].name));
 
+      // One bar per team split into the three things a season can end as:
+      // a bye, a playoff place without one, or missing out. Whole-season
+      // shape reads better than a single number that saturates near the top.
       const row = (id) => {
         const o = odds[id];
+        const bye = o.division * 100;
+        const inNoBye = Math.max(0, (o.playoff - o.division) * 100);
         return `<div class="odds-row">
           ${miniTeam(id)}
           <span class="odds-team">${teams[id].name}</span>
-          <span class="odds-track"><span class="odds-fill" style="width:${(o.playoff * 100).toFixed(1)}%"></span></span>
+          <span class="odds-track" role="img"
+            aria-label="${oddsText(o.division)} bye, ${oddsText(o.playoff)} playoffs, ${oddsText(o.toilet)} out">
+            ${bye > 0.4 ? `<span class="odds-seg s-bye" style="width:${bye.toFixed(1)}%"></span>` : ""}
+            ${inNoBye > 0.4 ? `<span class="odds-seg s-in" style="width:${inNoBye.toFixed(1)}%"></span>` : ""}
+          </span>
           <span class="odds-pct primary">${oddsText(o.playoff)}</span>
           <span class="odds-pct">${oddsText(o.division)}</span>
           <span class="odds-pct">${oddsText(o.toilet)}</span>
@@ -4381,12 +4405,18 @@
 
       return `<article class="card">
         ${cardHead("Playoff Odds", "%", `Every remaining game a coin flip`)}
+        <div class="odds-legend">
+          <span class="legend-key"><span class="odds-key s-bye"></span>First-round bye</span>
+          <span class="legend-key"><span class="odds-key s-in"></span>Playoffs, no bye</span>
+          <span class="legend-key"><span class="odds-key out"></span>Missed</span>
+          <span class="legend-key sub-note">Six of ten make it, so the league average is 60%.</span>
+        </div>
         <div class="odds-head">
           <span class="odds-team">Team</span>
           <span class="odds-track"></span>
           <span class="odds-pct primary">Playoff</span>
-          <span class="odds-pct">Division</span>
-          <span class="odds-pct">Toilet</span>
+          <span class="odds-pct">Bye</span>
+          <span class="odds-pct">Out</span>
         </div>
         <div class="odds-grid">${ranked.map(row).join("")}</div>
       </article>`;
