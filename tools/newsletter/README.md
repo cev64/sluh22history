@@ -42,5 +42,31 @@ worst starter would have flipped the result.
 
 ### Output
 
-Prints JSON with the PDF path and `onePage`. If the content overflows a single
-sheet the script warns — trim a section rather than shipping two pages.
+Prints JSON with the PDF path, `onePage`, and `published` — the weeks the
+output folder now holds, per season. If the content overflows a single sheet
+the script warns — trim a section rather than shipping two pages.
+
+### Publishing to the site
+
+The season pages show a **Download PDF** button on a week's Weekly Summary tab
+when that week has a newsletter. Build into `newsletters/` and commit the file:
+
+```bash
+node tools/newsletter/build.mjs --season 2026 --week 5 --box week5-box.json --out newsletters
+git add newsletters && git commit -m "Week 5 newsletter"
+```
+
+Alongside the PDF the script rewrites `<out>/index.json`, the list of weeks the
+folder actually contains, which is what the pages read. It is rebuilt from the
+folder every run rather than appended to, so deleting a PDF and rebuilding
+withdraws the button; editing that file by hand is how it goes wrong. The
+pages ask for the index once and show nothing if it is missing, so a site with
+no newsletters yet simply has no buttons.
+
+The service worker serves same-origin files cache-first and refreshes them in
+the background, so a reader who already has the site installed may not see a
+brand-new week's button until their next visit.
+
+Only commit newsletters built with `--box`. `--fake` fabricates player lines
+and stamps the sheet SAMPLE — fine for checking layout, not for the league to
+read.
