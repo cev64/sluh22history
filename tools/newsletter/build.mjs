@@ -84,17 +84,39 @@ games.forEach(g => [g.a, g.b].forEach(id =>
   g.box[id].starters.forEach(p => perf.push({ ...p, team: id }))));
 perf.sort((x, y) => y.pts - x.pts);
 
-// A bench call only matters if swapping the best bench player for the worst
-// starter would have flipped the result.
+/* A bench player can only come in for a starter whose slot he is eligible for.
+   The two flex spots take a running back, receiver or tight end, but a
+   quarterback can only replace a quarterback and a defence only a defence —
+   comparing the best bench player against the worst starter outright will
+   happily suggest starting a quarterback over a defence, which was never a
+   choice the manager had. */
+const SLOT_ELIGIBLE = {
+  QB: ['QB'], RB: ['RB'], WR: ['WR'], TE: ['TE'],
+  FLEX: ['RB', 'WR', 'TE'], 'D/ST': ['D/ST'],
+};
+// Imported lineups carry both; the fabricated ones name the slot in `pos`.
+const slotOf = (pl) => pl.slot || pl.pos;
+const canFill = (bench, starter) => (SLOT_ELIGIBLE[slotOf(starter)] || []).includes(bench.pos);
+
+// A bench call only matters if a legal swap would have flipped the result, so
+// this takes the best swing available across every eligible pairing rather
+// than the biggest gap on the roster.
 const blunders = [];
 games.forEach(g => {
   [g.a, g.b].forEach(id => {
     if (id === g.win) return;
     const deficit = Math.abs(g.as - g.bs);
-    const bench = g.box[id].bench.slice().sort((x, y) => y.pts - x.pts)[0];
-    const worst = g.box[id].starters.slice().sort((x, y) => x.pts - y.pts)[0];
-    const swing = bench.pts - worst.pts;
-    if (swing > deficit) blunders.push({ team: id, bench, worst, swing, deficit, opp: g.win });
+    let best = null;
+    for (const bench of g.box[id].bench) {
+      for (const starter of g.box[id].starters) {
+        if (!canFill(bench, starter)) continue;
+        const swing = bench.pts - starter.pts;
+        if (swing > 0 && (!best || swing > best.swing)) best = { bench, worst: starter, swing };
+      }
+    }
+    if (best && best.swing > deficit) {
+      blunders.push({ team: id, bench: best.bench, worst: best.worst, swing: best.swing, deficit, opp: g.win });
+    }
   });
 });
 blunders.sort((x, y) => (y.swing - y.deficit) - (x.swing - x.deficit));
