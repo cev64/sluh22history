@@ -30,6 +30,7 @@ export async function loadSeason(season, repoRoot) {
   if (need('teams')) pieces.push(grab(src, 'teams', '{', '}'));
   if (need('divisionOrder')) pieces.push(grab(src, 'divisionOrder', '{', '}'));
   if (need('schedule')) pieces.push(grab(src, 'schedule', '{', '}'));
+  if (need('postseason')) pieces.push(grab(src, 'postseason', '{', '}'));
 
   if (need('regularGames') && need('results')) {
     pieces.push(grab(src, 'regularGames', '[', ']'));
@@ -46,7 +47,7 @@ export async function loadSeason(season, repoRoot) {
   // differ (no divisions in 2022-23, no odds engine before 2025).
   const names = ['teams', 'divisionOrder', 'weekResults', 'weekSchedule', 'schedule', 'results',
     'REGULAR_WEEKS', 'TEAM_IDS', 'DIVISION_NAMES', 'computeStats', 'buildPicture',
-    'NFL_TEAMS', 'readableInk',
+    'NFL_TEAMS', 'readableInk', 'postseason',
     'playoffOdds', 'oddsText', 'gamesThrough', 'fmt'];
   const body = pieces.join('\n');
   const defined = names.filter((n) => new RegExp(`(const|function) ${n}\\b`).test(body));

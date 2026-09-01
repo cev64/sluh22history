@@ -2567,6 +2567,23 @@
     .game-card.bx-has:hover { border-color: var(--blue); transform: translateY(-1px); }
     .game-card.bx-has:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
+    .matchup.bx-has { cursor: pointer; }
+    .matchup.bx-has:hover { border-color: var(--blue); }
+    .matchup.bx-has:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    .bx-cue-row {
+      display: block;
+      padding: 3px 8px 5px;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .bx-cue-row::after { content: " \203A"; }
+
     .bx-backdrop {
       position: fixed;
       inset: 0;
@@ -2650,6 +2667,12 @@
       z-index: 1;
     }
 
+    /* The scoreboard's centre cell carries no slot label, and its grey fill was
+       painting over long totals like 176.38. No fill, wider score cells, and a
+       narrower middle so the overall width still matches the rows below. */
+    .bx-sb { grid-template-columns: minmax(0, 1fr) 62px 28px 62px minmax(0, 1fr); }
+    .bx-sb .bx-slot { background: none; }
+
     .bx-sb .bx-name { font-weight: 900; font-size: 13.5px; }
     .bx-sb .bx-p { padding: 0; }
     .bx-sb .bx-p.bx-l { padding-right: 10px; }
@@ -2729,7 +2752,8 @@
       .bx-modal { width: calc(100vw - 14px); max-height: 92vh; }
       .bx-head { padding: 10px 12px; }
       .bx-head h3 { font-size: 12.5px; }
-      .bx-sb, .bx-row { grid-template-columns: minmax(0, 1fr) 42px 40px 42px minmax(0, 1fr); }
+      .bx-row { grid-template-columns: minmax(0, 1fr) 42px 40px 42px minmax(0, 1fr); }
+      .bx-sb { grid-template-columns: minmax(0, 1fr) 52px 20px 52px minmax(0, 1fr); }
       .bx-sb, .bx-row { padding-left: 8px; padding-right: 8px; }
       .bx-name { font-size: 11.5px; }
       .bx-sb .bx-name { font-size: 12px; }
@@ -5223,6 +5247,7 @@
           card.classList.add("bx-has");
           card.dataset.bxA = ids[0];
           card.dataset.bxB = ids[1];
+          card.dataset.bxWeek = String(week);
           card.tabIndex = 0;
           card.setAttribute("role", "button");
           card.setAttribute("aria-label", `Box score: ${teams[ids[0]].name} versus ${teams[ids[1]].name}`);
@@ -5283,6 +5308,45 @@
         </div>`;
       }
       return out;
+    }
+
+
+    /* The playoff bracket is static markup, so it is wired once rather than on
+       every render.
+
+       A matchup's week comes from `postseason` — the block the bracket was
+       written from — matched on the scores shown in the matchup, not on the
+       opponent alone. Two teams can meet twice in the same postseason (LaPorta
+       Potty and Jared's Pack Attack played both Game 2 and Game 4), so matching
+       on the opponent would have pointed the last-place game at Week 15. */
+    function markBracketBoxScores() {
+      if (typeof postseason === "undefined") return;
+      const cells = document.querySelectorAll(".matchup");
+      if (!cells.length) return;
+      boxWeeks().then((weeks) => {
+        cells.forEach((matchup) => {
+          if (matchup.classList.contains("bx-has")) return;
+          const ids = [...matchup.querySelectorAll("[data-team]")].map((el) => el.dataset.team);
+          if (ids.length !== 2) return;                       // a bye has one side
+          const shown = [...matchup.querySelectorAll(".matchup-row .score")]
+            .map((el) => parseFloat(el.textContent.replace(/,/g, "")));
+          if (shown.length !== 2 || shown.some(Number.isNaN)) return;
+          const entry = (postseason[ids[0]] || []).find((g) =>
+            g.opponent === ids[1] &&
+            Math.abs(g.teamScore - shown[0]) < 0.005 &&
+            Math.abs(g.oppScore - shown[1]) < 0.005);
+          if (!entry || !weeks.has(entry.week)) return;
+          matchup.classList.add("bx-has");
+          matchup.dataset.bxA = ids[0];
+          matchup.dataset.bxB = ids[1];
+          matchup.dataset.bxWeek = String(entry.week);
+          matchup.tabIndex = 0;
+          matchup.setAttribute("role", "button");
+          matchup.setAttribute("aria-label",
+            `Box score: ${teams[ids[0]].name} versus ${teams[ids[1]].name}`);
+          matchup.insertAdjacentHTML("beforeend", `<div class="bx-cue-row">Box score</div>`);
+        });
+      });
     }
 
     const bxModal = document.getElementById("bxModal");
@@ -5347,18 +5411,21 @@
     if (bxModal) {
       document.addEventListener("click", (event) => {
         if (event.target.closest("#bxClose") || event.target.closest("#bxBackdrop")) { closeBox(); return; }
-        // The team buttons inside a card open the team drawer; leave them alone.
+        // The team buttons inside a card or a bracket matchup open the team
+        // drawer; leave them alone.
         if (event.target.closest("[data-team]")) return;
-        const card = event.target.closest(".game-card.bx-has");
-        if (card) openBox(state.week, card.dataset.bxA, card.dataset.bxB);
+        const card = event.target.closest("[data-bx-week]");
+        if (card) openBox(Number(card.dataset.bxWeek), card.dataset.bxA, card.dataset.bxB);
       });
 
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && bxModal.classList.contains("open")) { closeBox(); return; }
         if (event.key !== "Enter" && event.key !== " ") return;
-        const card = event.target.closest && event.target.closest(".game-card.bx-has");
-        if (card) { event.preventDefault(); openBox(state.week, card.dataset.bxA, card.dataset.bxB); }
+        const card = event.target.closest && event.target.closest("[data-bx-week]");
+        if (card) { event.preventDefault(); openBox(Number(card.dataset.bxWeek), card.dataset.bxA, card.dataset.bxB); }
       });
+
+      markBracketBoxScores();
     }
 
     /* =================================================================

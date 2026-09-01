@@ -83,6 +83,27 @@ function orderLineup(players) {
 
 const E = await loadSeason(SEASON, ROOT);
 const RESULTS = E.RESULTS;
+const POSTSEASON = E.postseason || {};
+
+/* The regular season is checked against `results`; the playoff weeks against
+   `postseason`, which the bracket is drawn from.
+
+   The page does not record every playoff game — it carries the nine the
+   bracket shows, while the export also has the consolation games nobody
+   displays. Those extra games are still imported, but they can only be
+   checked against themselves, so the run reports the two counts separately
+   rather than implying the page vouched for all of them. */
+function postseasonPairing(week, a, b) {
+  const entries = POSTSEASON[a] || [];
+  return entries.find((g) => g.week === week && g.opponent === b) || null;
+}
+
+function postseasonWeeks() {
+  const weeks = new Set();
+  for (const games of Object.values(POSTSEASON)) for (const g of games) weeks.add(g.week);
+  return weeks;
+}
+const POST_WEEKS = postseasonWeeks();
 
 const files = fs.readdirSync(IN_DIR).filter((f) => f.endsWith('.json')).sort();
 if (!files.length) throw new Error(`no .json files in ${IN_DIR}`);
@@ -93,19 +114,22 @@ fs.mkdirSync(outDir, { recursive: true });
 const problems = [];
 const written = [];
 let playerCount = 0;
+let crossChecked = 0;
+let sumOnly = 0;
 
 for (const file of files) {
   const raw = JSON.parse(fs.readFileSync(path.join(IN_DIR, file), 'utf8'));
   const week = raw.week;
   if (ONLY_WEEK !== null && week !== ONLY_WEEK) continue;
 
-  // Only weeks the season page has posted results for; the page is the authority
-  // on what counts as a played regular-season week.
+  // A week counts if the page has posted results for it, or if it is one of
+  // the playoff weeks the bracket is built from.
   const posted = RESULTS[week];
-  if (!posted || !posted.length) { continue; }
+  const isPost = POST_WEEKS.has(week);
+  if ((!posted || !posted.length) && !isPost) { continue; }
 
   const bySite = new Map();
-  posted.forEach(([a, as, b, bs]) => bySite.set([a, b].sort().join('|'), { [a]: as, [b]: bs }));
+  (posted || []).forEach(([a, as, b, bs]) => bySite.set([a, b].sort().join('|'), { [a]: as, [b]: bs }));
 
   const games = [];
   for (const m of raw.matchups) {
@@ -116,9 +140,27 @@ for (const file of files) {
 
     const key = [home, away].sort().join('|');
     const site = bySite.get(key);
-    if (!site) { problems.push(`week ${week}: ${home} v ${away} is not a pairing on the season page`); continue; }
-    if (Math.abs(site[home] - m.home.score) > 0.005 || Math.abs(site[away] - m.away.score) > 0.005) {
-      problems.push(`week ${week} ${home} v ${away}: export ${m.home.score}-${m.away.score}, page ${site[home]}-${site[away]}`);
+    const post = isPost ? postseasonPairing(week, home, away) : null;
+
+    if (site) {
+      if (Math.abs(site[home] - m.home.score) > 0.005 || Math.abs(site[away] - m.away.score) > 0.005) {
+        problems.push(`week ${week} ${home} v ${away}: export ${m.home.score}-${m.away.score}, page ${site[home]}-${site[away]}`);
+        continue;
+      }
+      crossChecked++;
+    } else if (post) {
+      if (Math.abs(post.teamScore - m.home.score) > 0.005 || Math.abs(post.oppScore - m.away.score) > 0.005) {
+        problems.push(`week ${week} ${home} v ${away} (${post.label}): export ${m.home.score}-${m.away.score}, page ${post.teamScore}-${post.oppScore}`);
+        continue;
+      }
+      crossChecked++;
+    } else if (isPost) {
+      // A real playoff game the bracket does not display, so there is nothing
+      // on the page to check it against. The starter-sum check below still
+      // applies, and the run reports how many landed here.
+      sumOnly++;
+    } else {
+      problems.push(`week ${week}: ${home} v ${away} is not a pairing on the season page`);
       continue;
     }
 
@@ -166,4 +208,5 @@ const have = fs.readdirSync(outDir)
   .filter(Boolean).map((m) => Number(m[1])).sort((a, b) => a - b);
 fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify(have) + '\n');
 
-console.log(JSON.stringify({ season: SEASON, weeks: written.sort((a, b) => a - b), players: playerCount, index: have }, null, 2));
+console.log(JSON.stringify({ season: SEASON, weeks: written.sort((a, b) => a - b), players: playerCount,
+  gamesCheckedAgainstPage: crossChecked, gamesCheckedOnlyBySum: sumOnly, index: have }, null, 2));
