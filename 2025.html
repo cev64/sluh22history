@@ -2910,6 +2910,7 @@
     }
 
     .odds-pct.primary { font-size: 14px; font-weight: 900; color: var(--ink); }
+    .odds-pct.settled { color: var(--ink); font-weight: 900; }
     .odds-head .odds-pct { font-size: 10px; font-weight: 900; color: var(--muted); }
 
     @media (max-width: 700px) {
@@ -4277,6 +4278,48 @@
       };
     }
 
+
+    /* The rulebook's tie procedure, run against a simulated season.
+
+       A pairwise comparator cannot do this job: with three teams level, the
+       rule is each team's record against the whole tied group, and pairwise
+       head-to-head is not even transitive. Sorting pairwise silently handed
+       three-way ties to the wrong team — 2025's real Xavier finish is exactly
+       such a tie, and the simulation got it backwards until this replaced it. */
+    function simTieOrder(group, sim, h2h) {
+      if (group.length <= 1) return group.slice();
+
+      if (group.length === 2) {
+        const [a, b] = group;
+        if (h2h[a][b] !== h2h[b][a]) return h2h[a][b] > h2h[b][a] ? [a, b] : [b, a];
+        if (sim[a].pf !== sim[b].pf) return sim[a].pf > sim[b].pf ? [a, b] : [b, a];
+        const da = sim[a].divWins - sim[a].divLosses;
+        const db = sim[b].divWins - sim[b].divLosses;
+        return da >= db ? [a, b] : [b, a];
+      }
+
+      // Record against the other teams in the tie.
+      const rec = {};
+      group.forEach((id) => {
+        let w = 0, l = 0;
+        group.forEach((other) => { if (other !== id) { w += h2h[id][other]; l += h2h[other][id]; } });
+        rec[id] = (w + l) ? w / (w + l) : -1;
+      });
+
+      const tiers = [...new Set(group.map((id) => rec[id]))].sort((x, y) => y - x);
+      if (tiers.length === 1) return group.slice().sort((a, b) => sim[b].pf - sim[a].pf);
+      return tiers.flatMap((t) => simTieOrder(group.filter((id) => rec[id] === t), sim, h2h));
+    }
+
+    function simDivisionOrder(ids, sim, h2h) {
+      const buckets = [];
+      ids.slice().sort((a, b) => sim[b].wins - sim[a].wins).forEach((id) => {
+        const bucket = buckets.find((x) => x.wins === sim[id].wins);
+        if (bucket) bucket.ids.push(id); else buckets.push({ wins: sim[id].wins, ids: [id] });
+      });
+      return buckets.flatMap((b) => simTieOrder(b.ids, sim, h2h));
+    }
+
     const oddsCache = {};
 
     function playoffOdds(week) {
@@ -4338,17 +4381,9 @@
           }
         });
 
-        // Division order: record, then head-to-head, points for, division record.
         const divisionOrders = {};
         DIVISION_NAMES.forEach((d) => {
-          divisionOrders[d] = divisionOrder[d].slice().sort((a, b) => {
-            if (sim[b].wins !== sim[a].wins) return sim[b].wins - sim[a].wins;
-            const ha = h2h[a][b], hb = h2h[b][a];
-            if (ha !== hb) return hb - ha;
-            if (sim[b].pf !== sim[a].pf) return sim[b].pf - sim[a].pf;
-            const da = sim[a].divWins - sim[a].divLosses, db = sim[b].divWins - sim[b].divLosses;
-            return db - da;
-          });
+          divisionOrders[d] = simDivisionOrder(divisionOrder[d], sim, h2h);
         });
 
         const seeded = [];
@@ -4389,6 +4424,11 @@
        standings themselves stay exactly as they were. */
     function oddsCard(week) {
       const odds = playoffOdds(week);
+      // The clinch test is a proof, not an estimate, so where it fires the card
+      // shows a flat 100% or 0% instead of the simulation's ">99%". A simulation
+      // can reach 1.000 by luck; a clinch cannot be undone by any remaining
+      // result, so it is the honest thing to defer to.
+      const flags = buildPicture(week).flags;
       const ranked = TEAM_IDS.slice().sort((a, b) =>
         odds[b].playoff - odds[a].playoff ||
         odds[b].division - odds[a].division ||
@@ -4399,19 +4439,31 @@
       // shape reads better than a single number that saturates near the top.
       const row = (id) => {
         const o = odds[id];
-        const bye = o.division * 100;
-        const inNoBye = Math.max(0, (o.playoff - o.division) * 100);
+        const flag = flags[id];                    // "z" bye · "x" berth · "e" out
+        const locked = flag === "z" || flag === "x";
+        const gone = flag === "e";
+
+        const playoff = locked ? 1 : gone ? 0 : o.playoff;
+        const byeP = flag === "z" ? 1 : gone ? 0 : o.division;
+        const outP = 1 - playoff;
+
+        // A settled outcome prints exactly; an unsettled one keeps the
+        // simulation's hedge so 99.6% never masquerades as certainty.
+        const show = (p, settled) => (settled ? `${Math.round(p * 100)}%` : oddsText(p));
+        const byeW = byeP * 100;
+        const inW = Math.max(0, (playoff - byeP) * 100);
+
         return `<div class="odds-row">
           ${miniTeam(id)}
           <span class="odds-team">${teams[id].name}</span>
           <span class="odds-track" role="img"
-            aria-label="${oddsText(o.division)} bye, ${oddsText(o.playoff)} playoffs, ${oddsText(o.toilet)} out">
-            ${bye > 0.4 ? `<span class="odds-seg s-bye" style="width:${bye.toFixed(1)}%"></span>` : ""}
-            ${inNoBye > 0.4 ? `<span class="odds-seg s-in" style="width:${inNoBye.toFixed(1)}%"></span>` : ""}
+            aria-label="${show(byeP, flag === "z" || gone)} bye, ${show(playoff, locked || gone)} playoffs, ${show(outP, locked || gone)} out">
+            ${byeW > 0.4 ? `<span class="odds-seg s-bye" style="width:${byeW.toFixed(1)}%"></span>` : ""}
+            ${inW > 0.4 ? `<span class="odds-seg s-in" style="width:${inW.toFixed(1)}%"></span>` : ""}
           </span>
-          <span class="odds-pct primary">${oddsText(o.playoff)}</span>
-          <span class="odds-pct">${oddsText(o.division)}</span>
-          <span class="odds-pct">${oddsText(o.toilet)}</span>
+          <span class="odds-pct primary ${locked || gone ? "settled" : ""}">${show(playoff, locked || gone)}</span>
+          <span class="odds-pct ${flag === "z" || gone ? "settled" : ""}">${show(byeP, flag === "z" || gone)}</span>
+          <span class="odds-pct ${locked || gone ? "settled" : ""}">${show(outP, locked || gone)}</span>
         </div>`;
       };
 
