@@ -32,6 +32,9 @@ The printed JSON reports `boxSource` (`imported`, `flag` or `fabricated`) and
 `fake`, which now follows what was actually used rather than what was asked
 for.
 
+It also reports `panelBullets` (how many printed) and `panelTrimmed` (the ones
+dropped to make the page fit).
+
 ### Box score shape
 
 ```json
@@ -47,6 +50,54 @@ Starters should be the nine lineup slots (QB, RB, RB, WR, WR, TE, FLEX, FLEX,
 D/ST) and ideally sum to the team's posted score. The bench drives the
 start/sit section: a bench player is only called out when swapping him for the
 worst starter would have flipped the result.
+
+### The Panel
+
+The bottom third of the sheet is a talk-show band: three columns of short
+bullets — **Cold Open** (this week), **The Callback** (league history) and
+**By the Numbers**.
+
+`history.mjs` reads `teams`, `regularGames`, `postseason` and `finalOrder` out
+of every archive season page and keys everything by **owner**. Team ids are
+reassigned between seasons — `packers` and `metcalf` come and go, and Charlie
+alone has been `oneen`, `olave`, `saint` and `game` — so an id means nothing
+across years. It pulls the blocks out by scanning matched delimiters rather
+than by a closing-brace regex, because the archive pages are hand-maintained
+and not uniformly indented.
+
+`panel.mjs` offers around two dozen candidate bullets and returns only the ones
+the numbers support. Nothing is predicted and nothing is invented: a generator
+that cannot compute its claim returns nothing rather than hedging, so a quiet
+week simply gets a shorter panel. **"All-time" includes this season's earlier
+weeks**, not just the archives — a record claim that ignored weeks 1–6 of the
+season it is printed in would be wrong. No franchise gets more than two bullets
+in the body; a third is demoted to a reserve that prints last and a fourth is
+dropped. Redundant pairs are suppressed: a winless team does not also get its
+losing streak as a separate bullet, and a week that broke the all-time record
+does not also get "that is his career best".
+
+Career win-loss lines are **regular season only**, matching every other record
+this league quotes; best and worst single weeks do count playoff games, because
+a playoff week is still a week someone scored in.
+
+**Auto-fit.** The panel is the sheet's shock absorber. Everything above it is
+fixed by the week itself, so `build.mjs` renders every bullet, measures the
+page, and drops the least important bullet from the *tallest* column until the
+page fits — the band is as tall as its tallest column, so shedding from a short
+one changes nothing. A column that empties is removed, and if every column
+empties the whole panel goes rather than half-rendering.
+
+Two things make that measurement trustworthy. The page is measured at the width
+the sheet actually prints at (7.66in), because a default 1280px viewport wraps
+the text far less and will report a page that fits while the PDF quietly runs
+onto a second sheet. And `NEWSLETTER_PAGE_PX` overrides the page height, which
+is how to exercise the trim loop deliberately:
+
+```bash
+NEWSLETTER_PAGE_PX=820 node tools/newsletter/build.mjs --season 2025 --week 3 --out /tmp/nl
+```
+
+A season with no archive behind it gets no panel at all.
 
 ### Output
 
