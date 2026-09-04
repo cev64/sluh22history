@@ -10,7 +10,10 @@
      userData.glints      — points that catch an additive sparkle */
 
 import * as THREE from "three";
-import { crestTexture, marbleTexture, mix, nameplateTexture, recordFaceTexture, teamPlaqueTexture, woodTexture, yearPlateTexture } from "./textures.js";
+import {
+  crestTexture, marbleTexture, mix, nameplateTexture, pennantTexture, recordFaceTexture,
+  teamFlagTexture, teamPlaqueTexture, woodTexture, yearPlateTexture
+} from "./textures.js";
 
 const TAU = Math.PI * 2;
 
@@ -609,7 +612,7 @@ export function buildShield(item) {
 
 /* A record plaque: walnut board, brass face, studs at the corners, tilted back
    on a stand the way a real one leans in a case. */
-export function buildPlaque(item) {
+export function buildPlaque(item, { mounted = false } = {}) {
   const group = new THREE.Group();
   const board = new THREE.Group();
 
@@ -658,15 +661,20 @@ export function buildPlaque(item) {
   crest.position.set(0, 0.42, 0.062);
 
   board.add(backing, trim, face, studs, crest);
-  board.position.y = 0.82;
-  board.rotation.x = -0.13;
 
-  const foot = new THREE.Mesh(roundedBox(0.66, 0.1, 0.36, 0.03), shared.darkMarble);
-  foot.position.y = 0.05;
-  const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.34, 12), trimMetal);
-  strut.position.set(0, 0.24, -0.02);
+  if (mounted) {
+    // Hung on a wall rather than stood on a plinth: no foot, no lean.
+    group.add(board);
+  } else {
+    board.position.y = 0.82;
+    board.rotation.x = -0.13;
 
-  group.add(foot, strut, board);
+    const foot = new THREE.Mesh(roundedBox(0.66, 0.1, 0.36, 0.03), shared.darkMarble);
+    foot.position.y = 0.05;
+    const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.34, 12), trimMetal);
+    strut.position.set(0, 0.24, -0.02);
+    group.add(foot, strut, board);
+  }
   group.userData.spin = [];
   group.userData.glints = [new THREE.Vector3(0.42, 1.32, 0.1), new THREE.Vector3(-0.42, 0.55, 0.1)];
   group.userData.faceForward = true;
@@ -729,6 +737,116 @@ export function buildToilet(item) {
     new THREE.Vector3(0.2, 0.5, 0.16),
     new THREE.Vector3(0, 0.83, -0.3)
   ];
+  return group;
+}
+
+/* ------------------------------------------------- the team locker's pieces */
+
+/* A silver bowl, one for every time a manager reached the title game. Winners
+   get one too: turning up is the thing being marked, not the result. */
+export function buildSilverBowl(item) {
+  const group = new THREE.Group();
+
+  const plinth = new THREE.Mesh(roundedBox(0.28, 0.075, 0.28, 0.02), shared.darkMarble);
+  plinth.position.y = 0.037;
+
+  const bowl = new THREE.Mesh(lathe([
+    [0.000, 0.000], [0.098, 0.000], [0.104, 0.020], [0.084, 0.036],
+    [0.052, 0.052], [0.049, 0.082], [0.088, 0.112], [0.148, 0.152],
+    [0.198, 0.212], [0.224, 0.270], [0.235, 0.302], [0.238, 0.316],
+    [0.233, 0.324], [0.220, 0.316], [0.204, 0.272], [0.160, 0.204],
+    [0.100, 0.152], [0.000, 0.140]
+  ], 48), shared.silver);
+  bowl.position.y = 0.075;
+  bowl.castShadow = true;
+
+  const plate = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.19, 0.05),
+    new THREE.MeshStandardMaterial({
+      map: nameplateTexture({ title: String(item.year), sub: null, accent: item.accent }),
+      metalness: 0.28,
+      roughness: 0.34,
+      envMap: shared.envMap,
+      envMapIntensity: 1.0
+    })
+  );
+  plate.position.set(0, 0.037, 0.1415);
+
+  group.add(plinth, bowl, plate);
+  return group;
+}
+
+/* A pennant per playoff berth, hung point-down from its own short rail. */
+export function buildPennant(item) {
+  const group = new THREE.Group();
+
+  const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.34, 10), shared.brass);
+  rail.rotation.z = Math.PI / 2;
+
+  const cloth = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.30, 0.675, 8, 8),
+    new THREE.MeshStandardMaterial({
+      map: pennantTexture({ year: item.year, color: item.color, note: item.note }),
+      transparent: true,
+      alphaTest: 0.45,
+      side: THREE.DoubleSide,
+      metalness: 0.05,
+      roughness: 0.85
+    })
+  );
+  cloth.position.y = -0.35;
+
+  // A slow wave down the cloth, so a row of them does not read as cardboard.
+  const position = cloth.geometry.attributes.position;
+  for (let i = 0; i < position.count; i += 1) {
+    const x = position.getX(i);
+    const y = position.getY(i);
+    position.setZ(i, Math.sin(x * 6.5 + y * 1.2) * 0.018 * (0.4 + (0.34 - y) / 0.68));
+  }
+  position.needsUpdate = true;
+  cloth.geometry.computeVertexNormals();
+
+  group.add(rail, cloth);
+  return group;
+}
+
+/* The team's flag, across the top of their wall. */
+export function buildTeamFlag(locker) {
+  const group = new THREE.Group();
+
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 2.55, 12), shared.brass);
+  rod.rotation.z = Math.PI / 2;
+  rod.position.y = 0.72;
+  for (const side of [-1, 1]) {
+    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), shared.gold);
+    finial.position.set(side * 1.3, 0.72, 0);
+    group.add(finial);
+  }
+
+  const cloth = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.35, 1.32, 20, 6),
+    new THREE.MeshStandardMaterial({
+      map: teamFlagTexture({
+        icon: locker.icon,
+        color: locker.color,
+        team: locker.team,
+        owner: locker.name,
+        since: locker.seasons.length ? locker.seasons[0].year : null
+      }),
+      metalness: 0.06,
+      roughness: 0.8,
+      side: THREE.DoubleSide
+    })
+  );
+  cloth.position.y = 0.03;
+  const position = cloth.geometry.attributes.position;
+  for (let i = 0; i < position.count; i += 1) {
+    position.setZ(i, Math.sin(position.getX(i) * 2.1) * 0.05);
+  }
+  position.needsUpdate = true;
+  cloth.geometry.computeVertexNormals();
+
+  group.add(rod, cloth);
   return group;
 }
 

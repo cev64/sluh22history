@@ -12,6 +12,7 @@ import { buildHall } from "./accolades.js";
 import { environmentTexture, glintTexture, setAnisotropy, waitForFonts } from "./textures.js";
 import { buildExhibitObject, buildPedestal, initMaterials } from "./models.js";
 import { LAYOUT, buildDust, buildRoom, buildTravellingLights, contactShadow, planLayout } from "./hall.js";
+import { buildLockerRoom, buildLockerWall } from "./locker.js";
 
 const clamp = THREE.MathUtils.clamp;
 const damp = THREE.MathUtils.damp;
@@ -29,8 +30,17 @@ const state = {
   focusZoom: 1,
   lift: 0,
   intro: 1,
-  lastIndex: -1
+  lastIndex: -1,
+  // The team locker: which manager's wall is open, which piece of it is being
+  // inspected, and where the viewer has panned and zoomed the wall itself.
+  lockerId: null,
+  lockerIndex: -1,
+  lockerPanX: 0,
+  lockerPanY: 0,
+  lockerWallZoom: 1
 };
+
+const IN_LOCKER = (mode) => mode === "locker" || mode === "lockerFocus";
 
 const dom = {};
 let hall;
@@ -42,6 +52,10 @@ let lights;
 let focusFill;
 let dust;
 let raycaster;
+let hallGroup;
+let hallFog;
+let lockerRoom;
+let lockerWall = null;
 let exhibits = [];
 let quality;
 const pointer = new THREE.Vector2();
@@ -108,7 +122,8 @@ async function boot() {
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x070d17);
-  scene.fog = new THREE.Fog(0x070d17, 17, 62);
+  hallFog = new THREE.Fog(0x070d17, 17, 62);
+  scene.fog = hallFog;
 
   camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 220);
   camera.position.set(0, 2.1, LAYOUT.itemZ + 6.4);
@@ -123,8 +138,11 @@ async function boot() {
   scene.add(new THREE.HemisphereLight(0x9fbdff, 0x2a1a10, 1.5));
   scene.add(new THREE.AmbientLight(0x4a5f80, 0.75));
 
-  buildRoom(scene, hall, layout);
+  hallGroup = new THREE.Group();
+  scene.add(hallGroup);
+  buildRoom(hallGroup, hall, layout);
   buildExhibits();
+  lockerRoom = buildLockerRoom(scene);
   lights = buildTravellingLights(scene, quality);
   focusFill = new THREE.PointLight(0xfff0d6, 0, 9, 2);
   scene.add(focusFill);
@@ -145,7 +163,9 @@ async function boot() {
      camera can be a long way behind them. */
   window.__hall = {
     scene, camera, renderer, exhibits, state, hall, layout,
-    camTarget, lookAt, goTo, focus: focusExhibit, exitFocus
+    camTarget, lookAt, goTo, focus: focusExhibit, exitFocus,
+    openLocker, closeLocker, focusLockerItem, exitLockerFocus,
+    lockerWall: () => lockerWall
   };
 
   dom.stage.classList.add("ready");
@@ -188,7 +208,16 @@ function cacheDom() {
     sheetLinks: id("sheetLinks"),
     sheetClose: id("sheetClose"),
     counter: id("counter"),
-    summary: id("summary")
+    summary: id("summary"),
+    wipe: id("wipe"),
+    lockerBar: id("lockerBar"),
+    lockerCrest: id("lockerCrest"),
+    lockerTeam: id("lockerTeam"),
+    lockerOwner: id("lockerOwner"),
+    lockerSummary: id("lockerSummary"),
+    lockerBack: id("lockerBack"),
+    lockerBackLabel: id("lockerBackLabel"),
+    lockerHint: id("lockerHint")
   });
 }
 
@@ -243,7 +272,7 @@ function buildExhibits() {
     });
 
     stand.add(shadow, pedestal, riser);
-    scene.add(stand);
+    hallGroup.add(stand);
 
     stand.userData.exhibitIndex = index;
     return {
@@ -343,8 +372,59 @@ function focusFraming(exhibit) {
   };
 }
 
+/* Framing the locker wall. Same near-face reasoning as an inspected exhibit,
+   but the thing being fitted is the whole wall, and there is no record sheet
+   covering the screen — only the top bar and the strip of HUD along the
+   bottom. Whatever will not fit is reachable by dragging. */
+function wallFraming() {
+  if (!lockerWall) return { distance: 12, offsetX: 0, offsetY: 0 };
+  const pad = innerWidth <= 860 ? 12 : 24;
+  const band = {
+    width: Math.max(160, innerWidth - pad * 2),
+    height: Math.max(160, innerHeight - (innerWidth <= 860 ? 210 : 216))
+  };
+  const centreY = (innerWidth <= 860 ? 84 : 92) + band.height / 2;
+
+  const vertical = THREE.MathUtils.degToRad(camera.fov);
+  const horizontal = 2 * Math.atan(Math.tan(vertical / 2) * camera.aspect);
+  // A wall does not turn, so the only depth in front of its centre is its own
+  // thickness — using the width here pushed the camera into the next room.
+  const reach = lockerWall.size.z / 2;
+  const fitHeight = lockerWall.size.y / 2 / (Math.tan(vertical / 2) * (band.height / innerHeight)) + reach;
+  const fitWidth = lockerWall.size.x / 2 / (Math.tan(horizontal / 2) * (band.width / innerWidth)) + reach;
+  const distance = Math.max(fitHeight, fitWidth) * 1.05 / state.lockerWallZoom;
+
+  const visibleHeight = 2 * distance * Math.tan(vertical / 2);
+  return {
+    distance,
+    offsetX: 0,
+    offsetY: (centreY / innerHeight - 0.5) * visibleHeight
+  };
+}
+
 function updateCameraTarget(dt) {
-  if (state.mode === "focus" && exhibits[state.focusIndex]) {
+  if (state.mode === "lockerFocus" && lockerWall && lockerWall.items[state.lockerIndex]) {
+    const frame = lockerWall.items[state.lockerIndex].userData.frame;
+    const framing = focusFraming({
+      focusHalfWidth: frame.halfWidth,
+      focusHalfHeight: frame.halfHeight
+    });
+    // A pennant is a small thing. Fitting it to the frame the way a trophy is
+    // fitted blows it up until its neighbours crowd in around it, so nothing
+    // comes closer than arm's length.
+    const distance = Math.max(framing.distance, 2.4 * state.focusZoom);
+    const { offsetX, offsetY } = framing;
+    camTarget.position.set(frame.centre.x + offsetX, frame.centre.y + offsetY, frame.centre.z + distance);
+    camTarget.look.set(frame.centre.x + offsetX, frame.centre.y + offsetY, frame.centre.z);
+  } else if (state.mode === "locker" && lockerWall) {
+    // The wall's centre is measured in world space, origin included, so it is
+    // used as it comes.
+    const { distance, offsetX, offsetY } = wallFraming();
+    const x = lockerWall.centre.x + state.lockerPanX + offsetX;
+    const y = lockerWall.centre.y + state.lockerPanY + offsetY;
+    camTarget.position.set(x, y, lockerWall.centre.z + distance);
+    camTarget.look.set(x, y, lockerWall.centre.z);
+  } else if (state.mode === "focus" && exhibits[state.focusIndex]) {
     const exhibit = exhibits[state.focusIndex];
     const centerY = exhibit.pedestal.userData.topY + state.lift + exhibit.focusHeight;
     const { distance, offsetX, offsetY } = focusFraming(exhibit);
@@ -389,6 +469,16 @@ function tick(now) {
       state.rail = damp(state.rail, state.railTarget, 6.5, dt);
       state.velocity = damp(state.velocity, 0, 6, dt);
     }
+  }
+
+  if (IN_LOCKER(state.mode)) {
+    updateLocker(dt, time);
+    updateCameraTarget(dt);
+    focusFill.intensity = damp(focusFill.intensity, state.mode === "lockerFocus" ? 10 : 0, 4, dt);
+    focusFill.position.set(camera.position.x - 0.6, camera.position.y + 0.4, camera.position.z - 0.3);
+    dust.update(dt, camera.position.x);
+    renderer.render(scene, camera);
+    return;
   }
 
   state.lift = damp(state.lift, state.mode === "focus" ? 0.42 : 0, 5, dt);
@@ -471,6 +561,24 @@ function updateExhibits(dt, time) {
   });
 }
 
+/* The wall breathes a little: the piece being inspected turns under the
+   finger, and everything else drifts back to square. */
+function updateLocker(dt, time) {
+  if (!lockerWall) return;
+  lockerWall.items.forEach((holder, index) => {
+    const spinner = holder.userData.spinner;
+    if (!spinner) return;
+    if (state.mode === "lockerFocus" && index === state.lockerIndex) {
+      spinner.rotation.y = damp(spinner.rotation.y, state.focusYaw, 9, dt);
+      spinner.rotation.x = damp(spinner.rotation.x, state.focusPitch, 9, dt);
+    } else {
+      const sway = quality.calm ? 0 : Math.sin(time * 0.28 + index) * 0.03;
+      spinner.rotation.y = damp(spinner.rotation.y, sway, 2.4, dt);
+      spinner.rotation.x = damp(spinner.rotation.x, 0, 4, dt);
+    }
+  });
+}
+
 function nearestIndex() {
   return clamp(Math.round(state.mode === "focus" ? state.focusIndex : state.rail), 0, exhibits.length - 1);
 }
@@ -503,15 +611,33 @@ function buildHud() {
   dom.prev.addEventListener("click", () => step(-1));
   dom.next.addEventListener("click", () => step(1));
   dom.sheet.querySelectorAll("[data-sheet-step]").forEach((button) => {
-    button.addEventListener("click", () => step(Number(button.dataset.sheetStep)));
+    button.addEventListener("click", () => {
+      const direction = Number(button.dataset.sheetStep);
+      if (state.mode === "lockerFocus") stepLocker(direction);
+      else step(direction);
+    });
   });
 
-  const inspect = () => { if (state.mode === "hall") focusExhibit(nearestIndex()); };
+  dom.lockerBack.addEventListener("click", () => {
+    if (state.mode === "lockerFocus") exitLockerFocus();
+    else closeLocker();
+  });
+
+  const inspect = () => {
+    if (state.mode !== "hall") return;
+    // The nameplate is the same door the shield is.
+    const item = exhibits[nearestIndex()]?.item;
+    if (item && item.wing === "hall" && item.ownerId) openLocker(item.ownerId);
+    else focusExhibit(nearestIndex());
+  };
   dom.label.addEventListener("click", inspect);
   dom.label.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") { event.preventDefault(); inspect(); }
   });
-  dom.sheetClose.addEventListener("click", exitFocus);
+  dom.sheetClose.addEventListener("click", () => {
+    if (state.mode === "lockerFocus") exitLockerFocus();
+    else exitFocus();
+  });
 }
 
 function onCurrentChanged(index) {
@@ -526,6 +652,7 @@ function onCurrentChanged(index) {
     ? `${item.bigValue} · ${item.subtitle}`
     : `${item.subtitle}${item.owner && item.owner !== item.subtitle ? ` · ${item.owner}` : ""}`;
   dom.counter.textContent = `${item.itemIndex + 1} / ${hall.wings[item.wingIndex].count}`;
+  dom.stage.classList.toggle("is-team", item.wing === "hall" && Boolean(item.ownerId));
 
   dom.wings.querySelectorAll(".wing").forEach((button) => {
     const active = button.dataset.wing === item.wing;
@@ -633,9 +760,156 @@ function enterHall() {
   setTimeout(() => dom.hint.classList.remove("show"), 6500);
 }
 
+/* ------------------------------------------------------------ team lockers */
+
+/* Opening a locker swaps rooms rather than travelling to one: the hall is
+   switched off, the wall is built for this manager, and the camera is already
+   there when the wipe clears. The wipe is what sells it as a door. */
+function openLocker(ownerId) {
+  const locker = hall.lockers[ownerId];
+  if (!locker || state.lockerId === ownerId) return;
+
+  wipe(locker.color, () => {
+    if (lockerWall) lockerWall.dispose();
+    lockerWall = buildLockerWall(lockerRoom.room, locker);
+
+    state.lockerId = ownerId;
+    state.lockerIndex = -1;
+    state.lockerPanX = 0;
+    state.lockerPanY = 0;
+    state.lockerWallZoom = 1;
+    state.mode = "locker";
+
+    hallGroup.visible = false;
+    lockerRoom.room.visible = true;
+    // The hall's fog is tuned to a long aisle; a wall two rooms away would sit
+    // in the middle of it.
+    scene.fog = null;
+
+    const framing = wallFraming();
+    camera.position.set(
+      lockerWall.centre.x,
+      lockerWall.centre.y + framing.offsetY,
+      lockerWall.centre.z + framing.distance
+    );
+    lookAt.copy(camera.position).setZ(lockerWall.centre.z);
+    camera.lookAt(lookAt);
+
+    dom.stage.classList.add("in-locker");
+    dom.stage.classList.remove("focused");
+    dom.sheet.setAttribute("aria-hidden", "true");
+    dom.stage.style.setProperty("--accent", locker.color);
+    fillLockerHud(locker);
+    dom.lockerBackLabel.textContent = "Hall of Fame";
+    if (history.replaceState) history.replaceState(null, "", `#locker=${ownerId}`);
+  });
+}
+
+function closeLocker() {
+  if (!IN_LOCKER(state.mode)) return;
+  const returning = state.lockerId;
+
+  wipe("#0a1220", () => {
+    if (lockerWall) lockerWall.dispose();
+    lockerWall = null;
+    state.lockerId = null;
+    state.lockerIndex = -1;
+    state.mode = "hall";
+
+    lockerRoom.room.visible = false;
+    hallGroup.visible = true;
+    scene.fog = hallFog;
+
+    dom.stage.classList.remove("in-locker", "focused");
+    dom.sheet.setAttribute("aria-hidden", "true");
+
+    // Back to the shield you came in through.
+    const shield = hall.rail.find((entry) => entry.wing === "hall" && entry.ownerId === returning);
+    const index = shield ? shield.railIndex : state.lastIndex;
+    state.rail = index;
+    state.railTarget = index;
+    state.lastIndex = -1;
+    const exhibit = exhibits[index];
+    if (exhibit) {
+      camera.position.set(exhibit.x, 2.52, LAYOUT.itemZ + 6.7);
+      lookAt.set(exhibit.x, 1.8, LAYOUT.itemZ);
+      camera.lookAt(lookAt);
+    }
+  });
+}
+
+function focusLockerItem(index) {
+  if (!lockerWall || !lockerWall.items[index]) return;
+  state.mode = "lockerFocus";
+  state.lockerIndex = index;
+  state.focusYaw = 0;
+  state.focusPitch = 0;
+  state.focusZoom = 1;
+  fillSheet(lockerWall.items[index].userData.locker);
+  dom.stage.classList.add("focused");
+  dom.sheet.setAttribute("aria-hidden", "false");
+  dom.lockerBackLabel.textContent = "The Wall";
+}
+
+function exitLockerFocus() {
+  if (state.mode !== "lockerFocus") return;
+  state.mode = "locker";
+  state.lockerIndex = -1;
+  dom.stage.classList.remove("focused");
+  dom.sheet.setAttribute("aria-hidden", "true");
+  dom.lockerBackLabel.textContent = "Hall of Fame";
+}
+
+function fillLockerHud(locker) {
+  dom.lockerTeam.textContent = locker.team;
+  dom.lockerOwner.textContent = locker.name;
+  dom.lockerSummary.textContent = locker.summary;
+  dom.lockerCrest.textContent = locker.icon;
+  dom.lockerCrest.style.setProperty("--team", locker.color);
+}
+
+/* A short curtain over a change of room, so neither the build nor the camera
+   jump is ever on screen.
+
+   A request arriving mid-curtain is held rather than dropped: clicking through
+   two managers quickly used to leave the second one's click doing nothing at
+   all, with the first one's wall still on the screen. Only the most recent
+   request is kept — the ones in between are rooms nobody asked to stay in. */
+let wiping = false;
+let pendingWipe = null;
+function wipe(color, midpoint) {
+  if (wiping) {
+    pendingWipe = { color, midpoint };
+    return;
+  }
+  wiping = true;
+  dom.wipe.style.background = color;
+  dom.wipe.classList.add("on");
+  setTimeout(() => {
+    midpoint();
+    dom.wipe.classList.remove("on");
+    setTimeout(() => {
+      wiping = false;
+      if (pendingWipe) {
+        const next = pendingWipe;
+        pendingWipe = null;
+        wipe(next.color, next.midpoint);
+      }
+    }, 380);
+  }, 300);
+}
+
 function applyDeepLink() {
   const target = location.hash.replace("#", "");
   if (!target) return;
+
+  const team = target.match(/^locker=(.+)$/);
+  if (team) {
+    const ownerId = decodeURIComponent(team[1]);
+    if (hall.lockers[ownerId]) setTimeout(() => openLocker(ownerId), 60);
+    return;
+  }
+
   const wing = hall.wings.find((entry) => entry.id === target);
   const item = hall.rail.find((entry) => entry.id === target);
   const index = wing ? wing.start : item ? item.railIndex : -1;
@@ -655,6 +929,8 @@ function bindInput() {
   let startY = 0;
   let startYaw = 0;
   let startPitch = 0;
+  let startPanX = 0;
+  let startPanY = 0;
   let pinchStart = 0;
   let zoomStart = 1;
   let lastX = 0;
@@ -673,7 +949,7 @@ function bindInput() {
     if (active.size === 2) {
       const [a, b] = [...active.values()];
       pinchStart = Math.hypot(a.x - b.x, a.y - b.y);
-      zoomStart = state.focusZoom;
+      zoomStart = state.mode === "locker" ? state.lockerWallZoom : state.focusZoom;
       // A pinch is not a drag, and must not land as a tap when the fingers lift.
       pinching = true;
       state.dragging = false;
@@ -688,6 +964,8 @@ function bindInput() {
     startY = event.clientY;
     startYaw = state.focusYaw;
     startPitch = state.focusPitch;
+    startPanX = state.lockerPanX;
+    startPanY = state.lockerPanY;
     lastTime = performance.now();
     state.velocity = 0;
     dom.hint.classList.remove("show");
@@ -700,8 +978,12 @@ function bindInput() {
     if (active.size === 2) {
       const [a, b] = [...active.values()];
       const spread = Math.hypot(a.x - b.x, a.y - b.y);
-      if (pinchStart > 0 && state.mode === "focus") {
-        state.focusZoom = clamp(zoomStart * (pinchStart / spread), 0.62, 2.2);
+      if (pinchStart > 0) {
+        if (state.mode === "focus" || state.mode === "lockerFocus") {
+          state.focusZoom = clamp(zoomStart * (pinchStart / spread), 0.62, 2.2);
+        } else if (state.mode === "locker") {
+          state.lockerWallZoom = clamp(zoomStart * (spread / pinchStart), 0.85, 3.2);
+        }
       }
       return;
     }
@@ -711,13 +993,22 @@ function bindInput() {
     const dy = event.clientY - startY;
     state.pointerMoved = Math.max(state.pointerMoved, Math.hypot(dx, dy));
 
-    if (state.mode === "focus") {
+    if (state.mode === "focus" || state.mode === "lockerFocus") {
       // Drag right and the exhibit turns to show its right side; drag down and
       // it tips to show its top. This is the direction of orbiting a camera
       // around the object rather than pushing the face nearest you, and it is
       // the one that reads as "grabbing" it.
       state.focusYaw = startYaw + dx * 0.0085;
       state.focusPitch = clamp(startPitch + dy * 0.0055, -0.55, 0.55);
+      return;
+    }
+
+    if (state.mode === "locker") {
+      // A wall is panned, not travelled: drag moves the view across it, and
+      // the reach is bounded by how much of the wall is off-screen.
+      const metresPerPixel = wallFraming().distance * 0.0016;
+      state.lockerPanX = clamp(startPanX - dx * metresPerPixel, -3.2, 3.2);
+      state.lockerPanY = clamp(startPanY + dy * metresPerPixel, -2.6, 2.6);
       return;
     }
 
@@ -761,8 +1052,12 @@ function bindInput() {
   canvas.addEventListener("wheel", (event) => {
     if (state.mode === "intro") return;
     event.preventDefault();
-    if (state.mode === "focus") {
+    if (state.mode === "focus" || state.mode === "lockerFocus") {
       state.focusZoom = clamp(state.focusZoom + event.deltaY * 0.0016, 0.62, 2.2);
+      return;
+    }
+    if (state.mode === "locker") {
+      state.lockerWallZoom = clamp(state.lockerWallZoom - event.deltaY * 0.0018, 0.85, 3.2);
       return;
     }
     const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
@@ -775,6 +1070,23 @@ function bindInput() {
 
   addEventListener("keydown", (event) => {
     if (state.mode === "intro") return;
+    if (IN_LOCKER(state.mode)) {
+      switch (event.key) {
+        case "Escape": case "Backspace":
+          if (state.mode === "lockerFocus") exitLockerFocus();
+          else closeLocker();
+          break;
+        case "ArrowRight": stepLocker(1); break;
+        case "ArrowLeft": stepLocker(-1); break;
+        case "Enter":
+          if (state.mode === "locker") focusLockerItem(0);
+          break;
+        default: return;
+      }
+      event.preventDefault();
+      return;
+    }
+
     switch (event.key) {
       case "ArrowRight": case "d": step(1); break;
       case "ArrowLeft": case "a": step(-1); break;
@@ -794,11 +1106,33 @@ function bindInput() {
   });
 }
 
+function stepLocker(direction) {
+  if (!lockerWall || state.mode !== "lockerFocus") return;
+  const next = clamp(state.lockerIndex + direction, 0, lockerWall.items.length - 1);
+  if (next !== state.lockerIndex) focusLockerItem(next);
+}
+
 function handleTap(event) {
   const rect = dom.canvas.getBoundingClientRect();
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
+
+  if (IN_LOCKER(state.mode)) {
+    const hits = lockerWall ? raycaster.intersectObjects(lockerWall.items, true) : [];
+    if (!hits.length) {
+      // Tapping the room around the wall steps back out of a piece.
+      if (state.mode === "lockerFocus") exitLockerFocus();
+      return;
+    }
+    let node = hits[0].object;
+    while (node && !node.userData.locker) node = node.parent;
+    if (!node) return;
+    const index = lockerWall.items.indexOf(node);
+    if (state.mode === "lockerFocus" && index === state.lockerIndex) exitLockerFocus();
+    else focusLockerItem(index);
+    return;
+  }
 
   const candidates = exhibits
     .filter((exhibit) => exhibit.stand.visible)
@@ -815,9 +1149,18 @@ function handleTap(event) {
   if (!node) return;
 
   const index = node.userData.exhibitIndex;
+  const item = exhibits[index].item;
+
+  // A manager in the hall of fame is a door, not an exhibit: tapping their
+  // shield opens their locker rather than turning the shield around.
+  if (item.wing === "hall" && item.ownerId) {
+    openLocker(item.ownerId);
+    return;
+  }
+
   if (state.mode === "focus") {
     if (index === state.focusIndex) exitFocus();
-    else { state.focusIndex = index; state.rail = index; state.railTarget = index; resetFocusPose(); fillSheet(exhibits[index].item); }
+    else { state.focusIndex = index; state.rail = index; state.railTarget = index; resetFocusPose(); fillSheet(item); }
     return;
   }
   focusExhibit(index);

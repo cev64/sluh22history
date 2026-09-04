@@ -34,8 +34,14 @@ function finish(element, { repeat, srgb = true } = {}) {
 }
 
 /* Fits a line to a width by stepping the size down rather than clipping, so a
-   long team name still reads on a nameplate cut for a short one. */
-function fitText(ctx, text, maxWidth, startSize, weight = 800, font = DISPLAY_FONT) {
+   long team name still reads on a nameplate cut for a short one.
+
+   The letter spacing has to be set here, not after: it is part of the measured
+   width, and `ctx.letterSpacing` persists between draws — measuring at one
+   spacing and drawing at a wider one is how a long manager's name ended up
+   running off the end of their own flag. */
+function fitText(ctx, text, maxWidth, startSize, weight = 800, font = DISPLAY_FONT, spacing = "0px") {
+  ctx.letterSpacing = spacing;
   let size = startSize;
   do {
     ctx.font = `${weight} ${size}px ${font}`;
@@ -195,13 +201,13 @@ export function nameplateTexture({ title, sub, accent, metal = "brass" }) {
   brushedMetal(ctx, width, height, metal);
   plateFrame(ctx, width, height, accent);
 
-  const titleSize = fitText(ctx, title, width * 0.8, sub ? 86 : 104, 800);
+  const titleSize = fitText(ctx, title, width * 0.8, sub ? 86 : 104, 800, DISPLAY_FONT, "2px");
   engrave(ctx, title, width / 2, sub ? height * 0.4 : height * 0.5, {
     size: titleSize, letterSpacing: "2px", ...tone
   });
 
   if (sub) {
-    const subSize = fitText(ctx, sub, width * 0.78, 46, 600);
+    const subSize = fitText(ctx, sub, width * 0.78, 46, 600, DISPLAY_FONT, "6px");
     engrave(ctx, sub.toUpperCase(), width / 2, height * 0.68, {
       size: subSize,
       weight: 600,
@@ -272,7 +278,7 @@ export function crestTexture({ icon, color, label, size = 512 }) {
     ctx.save();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const labelSize = fitText(ctx, label.toUpperCase(), size * 0.68, size * 0.075, 800);
+    const labelSize = fitText(ctx, label.toUpperCase(), size * 0.68, size * 0.075, 800, DISPLAY_FONT, "3px");
     ctx.font = `800 ${labelSize}px ${DISPLAY_FONT}`;
     ctx.letterSpacing = "3px";
     ctx.fillStyle = "rgba(0,0,0,.4)";
@@ -302,7 +308,7 @@ export function recordFaceTexture({ value, label, holder, meta, accent, metal = 
   plateFrame(ctx, width, height, accent);
 
   engrave(ctx, label.toUpperCase(), width / 2, height * 0.235, {
-    size: fitText(ctx, label.toUpperCase(), width * 0.8, 56, 700),
+    size: fitText(ctx, label.toUpperCase(), width * 0.8, 56, 700, DISPLAY_FONT, "8px"),
     weight: 700,
     ink: metal === "pewter" ? "rgba(34,42,50,.92)" : "rgba(58,42,16,.92)",
     lip: tone.lip,
@@ -319,7 +325,7 @@ export function recordFaceTexture({ value, label, holder, meta, accent, metal = 
   ctx.restore();
 
   engrave(ctx, value, width / 2, height * 0.47, {
-    size: fitText(ctx, value, width * 0.82, 210, 800),
+    size: fitText(ctx, value, width * 0.82, 210, 800, DISPLAY_FONT, "-2px"),
     weight: 800,
     letterSpacing: "-2px",
     ...tone
@@ -334,7 +340,7 @@ export function recordFaceTexture({ value, label, holder, meta, accent, metal = 
 
   if (meta) {
     engrave(ctx, meta, width / 2, height * 0.775, {
-      size: fitText(ctx, meta, width * 0.85, 42, 500),
+      size: fitText(ctx, meta, width * 0.85, 42, 500, DISPLAY_FONT, "3px"),
       weight: 500,
       ink: metal === "pewter" ? "rgba(44,52,60,.8)" : "rgba(64,48,20,.8)",
       lip: tone.lip,
@@ -396,7 +402,7 @@ export function teamPlaqueTexture({ icon, color, label }) {
     ctx.save();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const size = fitText(ctx, label.toUpperCase(), width * 0.82, 58, 700);
+    const size = fitText(ctx, label.toUpperCase(), width * 0.82, 58, 700, DISPLAY_FONT, "3px");
     ctx.font = `700 ${size}px ${DISPLAY_FONT}`;
     ctx.letterSpacing = "3px";
     ctx.fillStyle = "rgba(0,0,0,.5)";
@@ -441,7 +447,7 @@ export function yearPlateTexture({ year, color }) {
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  const size = fitText(ctx, String(year), width * 0.72, 250, 700);
+  const size = fitText(ctx, String(year), width * 0.72, 250, 700, DISPLAY_FONT, "16px");
   ctx.font = `700 ${size}px ${DISPLAY_FONT}`;
   ctx.letterSpacing = "16px";
   ctx.fillStyle = "rgba(0,0,0,.6)";
@@ -452,6 +458,162 @@ export function yearPlateTexture({ year, color }) {
   ink.addColorStop(1, mix(color, "#ffffff", 0.35));
   ctx.fillStyle = ink;
   ctx.fillText(String(year), width / 2, height / 2);
+  ctx.restore();
+
+  return finish(element);
+}
+
+/* ------------------------------------------------ the team locker's cloth */
+
+/* A team's flag, hung across the top of their locker wall: crest on the hoist,
+   name and manager on the fly, the way a club banner is laid out. */
+export function teamFlagTexture({ icon, color, team, owner, since }) {
+  const width = 960;
+  const height = 540;
+  const { element, ctx } = canvas(width, height);
+
+  const field = ctx.createLinearGradient(0, 0, width, height);
+  field.addColorStop(0, mix(color, "#ffffff", 0.16));
+  field.addColorStop(0.45, color);
+  field.addColorStop(1, mix(color, "#05080e", 0.55));
+  ctx.fillStyle = field;
+  ctx.fillRect(0, 0, width, height);
+
+  // A pale band behind the lettering so a dark team colour still reads.
+  const panel = ctx.createLinearGradient(width * 0.3, 0, width, 0);
+  panel.addColorStop(0, "rgba(0,0,0,0)");
+  panel.addColorStop(0.35, "rgba(4,8,14,.55)");
+  panel.addColorStop(1, "rgba(4,8,14,.66)");
+  ctx.fillStyle = panel;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.strokeStyle = "rgba(255,240,205,.75)";
+  ctx.lineWidth = 9;
+  ctx.strokeRect(24, 24, width - 48, height - 48);
+  ctx.globalAlpha = 0.4;
+  ctx.strokeStyle = "rgba(255,255,255,.7)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(44, 44, width - 88, height - 88);
+  ctx.globalAlpha = 1;
+
+  // The crest roundel on the hoist.
+  const cx = width * 0.215;
+  const cy = height * 0.5;
+  const r = height * 0.31;
+  const roundel = ctx.createRadialGradient(cx, cy - r * 0.3, r * 0.1, cx, cy, r);
+  roundel.addColorStop(0, mix(color, "#ffffff", 0.3));
+  roundel.addColorStop(1, mix(color, "#000000", 0.45));
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = roundel;
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,238,190,.9)";
+  ctx.lineWidth = 10;
+  ctx.stroke();
+
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `${r * 1.05}px ${EMOJI_FONT}`;
+  ctx.shadowColor = "rgba(0,0,0,.5)";
+  ctx.shadowBlur = 18;
+  ctx.fillText(icon || "🏈", cx, cy);
+  ctx.restore();
+
+  ctx.save();
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  const left = width * 0.40;
+  const room = width - left - 70;
+
+  const nameSize = fitText(ctx, team.toUpperCase(), room, 88, 700, DISPLAY_FONT, "2px");
+  ctx.font = `700 ${nameSize}px ${DISPLAY_FONT}`;
+  ctx.letterSpacing = "2px";
+  ctx.fillStyle = "rgba(0,0,0,.55)";
+  ctx.fillText(team.toUpperCase(), left + 3, height * 0.42 + 4);
+  ctx.fillStyle = "rgba(255,250,240,.98)";
+  ctx.fillText(team.toUpperCase(), left, height * 0.42);
+
+  const ownerSize = fitText(ctx, owner.toUpperCase(), room, 46, 600, DISPLAY_FONT, "6px");
+  ctx.font = `600 ${ownerSize}px ${DISPLAY_FONT}`;
+  ctx.letterSpacing = "6px";
+  ctx.fillStyle = mix(color, "#ffffff", 0.72);
+  ctx.fillText(owner.toUpperCase(), left, height * 0.585);
+
+  if (since) {
+    ctx.font = `600 ${26}px ${DISPLAY_FONT}`;
+    ctx.letterSpacing = "10px";
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.fillText(`EST. ${since}`, left, height * 0.71);
+  }
+  ctx.restore();
+
+  return finish(element);
+}
+
+/* One pennant per playoff berth. Drawn with its own silhouette so the mesh can
+   stay a single quad — the corners outside the triangle are transparent. */
+export function pennantTexture({ year, color, note = "PLAYOFFS" }) {
+  const width = 320;
+  const height = 720;
+  const { element, ctx } = canvas(width, height);
+  ctx.clearRect(0, 0, width, height);
+
+  ctx.beginPath();
+  ctx.moveTo(14, 12);
+  ctx.lineTo(width - 14, 12);
+  ctx.lineTo(width / 2, height - 10);
+  ctx.closePath();
+  ctx.clip();
+
+  const cloth = ctx.createLinearGradient(0, 0, 0, height);
+  cloth.addColorStop(0, mix(color, "#ffffff", 0.08));
+  cloth.addColorStop(0.45, color);
+  cloth.addColorStop(1, mix(color, "#05080e", 0.32));
+  ctx.fillStyle = cloth;
+  ctx.fillRect(0, 0, width, height);
+
+  // The stitched band across the hoist.
+  ctx.fillStyle = "rgba(255,246,226,.95)";
+  ctx.fillRect(0, 18, width, 12);
+  ctx.fillRect(0, 150, width, 8);
+
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const yearSize = fitText(ctx, String(year), width * 0.74, 92, 700, DISPLAY_FONT, "4px");
+  ctx.font = `700 ${yearSize}px ${DISPLAY_FONT}`;
+  ctx.letterSpacing = "4px";
+  ctx.fillStyle = "rgba(0,0,0,.45)";
+  ctx.fillText(String(year), width / 2 + 3, 96 + 3);
+  ctx.fillStyle = "rgba(255,250,240,.98)";
+  ctx.fillText(String(year), width / 2, 96);
+
+  const noteSize = fitText(ctx, note, width * 0.66, 40, 600, DISPLAY_FONT, "5px");
+  ctx.font = `600 ${noteSize}px ${DISPLAY_FONT}`;
+  ctx.letterSpacing = "5px";
+  ctx.fillStyle = "rgba(255,255,255,.85)";
+  ctx.fillText(note, width / 2, 200);
+  ctx.restore();
+
+  // A row of stars down the taper, so the point is not dead cloth.
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = "#ffffff";
+  for (let i = 0; i < 3; i += 1) {
+    const y = 300 + i * 96;
+    const size = 26 - i * 6;
+    ctx.beginPath();
+    for (let p = 0; p < 10; p += 1) {
+      const radius = p % 2 ? size * 0.44 : size;
+      const angle = (p / 10) * Math.PI * 2 - Math.PI / 2;
+      const px = width / 2 + Math.cos(angle) * radius;
+      const py = y + Math.sin(angle) * radius;
+      if (p === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
   ctx.restore();
 
   return finish(element);
@@ -485,13 +647,13 @@ export function bannerTexture({ name, kicker, accent }) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  const kickerSize = fitText(ctx, kicker.toUpperCase(), width * 0.7, 32, 600);
+  const kickerSize = fitText(ctx, kicker.toUpperCase(), width * 0.7, 32, 600, DISPLAY_FONT, "14px");
   ctx.font = `600 ${kickerSize}px ${DISPLAY_FONT}`;
   ctx.letterSpacing = "14px";
   ctx.fillStyle = accent;
   ctx.fillText(kicker.toUpperCase(), width / 2, height * 0.27);
 
-  const nameSize = fitText(ctx, name.toUpperCase(), width * 0.82, 126, 700);
+  const nameSize = fitText(ctx, name.toUpperCase(), width * 0.82, 126, 700, DISPLAY_FONT, "12px");
   ctx.font = `700 ${nameSize}px ${DISPLAY_FONT}`;
   ctx.letterSpacing = "12px";
   ctx.fillStyle = "rgba(255,247,230,.97)";
@@ -532,7 +694,7 @@ export function floorInlayTexture({ name, accent }) {
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  const nameSize = fitText(ctx, name.toUpperCase(), size * 0.5, 96, 800);
+  const nameSize = fitText(ctx, name.toUpperCase(), size * 0.5, 96, 800, DISPLAY_FONT, "10px");
   ctx.font = `800 ${nameSize}px ${DISPLAY_FONT}`;
   ctx.letterSpacing = "10px";
   ctx.fillStyle = "#f0d69c";
