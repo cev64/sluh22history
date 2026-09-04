@@ -903,3 +903,349 @@ export async function waitForFonts() {
     // A missing webfont costs the plates some character, not their legibility.
   }
 }
+
+/* ------------------------------------------------------------------ Tucker */
+
+/* The league mascot's coat, taken off two photographs of him sitting in a
+   hallway: a border collie, white from the chin down the chest and front legs,
+   black over the back and haunches, black over one whole side of the face and
+   both ears, with a broad white blaze up the middle. Everything below paints
+   that; `tucker.js` builds the dog it wraps. */
+
+export const TUCKER_COAT = {
+  white: "#f2ede2",       // the ruff is cream rather than paper white
+  whiteShade: "#cfc6b6",
+  black: "#0b0c11",       // as dark as the coat material, or the patch goes brown
+  blackWarm: "#2e2822",
+  nose: "#171417",
+  skin: "#d99b93",        // the pink of his muzzle freckles and inner ears
+  eye: "#3c2214"
+};
+
+/* Fur, painted once and used as the bump and roughness map on every part of
+   him. It is grey on purpose: the colour comes from the material, this only
+   says where the coat lies flat and where it stands up. */
+export function furTexture({ size = 512, strokes = 5200, length = 20 } = {}) {
+  const { element, ctx } = canvas(size, size);
+  // Near white, not mid grey: this is multiplied into the material's own
+  // roughness, and a grey map halves it and turns the coat to satin.
+  ctx.fillStyle = "#e4e4e4";
+  ctx.fillRect(0, 0, size, size);
+  ctx.lineCap = "round";
+  for (let i = 0; i < strokes; i += 1) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const run = length * (0.3 + Math.random());
+    const lean = (Math.random() - 0.5) * 0.8;
+    ctx.strokeStyle = Math.random() > 0.5
+      ? `rgba(255,255,255,${0.03 + Math.random() * 0.09})`
+      : `rgba(0,0,0,${0.03 + Math.random() * 0.10})`;
+    ctx.lineWidth = 0.5 + Math.random() * 1.6;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + lean * run * 0.5, y + run * 0.55, x + lean * run, y + run);
+    ctx.stroke();
+  }
+  return finish(element, { repeat: [3, 3], srgb: false });
+}
+
+/* A blob with a coat rather than an outline. The polygon is smoothed through
+   its points and filled, then hairs are stamped along every edge in the same
+   ink — which is the whole difference between a marking and a sticker. */
+function smoothPolygon(ctx, points) {
+  const last = points[points.length - 1];
+  ctx.beginPath();
+  ctx.moveTo((points[0][0] + last[0]) / 2, (points[0][1] + last[1]) / 2);
+  for (let i = 0; i < points.length; i += 1) {
+    const current = points[i];
+    const next = points[(i + 1) % points.length];
+    ctx.quadraticCurveTo(current[0], current[1], (current[0] + next[0]) / 2, (current[1] + next[1]) / 2);
+  }
+  ctx.closePath();
+}
+
+function furredRegion(ctx, points, fill, { hair = 13, density = 0.32 } = {}) {
+  ctx.fillStyle = fill;
+  smoothPolygon(ctx, points);
+  ctx.fill();
+
+  // Hairs go out both ways from the boundary. The inward half lands on ink of
+  // its own colour and disappears; the outward half is the ragged edge.
+  for (let i = 0; i < points.length; i += 1) {
+    const a = points[i];
+    const b = points[(i + 1) % points.length];
+    const dx = b[0] - a[0];
+    const dy = b[1] - a[1];
+    const run = Math.hypot(dx, dy) || 1;
+    const steps = Math.max(1, Math.round(run * density));
+    for (let step = 0; step < steps; step += 1) {
+      const t = (step + Math.random()) / steps;
+      const px = a[0] + dx * t;
+      const py = a[1] + dy * t;
+      const nx = dy / run;
+      const ny = -dx / run;
+      const side = Math.random() > 0.5 ? 1 : -1;
+      const reach = hair * (0.3 + Math.random() * 1.1) * side;
+      const width = 1 + Math.random() * 2.4;
+      ctx.beginPath();
+      ctx.moveTo(px + (dx / run) * width, py + (dy / run) * width);
+      ctx.lineTo(px - (dx / run) * width, py - (dy / run) * width);
+      ctx.lineTo(px + nx * reach, py + ny * reach);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+}
+
+function speckle(ctx, x, y, radius, count, color, size = 3) {
+  ctx.fillStyle = color;
+  for (let i = 0; i < count; i += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.sqrt(Math.random()) * radius;
+    ctx.globalAlpha = 0.25 + Math.random() * 0.45;
+    ctx.beginPath();
+    ctx.ellipse(
+      x + Math.cos(angle) * distance,
+      y + Math.sin(angle) * distance,
+      size * (0.4 + Math.random() * 0.8),
+      size * (0.4 + Math.random() * 0.7),
+      Math.random() * Math.PI, 0, Math.PI * 2
+    );
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* His head, unwrapped.
+
+   The skull is a sphere, so the map is equirectangular and every marking is
+   placed by the direction it faces rather than by pixels: `yaw` runs from 0
+   straight ahead round to 180 at the back of the skull, positive toward his
+   left; `pitch` is +90 at the crown and -90 under the jaw. Those two lines are
+   the only thing `tucker.js` has to agree with, and it does — the eyes are
+   seated by the same pair of angles. */
+export function tuckerFaceTexture() {
+  const width = 1024;
+  const height = 512;
+  const { element, ctx } = canvas(width, height);
+  const U = (yaw) => (0.25 + yaw / 360) * width;
+  const V = (pitch) => (0.5 - pitch / 180) * height;
+
+  const wash = ctx.createLinearGradient(0, 0, 0, height);
+  wash.addColorStop(0, "#f7f3ea");
+  wash.addColorStop(0.45, TUCKER_COAT.white);
+  wash.addColorStop(1, "#ddd5c6");
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, 0, width, height);
+
+  // Two passes so a marking that runs off one edge of the map arrives back on
+  // the other: the seam sits on his right cheek, and the patch round that ear
+  // straddles it.
+  for (const shift of [0, -width]) {
+    const P = (yaw, pitch) => [U(yaw) + shift, V(pitch)];
+
+    // The nape and the back of the skull, which run on into the black of his
+    // back without a break.
+    furredRegion(ctx, [
+      P(104, 90), P(111, 55), P(116, 20), P(113, -20), P(108, -55), P(104, -90),
+      P(250, -90), P(248, -50), P(256, 0), P(250, 45), P(248, 90)
+    ], TUCKER_COAT.black, { hair: 16 });
+
+    // The big patch: his left ear, his left eye, and the whole cheek under it.
+    // The front edge is what the photographs are really about — it runs down
+    // the middle of his forehead, bows in to take the eye, then swings out
+    // along the jaw.
+    furredRegion(ctx, [
+      P(4, 92), P(8, 64), P(15, 42), P(10, 16), P(13, -4), P(22, -24), P(36, -40),
+      P(58, -49), P(92, -50), P(126, -46), P(142, 0), P(138, 50), P(128, 92)
+    ], TUCKER_COAT.black, { hair: 15 });
+
+    // His right ear is black too, but only the ear: the cheek below it stays
+    // white, so the patch is a small cap sitting behind that eye.
+    furredRegion(ctx, [
+      P(306, 92), P(316, 62), P(318, 42), P(306, 26), P(288, 20), P(264, 22),
+      P(244, 32), P(238, 62), P(238, 92)
+    ], TUCKER_COAT.black, { hair: 13 });
+
+    // A warm brown breaking the black where the light catches it, so the coat
+    // is not one flat ink.
+    for (const [yaw, pitch, size] of [[62, 26, 130], [282, 58, 80]]) {
+      const warm = ctx.createRadialGradient(U(yaw) + shift, V(pitch), 4, U(yaw) + shift, V(pitch), size);
+      warm.addColorStop(0, "rgba(46,40,34,.5)");
+      warm.addColorStop(1, "rgba(46,40,34,0)");
+      ctx.fillStyle = warm;
+      ctx.beginPath();
+      ctx.arc(U(yaw) + shift, V(pitch), size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // The pink freckled skin round the eye that sits in the white, and a
+    // dusting of it up the bridge of his nose.
+    speckle(ctx, U(336) + shift, V(6), 46, 60, TUCKER_COAT.skin, 3.4);
+    speckle(ctx, U(352) + shift, V(-26), 40, 34, TUCKER_COAT.skin, 2.6);
+
+    // Sockets. The eyes themselves are modelled; this is only the shadow they
+    // sit in, which is what stops them reading as beads stuck on a ball.
+    for (const yaw of [24, 336]) {
+      const socket = ctx.createRadialGradient(U(yaw) + shift, V(4), 2, U(yaw) + shift, V(4), 30);
+      socket.addColorStop(0, "rgba(70,52,36,.42)");
+      socket.addColorStop(1, "rgba(70,52,36,0)");
+      ctx.fillStyle = socket;
+      ctx.beginPath();
+      ctx.arc(U(yaw) + shift, V(4), 30, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // The blaze is not flat white either — it has a shaded channel down the
+    // middle of the forehead where the fur parts.
+    const parting = ctx.createRadialGradient(U(-6) + shift, V(48), 4, U(-6) + shift, V(48), 96);
+    parting.addColorStop(0, "rgba(196,186,170,.34)");
+    parting.addColorStop(1, "rgba(196,186,170,0)");
+    ctx.fillStyle = parting;
+    ctx.beginPath();
+    ctx.ellipse(U(-6) + shift, V(48), 44, 110, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  noise(ctx, width, height, 16, 1);
+  return finish(element);
+}
+
+/* The red webbing collar, with the black figures repeated along it and the
+   worn edge where it has been buckled and unbuckled. Mapped round a torus, so
+   the horizontal axis is the way round his neck. */
+export function tuckerCollarTexture() {
+  const width = 1024;
+  const height = 128;
+  const { element, ctx } = canvas(width, height);
+
+  const weave = ctx.createLinearGradient(0, 0, 0, height);
+  weave.addColorStop(0, "#7d1414");
+  weave.addColorStop(0.2, "#c8221d");
+  weave.addColorStop(0.55, "#e03a2c");
+  weave.addColorStop(0.85, "#a81a17");
+  weave.addColorStop(1, "#6d1010");
+  ctx.fillStyle = weave;
+  ctx.fillRect(0, 0, width, height);
+
+  // The nylon's own ribbing.
+  ctx.globalAlpha = 0.16;
+  for (let x = 0; x < width; x += 4) {
+    ctx.fillStyle = x % 8 === 0 ? "#000" : "#fff";
+    ctx.fillRect(x, 0, 2, height);
+  }
+  ctx.globalAlpha = 1;
+
+  // The black motif: a paw between two bars, repeated the way a printed collar
+  // repeats it.
+  ctx.fillStyle = "#15100f";
+  for (let i = 0; i < 16; i += 1) {
+    const x = (i + 0.5) * (width / 16);
+    ctx.fillRect(x - 34, height * 0.3, 8, height * 0.4);
+    ctx.fillRect(x + 26, height * 0.3, 8, height * 0.4);
+    ctx.beginPath();
+    ctx.ellipse(x, height * 0.58, 12, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    for (let toe = -1.5; toe <= 1.5; toe += 1) {
+      ctx.beginPath();
+      ctx.ellipse(x + toe * 9, height * 0.34, 4, 5.5, toe * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Edges, darkened and rubbed.
+  const edge = ctx.createLinearGradient(0, 0, 0, height);
+  edge.addColorStop(0, "rgba(0,0,0,.55)");
+  edge.addColorStop(0.12, "rgba(0,0,0,0)");
+  edge.addColorStop(0.88, "rgba(0,0,0,0)");
+  edge.addColorStop(1, "rgba(0,0,0,.55)");
+  ctx.fillStyle = edge;
+  ctx.fillRect(0, 0, width, height);
+
+  noise(ctx, width, height, 20, 1);
+  return finish(element, { repeat: [1, 1] });
+}
+
+/* The tag on the collar: a stamped disc with his name on it. */
+export function tuckerTagTexture({ size = 256 } = {}) {
+  const { element, ctx } = canvas(size, size);
+  const half = size / 2;
+  brushedMetal(ctx, size, size, "pewter");
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(half, half, half * 0.86, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(40,48,56,.5)";
+  ctx.lineWidth = size * 0.03;
+  ctx.stroke();
+  ctx.restore();
+
+  engrave(ctx, "TUCKER", half, half * 0.86, {
+    size: fitText(ctx, "TUCKER", size * 0.68, 46, 800, DISPLAY_FONT, "2px"),
+    letterSpacing: "2px", ink: "#1d2228", lip: "rgba(240,246,251,.55)"
+  });
+  engrave(ctx, "GOOD BOY", half, half * 1.22, {
+    size: 22, weight: 700, ink: "rgba(40,48,56,.85)",
+    lip: "rgba(240,246,251,.5)", letterSpacing: "4px"
+  });
+  return finish(element);
+}
+
+/* What comes off him when he is made a fuss of: a heart and a paw print, in
+   one map each, thrown as sprites that rise and fade. */
+export function affectionTexture(kind = "heart", { size = 128 } = {}) {
+  const { element, ctx } = canvas(size, size);
+  const unit = size / 100;
+  ctx.fillStyle = "#ffffff";
+  ctx.translate(size / 2, size / 2);
+
+  if (kind === "heart") {
+    ctx.beginPath();
+    ctx.moveTo(0, 34 * unit);
+    ctx.bezierCurveTo(-46 * unit, 2 * unit, -34 * unit, -40 * unit, 0, -16 * unit);
+    ctx.bezierCurveTo(34 * unit, -40 * unit, 46 * unit, 2 * unit, 0, 34 * unit);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.ellipse(0, 14 * unit, 24 * unit, 20 * unit, 0, 0, Math.PI * 2);
+    ctx.fill();
+    for (const [x, y, lean] of [[-26, -16, -0.4], [-10, -30, -0.14], [10, -30, 0.14], [26, -16, 0.4]]) {
+      ctx.beginPath();
+      ctx.ellipse(x * unit, y * unit, 9 * unit, 12 * unit, lean, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  return finish(element, { srgb: false });
+}
+
+/* His muzzle, which is cream rather than white and freckled pink around the
+   nose. Mapped on the same sphere convention as the head: the front of the
+   muzzle sits a quarter of the way across, the underside at the bottom. */
+export function tuckerMuzzleTexture() {
+  const width = 512;
+  const height = 256;
+  const { element, ctx } = canvas(width, height);
+
+  const wash = ctx.createLinearGradient(0, 0, 0, height);
+  wash.addColorStop(0, "#f5f1e8");
+  wash.addColorStop(0.6, TUCKER_COAT.white);
+  wash.addColorStop(1, "#c9bfae");
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, 0, width, height);
+
+  // Freckles, heaviest at the front and thinning back along the cheeks.
+  speckle(ctx, width * 0.25, height * 0.44, 62, 90, TUCKER_COAT.skin, 3.6);
+  speckle(ctx, width * 0.14, height * 0.5, 42, 40, TUCKER_COAT.skin, 3);
+  speckle(ctx, width * 0.36, height * 0.5, 42, 40, TUCKER_COAT.skin, 3);
+  speckle(ctx, width * 0.25, height * 0.28, 46, 26, TUCKER_COAT.skin, 2.4);
+
+  // The dark lip line under the muzzle.
+  const lip = ctx.createLinearGradient(0, height * 0.7, 0, height);
+  lip.addColorStop(0, "rgba(24,20,24,0)");
+  lip.addColorStop(1, "rgba(24,20,24,.85)");
+  ctx.fillStyle = lip;
+  ctx.fillRect(0, height * 0.7, width, height * 0.3);
+
+  noise(ctx, width, height, 14, 1);
+  return finish(element);
+}

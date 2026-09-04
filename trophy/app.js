@@ -13,6 +13,7 @@ import { environmentTexture, glintTexture, loadTeamLogos, setAnisotropy, waitFor
 import { buildExhibitObject, buildPedestal, initMaterials } from "./models.js";
 import { LAYOUT, buildDust, buildRoom, buildTravellingLights, contactShadow, planLayout } from "./hall.js";
 import { buildLockerRoom, buildLockerWall } from "./locker.js";
+import { buildTucker } from "./tucker.js";
 
 const clamp = THREE.MathUtils.clamp;
 const damp = THREE.MathUtils.damp;
@@ -37,7 +38,12 @@ const state = {
   lockerIndex: -1,
   lockerPanX: 0,
   lockerPanY: 0,
-  lockerWallZoom: 1
+  lockerWallZoom: 1,
+  // The mascot sitting between the Champions and the Hall of Fame. `petFocus`
+  // is whether the viewer has crouched down to him; `pet` is how far the
+  // camera has actually got, so leaving him is a glide rather than a cut.
+  petFocus: false,
+  pet: 0
 };
 
 const IN_LOCKER = (mode) => mode === "locker" || mode === "lockerFocus";
@@ -56,9 +62,18 @@ let hallGroup;
 let hallFog;
 let lockerRoom;
 let lockerWall = null;
+let tucker = null;
+// Where he sits on the rail: halfway between the last champion and the first
+// manager, which is the gap the arch stands in.
+let tuckerRail = -1;
 let exhibits = [];
 let quality;
 const pointer = new THREE.Vector2();
+// Where the mouse is, kept whether or not anything is being dragged, so the
+// cursor can tell you the dog is a thing you may touch.
+const hoverPointer = new THREE.Vector2();
+let hovering = false;
+let overTucker = false;
 const camTarget = { position: new THREE.Vector3(), look: new THREE.Vector3() };
 const lookAt = new THREE.Vector3();
 
@@ -145,6 +160,7 @@ async function boot() {
   scene.add(hallGroup);
   buildRoom(hallGroup, hall, layout);
   buildExhibits();
+  buildMascot();
   lockerRoom = buildLockerRoom(scene);
   lights = buildTravellingLights(scene, quality);
   focusFill = new THREE.PointLight(0xfff0d6, 0, 9, 2);
@@ -155,6 +171,10 @@ async function boot() {
 
   buildHud();
   bindInput();
+  if (dom.petCount) {
+    const known = loadPats();
+    dom.petCount.textContent = known === 1 ? "1 pat" : `${known.toLocaleString()} pats`;
+  }
   applyDeepLink();
 
   addEventListener("resize", onResize);
@@ -169,7 +189,9 @@ async function boot() {
     camTarget, lookAt, goTo, focus: focusExhibit, exitFocus,
     openLocker, closeLocker, focusLockerItem, exitLockerFocus,
     lockerWall: () => lockerWall,
-    lockerRoom: () => lockerRoom
+    lockerRoom: () => lockerRoom,
+    tucker: () => tucker,
+    pet: petTucker
   };
 
   dom.stage.classList.add("ready");
@@ -223,7 +245,12 @@ function cacheDom() {
     lockerSummary: id("lockerSummary"),
     lockerBack: id("lockerBack"),
     lockerBackLabel: id("lockerBackLabel"),
-    lockerHint: id("lockerHint")
+    lockerHint: id("lockerHint"),
+    petCard: id("petCard"),
+    petLine: id("petLine"),
+    petCount: id("petCount"),
+    petButton: id("petButton"),
+    petExit: id("petExit")
   });
 }
 
@@ -301,6 +328,106 @@ function buildExhibits() {
       idlePhase: Math.random() * Math.PI * 2
     };
   });
+}
+
+/* ------------------------------------------------------------------ mascot */
+
+/* Tucker sits in the gap between the Champions and the Hall of Fame — the one
+   place in the hall wide enough for something that is not on a pedestal, and
+   the threshold the arch already marks.
+
+   He is not an exhibit: he has no rail index of his own, no record sheet and
+   no place in the wing counts. What he has is a fractional spot on the rail
+   between the two wings, which is all the camera needs to be able to stop at
+   him, and a hit sphere, which is all a fingertip needs to be able to reach
+   him. */
+function buildMascot() {
+  const managers = hall.wings.findIndex((wing) => wing.id === "hall");
+  if (managers < 1) return;
+  // The last champion and the first manager, with the arch between them.
+  const before = hall.wings[managers].start - 1;
+  if (before < 0 || before + 1 >= exhibits.length) return;
+
+  tuckerRail = before + 0.5;
+  tucker = buildTucker({
+    x: railToX(tuckerRail),
+    z: LAYOUT.itemZ + 0.95,
+    quality
+  });
+  hallGroup.add(tucker.group);
+}
+
+/* Petting him. The camera crouches to his level, he reacts, and the HUD swaps
+   the exhibit label for his card. Petting him again while already down there
+   just pets him again — which is the point of him. */
+function petTucker() {
+  if (!tucker || state.mode === "intro" || IN_LOCKER(state.mode)) return;
+  if (state.mode === "focus") exitFocus();
+  state.petFocus = true;
+  state.rail = tuckerRail;
+  state.railTarget = tuckerRail;
+  state.velocity = 0;
+  dom.stage.classList.add("petting");
+  dom.hint.classList.remove("show");
+  if (history.replaceState) history.replaceState(null, "", "#tucker");
+
+  const reaction = tucker.pet();
+  storePats();
+  showPetCard(reaction);
+}
+
+function leavePet() {
+  if (!state.petFocus) return;
+  state.petFocus = false;
+  dom.stage.classList.remove("petting");
+  state.railTarget = clamp(Math.round(tuckerRail), 0, exhibits.length - 1);
+  state.lastIndex = -1;
+}
+
+/* The pat count is his, not the browser's, so it survives a reload the way a
+   scoreboard would. A browser that refuses storage simply forgets him. */
+const PAT_KEY = "sluh-tucker-pats";
+let pats = 0;
+
+function loadPats() {
+  try {
+    pats = Math.max(0, parseInt(localStorage.getItem(PAT_KEY), 10) || 0);
+  } catch (error) {
+    pats = 0;
+  }
+  return pats;
+}
+
+function storePats() {
+  pats = loadPats() + 1;
+  try {
+    localStorage.setItem(PAT_KEY, String(pats));
+  } catch (error) {
+    // Private browsing. He still enjoyed it.
+  }
+}
+
+const PET_LINES = [
+  "Tucker leans into it.",
+  "Tail going like a metronome.",
+  "He tips his head at you.",
+  "Ears up. Fully committed.",
+  "He would like this to continue.",
+  "Good boy. Certified.",
+  "He has decided you are his favourite."
+];
+
+function showPetCard(reaction) {
+  if (!dom.petLine) return;
+  const line = reaction && reaction.bow
+    ? "Play bow. He wants the ball."
+    : PET_LINES[Math.floor(Math.random() * PET_LINES.length)];
+  dom.petLine.textContent = line;
+  dom.petCount.textContent = pats === 1 ? "1 pat" : `${pats.toLocaleString()} pats`;
+  dom.petCard.classList.remove("pop");
+  // Restart the animation rather than letting a second pat land silently.
+  void dom.petCard.offsetWidth;
+  dom.petCard.classList.add("pop");
 }
 
 // A pillar is most of a plinth already, and a plaque has to land at reading
@@ -408,6 +535,28 @@ function wallFraming() {
   };
 }
 
+/* Crouching to him. The hall pose is worked out as usual and then bent toward
+   his eye level by however far into petting we are, so approaching him and
+   leaving him are the same glide run in opposite directions — and a drag part
+   way through hands the camera straight back to the rail. */
+const petPose = { position: new THREE.Vector3(), look: new THREE.Vector3() };
+
+function applyPetFraming() {
+  if (!tucker || state.pet < 0.001) return;
+  // On a phone his card takes the bottom of the screen, so he is lifted into
+  // the half that is left rather than sitting behind it.
+  const narrow = innerWidth <= 860;
+  if (narrow) {
+    petPose.position.set(tucker.x + 0.06, tucker.daisTop + 1.02, tucker.z + 2.5);
+    petPose.look.set(tucker.x, tucker.daisTop + 0.66, tucker.z);
+  } else {
+    petPose.position.set(tucker.x + 0.34, tucker.daisTop + 0.80, tucker.z + 1.95);
+    petPose.look.set(tucker.x + 0.04, tucker.daisTop + 0.38, tucker.z);
+  }
+  camTarget.position.lerp(petPose.position, state.pet);
+  camTarget.look.lerp(petPose.look, state.pet);
+}
+
 function updateCameraTarget(dt) {
   if (state.mode === "lockerFocus" && lockerWall && lockerWall.items[state.lockerIndex]) {
     const holder = lockerWall.items[state.lockerIndex];
@@ -449,6 +598,7 @@ function updateCameraTarget(dt) {
     const ease = state.intro * state.intro;
     camTarget.position.set(x + lean * 0.55, 2.52 + ease * 2.2, LAYOUT.itemZ + 6.7 + ease * 6.6);
     camTarget.look.set(x + lean * 1.6, 1.80 + ease * 0.25, LAYOUT.itemZ);
+    applyPetFraming();
   }
 
   const speed = state.mode === "focus" ? 5.4 : 4.2;
@@ -481,6 +631,11 @@ function tick(now) {
     }
   }
 
+  // Damped here rather than below the locker branch so that stepping through a
+  // door while crouched at him does not leave the camera half way to him when
+  // you come back out.
+  state.pet = damp(state.pet, state.petFocus && state.mode === "hall" ? 1 : 0, 4.2, dt);
+
   if (IN_LOCKER(state.mode)) {
     updateLocker(dt, time);
     updateCameraTarget(dt);
@@ -494,6 +649,7 @@ function tick(now) {
   state.lift = damp(state.lift, state.mode === "focus" ? 0.42 : 0, 5, dt);
 
   updateExhibits(dt, time);
+  updateMascot(dt, time);
   updateCameraTarget(dt);
 
   const current = nearestIndex();
@@ -503,7 +659,12 @@ function tick(now) {
   }
 
   const active = exhibits[state.mode === "focus" ? state.focusIndex : current];
-  if (active) lights.update(active.x, active.item.accent);
+  if (active) {
+    // While you are down with the dog the key light comes off the exhibits and
+    // onto him, warm rather than in a wing's colour.
+    const litX = tucker ? THREE.MathUtils.lerp(active.x, tucker.x, state.pet) : active.x;
+    lights.update(litX, state.pet > 0.5 ? "#ffd08a" : active.item.accent);
+  }
 
   // The fill rides just off the camera's shoulder, so it lights whatever face
   // the viewer has turned toward themselves. Gold can take a lot of it; the
@@ -569,6 +730,46 @@ function updateExhibits(dt, time) {
       sprite.scale.setScalar(0.22 + pulse * 0.2);
     });
   });
+}
+
+// Whether the hall has already introduced him. It points him out once.
+let metTucker = false;
+
+/* Tucker, every frame he is anywhere near. He is culled by distance down the
+   hall rather than by rail index, because he does not have one. */
+function updateMascot(dt, time) {
+  if (!tucker) return;
+  const distance = Math.abs(camera.position.x - tucker.x);
+  const near = distance < 15;
+  tucker.group.visible = distance < 26;
+  tucker.update(dt, time, {
+    cameraPosition: camera.position,
+    calm: quality.calm,
+    near: near && tucker.group.visible
+  });
+
+  // One ray against one sphere, once a frame, only while a mouse is actually
+  // over the canvas.
+  if (hovering && !state.dragging && state.mode === "hall" && tucker.group.visible) {
+    raycaster.setFromCamera(hoverPointer, camera);
+    const over = raycaster.intersectObject(tucker.proxy, false).length > 0;
+    if (over !== overTucker) {
+      overTucker = over;
+      dom.canvas.style.cursor = over ? "pointer" : "";
+    }
+  } else if (overTucker) {
+    overTucker = false;
+    dom.canvas.style.cursor = "";
+  }
+
+  // The one time the hall points him out: the first time you walk up to him
+  // without having met him.
+  if (!metTucker && !state.petFocus && distance < 3.4 && state.mode === "hall" && state.intro < 0.2) {
+    metTucker = true;
+    dom.hint.textContent = "That's Tucker, the league mascot · tap him to say hello";
+    dom.hint.classList.add("show");
+    setTimeout(() => dom.hint.classList.remove("show"), 5200);
+  }
 }
 
 /* The wall breathes a little: the piece being inspected turns under the
@@ -649,6 +850,9 @@ function buildHud() {
     if (item && item.wing === "hall" && item.ownerId) openLocker(item.ownerId);
     else focusExhibit(nearestIndex());
   };
+  if (dom.petButton) dom.petButton.addEventListener("click", () => petTucker());
+  if (dom.petExit) dom.petExit.addEventListener("click", () => leavePet());
+
   dom.label.addEventListener("click", inspect);
   dom.label.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") { event.preventDefault(); inspect(); }
@@ -689,7 +893,9 @@ function onCurrentChanged(index) {
   dom.stage.style.setProperty("--accent", item.accent);
 
   if (state.mode === "focus" && index === state.focusIndex) fillSheet(item);
-  if (history.replaceState) history.replaceState(null, "", `#${item.id}`);
+  // While you are down with Tucker the address bar belongs to him, not to
+  // whichever exhibit happens to be nearest.
+  if (history.replaceState && !state.petFocus) history.replaceState(null, "", `#${item.id}`);
 }
 
 function fillSheet(item) {
@@ -717,6 +923,7 @@ function fillSheet(item) {
 
 function goTo(index, { exitFocus: leave = false } = {}) {
   if (leave && state.mode === "focus") exitFocus({ silent: true });
+  leavePet();
   state.railTarget = clamp(index, 0, exhibits.length - 1);
   state.velocity = 0;
   if (state.mode === "focus") {
@@ -728,6 +935,7 @@ function goTo(index, { exitFocus: leave = false } = {}) {
 }
 
 function step(direction) {
+  leavePet();
   if (state.mode === "focus") {
     const next = clamp(state.focusIndex + direction, 0, exhibits.length - 1);
     if (next === state.focusIndex) return;
@@ -749,6 +957,7 @@ function resetFocusPose() {
 
 function focusExhibit(index) {
   if (state.mode === "intro") return;
+  leavePet();
   state.mode = "focus";
   state.focusIndex = clamp(index, 0, exhibits.length - 1);
   state.rail = state.focusIndex;
@@ -787,6 +996,7 @@ function enterHall() {
 function openLocker(ownerId) {
   const locker = hall.lockers[ownerId];
   if (!locker || state.lockerId === ownerId) return;
+  leavePet();
 
   wipe({ color: locker.color, icon: locker.icon, ownerId: locker.ownerId, label: `Opening ${locker.team}` }, () => {
     if (lockerWall) lockerWall.dispose();
@@ -940,6 +1150,14 @@ function applyDeepLink() {
   const target = location.hash.replace("#", "");
   if (!target) return;
 
+  if (target === "tucker" && tucker) {
+    state.rail = tuckerRail;
+    state.railTarget = tuckerRail;
+    state.lastIndex = -1;
+    setTimeout(() => petTucker(), 80);
+    return;
+  }
+
   const team = target.match(/^locker=(.+)$/);
   if (team) {
     const ownerId = decodeURIComponent(team[1]);
@@ -1008,6 +1226,17 @@ function bindInput() {
     dom.hint.classList.remove("show");
   });
 
+  // Hover is tracked separately from the drag: this one fires whether or not a
+  // button is down, which is what the cursor needs.
+  canvas.addEventListener("pointermove", (event) => {
+    if (event.pointerType === "touch") return;
+    const rect = canvas.getBoundingClientRect();
+    hoverPointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    hoverPointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    hovering = true;
+  });
+  canvas.addEventListener("pointerleave", () => { hovering = false; });
+
   canvas.addEventListener("pointermove", (event) => {
     if (!active.has(event.pointerId)) return;
     active.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -1049,6 +1278,8 @@ function bindInput() {
       return;
     }
 
+    // Walking away from him is how you stop petting him.
+    if (state.petFocus && state.pointerMoved > 12) leavePet();
     state.rail = clamp(startRail - dx * unitsPerPixel(), -0.4, exhibits.length - 0.6);
     const now = performance.now();
     const elapsed = Math.max(8, now - lastTime);
@@ -1098,6 +1329,7 @@ function bindInput() {
       return;
     }
     const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    if (state.petFocus && Math.abs(delta) > 4) leavePet();
     wheelBudget += delta;
     const steps = Math.trunc(wheelBudget / 55);
     if (!steps) return;
@@ -1130,7 +1362,11 @@ function bindInput() {
       case "ArrowUp": case "Enter":
         if (state.mode === "hall") focusExhibit(nearestIndex());
         break;
-      case "ArrowDown": case "Escape": exitFocus(); break;
+      case "p": case "P": petTucker(); break;
+      case "ArrowDown": case "Escape":
+        if (state.petFocus) leavePet();
+        else exitFocus();
+        break;
       case "Home": goTo(0, { exitFocus: true }); break;
       case "End": goTo(exhibits.length - 1, { exitFocus: true }); break;
       default: return;
@@ -1176,8 +1412,20 @@ function handleTap(event) {
     .map((exhibit) => exhibit.stand);
   const hits = raycaster.intersectObjects(candidates, true);
 
+  // The dog is checked against the same ray as the exhibits and wins only if
+  // he is genuinely in front of one, so he can never swallow a tap meant for
+  // the trophy behind him.
+  if (tucker && tucker.group.visible) {
+    const dog = raycaster.intersectObject(tucker.proxy, false);
+    if (dog.length && (!hits.length || dog[0].distance < hits[0].distance)) {
+      petTucker();
+      return;
+    }
+  }
+
   if (!hits.length) {
     if (state.mode === "focus") exitFocus();
+    else leavePet();
     return;
   }
 
