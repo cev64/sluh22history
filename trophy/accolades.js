@@ -128,10 +128,10 @@ function careerTotals(data) {
   return careers;
 }
 
-/* Longest run of wins by one manager, counted through a single season in
-   played order (regular season, then the bracket). Streaks do not carry
-   across years — a new draft is a new team. */
-function longestStreak(data) {
+/* Longest run of one result by a single manager, counted through a season in
+   played order (regular season, then the bracket). Streaks do not carry across
+   years — a new draft is a new team. Pass "loss" for the other end of it. */
+function longestStreak(data, outcome = "win") {
   let best = null;
   data.seasons.forEach((season) => {
     const byTeam = {};
@@ -145,7 +145,7 @@ function longestStreak(data) {
         const team = season.teams[key];
         if (!team) return;
         const state = byTeam[key] || (byTeam[key] = { run: 0, from: null });
-        if (mine > theirs) {
+        if (outcome === "win" ? mine > theirs : mine < theirs) {
           if (!state.run) state.from = game.week;
           state.run += 1;
           if (!best || state.run > best.run) {
@@ -161,28 +161,11 @@ function longestStreak(data) {
 }
 
 function championExhibits(data, careers) {
-  const items = [];
-
-  items.push({
-    id: "champ-2020",
-    kind: "cup",
-    lost: true,
-    year: LOST_SEASON.year,
-    title: "2020",
-    subtitle: careers[LOST_SEASON.ownerId].currentTeam,
-    owner: careers[LOST_SEASON.ownerId].name,
-    ownerId: LOST_SEASON.ownerId,
-    icon: careers[LOST_SEASON.ownerId].icon,
-    color: careers[LOST_SEASON.ownerId].color,
-    plate: "2020 CHAMPION",
-    blurb: LOST_SEASON.note,
-    stats: [{ label: "Champion", value: careers[LOST_SEASON.ownerId].name }],
-    links: []
-  });
-
-  data.seasons.forEach((season) => {
+  // Newest first: you walk in on the reigning champion and travel back through
+  // the years, ending at the season nobody kept the box scores for.
+  const items = [...data.seasons].sort((a, b) => b.year - a.year).map((season) => {
     const champ = Object.values(season.teams).find((team) => team.finalRank === 1);
-    if (!champ) return;
+    if (!champ) return null;
     const runnerUp = Object.values(season.teams).find((team) => team.finalRank === 2);
     const final = season.postseasonGames.find((game) => game.label === "Championship");
     const size = Object.keys(season.teams).length;
@@ -190,15 +173,13 @@ function championExhibits(data, careers) {
     let finalLine = "";
     if (final) {
       const a = season.teams[final.a];
-      const won = final.aScore >= final.bScore;
       const champScore = a === champ ? final.aScore : final.bScore;
       const foeScore = a === champ ? final.bScore : final.aScore;
       const foe = a === champ ? season.teams[final.b] : a;
       finalLine = `${fmt(champScore)} – ${fmt(foeScore)} over ${foe.name}`;
-      void won;
     }
 
-    items.push({
+    return {
       id: `champ-${season.year}`,
       kind: "cup",
       year: season.year,
@@ -223,7 +204,25 @@ function championExhibits(data, careers) {
           ? [{ label: `${champ.owner}'s Profile`, href: `alltime.html#owner=${champ.ownerId}` }]
           : [])
       ]
-    });
+    };
+  }).filter(Boolean);
+
+  const lost = careers[LOST_SEASON.ownerId];
+  items.push({
+    id: "champ-2020",
+    kind: "cup",
+    lost: true,
+    year: LOST_SEASON.year,
+    title: "2020",
+    subtitle: lost.currentTeam,
+    owner: lost.name,
+    ownerId: LOST_SEASON.ownerId,
+    icon: lost.icon,
+    color: lost.color,
+    plate: "2020 CHAMPION",
+    blurb: LOST_SEASON.note,
+    stats: [{ label: "Champion", value: lost.name }],
+    links: []
   });
 
   return items;
@@ -267,37 +266,46 @@ function hallOfFameExhibits(careers) {
     }));
 }
 
-function recordExhibits(data, careers) {
+/* The two walls face each other across the same numbers, so they share the
+   ways of slicing them. */
+function marks(data, careers) {
   const games = flattenGames(data);
-  const sides = games.flatMap((row) =>
-    row.sides.map((side) => ({ ...side, year: row.year, week: row.week, label: row.label }))
-  );
-  const seasonTeams = data.seasons.flatMap((season) =>
-    Object.values(season.teams).map((team) => ({ ...team, year: season.year, size: Object.keys(season.teams).length }))
-  );
+  return {
+    games,
+    // One row per team per game, which is what a "best/worst week" is about.
+    sides: games.flatMap((row) =>
+      row.sides.map((side) => ({ ...side, year: row.year, week: row.week, stage: row.stage, label: row.label }))
+    ),
+    seasonTeams: data.seasons.flatMap((season) =>
+      Object.values(season.teams).map((team) => ({
+        ...team, year: season.year, size: Object.keys(season.teams).length
+      }))
+    ),
+    // A single season is too small a sample to hold a career mark — unless the
+    // league is young enough that nobody has two, in which case one will do.
+    veterans: (() => {
+      const played = Object.values(careers).filter((career) => career.seasons.length);
+      const seasoned = played.filter((career) => career.seasons.length >= 2);
+      return seasoned.length ? seasoned : played;
+    })(),
+    // Both return null on an empty list: a couple of these marks are drawn from
+    // filtered sets that a small enough league could leave empty.
+    top: (list, score) => (list.length ? list.reduce((best, item) => (score(item) > score(best) ? item : best)) : null),
+    bottom: (list, score) => (list.length ? list.reduce((worst, item) => (score(item) < score(worst) ? item : worst)) : null),
+    allTied: (list, score) => {
+      const best = Math.max(...list.map(score));
+      return list.filter((item) => score(item) === best);
+    }
+  };
+}
 
-  const top = (list, score) => list.reduce((best, item) => (score(item) > score(best) ? item : best));
-  const streak = longestStreak(data);
-  const veterans = Object.values(careers).filter((career) => career.seasons.length >= 2);
-
-  const bestWeek = top(sides, (s) => s.points);
-  const worstWeek = sides.reduce((low, s) => (s.points < low.points ? s : low));
-  const bestSeasonPf = top(seasonTeams, (t) => t.pf);
-  const bestSeasonRecord = top(seasonTeams, (t) => t.wins - t.losses / 100);
-  const blowout = top(games, (g) => g.winScore - g.loseScore);
-  const nailBiter = games.reduce((tight, g) => ((g.winScore - g.loseScore) < (tight.winScore - tight.loseScore) ? g : tight));
-  const shootout = top(games, (g) => g.winScore + g.loseScore);
-  const titleCount = Math.max(...veterans.map((c) => c.titles.length));
-  const titleHolders = veterans.filter((c) => c.titles.length === titleCount);
-  const mostTitles = titleHolders[0];
-  const bestPct = top(veterans, (c) => c.pct);
-  const mostPlayoffWins = top(veterans, (c) => c.playoffWins);
-
-  // Some marks are held by managers who left before this record book existed.
-  // They keep the plaque; there is just no profile page to send anyone to.
-  const plaque = (id, label, value, holder, meta, blurb, ownerId, color, icon, stats = []) => ({
-    id: `rec-${id}`,
+/* Builds the plaque object for one mark. `tarnished` swaps brass for pewter,
+   which is how the lowlight wall tells itself apart from the record wall. */
+function plaqueMaker(careers, { prefix, tarnished = false }) {
+  return (id, label, value, holder, meta, blurb, ownerId, color, icon, stats = []) => ({
+    id: `${prefix}-${id}`,
     kind: "plaque",
+    tarnished,
     title: label,
     subtitle: holder,
     owner: holder,
@@ -309,10 +317,33 @@ function recordExhibits(data, careers) {
     meta,
     blurb,
     stats,
-    links: careers[ownerId]
+    // Some marks are held by managers who left before this record book existed,
+    // and a shared mark belongs to nobody in particular. Either way there is no
+    // single profile to send anyone to.
+    links: ownerId && careers[ownerId]
       ? [{ label: `${holder} · Profile`, href: `alltime.html#owner=${ownerId}` }]
       : []
   });
+}
+
+function recordExhibits(data, careers) {
+  const { games, sides, seasonTeams, veterans, top, bottom, allTied } = marks(data, careers);
+  const streak = longestStreak(data, "win");
+
+  const bestWeek = top(sides, (s) => s.points);
+  const bestSeasonPf = top(seasonTeams, (t) => t.pf);
+  const bestSeasonRecord = top(seasonTeams, (t) => t.wins - t.losses / 100);
+  const blowout = top(games, (g) => g.winScore - g.loseScore);
+  const nailBiter = bottom(games, (g) => g.winScore - g.loseScore);
+  const shootout = top(games, (g) => g.winScore + g.loseScore);
+  // A mark can be shared. Where it is, every holder goes on the plaque.
+  const titleHolders = allTied(veterans, (c) => c.titles.length);
+  const titleCount = titleHolders[0].titles.length;
+  const mostTitles = titleHolders[0];
+  const bestPct = top(veterans, (c) => c.pct);
+  const mostPlayoffWins = top(veterans, (c) => c.playoffWins);
+
+  const plaque = plaqueMaker(careers, { prefix: "rec" });
 
   return [
     plaque(
@@ -360,13 +391,17 @@ function recordExhibits(data, careers) {
       shootout.winner.ownerId, shootout.winner.color, shootout.winner.icon
     ),
     plaque(
-      "titles", "Most Championships", String(mostTitles.titles.length), mostTitles.currentTeam,
-      titleHolders.map((c) => `${c.name} (${c.titles.join(", ")})`).join(" · "),
+      "titles", "Most Championships", String(titleCount),
+      titleHolders.map((c) => c.currentTeam).join(" & "),
+      titleHolders.map((c) => c.titles.join(", ")).join(" · "),
       titleHolders.length > 1
         ? `${titleHolders.map((c) => c.name).join(" and ")} are tied at ${titleCount} titles apiece.`
-        : `${mostTitles.name} has taken ${mostTitles.titles.length} of the league's titles.`,
-      mostTitles.ownerId, mostTitles.color, mostTitles.icon,
-      [{ label: "All-Time Record", value: `${mostTitles.wins}–${mostTitles.losses}` }]
+        : `${mostTitles.name} has taken ${titleCount} of the league's titles.`,
+      // A shared mark belongs to nobody in particular, so it takes the wing's
+      // own colouring rather than one holder's crest.
+      titleHolders.length > 1 ? null : mostTitles.ownerId,
+      mostTitles.color, mostTitles.icon,
+      titleHolders.map((c) => ({ label: c.name, value: `${c.titles.length} · ${c.titles.join(", ")}` }))
     ),
     plaque(
       "win-pct", "Best Win Rate", `${(bestPct.pct * 100).toFixed(1)}%`, bestPct.currentTeam,
@@ -386,19 +421,155 @@ function recordExhibits(data, careers) {
       `${streak.year} · weeks ${streak.from}–${streak.to}`,
       `${streak.team.owner} won ${streak.run} straight in ${streak.year}, from week ${streak.from} to week ${streak.to}.`,
       streak.team.ownerId, streak.team.color, streak.team.icon
-    )] : []),
+    )] : [])
+  ];
+}
+
+/* Champions, and how they did the season after. A title defence only counts
+   where the league actually played the following year and the same manager
+   came back — the worst of them leads the plaque. */
+function titleDefences(data) {
+  const seasons = [...data.seasons].sort((a, b) => a.year - b.year);
+  const defences = [];
+
+  seasons.forEach((season, index) => {
+    const next = seasons[index + 1];
+    if (!next) return;
+    const champ = Object.values(season.teams).find((team) => team.finalRank === 1);
+    if (!champ) return;
+    const after = Object.values(next.teams).find((team) => team.ownerId === champ.ownerId);
+    if (!after) return;
+    defences.push({
+      year: season.year,
+      champ,
+      after: { ...after, year: next.year, size: Object.keys(next.teams).length }
+    });
+  });
+
+  return defences.sort((a, b) => b.after.finalRank - a.after.finalRank);
+}
+
+/* The record wall's mirror. Same seasons, same games, read from the other end.
+   Nobody is going to be thrilled to hold one of these, so the plaques are
+   pewter rather than brass and the wording states the fact and stops. */
+function lowlightExhibits(data, careers) {
+  const { games, sides, seasonTeams, veterans, top, bottom, allTied } = marks(data, careers);
+  const slump = longestStreak(data, "loss");
+
+  const worstWeek = bottom(sides, (s) => s.points);
+  const fewestSeasonPf = bottom(seasonTeams, (t) => t.pf);
+  const worstSeasonRecord = bottom(seasonTeams, (t) => t.wins - t.losses / 100);
+  const defences = titleDefences(data);
+  const snoozer = bottom(games, (g) => g.winScore + g.loseScore);
+  const worstPct = bottom(veterans, (c) => c.pct);
+  const cellarHolders = allTied(
+    Object.values(careers).filter((c) => c.seasons.length),
+    (c) => c.cellars.length
+  );
+  const cellarCount = cellarHolders[0].cellars.length;
+  // Counting playoff losses would punish a manager for qualifying often, so
+  // this is a rate, over managers who have actually been in the bracket.
+  const worstBracket = bottom(
+    veterans.filter((c) => c.playoffWins + c.playoffLosses >= 3),
+    (c) => c.playoffWins / (c.playoffWins + c.playoffLosses)
+  );
+
+  // The season that scored like a contender and finished like nothing of the
+  // sort: most points among teams that ended in the bottom half of their field.
+  const hardLuck = top(
+    seasonTeams.filter((t) => t.finalRank > t.size / 2),
+    (t) => t.pf
+  );
+
+  const plaque = plaqueMaker(careers, { prefix: "low", tarnished: true });
+
+  return [
     plaque(
-      "cold", "Coldest Week", fmt(worstWeek.points), worstWeek.team.name,
+      "cold-week", "Coldest Week", fmt(worstWeek.points), worstWeek.team.name,
       `Week ${worstWeek.week} · ${worstWeek.year}`,
       `${fmt(worstWeek.points)} points. ${worstWeek.opponent.name} put up ${fmt(worstWeek.against)} the same week.`,
-      worstWeek.team.ownerId, worstWeek.team.color, worstWeek.team.icon
-    )
+      worstWeek.team.ownerId, worstWeek.team.color, worstWeek.team.icon,
+      [{ label: "Opponent", value: `${worstWeek.opponent.name} · ${fmt(worstWeek.against)}` }]
+    ),
+    plaque(
+      "few-points", "Fewest Points, Season", fmt(fewestSeasonPf.pf), fewestSeasonPf.name,
+      `${fewestSeasonPf.year} · ${fewestSeasonPf.wins}–${fewestSeasonPf.losses}`,
+      `${fewestSeasonPf.owner} managed ${fmt(fewestSeasonPf.pf)} across the whole of ${fewestSeasonPf.year} — ${fmt(fewestSeasonPf.pf / (fewestSeasonPf.wins + fewestSeasonPf.losses))} a week.`,
+      fewestSeasonPf.ownerId, fewestSeasonPf.color, fewestSeasonPf.icon,
+      [{ label: "Finish", value: ordinal(fewestSeasonPf.finalRank) }]
+    ),
+    plaque(
+      "worst-record", "Worst Season Record", `${worstSeasonRecord.wins}–${worstSeasonRecord.losses}`, worstSeasonRecord.name,
+      `${worstSeasonRecord.year}`,
+      `${worstSeasonRecord.owner} went ${worstSeasonRecord.wins}–${worstSeasonRecord.losses} in ${worstSeasonRecord.year}, finishing ${ordinal(worstSeasonRecord.finalRank)} of ${worstSeasonRecord.size}.`,
+      worstSeasonRecord.ownerId, worstSeasonRecord.color, worstSeasonRecord.icon,
+      [{ label: "Points For", value: fmt(worstSeasonRecord.pf) }]
+    ),
+    ...(slump ? [plaque(
+      "slump", "Longest Losing Streak", `${slump.run}`, slump.team.name,
+      `${slump.year} · weeks ${slump.from}–${slump.to}`,
+      `${slump.team.owner} lost ${slump.run} straight in ${slump.year}, from week ${slump.from} to week ${slump.to}.`,
+      slump.team.ownerId, slump.team.color, slump.team.icon
+    )] : []),
+    ...(defences.length ? [plaque(
+      "defence", "Worst Title Defence", ordinal(defences[0].after.finalRank), defences[0].after.name,
+      `${defences[0].year} champion, ${defences[0].after.year} finish`,
+      `${defences[0].after.owner} won it all in ${defences[0].year}, then finished ${ordinal(defences[0].after.finalRank)} of ${defences[0].after.size} the very next season at ${defences[0].after.wins}–${defences[0].after.losses}.`,
+      defences[0].after.ownerId, defences[0].after.color, defences[0].after.icon,
+      [
+        { label: `${defences[0].year} (champion)`, value: `${defences[0].champ.wins}–${defences[0].champ.losses} · ${fmt(defences[0].champ.pf)}` },
+        { label: `${defences[0].after.year}`, value: `${defences[0].after.wins}–${defences[0].after.losses} · ${fmt(defences[0].after.pf)}` }
+      ]
+    )] : []),
+    plaque(
+      "snoozer", "Lowest-Scoring Game", fmt(snoozer.winScore + snoozer.loseScore),
+      `${snoozer.winner.name} vs ${snoozer.loser.name}`,
+      `Week ${snoozer.week} · ${snoozer.year}`,
+      `${fmt(snoozer.winScore)} to ${fmt(snoozer.loseScore)} in week ${snoozer.week} of ${snoozer.year}. Somebody had to win it.`,
+      snoozer.winner.ownerId, snoozer.winner.color, snoozer.winner.icon
+    ),
+    plaque(
+      "worst-rate", "Worst Win Rate", `${(worstPct.pct * 100).toFixed(1)}%`, worstPct.currentTeam,
+      `${worstPct.wins}–${worstPct.losses} all-time`,
+      `${worstPct.name} wins ${(worstPct.pct * 100).toFixed(1)}% of the time across ${worstPct.seasons.length} seasons.`,
+      worstPct.ownerId, worstPct.color, worstPct.icon,
+      [{ label: "Points / Game", value: fmt(worstPct.ppg) }]
+    ),
+    plaque(
+      "cellars", "Most Last-Place Finishes", String(cellarCount),
+      cellarHolders.map((c) => c.currentTeam).join(" & "),
+      cellarHolders.map((c) => c.cellars.join(", ")).join(" · "),
+      cellarHolders.length > 1
+        ? `${cellarHolders.map((c) => c.name).join(" and ")} have finished last ${cellarCount} times each.`
+        : `${cellarHolders[0].name} has finished last ${cellarCount} times.`,
+      cellarHolders.length > 1 ? null : cellarHolders[0].ownerId,
+      cellarHolders[0].color, cellarHolders[0].icon,
+      cellarHolders.map((c) => ({ label: c.name, value: c.cellars.join(", ") || "—" }))
+    ),
+    ...(worstBracket ? [plaque(
+      "playoff-rate", "Worst Playoff Record", `${worstBracket.playoffWins}–${worstBracket.playoffLosses}`,
+      worstBracket.currentTeam,
+      `${((worstBracket.playoffWins / (worstBracket.playoffWins + worstBracket.playoffLosses)) * 100).toFixed(0)}% in the bracket`,
+      `${worstBracket.name} keeps reaching the playoffs and keeps going home: ${worstBracket.playoffWins} wins from ${worstBracket.playoffWins + worstBracket.playoffLosses} bracket games.`,
+      worstBracket.ownerId, worstBracket.color, worstBracket.icon,
+      [{ label: "All-Time Record", value: `${worstBracket.wins}–${worstBracket.losses}` }]
+    )] : []),
+    ...(hardLuck ? [plaque(
+      "hard-luck", "Hard-Luck Season", fmt(hardLuck.pf), hardLuck.name,
+      `${hardLuck.year} · ${ordinal(hardLuck.finalRank)} of ${hardLuck.size}`,
+      `${hardLuck.owner} scored ${fmt(hardLuck.pf)} in ${hardLuck.year} — more than most champions manage — and still finished ${ordinal(hardLuck.finalRank)}. Opponents put up ${fmt(hardLuck.pa)}.`,
+      hardLuck.ownerId, hardLuck.color, hardLuck.icon,
+      [
+        { label: "Record", value: `${hardLuck.wins}–${hardLuck.losses}` },
+        { label: "Points Against", value: fmt(hardLuck.pa) }
+      ]
+    )] : [])
   ];
 }
 
 function cellarExhibits(data) {
   const items = [];
-  data.seasons.forEach((season) => {
+  [...data.seasons].sort((a, b) => b.year - a.year).forEach((season) => {
     const size = Object.keys(season.teams).length;
     const cellar = Object.values(season.teams).find(
       (team) => team.officialLastPlace || team.finalRank === size
@@ -456,6 +627,14 @@ export function buildHall(data) {
       accent: "#7fe0c0",
       blurb: "The numbers nobody has beaten yet.",
       items: recordExhibits(data, careers)
+    },
+    {
+      id: "lowlights",
+      name: "Lowlight Wall",
+      kicker: "The Other Marks",
+      accent: "#7f93b8",
+      blurb: "The same numbers, read from the wrong end.",
+      items: lowlightExhibits(data, careers)
     },
     {
       id: "cellar",

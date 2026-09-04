@@ -47,6 +47,11 @@ function fitText(ctx, text, maxWidth, startSize, weight = 800, font = DISPLAY_FO
 
 /* Cut into metal: a bright lip below the stroke and a dark fill above it reads
    as an incision under the hall's overhead light. */
+const PLATE_INK = {
+  brass: { ink: "#2a2013", lip: "rgba(255,244,214,.6)" },
+  pewter: { ink: "#1d2228", lip: "rgba(240,246,251,.6)" }
+};
+
 function engrave(ctx, text, x, y, { size, weight = 800, align = "center", ink = "#2a2013", lip = "rgba(255,244,214,.6)", font = DISPLAY_FONT, letterSpacing = "0px" }) {
   ctx.save();
   ctx.textAlign = align;
@@ -133,22 +138,33 @@ export function woodTexture({ base = "#2b1c12", grain = "#160d07", highlight = "
   return element;
 }
 
-/* Brushed brass: a warm vertical gradient scratched horizontally. Used as the
-   ground for every plate in the hall so they all read as the same metal. */
-function brushedBrass(ctx, width, height) {
+/* Brushed metal: a vertical gradient scratched horizontally, the ground under
+   every engraved plate in the hall. Brass for the marks worth having; a cold
+   tarnished pewter for the ones on the lowlight wall. */
+const PLATE_METAL = {
+  brass: {
+    stops: ["#e8cd8f", "#c9a55f", "#e2c384", "#b48f4c", "#d8b871"],
+    scratch: ["#fff3d2", "#7d5f2a"]
+  },
+  pewter: {
+    stops: ["#a5acb5", "#767e88", "#959da6", "#5e666f", "#888f98"],
+    scratch: ["#dfe4ea", "#3c434a"]
+  }
+};
+
+function brushedMetal(ctx, width, height, kind = "brass") {
+  const metal = PLATE_METAL[kind] || PLATE_METAL.brass;
   const gradient = ctx.createLinearGradient(0, 0, 0, height);
-  gradient.addColorStop(0, "#e8cd8f");
-  gradient.addColorStop(0.22, "#c9a55f");
-  gradient.addColorStop(0.5, "#e2c384");
-  gradient.addColorStop(0.78, "#b48f4c");
-  gradient.addColorStop(1, "#d8b871");
+  [0, 0.22, 0.5, 0.78, 1].forEach((offset, index) => {
+    gradient.addColorStop(offset, metal.stops[index]);
+  });
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
   for (let i = 0; i < height * 1.5; i += 1) {
     const y = Math.random() * height;
     ctx.globalAlpha = 0.02 + Math.random() * 0.05;
-    ctx.strokeStyle = Math.random() > 0.5 ? "#fff3d2" : "#7d5f2a";
+    ctx.strokeStyle = Math.random() > 0.5 ? metal.scratch[0] : metal.scratch[1];
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(width, y + (Math.random() - 0.5) * 2);
@@ -171,22 +187,26 @@ function plateFrame(ctx, width, height, accent) {
 }
 
 /* The small engraved plate on the front of a plinth. */
-export function nameplateTexture({ title, sub, accent }) {
+export function nameplateTexture({ title, sub, accent, metal = "brass" }) {
   const width = 1024;
   const height = 256;
   const { element, ctx } = canvas(width, height);
-  brushedBrass(ctx, width, height);
+  const tone = PLATE_INK[metal] || PLATE_INK.brass;
+  brushedMetal(ctx, width, height, metal);
   plateFrame(ctx, width, height, accent);
 
   const titleSize = fitText(ctx, title, width * 0.8, sub ? 86 : 104, 800);
-  engrave(ctx, title, width / 2, sub ? height * 0.4 : height * 0.5, { size: titleSize, letterSpacing: "2px" });
+  engrave(ctx, title, width / 2, sub ? height * 0.4 : height * 0.5, {
+    size: titleSize, letterSpacing: "2px", ...tone
+  });
 
   if (sub) {
     const subSize = fitText(ctx, sub, width * 0.78, 46, 600);
     engrave(ctx, sub.toUpperCase(), width / 2, height * 0.68, {
       size: subSize,
       weight: 600,
-      ink: "rgba(52,38,14,.9)",
+      ink: metal === "pewter" ? "rgba(40,48,56,.9)" : "rgba(52,38,14,.9)",
+      lip: tone.lip,
       letterSpacing: "6px"
     });
   }
@@ -266,11 +286,12 @@ export function crestTexture({ icon, color, label, size = 512 }) {
 }
 
 /* The face of a record plaque: the number first, then what it is and who owns it. */
-export function recordFaceTexture({ value, label, holder, meta, accent }) {
+export function recordFaceTexture({ value, label, holder, meta, accent, metal = "brass" }) {
   const width = 1024;
   const height = 768;
   const { element, ctx } = canvas(width, height);
-  brushedBrass(ctx, width, height);
+  const tone = PLATE_INK[metal] || PLATE_INK.brass;
+  brushedMetal(ctx, width, height, metal);
 
   ctx.save();
   ctx.globalAlpha = 0.1;
@@ -283,12 +304,13 @@ export function recordFaceTexture({ value, label, holder, meta, accent }) {
   engrave(ctx, label.toUpperCase(), width / 2, height * 0.235, {
     size: fitText(ctx, label.toUpperCase(), width * 0.8, 56, 700),
     weight: 700,
-    ink: "rgba(58,42,16,.92)",
+    ink: metal === "pewter" ? "rgba(34,42,50,.92)" : "rgba(58,42,16,.92)",
+    lip: tone.lip,
     letterSpacing: "8px"
   });
 
   ctx.save();
-  ctx.strokeStyle = "rgba(70,50,18,.4)";
+  ctx.strokeStyle = metal === "pewter" ? "rgba(48,56,64,.4)" : "rgba(70,50,18,.4)";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(width * 0.33, height * 0.295);
@@ -299,20 +321,23 @@ export function recordFaceTexture({ value, label, holder, meta, accent }) {
   engrave(ctx, value, width / 2, height * 0.47, {
     size: fitText(ctx, value, width * 0.82, 210, 800),
     weight: 800,
-    letterSpacing: "-2px"
+    letterSpacing: "-2px",
+    ...tone
   });
 
   engrave(ctx, holder, width / 2, height * 0.665, {
     size: fitText(ctx, holder, width * 0.85, 64, 700),
     weight: 700,
-    ink: "rgba(48,34,12,.95)"
+    ink: metal === "pewter" ? "rgba(28,36,44,.95)" : "rgba(48,34,12,.95)",
+    lip: tone.lip
   });
 
   if (meta) {
     engrave(ctx, meta, width / 2, height * 0.775, {
       size: fitText(ctx, meta, width * 0.85, 42, 500),
       weight: 500,
-      ink: "rgba(64,48,20,.8)",
+      ink: metal === "pewter" ? "rgba(44,52,60,.8)" : "rgba(64,48,20,.8)",
+      lip: tone.lip,
       letterSpacing: "3px"
     });
   }

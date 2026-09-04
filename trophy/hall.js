@@ -425,13 +425,13 @@ export function buildTravellingLights(scene, quality) {
     update(x, accent) {
       key.position.x = x;
       key.target.position.x = x;
-      key.color.lerp(new THREE.Color(0xffe3b8).lerp(new THREE.Color(accent), 0.18), 0.08);
+      key.color.lerp(new THREE.Color(0xffe3b8).lerp(new THREE.Color(accent), 0.4), 0.08);
       wings.forEach(({ light, side }) => {
         light.position.x = x + side * LAYOUT.spacing;
         light.target.position.x = x + side * LAYOUT.spacing;
       });
       rim.position.x = x;
-      rim.color.lerp(new THREE.Color(accent), 0.06);
+      rim.color.lerp(new THREE.Color(0xff9d5c).lerp(new THREE.Color(accent), 0.45), 0.06);
     }
   };
 }

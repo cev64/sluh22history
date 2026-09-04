@@ -375,6 +375,8 @@ function tick(now) {
   // painted shields and engraved plates clip long before it does, so this is
   // set by what the diffuse surfaces will take.
   focusFill.intensity = damp(focusFill.intensity, state.mode === "focus" ? 20 : 0, 4, dt);
+  // The fill takes the wing's colour too, so a cold wall is not lit warm.
+  if (active) focusFill.color.lerp(new THREE.Color(0xfff0d6).lerp(new THREE.Color(active.item.accent), 0.35), 0.08);
   focusFill.position.set(
     camera.position.x - 0.9,
     camera.position.y + 0.5,
@@ -676,8 +678,13 @@ function bindInput() {
     state.pointerMoved = Math.max(state.pointerMoved, Math.hypot(dx, dy));
 
     if (state.mode === "focus") {
+      // Both axes turn the exhibit the way a hand on it would: drag right and
+      // the near face travels right, bringing the left side around; drag down
+      // and the near face travels down, tipping the top away from you. The
+      // pitch used to run the other way, which is what made grabbing a trophy
+      // and turning it feel inverted against its own yaw.
       state.focusYaw = startYaw - dx * 0.0085;
-      state.focusPitch = clamp(startPitch + dy * 0.0055, -0.55, 0.55);
+      state.focusPitch = clamp(startPitch - dy * 0.0055, -0.55, 0.55);
       return;
     }
 
