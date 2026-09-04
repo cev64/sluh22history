@@ -319,18 +319,26 @@ export function buildCup(item) {
   accentRing.rotation.x = Math.PI / 2;
   accentRing.position.y = 0.652;
 
-  // Loop handles standing in the plane of the front face, gap turned inward.
+  /* Loop handles, swept along a curve rather than cut from a torus arc. An arc
+     has to be positioned and rotated until its two loose ends happen to meet
+     the bowl, and they never quite did — the ends stopped short and the handle
+     read as a broken ring. A curve can simply start and finish inside the
+     bowl wall: the first and last points below sit a few centimetres inside
+     the profile at their own heights, so the metal always emerges from the cup
+     and returns to it. */
   const handles = new THREE.Group();
-  const handleGeometry = new THREE.TorusGeometry(0.128, 0.027, 12, 40, Math.PI * 1.4);
-  const right = new THREE.Mesh(handleGeometry, shared.gold);
-  right.position.set(0.288, 0.900, 0);
-  right.rotation.z = -2.1;
-  right.scale.set(0.85, 1.25, 1);
-  right.castShadow = true;
-  const left = right.clone();
-  left.position.x = -0.288;
-  left.rotation.z = Math.PI + 2.1;
-  handles.add(right, left);
+  const handleCurve = (side) => new THREE.CatmullRomCurve3([
+    [0.248, 1.012], [0.400, 0.988], [0.462, 0.898], [0.418, 0.796], [0.200, 0.742]
+  ].map(([x, y]) => new THREE.Vector3(x * side, y, 0)));
+
+  for (const side of [1, -1]) {
+    const handle = new THREE.Mesh(
+      new THREE.TubeGeometry(handleCurve(side), 36, 0.026, 10, false),
+      shared.gold
+    );
+    handle.castShadow = true;
+    handles.add(handle);
+  }
 
   const lid = new THREE.Mesh(lathe([
     [0.000, 1.072], [0.292, 1.072], [0.300, 1.096], [0.268, 1.124],
@@ -368,8 +376,6 @@ export function buildCup(item) {
   }
 
   group.scale.setScalar(1.22);
-  group.userData.focusHeight = 0.88;
-  group.userData.focusRadius = 1.0;
   group.userData.spin = [];
   group.userData.glints = [
     new THREE.Vector3(0.20, 1.00, 0.20),
@@ -469,8 +475,6 @@ export function buildShield(item) {
   }
 
   group.add(foot, post, collar, halo, rim, face, chevron, crest, stars);
-  group.userData.focusHeight = 1.02;
-  group.userData.focusRadius = 0.96;
   group.userData.spin = item.rings ? [{ node: stars, speed: -0.3 }] : [];
   group.userData.glints = [
     new THREE.Vector3(0.42, 1.4, 0.1),
@@ -540,8 +544,6 @@ export function buildPlaque(item) {
   strut.position.set(0, 0.24, -0.02);
 
   group.add(foot, strut, board);
-  group.userData.focusHeight = 0.86;
-  group.userData.focusRadius = 1.15;
   group.userData.spin = [];
   group.userData.glints = [new THREE.Vector3(0.42, 1.32, 0.1), new THREE.Vector3(-0.42, 0.55, 0.1)];
   group.userData.faceForward = true;
@@ -599,8 +601,6 @@ export function buildToilet(item) {
 
   group.add(bowl, seat, shelf, tank, tankLid, lid, handle, wreath, crest);
   group.scale.setScalar(1.16);
-  group.userData.focusHeight = 0.48;
-  group.userData.focusRadius = 0.76;
   group.userData.spin = [];
   group.userData.glints = [
     new THREE.Vector3(0.2, 0.5, 0.16),
