@@ -391,9 +391,14 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .cue-team { display: none; }
+    .cue-team, .cue-pet { display: none; }
     #stage.is-team .cue-inspect { display: none; }
     #stage.is-team .cue-team { display: inline; }
+    /* Standing at Tucker the plate is his, and it asks for the one thing he
+       wants rather than offering to put him under glass. */
+    #stage.is-tucker .cue-inspect,
+    #stage.is-tucker .cue-team { display: none; }
+    #stage.is-tucker .cue-pet { display: inline; }
 
     .label-cue {
       margin-top: 4px;
@@ -966,7 +971,7 @@
             <div class="label-wing" id="labelWing">Champions</div>
             <div class="label-title" id="labelTitle">&nbsp;</div>
             <div class="label-sub" id="labelSub">&nbsp;</div>
-            <div class="label-cue"><span class="cue-inspect">Tap to inspect</span><span class="cue-team">Open team locker →</span></div>
+            <div class="label-cue"><span class="cue-inspect">Tap to inspect</span><span class="cue-team">Open team locker →</span><span class="cue-pet">Tap to pet him</span></div>
           </div>
           <button class="step" id="nextItem" type="button" aria-label="Next exhibit">→</button>
         </div>

@@ -32,6 +32,9 @@ const state = {
   lift: 0,
   intro: 1,
   lastIndex: -1,
+  // What the nameplate is currently showing: a rail index, or "tucker". He is
+  // a stop without being an exhibit, so the two cannot be the same number.
+  lastStop: null,
   // The team locker: which manager's wall is open, which piece of it is being
   // inspected, and where the viewer has panned and zoomed the wall itself.
   lockerId: null,
@@ -161,6 +164,7 @@ async function boot() {
   buildRoom(hallGroup, hall, layout);
   buildExhibits();
   buildMascot();
+  buildRailStops();
   lockerRoom = buildLockerRoom(scene);
   lights = buildTravellingLights(scene, quality);
   focusFill = new THREE.PointLight(0xfff0d6, 0, 9, 2);
@@ -357,6 +361,68 @@ function buildMascot() {
   hallGroup.add(tucker.group);
 }
 
+/* Where the rail is allowed to come to rest, and the coordinate a drag is
+   actually measured in.
+
+   The rail is indexed by exhibit, and that index is not evenly spaced on the
+   floor: one index unit is a pedestal's width everywhere except at a wing
+   boundary, where the same unit spans the whole gap the arch stands in.
+   Tucker stands in the middle of one of those gaps, half an index from the
+   champion on one side and the first manager on the other.
+
+   Measured in indices he is therefore half the size of a target that every
+   other stop is, and a flick with any momentum in it steps clean over him —
+   which is exactly what it did. So a drag is worked out in stop space, where
+   every stop is one unit from the next, and converted back to the index the
+   rest of the room reads. Nothing else has to know. */
+let railStops = [];
+
+function buildRailStops() {
+  railStops = exhibits.map((exhibit, index) => index);
+  if (tuckerRail >= 0) railStops.push(tuckerRail);
+  railStops.sort((a, b) => a - b);
+}
+
+function railToStop(rail) {
+  const last = railStops.length - 1;
+  if (last < 1) return rail;
+  // Outside the ends the two spaces run at the same rate, so the rubber band
+  // past the last pedestal behaves the way it always did.
+  if (rail <= railStops[0]) return rail - railStops[0];
+  if (rail >= railStops[last]) return last + (rail - railStops[last]);
+  for (let i = 0; i < last; i += 1) {
+    const from = railStops[i];
+    const to = railStops[i + 1];
+    if (rail <= to) return i + (rail - from) / (to - from);
+  }
+  return last;
+}
+
+function stopToRail(stop) {
+  const last = railStops.length - 1;
+  if (last < 1) return stop;
+  if (stop <= 0) return railStops[0] + stop;
+  if (stop >= last) return railStops[last] + (stop - last);
+  const low = Math.floor(stop);
+  return THREE.MathUtils.lerp(railStops[low], railStops[low + 1], stop - low);
+}
+
+function snapRail(rail) {
+  if (railStops.length < 2) return clamp(Math.round(rail), 0, Math.max(0, exhibits.length - 1));
+  return stopToRail(clamp(Math.round(railToStop(rail)), 0, railStops.length - 1));
+}
+
+function stepRail(from, direction) {
+  if (railStops.length < 2) return clamp(Math.round(from) + direction, 0, exhibits.length - 1);
+  return stopToRail(clamp(Math.round(railToStop(from)) + direction, 0, railStops.length - 1));
+}
+
+/* Whether the rail has come to rest on him rather than on a pedestal. His stop
+   is half an index from each neighbour, so a quarter either way is his. */
+function atTucker() {
+  return Boolean(tucker) && Math.abs(state.rail - tuckerRail) < 0.25;
+}
+
 /* Petting him. The camera crouches to his level, he reacts, and the HUD swaps
    the exhibit label for his card. Petting him again while already down there
    just pets him again — which is the point of him. */
@@ -374,14 +440,15 @@ function petTucker() {
   const reaction = tucker.pet();
   storePats();
   showPetCard(reaction);
+  if (state.lastStop === "tucker") showMascotPlate();
 }
 
 function leavePet() {
   if (!state.petFocus) return;
   state.petFocus = false;
   dom.stage.classList.remove("petting");
-  state.railTarget = clamp(Math.round(tuckerRail), 0, exhibits.length - 1);
-  state.lastIndex = -1;
+  state.railTarget = tuckerRail;
+  state.lastStop = null;
 }
 
 /* The pat count is his, not the browser's, so it survives a reload the way a
@@ -406,6 +473,8 @@ function storePats() {
     // Private browsing. He still enjoyed it.
   }
 }
+
+const TUCKER_GOLD = "#f2c14a";
 
 const PET_LINES = [
   "Tucker leans into it.",
@@ -653,17 +722,25 @@ function tick(now) {
   updateCameraTarget(dt);
 
   const current = nearestIndex();
-  if (current !== state.lastIndex) {
-    state.lastIndex = current;
-    onCurrentChanged(current);
+  state.lastIndex = current;
+  // The nameplate follows the stop, not the nearest pedestal: standing at
+  // Tucker, the plate is his.
+  const stop = atTucker() && state.mode !== "focus" ? "tucker" : current;
+  if (stop !== state.lastStop) {
+    state.lastStop = stop;
+    if (stop === "tucker") showMascotPlate();
+    else onCurrentChanged(current);
   }
 
   const active = exhibits[state.mode === "focus" ? state.focusIndex : current];
   if (active) {
-    // While you are down with the dog the key light comes off the exhibits and
-    // onto him, warm rather than in a wing's colour.
-    const litX = tucker ? THREE.MathUtils.lerp(active.x, tucker.x, state.pet) : active.x;
-    lights.update(litX, state.pet > 0.5 ? "#ffd08a" : active.item.accent);
+    // Walking up to the dog takes the key light off the exhibits and puts it
+    // on him, warm rather than in a wing's colour.
+    const pull = tucker
+      ? Math.max(state.pet, clamp(1 - Math.abs(state.rail - tuckerRail) * 2.4, 0, 1))
+      : 0;
+    const litX = tucker ? THREE.MathUtils.lerp(active.x, tucker.x, pull) : active.x;
+    lights.update(litX, pull > 0.5 ? "#ffd08a" : active.item.accent);
   }
 
   // The fill rides just off the camera's shoulder, so it lights whatever face
@@ -845,6 +922,8 @@ function buildHud() {
 
   const inspect = () => {
     if (state.mode !== "hall") return;
+    // Standing at the dog, the nameplate pets him.
+    if (atTucker()) { petTucker(); return; }
     // The nameplate is the same door the shield is.
     const item = exhibits[nearestIndex()]?.item;
     if (item && item.wing === "hall" && item.ownerId) openLocker(item.ownerId);
@@ -876,6 +955,7 @@ function onCurrentChanged(index) {
     : `${item.subtitle}${item.owner && item.owner !== item.subtitle ? ` · ${item.owner}` : ""}`;
   dom.counter.textContent = `${item.itemIndex + 1} / ${hall.wings[item.wingIndex].count}`;
   dom.stage.classList.toggle("is-team", item.wing === "hall" && Boolean(item.ownerId));
+  dom.stage.classList.remove("is-tucker");
 
   dom.wings.querySelectorAll(".wing").forEach((button) => {
     const active = button.dataset.wing === item.wing;
@@ -896,6 +976,26 @@ function onCurrentChanged(index) {
   // While you are down with Tucker the address bar belongs to him, not to
   // whichever exhibit happens to be nearest.
   if (history.replaceState && !state.petFocus) history.replaceState(null, "", `#${item.id}`);
+}
+
+/* His nameplate. He gets the same slab the exhibits get, because from the rail
+   he is one more thing you have walked up to — but the cue on it says pet
+   rather than inspect, and the wing pills and the progress bar are left alone,
+   since he stands on the threshold and belongs to neither side. */
+function showMascotPlate() {
+  dom.labelWing.textContent = "League Mascot";
+  dom.labelWing.style.color = TUCKER_GOLD;
+  dom.labelTitle.textContent = "Tucker";
+  // No count until he has been petted at least once: "0 pats" is a scoreboard,
+  // and it reads as a reproach.
+  dom.labelSub.textContent = pats === 0
+    ? "Border collie · he is watching you"
+    : `Border collie · ${pats === 1 ? "1 pat" : `${pats.toLocaleString()} pats`}`;
+  dom.counter.textContent = "Mascot";
+  dom.stage.classList.remove("is-team");
+  dom.stage.classList.add("is-tucker");
+  dom.stage.style.setProperty("--accent", TUCKER_GOLD);
+  if (history.replaceState && !state.petFocus) history.replaceState(null, "", "#tucker");
 }
 
 function fillSheet(item) {
@@ -923,7 +1023,7 @@ function fillSheet(item) {
 
 function goTo(index, { exitFocus: leave = false } = {}) {
   if (leave && state.mode === "focus") exitFocus({ silent: true });
-  leavePet();
+  if (index !== tuckerRail) leavePet();
   state.railTarget = clamp(index, 0, exhibits.length - 1);
   state.velocity = 0;
   if (state.mode === "focus") {
@@ -946,7 +1046,7 @@ function step(direction) {
     fillSheet(exhibits[next].item);
     return;
   }
-  goTo(Math.round(state.railTarget) + direction);
+  goTo(stepRail(state.railTarget, direction));
 }
 
 function resetFocusPose() {
@@ -1057,7 +1157,7 @@ function closeLocker() {
     const index = shield ? shield.railIndex : state.lastIndex;
     state.rail = index;
     state.railTarget = index;
-    state.lastIndex = -1;
+    state.lastStop = null;
     const exhibit = exhibits[index];
     if (exhibit) {
       camera.position.set(exhibit.x, 2.52, LAYOUT.itemZ + 6.7);
@@ -1153,7 +1253,7 @@ function applyDeepLink() {
   if (target === "tucker" && tucker) {
     state.rail = tuckerRail;
     state.railTarget = tuckerRail;
-    state.lastIndex = -1;
+    state.lastStop = null;
     setTimeout(() => petTucker(), 80);
     return;
   }
@@ -1171,7 +1271,7 @@ function applyDeepLink() {
   if (index < 0) return;
   state.rail = index;
   state.railTarget = index;
-  state.lastIndex = -1;
+  state.lastStop = null;
 }
 
 /* ------------------------------------------------------------------ input */
@@ -1179,7 +1279,7 @@ function applyDeepLink() {
 function bindInput() {
   const canvas = dom.canvas;
   const active = new Map();
-  let startRail = 0;
+  let startStop = 0;
   let startX = 0;
   let startY = 0;
   let startYaw = 0;
@@ -1192,9 +1292,9 @@ function bindInput() {
   let lastTime = 0;
   let pinching = false;
 
-  // Dragging the full width of the screen walks about four pedestals, on a
-  // phone and on a desktop alike.
-  const unitsPerPixel = () => 4.2 / Math.max(360, innerWidth);
+  // Dragging the full width of the screen walks about four stops, on a phone
+  // and on a desktop alike. Stops, not indices: see `railToStop`.
+  const stopsPerPixel = () => 4.2 / Math.max(360, innerWidth);
 
   canvas.addEventListener("pointerdown", (event) => {
     if (state.mode === "intro") return;
@@ -1214,7 +1314,7 @@ function bindInput() {
     if (active.size === 1) pinching = false;
     state.dragging = true;
     state.pointerMoved = 0;
-    startRail = state.rail;
+    startStop = railToStop(state.rail);
     startX = lastX = event.clientX;
     startY = event.clientY;
     startYaw = state.focusYaw;
@@ -1280,10 +1380,12 @@ function bindInput() {
 
     // Walking away from him is how you stop petting him.
     if (state.petFocus && state.pointerMoved > 12) leavePet();
-    state.rail = clamp(startRail - dx * unitsPerPixel(), -0.4, exhibits.length - 0.6);
+    state.rail = clamp(stopToRail(startStop - dx * stopsPerPixel()), -0.4, exhibits.length - 0.6);
     const now = performance.now();
     const elapsed = Math.max(8, now - lastTime);
-    state.velocity = -(event.clientX - lastX) * unitsPerPixel() * (1000 / elapsed);
+    // Also in stops per second, so the throw below carries the same number of
+    // stops wherever on the rail it is let go.
+    state.velocity = -(event.clientX - lastX) * stopsPerPixel() * (1000 / elapsed);
     lastX = event.clientX;
     lastTime = now;
   });
@@ -1305,9 +1407,9 @@ function bindInput() {
       return;
     }
     if (state.mode === "hall") {
-      // Carry the flick a little way, then let the pedestals pull the camera in.
-      const projected = state.rail + clamp(state.velocity * 0.28, -3.2, 3.2);
-      state.railTarget = clamp(Math.round(projected), 0, exhibits.length - 1);
+      // Carry the flick a little way, then let the stops pull the camera in.
+      const projected = railToStop(state.rail) + clamp(state.velocity * 0.28, -3.2, 3.2);
+      state.railTarget = snapRail(stopToRail(projected));
     }
   };
 
@@ -1334,7 +1436,10 @@ function bindInput() {
     const steps = Math.trunc(wheelBudget / 55);
     if (!steps) return;
     wheelBudget -= steps * 55;
-    state.railTarget = clamp(state.railTarget + steps, 0, exhibits.length - 1);
+    const direction = Math.sign(steps);
+    for (let i = 0; i < Math.abs(steps); i += 1) {
+      state.railTarget = stepRail(state.railTarget, direction);
+    }
   }, { passive: false });
 
   addEventListener("keydown", (event) => {
@@ -1360,7 +1465,9 @@ function bindInput() {
       case "ArrowRight": case "d": step(1); break;
       case "ArrowLeft": case "a": step(-1); break;
       case "ArrowUp": case "Enter":
-        if (state.mode === "hall") focusExhibit(nearestIndex());
+        if (state.mode !== "hall") break;
+        if (atTucker()) petTucker();
+        else focusExhibit(nearestIndex());
         break;
       case "p": case "P": petTucker(); break;
       case "ArrowDown": case "Escape":
