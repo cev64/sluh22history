@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Fantasy Football League History",
   "short_name": "League History",
-  "description": "Fantasy football league history: the live season, plus the all-time record book, champions and owner profiles.",
+  "description": "Fantasy football league history: the live season, the all-time record book, and a 3D trophy room of every league accolade.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -46,6 +46,18 @@
     }
   ],
   "shortcuts": [
+    {
+      "name": "Trophy Room",
+      "short_name": "Trophy Room",
+      "url": "trophy.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
     {
       "name": "2026 Season \u00b7 Live",
       "short_name": "2026 Live",
