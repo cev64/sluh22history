@@ -157,10 +157,121 @@
       padding: 0 var(--pad-right) var(--pad-bottom) var(--pad-left);
       transition: opacity .35s ease, transform .45s cubic-bezier(.22,.9,.3,1);
     }
-    #stage.focused .bottom {
+    #stage.focused .bottom,
+    #stage.in-locker .bottom {
       opacity: 0;
       transform: translateY(26px);
       pointer-events: none;
+    }
+    #stage.focused .bottom *,
+    #stage.in-locker .bottom * { pointer-events: none; }
+
+    /* Two headers share the top bar: one for the hall, one for a locker. Each
+       element is switched to its own display, not a shared one — a flex
+       wordmark puts its two lines side by side. */
+    .locker-only { display: none; }
+    #stage.in-locker .hall-only { display: none; }
+    #stage.in-locker .wordmark.locker-only { display: block; }
+    #stage.in-locker .back.locker-only { display: inline-flex; }
+    #stage.in-locker #lockerBar { display: flex; }
+    #stage.in-locker #lockerHint { display: block; }
+    #stage.in-locker.focused #lockerHint { opacity: 0; }
+
+    #lockerBar {
+      position: absolute;
+      left: 50%;
+      bottom: calc(var(--pad-bottom) + 6px);
+      transform: translateX(-50%);
+      align-items: center;
+      gap: 14px;
+      max-width: min(560px, calc(100% - 32px));
+      padding: 12px 22px 13px 14px;
+      border-radius: 18px;
+      background: var(--glass);
+      border: 1px solid var(--edge);
+      border-top-color: color-mix(in srgb, var(--accent) 40%, var(--edge));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .55);
+      transition: opacity .35s ease, transform .45s cubic-bezier(.22,.9,.3,1);
+    }
+    #stage.in-locker.focused #lockerBar {
+      opacity: 0;
+      transform: translateX(-50%) translateY(24px);
+      pointer-events: none;
+    }
+
+    .locker-crest {
+      flex: 0 0 auto;
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: color-mix(in srgb, var(--team, #1a2b45) 55%, rgba(8, 15, 26, .8));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16);
+      font-size: 22px;
+    }
+    .locker-copy { display: grid; gap: 2px; min-width: 0; }
+    /* Team names run long. Two lines beat an ellipsis — the name is the point
+       of the bar. */
+    .locker-team {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.15;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .locker-owner { font-size: 12px; font-weight: 500; color: var(--dim); }
+    .locker-summary {
+      margin-top: 3px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--accent) 80%, white);
+    }
+
+    #lockerHint {
+      display: none;
+      position: absolute;
+      left: 50%;
+      bottom: calc(var(--pad-bottom) + 108px);
+      transform: translateX(-50%);
+      padding: 7px 15px;
+      border-radius: 999px;
+      background: rgba(5, 9, 15, .62);
+      border: 1px solid var(--edge);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: .05em;
+      color: var(--dim);
+      white-space: nowrap;
+      transition: opacity .4s ease;
+      pointer-events: none;
+    }
+
+    /* A short curtain over a change of room. */
+    #wipe {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    #wipe.on { opacity: 1; }
+
+    @media (max-width: 560px) {
+      #lockerBar { gap: 11px; padding: 10px 14px 11px 10px; max-width: calc(100% - 20px); }
+      .locker-crest { width: 38px; height: 38px; font-size: 18px; border-radius: 11px; }
+      .locker-team { font-size: 14px; }
+      .locker-owner { font-size: 11px; }
+      .locker-summary { font-size: 8px; }
+      #lockerHint { bottom: calc(var(--pad-bottom) + 96px); font-size: 9.5px; }
     }
     #stage.focused .bottom * { pointer-events: none; }
 
@@ -219,6 +330,10 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    .cue-team { display: none; }
+    #stage.is-team .cue-inspect { display: none; }
+    #stage.is-team .cue-team { display: inline; }
+
     .label-cue {
       margin-top: 4px;
       font-size: 9.5px;
@@ -657,12 +772,27 @@
 
     <div id="hud">
       <div class="top">
-        <a class="back" href="alltime.html"><span aria-hidden="true">←</span> Record Book</a>
-        <div class="wordmark">
+        <a class="back hall-only" href="alltime.html"><span aria-hidden="true">←</span> Record Book</a>
+        <button class="back locker-only" id="lockerBack" type="button"><span aria-hidden="true">←</span> <span id="lockerBackLabel">Hall of Fame</span></button>
+        <div class="wordmark hall-only">
           <div class="mark">The Hall</div>
           <div class="sub">League Trophy Room</div>
         </div>
+        <div class="wordmark locker-only">
+          <div class="mark">Team Locker</div>
+          <div class="sub">Every Accolade</div>
+        </div>
       </div>
+
+      <div id="lockerBar" class="locker-only">
+        <span id="lockerCrest" class="locker-crest" aria-hidden="true">🏈</span>
+        <span class="locker-copy">
+          <span id="lockerTeam" class="locker-team"></span>
+          <span id="lockerOwner" class="locker-owner"></span>
+          <span id="lockerSummary" class="locker-summary"></span>
+        </span>
+      </div>
+      <div id="lockerHint" class="locker-only">Drag to look around the wall · tap anything to see it up close</div>
 
       <div class="bottom">
         <div id="hint">Drag to walk the hall · tap a trophy to inspect it</div>
@@ -673,7 +803,7 @@
             <div class="label-wing" id="labelWing">Champions</div>
             <div class="label-title" id="labelTitle">&nbsp;</div>
             <div class="label-sub" id="labelSub">&nbsp;</div>
-            <div class="label-cue">Tap to inspect</div>
+            <div class="label-cue"><span class="cue-inspect">Tap to inspect</span><span class="cue-team">Open team locker →</span></div>
           </div>
           <button class="step" id="nextItem" type="button" aria-label="Next exhibit">→</button>
         </div>
@@ -711,6 +841,8 @@
         </div>
       </div>
     </aside>
+
+    <div id="wipe" aria-hidden="true"></div>
 
     <div id="loader">
       <div class="doorway">

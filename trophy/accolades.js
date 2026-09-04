@@ -107,7 +107,7 @@ function careerTotals(data) {
     });
   });
 
-  flattenGames(data).forEach((row) => {
+  flattenGames(data).filter((row) => row.sides.every((side) => inTheHall(side.team))).forEach((row) => {
     row.sides.forEach((side) => {
       const career = careers[side.team.ownerId];
       if (!career) return;
@@ -609,6 +609,203 @@ function cellarExhibits(data) {
   return items;
 }
 
+/* ------------------------------------------------------------ team lockers */
+
+/* Everything one manager has to be proud of, gathered in one place.
+
+   The hall's walls are league-wide — one holder per mark. A locker is the
+   opposite: it belongs to a single manager and every one of them has something
+   in it, so the plaques here are personal bests rather than records, and there
+   are no lowlights at all. */
+function playoffSeasons(data) {
+  // A season a team reached the bracket in, and how far they got.
+  const byOwner = {};
+  data.seasons.forEach((season) => {
+    const reached = {};
+    season.postseasonGames.forEach((game) => {
+      if (!PLAYOFF_ROUNDS.includes(game.label)) return;
+      [game.a, game.b].forEach((key) => {
+        const team = season.teams[key];
+        if (!inTheHall(team)) return;
+        const depth = PLAYOFF_ROUNDS.indexOf(game.label);
+        reached[team.ownerId] = {
+          year: season.year,
+          team,
+          depth: Math.max(reached[team.ownerId]?.depth ?? -1, depth)
+        };
+      });
+    });
+    Object.entries(reached).forEach(([ownerId, entry]) => {
+      (byOwner[ownerId] || (byOwner[ownerId] = [])).push(entry);
+    });
+  });
+  return byOwner;
+}
+
+function finalAppearances(data, careers) {
+  const byOwner = {};
+  data.seasons.forEach((season) => {
+    const final = season.postseasonGames.find((game) => game.label === "Championship");
+    if (!final) return;
+    const a = season.teams[final.a];
+    const b = season.teams[final.b];
+    [[a, final.aScore, b, final.bScore], [b, final.bScore, a, final.aScore]].forEach(
+      ([team, score, foe, foeScore]) => {
+        if (!inTheHall(team)) return;
+        (byOwner[team.ownerId] || (byOwner[team.ownerId] = [])).push({
+          year: season.year,
+          team,
+          won: score > foeScore,
+          score,
+          foe,
+          foeScore
+        });
+      }
+    );
+  });
+
+  // The lost season left a champion but no box score, so its final is recorded
+  // from the title alone.
+  const lost = careers[LOST_SEASON.ownerId];
+  if (lost && lost.titles.includes(LOST_SEASON.year)) {
+    (byOwner[LOST_SEASON.ownerId] || (byOwner[LOST_SEASON.ownerId] = [])).push({
+      year: LOST_SEASON.year,
+      team: { name: lost.currentTeam, owner: lost.name, ownerId: lost.ownerId },
+      won: true,
+      lost: true
+    });
+  }
+
+  return byOwner;
+}
+
+function ownStreak(data, ownerId) {
+  let best = null;
+  data.seasons.forEach((season) => {
+    const ordered = [
+      ...season.regularGames.map((g) => ({ ...g, order: g.week })),
+      ...season.postseasonGames.map((g) => ({ ...g, order: g.week + 0.5 }))
+    ].sort((x, y) => x.order - y.order);
+
+    const runs = {};
+    ordered.forEach((game) => {
+      [[game.a, game.aScore, game.bScore], [game.b, game.bScore, game.aScore]].forEach(([key, mine, theirs]) => {
+        const team = season.teams[key];
+        if (!inTheHall(team) || team.ownerId !== ownerId) return;
+        const state = runs[key] || (runs[key] = { run: 0, from: null });
+        if (mine > theirs) {
+          if (!state.run) state.from = game.week;
+          state.run += 1;
+          if (!best || state.run > best.run) {
+            best = { run: state.run, year: season.year, from: state.from, to: game.week, team };
+          }
+        } else {
+          state.run = 0;
+        }
+      });
+    });
+  });
+  return best;
+}
+
+export function buildLockers(data, careers) {
+  const playoffs = playoffSeasons(data);
+  const finals = finalAppearances(data, careers);
+  const lockers = {};
+
+  Object.values(careers).filter((career) => career.seasons.length).forEach((career) => {
+    const berths = (playoffs[career.ownerId] || []).sort((a, b) => b.year - a.year);
+    const titleGames = (finals[career.ownerId] || []).sort((a, b) => b.year - a.year);
+    const bestFinish = Math.min(...career.finishes.map((f) => f.rank));
+    const bestFinishYears = career.finishes.filter((f) => f.rank === bestFinish).map((f) => f.year);
+    const bestSeason = career.seasons.reduce((best, s) => (s.pf > best.pf ? s : best));
+    const streak = ownStreak(data, career.ownerId);
+
+    // Personal bests only. A locker celebrates; the hall keeps the arguments.
+    const plaques = [
+      {
+        id: "seasons",
+        title: "Seasons Played",
+        bigValue: String(career.seasons.length),
+        meta: career.seasons.map((s) => s.year).join(", "),
+        blurb: `${career.name} has been on the board for ${career.seasons.length} ${career.seasons.length === 1 ? "season" : "seasons"}.`,
+        stats: [{ label: "All-Time Record", value: `${career.wins}–${career.losses}` }]
+      },
+      {
+        id: "finish",
+        title: "Best Finish",
+        bigValue: ordinal(bestFinish),
+        meta: bestFinishYears.join(", "),
+        blurb: bestFinish === 1
+          ? `${career.name} has finished top of the league in ${bestFinishYears.join(", ")}.`
+          : `${career.name}'s highest finish is ${ordinal(bestFinish)}, in ${bestFinishYears.join(", ")}.`,
+        stats: [{ label: "Finishes", value: career.finishes.map((f) => `${f.year} ${ordinal(f.rank)}`).join(" · ") }]
+      },
+      ...(career.bestWeek ? [{
+        id: "week",
+        title: "Highest Week",
+        bigValue: fmt(career.bestWeek.points),
+        meta: `Week ${career.bestWeek.week} · ${career.bestWeek.year}`,
+        blurb: `${fmt(career.bestWeek.points)} points in week ${career.bestWeek.week} of ${career.bestWeek.year} — the most ${career.name} has ever put up.`,
+        stats: []
+      }] : []),
+      {
+        id: "season-points",
+        title: "Best Scoring Season",
+        bigValue: fmt(bestSeason.pf),
+        meta: `${bestSeason.year} · ${bestSeason.wins}–${bestSeason.losses}`,
+        blurb: `${bestSeason.teamName || bestSeason.name} scored ${fmt(bestSeason.pf)} across ${bestSeason.year}.`,
+        stats: [{ label: "Finish", value: ordinal(bestSeason.finalRank) }]
+      },
+      ...(streak ? [{
+        id: "streak",
+        title: "Longest Win Streak",
+        bigValue: String(streak.run),
+        meta: `${streak.year} · weeks ${streak.from}–${streak.to}`,
+        blurb: `${streak.run} straight wins in ${streak.year}, from week ${streak.from} to week ${streak.to}.`,
+        stats: []
+      }] : []),
+      ...(career.playoffWins ? [{
+        id: "playoff-wins",
+        title: "Playoff Wins",
+        bigValue: String(career.playoffWins),
+        meta: `${career.playoffWins}–${career.playoffLosses} in the bracket`,
+        blurb: `${career.name} has won ${career.playoffWins} ${career.playoffWins === 1 ? "game" : "games"} once the bracket starts.`,
+        stats: []
+      }] : [])
+    ];
+
+    lockers[career.ownerId] = {
+      ownerId: career.ownerId,
+      name: career.name,
+      team: career.currentTeam,
+      icon: career.icon,
+      color: career.color,
+      titles: [...career.titles].sort((a, b) => b - a),
+      titleGames,
+      berths,
+      plaques,
+      seasons: career.seasons,
+      summary: [
+        `${career.seasons.length} ${career.seasons.length === 1 ? "season" : "seasons"}`,
+        career.titles.length ? `${career.titles.length} ${career.titles.length === 1 ? "title" : "titles"}` : null,
+        berths.length ? `${berths.length} playoff ${berths.length === 1 ? "berth" : "berths"}` : null,
+        `${career.wins}–${career.losses}`
+      ].filter(Boolean).join(" · "),
+      stats: [
+        { label: "All-Time Record", value: `${career.wins}–${career.losses} (${(career.pct * 100).toFixed(1)}%)` },
+        { label: "Playoff Record", value: `${career.playoffWins}–${career.playoffLosses}` },
+        { label: "Points For", value: fmt(career.pf) },
+        { label: "Points / Game", value: fmt(career.ppg) },
+        { label: "Best Finish", value: ordinal(bestFinish) },
+        { label: "Seasons", value: career.seasons.map((s) => s.year).join(", ") }
+      ]
+    };
+  });
+
+  return lockers;
+}
+
 export function buildHall(data) {
   const careers = careerTotals(data);
   const years = data.seasons.map((season) => season.year);
@@ -676,6 +873,7 @@ export function buildHall(data) {
     wings,
     rail,
     careers,
+    lockers: buildLockers(data, careers),
     summary: {
       seasons: data.seasons.length,
       firstYear: Math.min(...years, LOST_SEASON.year),
