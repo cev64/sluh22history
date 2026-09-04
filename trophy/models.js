@@ -29,6 +29,15 @@ export function initMaterials({ envMap, quality }) {
   walnut.colorSpace = THREE.SRGBColorSpace;
   walnut.wrapS = walnut.wrapT = THREE.RepeatWrapping;
 
+  // The lowlight boards get their own cold grain rather than the walnut tinted
+  // blue: multiplying a warm brown by a cool colour only makes mud, and under
+  // the hall's key light it came back looking like brass anyway.
+  const slate = new THREE.CanvasTexture(woodTexture({
+    base: "#242c38", grain: "#11161e", highlight: "#3b4757"
+  }));
+  slate.colorSpace = THREE.SRGBColorSpace;
+  slate.wrapS = slate.wrapT = THREE.RepeatWrapping;
+
   const metal = (color, roughness, extra = {}) =>
     new THREE.MeshStandardMaterial({ color, metalness: 1, roughness, envMap, envMapIntensity: 2.3, ...extra });
 
@@ -55,12 +64,11 @@ export function initMaterials({ envMap, quality }) {
     walnut: new THREE.MeshStandardMaterial({
       map: walnut, color: 0xd8b184, metalness: 0.12, roughness: 0.52, envMap, envMapIntensity: 0.55
     }),
-    // The same grain, stained cold and dark, for the lowlight wall's boards.
-    ebony: new THREE.MeshStandardMaterial({
-      map: walnut, color: 0x424b57, metalness: 0.14, roughness: 0.62, envMap, envMapIntensity: 0.4
+    slate: new THREE.MeshStandardMaterial({
+      map: slate, color: 0xb8c6d8, metalness: 0.16, roughness: 0.58, envMap, envMapIntensity: 0.5
     }),
     velvet: new THREE.MeshStandardMaterial({ color: 0x2a1421, metalness: 0, roughness: 0.95 }),
-    textures: { marble, darkMarble, walnut }
+    textures: { marble, darkMarble, walnut, slate }
   };
 
   return shared;
@@ -482,7 +490,7 @@ export function buildPlaque(item) {
   // told apart from down the hall rather than only by what they say.
   const metal = item.tarnished ? "pewter" : "brass";
   const trimMetal = item.tarnished ? shared.pewter : shared.brass;
-  const timber = item.tarnished ? shared.ebony : shared.walnut;
+  const timber = item.tarnished ? shared.slate : shared.walnut;
 
   const backing = new THREE.Mesh(roundedBox(1.06, 1.30, 0.09, 0.05), timber);
   backing.castShadow = true;
