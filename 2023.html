@@ -2843,7 +2843,27 @@
       .team-flags { margin-left: 6px; gap: 4px; }
       .bracket-rounds { padding: 12px 12px 14px; gap: 12px; }
     }
-  </style>
+      /* A logo is the team's identity on its own, so the chip stops shouting the
+       team colour underneath it — a teal shield on a teal chip loses its edge.
+       The colour stays as a hairline ring, which keeps the row scannable. An
+       emoji badge is unchanged: it needs the colour to read at all. */
+    .team-badge:has(.team-logo),
+    .mini-badge:has(.team-logo),
+    .profile-logo:has(.team-logo) {
+      background: #fff;
+      box-shadow: inset 0 0 0 1.5px var(--team-color, #667);
+    }
+    .team-badge .team-logo,
+    .mini-badge .team-logo,
+    .profile-logo .team-logo {
+      width: 82%;
+      height: 82%;
+      object-fit: contain;
+      display: block;
+      margin: auto;
+    }
+</style>
+  <script src="team-logos.js"></script>
 </head>
 <body>
   <header class="topbar">
@@ -2875,7 +2895,7 @@
       <article class="outcome-card champion-outcome">
         <div class="outcome-label">🏆 2023 Champion</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#3a3c9d">🌴</span>
+          <span class="team-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span>
           <div>
             <h2>Hawaii McLovins VIII</h2>
             <span>Matt Windler · 10–4 regular season</span>
@@ -2896,7 +2916,7 @@
       <article class="outcome-card loser-outcome">
         <div class="outcome-label">💩 2023 Last Place</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#b14e3c">🏋️</span>
+          <span class="team-badge" style="--team-color:#b14e3c" data-owner-logo="grant_thornberry">\ud83c\udfcb\ufe0f</span>
           <div>
             <h2>Chubbed Up</h2>
             <span>Grant Thornberry · 5–9 regular season</span>
@@ -2994,22 +3014,22 @@
               <div class="round-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
               <div class="round-games">
                 <div class="matchup bye">
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span></span></div>
                   <div class="bye-label">Bye</div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="metcalf" aria-label="Open How I Metcalf Your Mother schedule"><span class="mini-badge" style="--team-color:#9d542e">🐿️</span><span class="bracket-team-name">How I Metcalf Your Mother</span></button><span class="score">105.48</span></div>
-                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">155.36</span></div>
+                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="metcalf" aria-label="Open How I Metcalf Your Mother schedule"><span class="mini-badge" style="--team-color:#9d542e" data-owner-logo="jp_torack">\ud83d\udc3f\ufe0f</span><span class="bracket-team-name">How I Metcalf Your Mother</span></button><span class="score">105.48</span></div>
+                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">155.36</span></div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93">🏈</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">78.26</span></div>
-                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="freiermuth" aria-label="Open Freiermuth Banana Stand schedule"><span class="mini-badge" style="--team-color:#a6499a">🦄</span><span class="bracket-team-name">Freiermuth Banana Stand</span></button><span class="score">94.92</span></div>
+                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93" data-owner-logo="jared_thornberry">\ud83c\udfc8</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">78.26</span></div>
+                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="freiermuth" aria-label="Open Freiermuth Banana Stand schedule"><span class="mini-badge" style="--team-color:#a6499a" data-owner-logo="ted_williams">\ud83e\udd84</span><span class="bracket-team-name">Freiermuth Banana Stand</span></button><span class="score">94.92</span></div>
                 </div>
 
                 <div class="matchup bye">
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53">🛡️</span><span class="bracket-team-name">The Saint Show</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53" data-owner-logo="charlie_vonderheid">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Saint Show</span></button><span></span></div>
                   <div class="bye-label">Bye</div>
                 </div>
               </div>
@@ -3019,13 +3039,13 @@
               <div class="round-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
               <div class="round-games">
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">103.48</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">139.54</span></div>
+                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">103.48</span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">139.54</span></div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="freiermuth" aria-label="Open Freiermuth Banana Stand schedule"><span class="mini-badge" style="--team-color:#a6499a">🦄</span><span class="bracket-team-name">Freiermuth Banana Stand</span></button><span class="score">108.60</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53">🛡️</span><span class="bracket-team-name">The Saint Show</span></button><span class="score">195.10</span></div>
+                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="freiermuth" aria-label="Open Freiermuth Banana Stand schedule"><span class="mini-badge" style="--team-color:#a6499a" data-owner-logo="ted_williams">\ud83e\udd84</span><span class="bracket-team-name">Freiermuth Banana Stand</span></button><span class="score">108.60</span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53" data-owner-logo="charlie_vonderheid">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Saint Show</span></button><span class="score">195.10</span></div>
                 </div>
               </div>
             </div>
@@ -3034,8 +3054,8 @@
               <div class="round-title"><strong>Championship</strong><span>NFL Week 17</span></div>
               <div class="round-games">
                 <div class="matchup championship-matchup">
-                  <div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53">🛡️</span><span class="bracket-team-name">The Saint Show</span></button><span class="score">95.78</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">173.98</span></div>
+                  <div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53" data-owner-logo="charlie_vonderheid">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Saint Show</span></button><span class="score">95.78</span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">173.98</span></div>
                 </div>
               </div>
             </div>
@@ -3050,11 +3070,11 @@
                 <div class="mobile-lane-label">Top Half</div>
                 <div class="matchup mobile-bye-card">
                   <div class="matchup-kicker">#1 Seed · Bye</div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span></span></div>
                 </div>
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="metcalf" aria-label="Open How I Metcalf Your Mother schedule"><span class="mini-badge" style="--team-color:#9d542e">🐿️</span><span class="bracket-team-name">How I Metcalf Your Mother</span></button><span class="score">105.48</span></div>
-                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">155.36</span></div>
+                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="metcalf" aria-label="Open How I Metcalf Your Mother schedule"><span class="mini-badge" style="--team-color:#9d542e" data-owner-logo="jp_torack">\ud83d\udc3f\ufe0f</span><span class="bracket-team-name">How I Metcalf Your Mother</span></button><span class="score">105.48</span></div>
+                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">155.36</span></div>
                 </div>
               </div>
 
@@ -3062,11 +3082,11 @@
                 <div class="mobile-lane-label">Bottom Half</div>
                 <div class="matchup mobile-bye-card">
                   <div class="matchup-kicker">#2 Seed · Bye</div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53">🛡️</span><span class="bracket-team-name">The Saint Show</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53" data-owner-logo="charlie_vonderheid">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Saint Show</span></button><span></span></div>
                 </div>
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93">🏈</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">78.26</span></div>
-                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="freiermuth" aria-label="Open Freiermuth Banana Stand schedule"><span class="mini-badge" style="--team-color:#a6499a">🦄</span><span class="bracket-team-name">Freiermuth Banana Stand</span></button><span class="score">94.92</span></div>
+                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93" data-owner-logo="jared_thornberry">\ud83c\udfc8</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">78.26</span></div>
+                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="freiermuth" aria-label="Open Freiermuth Banana Stand schedule"><span class="mini-badge" style="--team-color:#a6499a" data-owner-logo="ted_williams">\ud83e\udd84</span><span class="bracket-team-name">Freiermuth Banana Stand</span></button><span class="score">94.92</span></div>
                 </div>
               </div>
             </div>
@@ -3077,14 +3097,14 @@
             <div class="mobile-lane-grid">
               <div class="mobile-bracket-lane mobile-semifinal-lane">
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">103.48</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">139.54</span></div>
+                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">103.48</span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">139.54</span></div>
                 </div>
               </div>
               <div class="mobile-bracket-lane mobile-semifinal-lane">
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="freiermuth" aria-label="Open Freiermuth Banana Stand schedule"><span class="mini-badge" style="--team-color:#a6499a">🦄</span><span class="bracket-team-name">Freiermuth Banana Stand</span></button><span class="score">108.60</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53">🛡️</span><span class="bracket-team-name">The Saint Show</span></button><span class="score">195.10</span></div>
+                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="freiermuth" aria-label="Open Freiermuth Banana Stand schedule"><span class="mini-badge" style="--team-color:#a6499a" data-owner-logo="ted_williams">\ud83e\udd84</span><span class="bracket-team-name">Freiermuth Banana Stand</span></button><span class="score">108.60</span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53" data-owner-logo="charlie_vonderheid">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Saint Show</span></button><span class="score">195.10</span></div>
                 </div>
               </div>
             </div>
@@ -3094,8 +3114,8 @@
           <section class="mobile-bracket-stage championship-stage">
             <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
             <div class="matchup championship-matchup mobile-championship-card">
-              <div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53">🛡️</span><span class="bracket-team-name">The Saint Show</span></button><span class="score">95.78</span></div>
-              <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">173.98</span></div>
+              <div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="saint" aria-label="Open The Saint Show schedule"><span class="mini-badge" style="--team-color:#2f8f53" data-owner-logo="charlie_vonderheid">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Saint Show</span></button><span class="score">95.78</span></div>
+              <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">173.98</span></div>
             </div>
           </section>
         </div>
@@ -3110,15 +3130,15 @@
               <div class="round-games">
                 <div class="matchup">
                   <div class="matchup-kicker">Game 1</div>
-                  <div class="matchup-row winner"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">136.84</span></div>
-                  <div class="matchup-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="infinity" aria-label="Open To infinity and Bijan schedule"><span class="mini-badge" style="--team-color:#b78d0a">👑</span><span class="bracket-team-name">To infinity and Bijan</span></button><span class="score">109.30</span></div>
+                  <div class="matchup-row winner"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">136.84</span></div>
+                  <div class="matchup-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="infinity" aria-label="Open To infinity and Bijan schedule"><span class="mini-badge" style="--team-color:#b78d0a" data-owner-logo="ian_farroll">\ud83d\udc51</span><span class="bracket-team-name">To infinity and Bijan</span></button><span class="score">109.30</span></div>
                   <div class="matchup-path">Loser → Last-Place Series</div>
                 </div>
 
                 <div class="matchup">
                   <div class="matchup-kicker">Game 2</div>
-                  <div class="matchup-row winner"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">124.72</span></div>
-                  <div class="matchup-row"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="chubbed" aria-label="Open Chubbed Up schedule"><span class="mini-badge" style="--team-color:#b14e3c">🏋️</span><span class="bracket-team-name">Chubbed Up</span></button><span class="score">97.96</span></div>
+                  <div class="matchup-row winner"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">124.72</span></div>
+                  <div class="matchup-row"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="chubbed" aria-label="Open Chubbed Up schedule"><span class="mini-badge" style="--team-color:#b14e3c" data-owner-logo="grant_thornberry">\ud83c\udfcb\ufe0f</span><span class="bracket-team-name">Chubbed Up</span></button><span class="score">97.96</span></div>
                   <div class="matchup-path">Loser → Last-Place Series</div>
                 </div>
               </div>
@@ -3129,8 +3149,8 @@
               <div class="round-games">
                 <div class="matchup last-place-matchup">
                   <div class="matchup-kicker">Two-Week Total</div>
-                  <div class="matchup-row winner"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="infinity" aria-label="Open To infinity and Bijan schedule"><span class="mini-badge" style="--team-color:#b78d0a">👑</span><span class="bracket-team-name">To infinity and Bijan</span></button><span class="score">257.90</span></div>
-                  <div class="matchup-row last-place-row"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="chubbed" aria-label="Open Chubbed Up schedule"><span class="mini-badge" style="--team-color:#b14e3c">🏋️</span><span class="bracket-team-name">Chubbed Up</span></button><span class="score">200.30</span></div>
+                  <div class="matchup-row winner"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="infinity" aria-label="Open To infinity and Bijan schedule"><span class="mini-badge" style="--team-color:#b78d0a" data-owner-logo="ian_farroll">\ud83d\udc51</span><span class="bracket-team-name">To infinity and Bijan</span></button><span class="score">257.90</span></div>
+                  <div class="matchup-row last-place-row"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="chubbed" aria-label="Open Chubbed Up schedule"><span class="mini-badge" style="--team-color:#b14e3c" data-owner-logo="grant_thornberry">\ud83c\udfcb\ufe0f</span><span class="bracket-team-name">Chubbed Up</span></button><span class="score">200.30</span></div>
                   <div class="matchup-path">Week 16: 118.30–121.22 · Week 17: 139.60–79.08 · Loser = last place</div>
                 </div>
               </div>
@@ -3181,6 +3201,24 @@
       matthew_kluba: { name: "Matthew Kluba" },
       matt_windler: { name: "Matt Windler" }
     };
+
+    /* A team's mark for a badge: their logo where there is one, otherwise the
+       emoji. The logos are the same data URIs the 3D trophy room paints from
+       (team-logos.js), keyed by owner id so a team keeps its mark through a
+       rename. The two departed 2021 teams have no logo and keep their emoji. */
+    const teamMark = (team) => {
+      const src = team && team.ownerId && window.TEAM_LOGOS && window.TEAM_LOGOS[team.ownerId];
+      return src ? `<img class="team-logo" src="${src}" alt="">` : (team && team.icon) || "";
+    };
+
+    /* The hero cards and the playoff bracket are hand-written markup rather than
+       templates, so their badges ship with the season's emoji and an owner id.
+       Swap in the logo here instead of inlining a data URI thirty times over,
+       which would put most of a megabyte into the page. */
+    document.querySelectorAll("[data-owner-logo]").forEach((node) => {
+      const src = window.TEAM_LOGOS && window.TEAM_LOGOS[node.dataset.ownerLogo];
+      if (src) node.innerHTML = `<img class="team-logo" src="${src}" alt="">`;
+    });
 
     const teams = {
       hawaii: { name: "Hawaii McLovins VIII", ownerId: "matt_windler", owner: "Matt Windler", division: null, record: "10\u20134", wins: 10, losses: 4, pf: 1872.14, pa: 1587.64, divRecord: null, icon: "\ud83c\udf34", color: "#3a3c9d", regRank: 1, finalRank: 1 },
@@ -3265,7 +3303,7 @@
       const t = teams[id];
       return `
         <button class="team-button" data-team="${id}" aria-label="Open ${t.name} schedule">
-          <span class="team-badge" style="--team-color:${t.color}">${t.icon}</span>
+          <span class="team-badge" style="--team-color:${t.color}">${teamMark(t)}</span>
           <span class="team-meta"><span class="team-name">${t.name}</span><span class="owner">${t.owner}</span></span>
         </button>`;
     }
@@ -3431,7 +3469,7 @@
       document.getElementById("drawerHero").style.setProperty("--drawer-color", t.color);
       const badge = document.getElementById("drawerBadge");
       badge.style.setProperty("--team-color", t.color);
-      badge.textContent = t.icon;
+      badge.innerHTML = teamMark(t);
       document.getElementById("drawerName").textContent = t.name;
       document.getElementById("drawerOwner").textContent = `${t.owner} · ${t.division} Division`;
       document.getElementById("drawerStats").innerHTML = `
@@ -3842,7 +3880,7 @@
 
     function miniTeam(id) {
       const t = teams[id];
-      return `<span class="mini-badge" style="--team-color:${t.color}">${t.icon}</span>`;
+      return `<span class="mini-badge" style="--team-color:${t.color}">${teamMark(t)}</span>`;
     }
 
     function cardHead(title, chip, meta) {

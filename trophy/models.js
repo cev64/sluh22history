@@ -120,11 +120,16 @@ function crestMaterial(item, label) {
   const key = `${item.ownerId || item.id}:${label || ""}`;
   if (!crestCache.has(key)) {
     crestCache.set(key, new THREE.MeshStandardMaterial({
-      map: crestTexture({ icon: item.icon, color: item.color, label }),
+      map: crestTexture({ icon: item.icon, color: item.color, label, ownerId: item.ownerId }),
       metalness: 0.15,
       roughness: 0.52,
       envMap: shared.envMap,
-      envMapIntensity: 0.75
+      envMapIntensity: 0.75,
+      // A logo is painted bare on a transparent canvas, so the face has to let
+      // the medallion's own metal through around it. Drawn after the opaque
+      // body it sits in front of, so it composites without writing depth.
+      transparent: true,
+      depthWrite: false
     }));
   }
   return crestCache.get(key);
@@ -467,7 +472,7 @@ export function buildLeagueTrophy(item) {
   const frame = new THREE.Mesh(parts.plaqueFrame, shared.trophyBlack);
   frame.castShadow = true;
   const insert = new THREE.Mesh(parts.plaqueInsert, new THREE.MeshStandardMaterial({
-    map: teamPlaqueTexture({ icon: item.icon, color: item.color, label: item.subtitle }),
+    map: teamPlaqueTexture({ icon: item.icon, color: item.color, label: item.subtitle, ownerId: item.ownerId }),
     metalness: 0.25,
     roughness: 0.38,
     envMap: shared.envMap,
@@ -834,6 +839,7 @@ export function buildTeamFlag(locker) {
         color: locker.color,
         team: locker.team,
         owner: locker.name,
+        ownerId: locker.ownerId,
         since: locker.seasons.length ? locker.seasons[0].year : null
       }),
       metalness: 0.06,

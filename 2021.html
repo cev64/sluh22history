@@ -3020,7 +3020,27 @@
       .team-flags { margin-left: 6px; gap: 4px; }
       .bracket-rounds { padding: 12px 12px 14px; gap: 12px; }
     }
-  </style>
+      /* A logo is the team's identity on its own, so the chip stops shouting the
+       team colour underneath it — a teal shield on a teal chip loses its edge.
+       The colour stays as a hairline ring, which keeps the row scannable. An
+       emoji badge is unchanged: it needs the colour to read at all. */
+    .team-badge:has(.team-logo),
+    .mini-badge:has(.team-logo),
+    .profile-logo:has(.team-logo) {
+      background: #fff;
+      box-shadow: inset 0 0 0 1.5px var(--team-color, #667);
+    }
+    .team-badge .team-logo,
+    .mini-badge .team-logo,
+    .profile-logo .team-logo {
+      width: 82%;
+      height: 82%;
+      object-fit: contain;
+      display: block;
+      margin: auto;
+    }
+</style>
+  <script src="team-logos.js"></script>
 </head>
 <body>
   <header class="topbar">
@@ -3052,7 +3072,7 @@
       <article class="outcome-card champion-outcome">
         <div class="outcome-label">🏆 2021 Champion</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#304f91">🎭</span>
+          <span class="team-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span>
           <div><h2>Hamilton Administration</h2><span>Niko Nadreau · 11–3 regular season</span></div>
         </div>
         <div class="outcome-score">
@@ -3064,7 +3084,7 @@
       <article class="outcome-card loser-outcome official-loser-outcome">
         <div class="outcome-label">💩 2021 Official Last Place</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#c05b2a">🌞</span>
+          <span class="team-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">\ud83c\udf1e</span>
           <div><h2>One En</h2><span>Charlie Vonderheid · 3–11 regular season</span></div>
         </div>
         <div class="outcome-score">
@@ -3152,23 +3172,23 @@
             <div class="round round-1">
               <div class="round-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
               <div class="round-games">
-                <div class="matchup"><div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">84.36</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">177.90</span></div></div>
-                <div class="matchup"><div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="inactive" aria-label="Open Team Inactive schedule"><span class="mini-badge" style="--team-color:#3296a8">💤</span><span class="bracket-team-name">Team Inactive</span></button><span class="score">75.46</span></div><div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945">🏎️</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">121.80</span></div></div>
-                <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">111.58</span></div><div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93">🟣</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">97.92</span></div></div>
-                <div class="matchup"><div class="matchup-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="beatcev" aria-label="Open Beat Cev schedule"><span class="mini-badge" style="--team-color:#557866">🧔</span><span class="bracket-team-name">Beat Cev</span></button><span class="score">73.38</span></div><div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">73.84</span></div></div>
+                <div class="matchup"><div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">84.36</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">177.90</span></div></div>
+                <div class="matchup"><div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="inactive" aria-label="Open Team Inactive schedule"><span class="mini-badge" style="--team-color:#3296a8">💤</span><span class="bracket-team-name">Team Inactive</span></button><span class="score">75.46</span></div><div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">\ud83c\udfce\ufe0f</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">121.80</span></div></div>
+                <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">111.58</span></div><div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93" data-owner-logo="jared_thornberry">\ud83d\udfe3</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">97.92</span></div></div>
+                <div class="matchup"><div class="matchup-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="beatcev" aria-label="Open Beat Cev schedule"><span class="mini-badge" style="--team-color:#557866" data-owner-logo="jp_torack">\ud83e\uddd4</span><span class="bracket-team-name">Beat Cev</span></button><span class="score">73.38</span></div><div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">73.84</span></div></div>
               </div>
             </div>
             <div class="round round-2">
               <div class="round-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
               <div class="round-games">
-                <div class="matchup"><div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945">🏎️</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">143.72</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">183.66</span></div></div>
-                <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">133.10</span></div><div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.64</span></div></div>
+                <div class="matchup"><div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">\ud83c\udfce\ufe0f</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">143.72</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">183.66</span></div></div>
+                <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">133.10</span></div><div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.64</span></div></div>
               </div>
             </div>
             <div class="round round-3">
               <div class="round-title"><strong>Championship</strong><span>NFL Week 17</span></div>
               <div class="round-games">
-                <div class="matchup championship-matchup"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div>
+                <div class="matchup championship-matchup"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div>
               </div>
             </div>
           </div>
@@ -3181,15 +3201,15 @@
               <div class="mobile-bracket-lane">
                 <div class="mobile-lane-label">Top Half</div>
                 <div class="mobile-quarterfinal-stack">
-                  <div class="matchup"><div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">84.36</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">177.90</span></div></div>
-                  <div class="matchup"><div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="inactive" aria-label="Open Team Inactive schedule"><span class="mini-badge" style="--team-color:#3296a8">💤</span><span class="bracket-team-name">Team Inactive</span></button><span class="score">75.46</span></div><div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945">🏎️</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">121.80</span></div></div>
+                  <div class="matchup"><div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">\ud83c\udf34</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">84.36</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">177.90</span></div></div>
+                  <div class="matchup"><div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="inactive" aria-label="Open Team Inactive schedule"><span class="mini-badge" style="--team-color:#3296a8">💤</span><span class="bracket-team-name">Team Inactive</span></button><span class="score">75.46</span></div><div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">\ud83c\udfce\ufe0f</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">121.80</span></div></div>
                 </div>
               </div>
               <div class="mobile-bracket-lane">
                 <div class="mobile-lane-label">Bottom Half</div>
                 <div class="mobile-quarterfinal-stack">
-                  <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">111.58</span></div><div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93">🟣</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">97.92</span></div></div>
-                  <div class="matchup"><div class="matchup-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="beatcev" aria-label="Open Beat Cev schedule"><span class="mini-badge" style="--team-color:#557866">🧔</span><span class="bracket-team-name">Beat Cev</span></button><span class="score">73.38</span></div><div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">73.84</span></div></div>
+                  <div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">111.58</span></div><div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="packers" aria-label="Open Team Go Packers schedule"><span class="mini-badge" style="--team-color:#4d3f93" data-owner-logo="jared_thornberry">\ud83d\udfe3</span><span class="bracket-team-name">Team Go Packers</span></button><span class="score">97.92</span></div></div>
+                  <div class="matchup"><div class="matchup-row"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="beatcev" aria-label="Open Beat Cev schedule"><span class="mini-badge" style="--team-color:#557866" data-owner-logo="jp_torack">\ud83e\uddd4</span><span class="bracket-team-name">Beat Cev</span></button><span class="score">73.38</span></div><div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">73.84</span></div></div>
                 </div>
               </div>
             </div>
@@ -3197,14 +3217,14 @@
           <section class="mobile-bracket-stage semifinal-stage">
             <div class="mobile-stage-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
             <div class="mobile-lane-grid">
-              <div class="mobile-bracket-lane mobile-semifinal-lane"><div class="matchup"><div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945">🏎️</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">143.72</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">183.66</span></div></div></div>
-              <div class="mobile-bracket-lane mobile-semifinal-lane"><div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">133.10</span></div><div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.64</span></div></div></div>
+              <div class="mobile-bracket-lane mobile-semifinal-lane"><div class="matchup"><div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">\ud83c\udfce\ufe0f</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">143.72</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">183.66</span></div></div></div>
+              <div class="mobile-bracket-lane mobile-semifinal-lane"><div class="matchup"><div class="matchup-row winner"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">133.10</span></div><div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.64</span></div></div></div>
             </div>
             <div class="mobile-merge-lines" aria-hidden="true"><span></span><span></span></div>
           </section>
           <section class="mobile-bracket-stage championship-stage">
             <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
-            <div class="matchup championship-matchup mobile-championship-card"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div>
+            <div class="matchup championship-matchup mobile-championship-card"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div>
           </section>
         </div>
       </div>
@@ -3225,12 +3245,12 @@
                   <div class="matchup-kicker">Game 1</div>
                   <div class="matchup-row winner">
                     <span class="seed">#10</span>
-                    <button type="button" class="mini-team bracket-team-button" data-team="skeet" aria-label="Open St. Louis Skeet and Trap schedule"><span class="mini-badge" style="--team-color:#b14e3c">🎯</span><span class="bracket-team-name">St. Louis Skeet and Trap</span></button>
+                    <button type="button" class="mini-team bracket-team-button" data-team="skeet" aria-label="Open St. Louis Skeet and Trap schedule"><span class="mini-badge" style="--team-color:#b14e3c" data-owner-logo="grant_thornberry">\ud83c\udfaf</span><span class="bracket-team-name">St. Louis Skeet and Trap</span></button>
                     <span class="score">102.14</span>
                   </div>
                   <div class="matchup-row">
                     <span class="seed">#9</span>
-                    <button type="button" class="mini-team bracket-team-button" data-team="rip" aria-label="Open RIP Julio schedule"><span class="mini-badge" style="--team-color:#6f3c3c">💀</span><span class="bracket-team-name">RIP Julio</span></button>
+                    <button type="button" class="mini-team bracket-team-button" data-team="rip" aria-label="Open RIP Julio schedule"><span class="mini-badge" style="--team-color:#6f3c3c" data-owner-logo="ian_farroll">\ud83d\udc80</span><span class="bracket-team-name">RIP Julio</span></button>
                     <span class="score">96.28</span>
                   </div>
                   <div class="matchup-path">Loser → Game 3</div>
@@ -3245,7 +3265,7 @@
                   </div>
                   <div class="matchup-row winner">
                     <span class="seed">#11</span>
-                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a">🌞</span><span class="bracket-team-name">One En</span></button>
+                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">\ud83c\udf1e</span><span class="bracket-team-name">One En</span></button>
                     <span class="score">139.04</span>
                   </div>
                   <div class="matchup-path">Winner → Game 3 · Loser → Game 4</div>
@@ -3260,12 +3280,12 @@
                   <div class="matchup-kicker">Game 3</div>
                   <div class="matchup-row winner">
                     <span class="seed">#9</span>
-                    <button type="button" class="mini-team bracket-team-button" data-team="rip" aria-label="Open RIP Julio schedule"><span class="mini-badge" style="--team-color:#6f3c3c">💀</span><span class="bracket-team-name">RIP Julio</span></button>
+                    <button type="button" class="mini-team bracket-team-button" data-team="rip" aria-label="Open RIP Julio schedule"><span class="mini-badge" style="--team-color:#6f3c3c" data-owner-logo="ian_farroll">\ud83d\udc80</span><span class="bracket-team-name">RIP Julio</span></button>
                     <span class="score">99.40</span>
                   </div>
                   <div class="matchup-row">
                     <span class="seed">#11</span>
-                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a">🌞</span><span class="bracket-team-name">One En</span></button>
+                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">\ud83c\udf1e</span><span class="bracket-team-name">One En</span></button>
                     <span class="score">77.04</span>
                   </div>
                   <div class="matchup-path">Loser → Game 4</div>
@@ -3280,7 +3300,7 @@
                   <div class="matchup-kicker">Game 4</div>
                   <div class="matchup-row last-place-row">
                     <span class="seed">#11</span>
-                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a">🌞</span><span class="bracket-team-name">One En</span></button>
+                    <button type="button" class="mini-team bracket-team-button" data-team="oneen" aria-label="Open One En schedule"><span class="mini-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">\ud83c\udf1e</span><span class="bracket-team-name">One En</span></button>
                     <span class="score">111.48</span>
                   </div>
                   <div class="matchup-row">
@@ -3326,6 +3346,24 @@
     // Stable owner IDs are intentionally separate from team names so future
     // history dashboards can aggregate renamed franchises by owner.
     const ownerDirectory = {"charlie_vonderheid":{"name":"Charlie Vonderheid"},"ian_farroll":{"name":"Ian Farroll"},"ted_williams":{"name":"Ted Williams"},"niko_nadreau":{"name":"Niko Nadreau"},"jp_torack":{"name":"JP Torack"},"nathan_rich":{"name":"Nathan Rich"},"grant_thornberry":{"name":"Grant Thornberry"},"jared_thornberry":{"name":"Jared Thornberry"},"matthew_kluba":{"name":"Matthew Kluba"},"matt_windler":{"name":"Matt Windler"},"jack_figge":{"name":"Jack Figge"},"stephen_deves":{"name":"Stephen Deves"}};
+
+    /* A team's mark for a badge: their logo where there is one, otherwise the
+       emoji. The logos are the same data URIs the 3D trophy room paints from
+       (team-logos.js), keyed by owner id so a team keeps its mark through a
+       rename. The two departed 2021 teams have no logo and keep their emoji. */
+    const teamMark = (team) => {
+      const src = team && team.ownerId && window.TEAM_LOGOS && window.TEAM_LOGOS[team.ownerId];
+      return src ? `<img class="team-logo" src="${src}" alt="">` : (team && team.icon) || "";
+    };
+
+    /* The hero cards and the playoff bracket are hand-written markup rather than
+       templates, so their badges ship with the season's emoji and an owner id.
+       Swap in the logo here instead of inlining a data URI thirty times over,
+       which would put most of a megabyte into the page. */
+    document.querySelectorAll("[data-owner-logo]").forEach((node) => {
+      const src = window.TEAM_LOGOS && window.TEAM_LOGOS[node.dataset.ownerLogo];
+      if (src) node.innerHTML = `<img class="team-logo" src="${src}" alt="">`;
+    });
 
     const teams = {
       hamilton: { name: "Hamilton Administration", ownerId: "niko_nadreau", owner: "Niko Nadreau", division: "Ignatius", record: "11\u20133", wins: 11, losses: 3, pf: 1850.00, pa: 1521.68, divRecord: "5\u20130", icon: "\ud83c\udfad", color: "#304f91", regRank: 1, finalRank: 1 },
@@ -3420,7 +3458,7 @@
       const t = teams[id];
       return `
         <button class="team-button" data-team="${id}" aria-label="Open ${t.name} schedule">
-          <span class="team-badge" style="--team-color:${t.color}">${t.icon}</span>
+          <span class="team-badge" style="--team-color:${t.color}">${teamMark(t)}</span>
           <span class="team-meta"><span class="team-name">${t.name}</span><span class="owner">${t.owner}</span></span>
         </button>`;
     }
@@ -3590,7 +3628,7 @@
       document.getElementById("drawerHero").style.setProperty("--drawer-color", t.color);
       const badge = document.getElementById("drawerBadge");
       badge.style.setProperty("--team-color", t.color);
-      badge.textContent = t.icon;
+      badge.innerHTML = teamMark(t);
       document.getElementById("drawerName").textContent = t.name;
       document.getElementById("drawerOwner").textContent = `${t.owner} · ${t.division} Division`;
       document.getElementById("drawerStats").innerHTML = `
@@ -4030,7 +4068,7 @@
 
     function miniTeam(id) {
       const t = teams[id];
-      return `<span class="mini-badge" style="--team-color:${t.color}">${t.icon}</span>`;
+      return `<span class="mini-badge" style="--team-color:${t.color}">${teamMark(t)}</span>`;
     }
 
     function cardHead(title, chip, meta) {
