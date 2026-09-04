@@ -149,15 +149,16 @@ async function boot() {
   };
 
   dom.stage.classList.add("ready");
-  dom.loader.classList.add("done");
   renderer.setAnimationLoop(tick);
+
+  // Nothing to press: the splash covered the build, and the camera's dolly-in
+  // plays underneath it as it fades.
+  enterHall();
 }
 
 function fail(message) {
   dom.loader.classList.add("failed");
   dom.loaderNote.textContent = message;
-  dom.enter.textContent = "Back to the Record Book";
-  dom.enter.onclick = () => { location.href = "alltime.html"; };
 }
 
 function cacheDom() {
@@ -167,7 +168,7 @@ function cacheDom() {
     canvas: id("scene"),
     loader: id("loader"),
     loaderNote: id("loaderNote"),
-    enter: id("enterHall"),
+    loaderExit: id("loaderExit"),
     hud: id("hud"),
     label: id("label"),
     labelWing: id("labelWing"),
@@ -217,6 +218,17 @@ function buildExhibits() {
 
     const object = buildExhibitObject(item);
     spinner.add(object);
+
+    /* Measure what was actually built rather than trusting a hand-set radius.
+       The stars over a hall-of-fame shield and the handles on a cup both sit
+       outside the figure they belong to, and framing guessed at them badly.
+       Half-width is the diagonal of the footprint, not the width face-on,
+       because the exhibit turns under the viewer's finger and has to stay in
+       frame all the way round. */
+    object.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(object);
+    const size = bounds.getSize(new THREE.Vector3());
+    const middle = bounds.getCenter(new THREE.Vector3());
     pivot.add(spinner);
     riser.add(pivot);
 
@@ -245,8 +257,9 @@ function buildExhibits() {
       object,
       glints,
       x: layout.positions[index],
-      focusHeight: object.userData.focusHeight ?? 0.6,
-      focusRadius: object.userData.focusRadius ?? 1.1,
+      focusHeight: middle.y,
+      focusHalfWidth: Math.hypot(size.x, size.z) / 2,
+      focusHalfHeight: size.y / 2,
       spin: object.userData.spin || [],
       shadow,
       sway: object.userData.faceForward ? 0.07 : 0.2,
@@ -275,37 +288,58 @@ function railToX(t) {
 
 /* Framing an inspected exhibit.
 
-   The record sheet covers part of the viewport — a column down the right of a
-   desktop, the lower half of a phone — so the exhibit is both fitted into the
-   space that is left and aimed at the middle of it, rather than at the middle
-   of the screen. Everything is worked out in metres at the viewing distance,
-   so it holds at any zoom, aspect ratio or sheet size. */
+   The HUD does not leave the exhibit the whole screen: the record sheet takes a
+   column down the right of a desktop or the lower part of a phone, and the back
+   button and wordmark sit across the top. So the framing works out the
+   rectangle of screen that is actually free, pushes the camera back until the
+   object fits inside that rectangle rather than inside the viewport, and aims
+   so it lands in the middle of it.
+
+   The camera stays level — it shifts rather than tilts — because tilting to
+   place an object skews it, and a trophy you are turning in your hands should
+   not lean as you turn it. */
 function focusFraming(exhibit) {
+  const narrow = innerWidth <= 860;
+  const pad = narrow ? 14 : 24;
+
+  // The top chrome, and whatever the sheet is currently covering.
+  const topChrome = narrow ? 78 : 84;
+  const sheetHeight = dom.sheet.offsetHeight || innerHeight * 0.46;
+  const sheetWidth = dom.sheet.offsetWidth || 372;
+
+  const band = {
+    left: pad,
+    right: narrow ? innerWidth - pad : innerWidth - sheetWidth - 32 - pad,
+    top: topChrome + pad,
+    bottom: narrow ? innerHeight - sheetHeight - pad : innerHeight - pad
+  };
+  const bandWidth = Math.max(140, band.right - band.left);
+  const bandHeight = Math.max(140, band.bottom - band.top);
+
   const vertical = THREE.MathUtils.degToRad(camera.fov);
   const horizontal = 2 * Math.atan(Math.tan(vertical / 2) * camera.aspect);
-  const radius = exhibit.focusRadius;
 
-  const narrow = innerWidth <= 860;
-  const sheetShare = narrow
-    ? Math.min(0.56, (dom.sheet.offsetHeight || innerHeight * 0.5) / innerHeight)
-    : Math.min(0.5, ((dom.sheet.offsetWidth || 372) + 32) / innerWidth);
+  /* Fit into the free rectangle, not the viewport: the object subtends only
+     that fraction of the frame, in each direction independently.
 
-  // Give the object the clear part of the frame, then push back far enough that
-  // it fits inside that part rather than inside the whole viewport.
-  const clear = Math.max(0.35, 1 - sheetShare);
-  const fitHeight = radius / Math.tan(vertical / 2) / (narrow ? clear : 1);
-  const fitWidth = radius / Math.tan(horizontal / 2) / (narrow ? 1 : clear);
-  const distance = Math.max(fitHeight, fitWidth) * 1.24 * state.focusZoom;
+     Turning the exhibit sweeps a cylinder of radius `reach`, and the near
+     face of that cylinder is what the perspective makes largest — a trophy
+     fitted at its centre plane still overruns the frame by the depth of its
+     own handles. So each fit is measured to the near face and the reach is
+     added back. */
+  const reach = exhibit.focusHalfWidth;
+  const fitHeight = exhibit.focusHalfHeight / (Math.tan(vertical / 2) * (bandHeight / innerHeight)) + reach;
+  const fitWidth = reach / (Math.tan(horizontal / 2) * (bandWidth / innerWidth)) + reach;
+  const distance = Math.max(fitHeight, fitWidth) * 1.06 * state.focusZoom;
 
   const visibleHeight = 2 * distance * Math.tan(vertical / 2);
   const visibleWidth = visibleHeight * camera.aspect;
 
+  // Shift the level camera so the object projects onto the middle of the band.
   return {
     distance,
-    // Move the camera the other way from the panel, so the exhibit lands in the
-    // clear half.
-    offsetX: narrow ? 0 : sheetShare * visibleWidth * 0.5,
-    offsetY: narrow ? -sheetShare * visibleHeight * 0.5 : 0
+    offsetX: (0.5 - (band.left + band.right) / 2 / innerWidth) * visibleWidth,
+    offsetY: ((band.top + band.bottom) / 2 / innerHeight - 0.5) * visibleHeight
   };
 }
 
@@ -314,8 +348,9 @@ function updateCameraTarget(dt) {
     const exhibit = exhibits[state.focusIndex];
     const centerY = exhibit.pedestal.userData.topY + state.lift + exhibit.focusHeight;
     const { distance, offsetX, offsetY } = focusFraming(exhibit);
-    camTarget.position.set(exhibit.x + offsetX, centerY + 0.16 - offsetY, LAYOUT.itemZ + distance);
-    camTarget.look.set(exhibit.x + offsetX, centerY + offsetY, LAYOUT.itemZ);
+    const axisY = centerY + offsetY;
+    camTarget.position.set(exhibit.x + offsetX, axisY, LAYOUT.itemZ + distance);
+    camTarget.look.set(exhibit.x + offsetX, axisY, LAYOUT.itemZ);
   } else {
     const x = railToX(state.rail);
     // The camera leans into a flick, which reads as momentum without moving
@@ -477,7 +512,6 @@ function buildHud() {
     if (event.key === "Enter" || event.key === " ") { event.preventDefault(); inspect(); }
   });
   dom.sheetClose.addEventListener("click", exitFocus);
-  dom.enter.addEventListener("click", enterHall);
 }
 
 function onCurrentChanged(index) {
@@ -594,7 +628,7 @@ function enterHall() {
   if (state.mode !== "intro") return;
   state.mode = "hall";
   dom.stage.classList.add("entered");
-  dom.loader.classList.add("gone");
+  dom.loader.classList.add("done", "gone");
   setTimeout(() => dom.hint.classList.add("show"), 900);
   setTimeout(() => dom.hint.classList.remove("show"), 6500);
 }
@@ -678,13 +712,12 @@ function bindInput() {
     state.pointerMoved = Math.max(state.pointerMoved, Math.hypot(dx, dy));
 
     if (state.mode === "focus") {
-      // Both axes turn the exhibit the way a hand on it would: drag right and
-      // the near face travels right, bringing the left side around; drag down
-      // and the near face travels down, tipping the top away from you. The
-      // pitch used to run the other way, which is what made grabbing a trophy
-      // and turning it feel inverted against its own yaw.
-      state.focusYaw = startYaw - dx * 0.0085;
-      state.focusPitch = clamp(startPitch - dy * 0.0055, -0.55, 0.55);
+      // Drag right and the exhibit turns to show its right side; drag down and
+      // it tips to show its top. This is the direction of orbiting a camera
+      // around the object rather than pushing the face nearest you, and it is
+      // the one that reads as "grabbing" it.
+      state.focusYaw = startYaw + dx * 0.0085;
+      state.focusPitch = clamp(startPitch + dy * 0.0055, -0.55, 0.55);
       return;
     }
 
@@ -741,10 +774,7 @@ function bindInput() {
   }, { passive: false });
 
   addEventListener("keydown", (event) => {
-    if (state.mode === "intro") {
-      if (event.key === "Enter" || event.key === " ") { enterHall(); event.preventDefault(); }
-      return;
-    }
+    if (state.mode === "intro") return;
     switch (event.key) {
       case "ArrowRight": case "d": step(1); break;
       case "ArrowLeft": case "a": step(-1); break;
