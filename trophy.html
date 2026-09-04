@@ -405,6 +405,96 @@
       opacity: .85;
     }
 
+    /* ------------------------------------------------------------- the dog */
+
+    /* Tucker's card takes the nameplate's place while you are crouched down in
+       front of him, because you are not standing in front of an exhibit any
+       more. The button is the point: petting him has to be reachable from a
+       keyboard, not only from a fingertip on the canvas. */
+    #petCard {
+      display: none;
+      justify-items: center;
+      gap: 7px;
+      margin: 0 auto;
+      padding: 14px 24px 12px;
+      max-width: min(90vw, 380px);
+      border-radius: 20px;
+      background: var(--glass);
+      border: 1px solid var(--edge);
+      border-top-color: rgba(242, 193, 74, .38);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 22px 64px rgba(0, 0, 0, .58);
+      text-align: center;
+      pointer-events: auto;
+    }
+    #stage.petting #petCard { display: grid; }
+    #stage.petting .plate-row,
+    #stage.petting .rail { display: none; }
+    #petCard.pop { animation: petPop .42s cubic-bezier(.2,.9,.3,1); }
+    @keyframes petPop {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.035); }
+      100% { transform: scale(1); }
+    }
+
+    .pet-head { display: grid; justify-items: center; gap: 2px; }
+    .pet-kicker {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: #f2c14a;
+    }
+    .pet-name {
+      font-size: clamp(20px, 4.6vw, 27px);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.05;
+    }
+    .pet-line {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--dim);
+      min-height: 16px;
+    }
+    .pet-actions { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+    .pet-pat {
+      padding: 9px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(242, 193, 74, .42);
+      background: linear-gradient(180deg, rgba(242, 193, 74, .22), rgba(242, 193, 74, .08));
+      color: #ffe6a8;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease;
+    }
+    .pet-pat:hover { transform: translateY(-2px); background: rgba(242, 193, 74, .3); }
+    .pet-pat:active { transform: translateY(0); }
+    .pet-count {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: rgba(147, 166, 189, .8);
+    }
+    .pet-exit {
+      margin-top: 2px;
+      border: none;
+      background: none;
+      color: rgba(147, 166, 189, .8);
+      font: inherit;
+      font-size: 10.5px;
+      letter-spacing: .1em;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+    .pet-exit:hover { color: var(--ink); }
+
     .step {
       flex: 0 0 auto;
       width: 46px;
@@ -856,6 +946,19 @@
 
       <div class="bottom">
         <div id="hint">Drag to walk the hall · tap a trophy to inspect it</div>
+
+        <div id="petCard" aria-live="polite">
+          <div class="pet-head">
+            <span class="pet-kicker">League Mascot</span>
+            <span class="pet-name">Tucker</span>
+          </div>
+          <div class="pet-line" id="petLine">He is watching you.</div>
+          <div class="pet-actions">
+            <button class="pet-pat" id="petButton" type="button">Pet Tucker</button>
+            <span class="pet-count" id="petCount">0 pats</span>
+          </div>
+          <button class="pet-exit" id="petExit" type="button">← Back to the hall</button>
+        </div>
 
         <div class="plate-row">
           <button class="step" id="prevItem" type="button" aria-label="Previous exhibit">←</button>
