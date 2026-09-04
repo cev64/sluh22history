@@ -7,6 +7,10 @@
 
 const PLAYOFF_ROUNDS = ["Quarterfinal", "Semifinal", "Championship"];
 
+/* Managers who left before this record book existed are marked in the season
+   data and kept off the record book's leaderboards. The hall follows suit. */
+const inTheHall = (team) => Boolean(team) && !team.excludeFromHome;
+
 // The 2020 season was deleted before this record book existed; only the
 // champion survives. alltime.html carries the same exception.
 const LOST_SEASON = {
@@ -81,7 +85,7 @@ function careerTotals(data) {
     const size = Object.keys(season.teams).length;
     Object.values(season.teams).forEach((team) => {
       const career = careers[team.ownerId];
-      if (!career || team.excludeFromHome) return;
+      if (!career || !inTheHall(team)) return;
       career.seasons.push({ year: season.year, ...team });
       career.wins += team.wins;
       career.losses += team.losses;
@@ -143,7 +147,7 @@ function longestStreak(data, outcome = "win") {
     ordered.forEach((game) => {
       [[game.a, game.aScore, game.bScore], [game.b, game.bScore, game.aScore]].forEach(([key, mine, theirs]) => {
         const team = season.teams[key];
-        if (!team) return;
+        if (!inTheHall(team)) return;
         const state = byTeam[key] || (byTeam[key] = { run: 0, from: null });
         if (outcome === "win" ? mine > theirs : mine < theirs) {
           if (!state.run) state.from = game.week;
@@ -267,9 +271,15 @@ function hallOfFameExhibits(careers) {
 }
 
 /* The two walls face each other across the same numbers, so they share the
-   ways of slicing them. */
+   ways of slicing them.
+
+   Teams the record book keeps out of its leaderboards stay out of the walls
+   too, and not only as holders: a whole game is dropped if either side is one
+   of them, because a plaque names the opponent as well as the winner. Every
+   mark here is therefore between teams the hall recognises, and falls to the
+   next one that qualifies. */
 function marks(data, careers) {
-  const games = flattenGames(data);
+  const games = flattenGames(data).filter((row) => row.sides.every((side) => inTheHall(side.team)));
   return {
     games,
     // One row per team per game, which is what a "best/worst week" is about.
@@ -277,7 +287,7 @@ function marks(data, careers) {
       row.sides.map((side) => ({ ...side, year: row.year, week: row.week, stage: row.stage, label: row.label }))
     ),
     seasonTeams: data.seasons.flatMap((season) =>
-      Object.values(season.teams).map((team) => ({
+      Object.values(season.teams).filter(inTheHall).map((team) => ({
         ...team, year: season.year, size: Object.keys(season.teams).length
       }))
     ),
