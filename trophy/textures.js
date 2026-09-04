@@ -468,8 +468,8 @@ export function yearPlateTexture({ year, color }) {
 /* A team's flag, hung across the top of their locker wall: crest on the hoist,
    name and manager on the fly, the way a club banner is laid out. */
 export function teamFlagTexture({ icon, color, team, owner, since }) {
-  const width = 960;
-  const height = 540;
+  const width = 1200;
+  const height = 636;
   const { element, ctx } = canvas(width, height);
 
   const field = ctx.createLinearGradient(0, 0, width, height);
@@ -497,9 +497,9 @@ export function teamFlagTexture({ icon, color, team, owner, since }) {
   ctx.globalAlpha = 1;
 
   // The crest roundel on the hoist.
-  const cx = width * 0.215;
+  const cx = width * 0.195;
   const cy = height * 0.5;
-  const r = height * 0.31;
+  const r = height * 0.285;
   const roundel = ctx.createRadialGradient(cx, cy - r * 0.3, r * 0.1, cx, cy, r);
   roundel.addColorStop(0, mix(color, "#ffffff", 0.3));
   roundel.addColorStop(1, mix(color, "#000000", 0.45));
@@ -523,10 +523,10 @@ export function teamFlagTexture({ icon, color, team, owner, since }) {
   ctx.save();
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
-  const left = width * 0.40;
-  const room = width - left - 70;
+  const left = width * 0.395;
+  const room = width - left - 96;
 
-  const nameSize = fitText(ctx, team.toUpperCase(), room, 88, 700, DISPLAY_FONT, "2px");
+  const nameSize = fitText(ctx, team.toUpperCase(), room, 104, 700, DISPLAY_FONT, "2px");
   ctx.font = `700 ${nameSize}px ${DISPLAY_FONT}`;
   ctx.letterSpacing = "2px";
   ctx.fillStyle = "rgba(0,0,0,.55)";
@@ -534,14 +534,14 @@ export function teamFlagTexture({ icon, color, team, owner, since }) {
   ctx.fillStyle = "rgba(255,250,240,.98)";
   ctx.fillText(team.toUpperCase(), left, height * 0.42);
 
-  const ownerSize = fitText(ctx, owner.toUpperCase(), room, 46, 600, DISPLAY_FONT, "6px");
+  const ownerSize = fitText(ctx, owner.toUpperCase(), room, 54, 600, DISPLAY_FONT, "6px");
   ctx.font = `600 ${ownerSize}px ${DISPLAY_FONT}`;
   ctx.letterSpacing = "6px";
   ctx.fillStyle = mix(color, "#ffffff", 0.72);
   ctx.fillText(owner.toUpperCase(), left, height * 0.585);
 
   if (since) {
-    ctx.font = `600 ${26}px ${DISPLAY_FONT}`;
+    ctx.font = `600 ${30}px ${DISPLAY_FONT}`;
     ctx.letterSpacing = "10px";
     ctx.fillStyle = "rgba(255,255,255,.5)";
     ctx.fillText(`EST. ${since}`, left, height * 0.71);
@@ -553,7 +553,7 @@ export function teamFlagTexture({ icon, color, team, owner, since }) {
 
 /* One pennant per playoff berth. Drawn with its own silhouette so the mesh can
    stay a single quad — the corners outside the triangle are transparent. */
-export function pennantTexture({ year, color, note = "PLAYOFFS" }) {
+export function pennantTexture({ year, color, note = "PLAYOFFS", crown = false }) {
   const width = 320;
   const height = 720;
   const { element, ctx } = canvas(width, height);
@@ -573,10 +573,10 @@ export function pennantTexture({ year, color, note = "PLAYOFFS" }) {
   ctx.fillStyle = cloth;
   ctx.fillRect(0, 0, width, height);
 
-  // The stitched band across the hoist.
-  ctx.fillStyle = "rgba(255,246,226,.95)";
-  ctx.fillRect(0, 18, width, 12);
-  ctx.fillRect(0, 150, width, 8);
+  // The stitched band across the hoist. A division pennant wears gold braid.
+  ctx.fillStyle = crown ? "rgba(255,214,120,.98)" : "rgba(255,246,226,.95)";
+  ctx.fillRect(0, 18, width, crown ? 16 : 12);
+  ctx.fillRect(0, 150, width, crown ? 12 : 8);
 
   ctx.save();
   ctx.textAlign = "center";

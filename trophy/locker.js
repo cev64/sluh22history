@@ -20,10 +20,10 @@
 
 import * as THREE from "three";
 import {
-  buildLeagueTrophy, buildPennant, buildPlaque, buildSilverBowl, buildTeamFlag,
+  buildLeagueTrophy, buildPennant, buildPlaque, buildPodiumBowl, buildTeamFlag,
   materials, roundedBox, teamMetal
 } from "./models.js";
-import { radialTexture } from "./textures.js";
+import { mix, radialTexture } from "./textures.js";
 
 /* Where the room sits. Far enough from the hall that neither is ever in the
    other's frustum, so the two can simply be shown and hidden. */
@@ -38,7 +38,7 @@ const ROW_GAP = 0.34;
 const CAPTION_DROP = 0.28;
 
 const SIZE = {
-  flagHalf: 0.66,
+  flagHalf: 0.80,
   pennant: 0.62,
   trophy: 0.90,
   bowl: 0.46,
@@ -49,6 +49,11 @@ const SIZE = {
 };
 
 const WALL_Z = -0.55;
+
+const ordinal = (n) => {
+  const suffix = { 1: "st", 2: "nd", 3: "rd" }[n] || "th";
+  return `${n}${suffix}`;
+};
 
 /* Lays out n items across a row, wrapping at `perRow`, and returns a position
    for each. Rows centre themselves, so one item sits in the middle rather than
@@ -124,11 +129,13 @@ export function buildLockerRoom(scene) {
 
   // A ceiling cove and two wall washes: broad even light, because a wall is
   // read all at once rather than one plinth at a time.
+  // Kept well above the top of anything on the wall: at head height it showed
+  // through the frame as a bright bar behind the header text.
   const cove = new THREE.Mesh(
     new THREE.PlaneGeometry(11, 0.16),
     new THREE.MeshBasicMaterial({ color: 0xffd9a0 })
   );
-  cove.position.set(0, 7.1, WALL_Z + 0.6);
+  cove.position.set(0, 8.6, WALL_Z + 0.6);
   room.add(cove);
 
   const lights = [];
@@ -193,11 +200,14 @@ export function buildLockerWall(room, locker) {
     items.push(holder);
     return holder;
   };
+  // Captions take a lifted version of the team's colour: the raw one is too
+  // close to the wall behind it for the darker teams.
+  const captionInk = mix(accent, "#ffffff", 0.55);
   const label = (text, x, y, width = 2.0) => {
     const plate = new THREE.Mesh(
       new THREE.PlaneGeometry(width, width * 0.09),
       new THREE.MeshBasicMaterial({
-        map: sectionLabelTexture(text, accent), transparent: true, depthWrite: false
+        map: sectionLabelTexture(text, captionInk), transparent: true, depthWrite: false
       })
     );
     plate.position.set(x, y, WALL_Z + 0.06);
@@ -230,19 +240,27 @@ export function buildLockerWall(room, locker) {
       const pennant = buildPennant({
         year: berth.year,
         color: accent,
-        note: berth.depth >= 2 ? "FINAL" : berth.depth >= 1 ? "SEMIFINAL" : "PLAYOFFS"
+        // A division crown flies gold cloth with gold braid, keeping only a
+        // trace of the team's colour — blending the two halfway just produced
+        // a washed-out version of the ordinary pennant.
+        cloth: berth.division ? mix("#9c6c14", accent, 0.18) : accent,
+        crown: berth.division,
+        note: berth.division ? "DIVISION CHAMPS" : "PLAYOFFS"
       });
       mount(pennant, spot.x, spot.y, WALL_Z + 0.2, {
         id: `berth-${berth.year}`,
         kind: "pennant",
-        title: `${berth.year} Playoffs`,
+        title: berth.division ? `${berth.year} Division Champs` : `${berth.year} Playoffs`,
         subtitle: berth.team.name,
-        blurb: `${locker.name} reached the ${berth.year} bracket with ${berth.team.name}, ${berth.team.wins}–${berth.team.losses} in the regular season.`,
+        blurb: berth.division
+          ? `${locker.name} topped their division in ${berth.year} at ${berth.team.wins}–${berth.team.losses} and sat out the first round.`
+          : `${locker.name} reached the ${berth.year} bracket with ${berth.team.name}, ${berth.team.wins}–${berth.team.losses} in the regular season.`,
         stats: [
           { label: "Record", value: `${berth.team.wins}–${berth.team.losses}` },
           { label: "Points For", value: berth.team.pf.toFixed(2) },
           { label: "Finish", value: `${berth.team.finalRank}` },
-          { label: "Reached", value: ["Quarterfinal", "Semifinal", "Championship"][berth.depth] }
+          { label: "Reached", value: ["Quarterfinal", "Semifinal", "Championship"][berth.depth] },
+          ...(berth.division ? [{ label: "First Round", value: "Bye" }] : [])
         ],
         links: [{ label: `${berth.year} Season`, href: `${berth.year}.html` }]
       });
@@ -251,15 +269,13 @@ export function buildLockerWall(room, locker) {
     cursor = railY - rows * SIZE.pennant - (rows - 1) * 0.22 - ROW_GAP;
   }
 
-  /* ---------------------------------------------------- shelf: cups & bowls */
-  const silverware = [
-    ...locker.titles.map((year) => ({ type: "title", year })),
-    ...locker.titleGames.map((final) => ({ type: "bowl", final, year: final.year }))
-  ];
-
-  if (silverware.length) {
-    label(locker.titles.length ? "TITLES & FINALS" : "TITLE GAMES", 0, cursor, 1.9);
-    const tallest = locker.titles.length ? SIZE.trophy : SIZE.bowl;
+  /* ------------------------------------------------------------ the shelf */
+  /* The shelf is always here, stocked or bare. A manager with nothing on it
+     should see the space their trophies are going to occupy. */
+  {
+    label("TROPHIES", 0, cursor, 1.9);
+    const hasTitle = locker.trophies.some((entry) => entry.place === 1);
+    const tallest = hasTitle ? SIZE.trophy : SIZE.bowl;
     const shelfY = cursor - CAPTION_DROP - tallest;
 
     const shelf = new THREE.Mesh(roundedBox(4.6, 0.11, 0.62, 0.03), mat.darkMarble);
@@ -273,15 +289,15 @@ export function buildLockerWall(room, locker) {
     }
     wall.add(track(shelf), track(shelfEdge));
 
-    const spots = spread(silverware.length, {
-      perRow: 5, gap: locker.titles.length ? 0.92 : 0.72, top: shelfY, rowGap: 1.15
+    const spots = spread(locker.trophies.length, {
+      perRow: 5, gap: hasTitle ? 0.92 : 0.74, top: shelfY, rowGap: 1.15
     });
 
-    silverware.forEach((entry, index) => {
+    const PLACE = { 1: "Champion", 2: "Runner-up", 3: "Third place" };
+    locker.trophies.forEach((entry, index) => {
       const spot = spots[index];
       let object;
-      let meta;
-      if (entry.type === "title") {
+      if (entry.place === 1) {
         object = buildLeagueTrophy({
           year: entry.year,
           color: accent,
@@ -290,35 +306,25 @@ export function buildLockerWall(room, locker) {
           accent
         });
         object.scale.setScalar(SIZE.trophyScale);
-        meta = {
-          id: `title-${entry.year}`,
-          kind: "title",
-          title: `${entry.year} Champion`,
-          subtitle: locker.team,
-          blurb: `${locker.name} won the ${entry.year} league title.`,
-          stats: [],
-          links: [{ label: `${entry.year} Season`, href: `${entry.year}.html` }]
-        };
       } else {
-        const final = entry.final;
-        object = buildSilverBowl({ year: entry.year, won: final.won, accent });
+        object = buildPodiumBowl({ year: entry.year, metal: entry.metal, accent });
         object.scale.setScalar(SIZE.bowlScale);
-        meta = {
-          id: `final-${entry.year}`,
-          kind: "bowl",
-          title: `${entry.year} Title Game`,
-          subtitle: final.won ? "Won it" : "Runner-up",
-          blurb: final.lost
-            ? `${locker.name} played the ${entry.year} final and won it. The box score did not survive the season.`
-            : `${locker.name} reached the ${entry.year} final and ${final.won ? "won" : "lost"} it, ${final.score.toFixed(2)} to ${final.foeScore.toFixed(2)} against ${final.foe.name}.`,
-          stats: final.lost ? [] : [
-            { label: "Final", value: `${final.score.toFixed(2)} – ${final.foeScore.toFixed(2)}` },
-            { label: "Opponent", value: final.foe.name }
-          ],
-          links: [{ label: `${entry.year} Season`, href: `${entry.year}.html` }]
-        };
       }
-      mount(object, spot.x, spot.y, WALL_Z + 0.34, meta);
+      mount(object, spot.x, spot.y, WALL_Z + 0.34, {
+        id: `place-${entry.year}`,
+        kind: entry.place === 1 ? "title" : "bowl",
+        title: `${entry.year} ${PLACE[entry.place]}`,
+        subtitle: entry.team.name,
+        blurb: entry.lost
+          ? `${locker.name} won the ${entry.year} league title. The season's box scores did not survive.`
+          : `${locker.name} finished ${ordinal(entry.place)} of ${entry.size} in ${entry.year} at ${entry.team.wins}–${entry.team.losses}.`,
+        stats: entry.lost ? [] : [
+          { label: "Record", value: `${entry.team.wins}–${entry.team.losses}` },
+          { label: "Points For", value: entry.team.pf.toFixed(2) },
+          { label: "Points Against", value: entry.team.pa.toFixed(2) }
+        ],
+        links: [{ label: `${entry.year} Season`, href: `${entry.year}.html` }]
+      });
     });
 
     cursor = shelfY - 0.16 - ROW_GAP;

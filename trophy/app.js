@@ -210,6 +210,8 @@ function cacheDom() {
     counter: id("counter"),
     summary: id("summary"),
     wipe: id("wipe"),
+    wipeCrest: id("wipeCrest"),
+    wipeLabel: id("wipeLabel"),
     lockerBar: id("lockerBar"),
     lockerCrest: id("lockerCrest"),
     lockerTeam: id("lockerTeam"),
@@ -769,7 +771,7 @@ function openLocker(ownerId) {
   const locker = hall.lockers[ownerId];
   if (!locker || state.lockerId === ownerId) return;
 
-  wipe(locker.color, () => {
+  wipe({ color: locker.color, icon: locker.icon, label: `Opening ${locker.team}` }, () => {
     if (lockerWall) lockerWall.dispose();
     lockerWall = buildLockerWall(lockerRoom.room, locker);
 
@@ -809,7 +811,7 @@ function closeLocker() {
   if (!IN_LOCKER(state.mode)) return;
   const returning = state.lockerId;
 
-  wipe("#0a1220", () => {
+  wipe({ color: "#f2c14a", icon: "🏆", label: "Back to the Hall" }, () => {
     if (lockerWall) lockerWall.dispose();
     lockerWall = null;
     state.lockerId = null;
@@ -877,13 +879,15 @@ function fillLockerHud(locker) {
    request is kept — the ones in between are rooms nobody asked to stay in. */
 let wiping = false;
 let pendingWipe = null;
-function wipe(color, midpoint) {
+function wipe(look, midpoint) {
   if (wiping) {
-    pendingWipe = { color, midpoint };
+    pendingWipe = { look, midpoint };
     return;
   }
   wiping = true;
-  dom.wipe.style.background = color;
+  dom.wipe.style.setProperty("--wipe-team", look.color);
+  dom.wipeCrest.textContent = look.icon;
+  dom.wipeLabel.textContent = look.label;
   dom.wipe.classList.add("on");
   setTimeout(() => {
     midpoint();
@@ -893,7 +897,7 @@ function wipe(color, midpoint) {
       if (pendingWipe) {
         const next = pendingWipe;
         pendingWipe = null;
-        wipe(next.color, next.midpoint);
+        wipe(next.look, next.midpoint);
       }
     }, 380);
   }, 300);
