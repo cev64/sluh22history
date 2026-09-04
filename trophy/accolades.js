@@ -642,41 +642,75 @@ function playoffSeasons(data) {
   return byOwner;
 }
 
-function finalAppearances(data, careers) {
+/* Where a manager finished, for the three places that earn a trophy. First
+   takes the league trophy, second a silver bowl, third a bronze one. */
+function podiums(data, careers) {
   const byOwner = {};
+  const PLACE = { 1: "gold", 2: "silver", 3: "bronze" };
+
   data.seasons.forEach((season) => {
-    const final = season.postseasonGames.find((game) => game.label === "Championship");
-    if (!final) return;
-    const a = season.teams[final.a];
-    const b = season.teams[final.b];
-    [[a, final.aScore, b, final.bScore], [b, final.bScore, a, final.aScore]].forEach(
-      ([team, score, foe, foeScore]) => {
-        if (!inTheHall(team)) return;
-        (byOwner[team.ownerId] || (byOwner[team.ownerId] = [])).push({
-          year: season.year,
-          team,
-          won: score > foeScore,
-          score,
-          foe,
-          foeScore
-        });
-      }
-    );
+    Object.values(season.teams).forEach((team) => {
+      if (!inTheHall(team) || !PLACE[team.finalRank]) return;
+      (byOwner[team.ownerId] || (byOwner[team.ownerId] = [])).push({
+        year: season.year,
+        place: team.finalRank,
+        metal: PLACE[team.finalRank],
+        team,
+        size: Object.keys(season.teams).length
+      });
+    });
   });
 
-  // The lost season left a champion but no box score, so its final is recorded
-  // from the title alone.
+  // The lost season left a champion but no standings to read it out of.
   const lost = careers[LOST_SEASON.ownerId];
   if (lost && lost.titles.includes(LOST_SEASON.year)) {
     (byOwner[LOST_SEASON.ownerId] || (byOwner[LOST_SEASON.ownerId] = [])).push({
       year: LOST_SEASON.year,
-      team: { name: lost.currentTeam, owner: lost.name, ownerId: lost.ownerId },
-      won: true,
-      lost: true
+      place: 1,
+      metal: "gold",
+      lost: true,
+      team: { name: lost.currentTeam, owner: lost.name, ownerId: lost.ownerId }
     });
   }
 
   return byOwner;
+}
+
+/* Division champions. In this league the reward for topping a division is the
+   first-round bye, so the bye is what identifies one — a team that turns up in
+   the semifinal without having played the quarterfinal. That reads the same
+   answer out of every season, including the years before the standings
+   recorded divisions at all, and the year the bracket had no byes to give. */
+function divisionCrowns(data) {
+  const byOwner = {};
+  data.seasons.forEach((season) => {
+    const played = (label) => new Set(
+      season.postseasonGames.filter((game) => game.label === label).flatMap((game) => [game.a, game.b])
+    );
+    const quarters = played("Quarterfinal");
+    const semis = played("Semifinal");
+    [...semis].filter((key) => !quarters.has(key)).forEach((key) => {
+      const team = season.teams[key];
+      if (!inTheHall(team)) return;
+      (byOwner[team.ownerId] || (byOwner[team.ownerId] = new Set())).add(season.year);
+    });
+  });
+  return byOwner;
+}
+
+/* A manager's biggest win, by margin. */
+function biggestWin(data, ownerId) {
+  let best = null;
+  flattenGames(data)
+    .filter((row) => row.sides.every((side) => inTheHall(side.team)))
+    .forEach((row) => {
+      if (row.winner.ownerId !== ownerId) return;
+      const margin = row.winScore - row.loseScore;
+      if (!best || margin > best.margin) {
+        best = { margin, year: row.year, week: row.week, row };
+      }
+    });
+  return best;
 }
 
 function ownStreak(data, ownerId) {
@@ -710,27 +744,35 @@ function ownStreak(data, ownerId) {
 
 export function buildLockers(data, careers) {
   const playoffs = playoffSeasons(data);
-  const finals = finalAppearances(data, careers);
+  const trophyCase = podiums(data, careers);
+  const crowns = divisionCrowns(data);
   const lockers = {};
 
   Object.values(careers).filter((career) => career.seasons.length).forEach((career) => {
-    const berths = (playoffs[career.ownerId] || []).sort((a, b) => b.year - a.year);
-    const titleGames = (finals[career.ownerId] || []).sort((a, b) => b.year - a.year);
+    const crowned = crowns[career.ownerId] || new Set();
+    const berths = (playoffs[career.ownerId] || [])
+      .map((berth) => ({ ...berth, division: crowned.has(berth.year) }))
+      .sort((a, b) => b.year - a.year);
+    const trophies = (trophyCase[career.ownerId] || []).sort((a, b) => b.year - a.year);
     const bestFinish = Math.min(...career.finishes.map((f) => f.rank));
     const bestFinishYears = career.finishes.filter((f) => f.rank === bestFinish).map((f) => f.year);
     const bestSeason = career.seasons.reduce((best, s) => (s.pf > best.pf ? s : best));
     const streak = ownStreak(data, career.ownerId);
+    const rout = biggestWin(data, career.ownerId);
 
     // Personal bests only. A locker celebrates; the hall keeps the arguments.
     const plaques = [
-      {
-        id: "seasons",
-        title: "Seasons Played",
-        bigValue: String(career.seasons.length),
-        meta: career.seasons.map((s) => s.year).join(", "),
-        blurb: `${career.name} has been on the board for ${career.seasons.length} ${career.seasons.length === 1 ? "season" : "seasons"}.`,
-        stats: [{ label: "All-Time Record", value: `${career.wins}–${career.losses}` }]
-      },
+      ...(rout ? [{
+        id: "rout",
+        title: "Biggest Win",
+        bigValue: fmt(rout.margin),
+        meta: `Week ${rout.week} · ${rout.year}`,
+        blurb: `${rout.row.winner.name} ${fmt(rout.row.winScore)}, ${rout.row.loser.name} ${fmt(rout.row.loseScore)} — ${fmt(rout.margin)} points clear in week ${rout.week} of ${rout.year}.`,
+        stats: [
+          { label: "Final", value: `${fmt(rout.row.winScore)} – ${fmt(rout.row.loseScore)}` },
+          { label: "Opponent", value: rout.row.loser.name }
+        ]
+      }] : []),
       {
         id: "finish",
         title: "Best Finish",
@@ -782,7 +824,7 @@ export function buildLockers(data, careers) {
       icon: career.icon,
       color: career.color,
       titles: [...career.titles].sort((a, b) => b - a),
-      titleGames,
+      trophies,
       berths,
       plaques,
       seasons: career.seasons,
@@ -790,6 +832,7 @@ export function buildLockers(data, careers) {
         `${career.seasons.length} ${career.seasons.length === 1 ? "season" : "seasons"}`,
         career.titles.length ? `${career.titles.length} ${career.titles.length === 1 ? "title" : "titles"}` : null,
         berths.length ? `${berths.length} playoff ${berths.length === 1 ? "berth" : "berths"}` : null,
+        crowned.size ? `${crowned.size} division ${crowned.size === 1 ? "title" : "titles"}` : null,
         `${career.wins}–${career.losses}`
       ].filter(Boolean).join(" · "),
       stats: [

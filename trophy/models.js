@@ -742,9 +742,9 @@ export function buildToilet(item) {
 
 /* ------------------------------------------------- the team locker's pieces */
 
-/* A silver bowl, one for every time a manager reached the title game. Winners
-   get one too: turning up is the thing being marked, not the result. */
-export function buildSilverBowl(item) {
+/* The bowl the second and third place finishers take home, struck in the metal
+   of the place it marks. */
+export function buildPodiumBowl(item) {
   const group = new THREE.Group();
 
   const plinth = new THREE.Mesh(roundedBox(0.28, 0.075, 0.28, 0.02), shared.darkMarble);
@@ -756,14 +756,17 @@ export function buildSilverBowl(item) {
     [0.198, 0.212], [0.224, 0.270], [0.235, 0.302], [0.238, 0.316],
     [0.233, 0.324], [0.220, 0.316], [0.204, 0.272], [0.160, 0.204],
     [0.100, 0.152], [0.000, 0.140]
-  ], 48), shared.silver);
+  ], 48), item.metal === "bronze" ? shared.bronze : shared.silver);
   bowl.position.y = 0.075;
   bowl.castShadow = true;
 
   const plate = new THREE.Mesh(
     new THREE.PlaneGeometry(0.19, 0.05),
     new THREE.MeshStandardMaterial({
-      map: nameplateTexture({ title: String(item.year), sub: null, accent: item.accent }),
+      map: nameplateTexture({
+        title: String(item.year), sub: null, accent: item.accent,
+        metal: item.metal === "bronze" ? "brass" : "pewter"
+      }),
       metalness: 0.28,
       roughness: 0.34,
       envMap: shared.envMap,
@@ -786,7 +789,7 @@ export function buildPennant(item) {
   const cloth = new THREE.Mesh(
     new THREE.PlaneGeometry(0.30, 0.675, 8, 8),
     new THREE.MeshStandardMaterial({
-      map: pennantTexture({ year: item.year, color: item.color, note: item.note }),
+      map: pennantTexture({ year: item.year, color: item.cloth || item.color, note: item.note, crown: item.crown }),
       transparent: true,
       alphaTest: 0.45,
       side: THREE.DoubleSide,
@@ -814,17 +817,17 @@ export function buildPennant(item) {
 export function buildTeamFlag(locker) {
   const group = new THREE.Group();
 
-  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 2.55, 12), shared.brass);
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.030, 0.030, 3.25, 12), shared.brass);
   rod.rotation.z = Math.PI / 2;
-  rod.position.y = 0.72;
+  rod.position.y = 0.86;
   for (const side of [-1, 1]) {
-    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), shared.gold);
-    finial.position.set(side * 1.3, 0.72, 0);
+    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 12), shared.gold);
+    finial.position.set(side * 1.66, 0.86, 0);
     group.add(finial);
   }
 
   const cloth = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.35, 1.32, 20, 6),
+    new THREE.PlaneGeometry(3.02, 1.60, 22, 6),
     new THREE.MeshStandardMaterial({
       map: teamFlagTexture({
         icon: locker.icon,

@@ -165,7 +165,8 @@ async function boot() {
     scene, camera, renderer, exhibits, state, hall, layout,
     camTarget, lookAt, goTo, focus: focusExhibit, exitFocus,
     openLocker, closeLocker, focusLockerItem, exitLockerFocus,
-    lockerWall: () => lockerWall
+    lockerWall: () => lockerWall,
+    lockerRoom: () => lockerRoom
   };
 
   dom.stage.classList.add("ready");
@@ -210,6 +211,8 @@ function cacheDom() {
     counter: id("counter"),
     summary: id("summary"),
     wipe: id("wipe"),
+    wipeCrest: id("wipeCrest"),
+    wipeLabel: id("wipeLabel"),
     lockerBar: id("lockerBar"),
     lockerCrest: id("lockerCrest"),
     lockerTeam: id("lockerTeam"),
@@ -404,7 +407,9 @@ function wallFraming() {
 
 function updateCameraTarget(dt) {
   if (state.mode === "lockerFocus" && lockerWall && lockerWall.items[state.lockerIndex]) {
-    const frame = lockerWall.items[state.lockerIndex].userData.frame;
+    const holder = lockerWall.items[state.lockerIndex];
+    const frame = holder.userData.frame;
+    const present = holder.userData.present;
     const framing = focusFraming({
       focusHalfWidth: frame.halfWidth,
       focusHalfHeight: frame.halfHeight
@@ -414,8 +419,10 @@ function updateCameraTarget(dt) {
     // comes closer than arm's length.
     const distance = Math.max(framing.distance, 2.4 * state.focusZoom);
     const { offsetX, offsetY } = framing;
-    camTarget.position.set(frame.centre.x + offsetX, frame.centre.y + offsetY, frame.centre.z + distance);
-    camTarget.look.set(frame.centre.x + offsetX, frame.centre.y + offsetY, frame.centre.z);
+    const shownY = frame.centre.y + present.lift;
+    const shownZ = frame.centre.z + present.push;
+    camTarget.position.set(frame.centre.x + offsetX, shownY + offsetY, shownZ + distance);
+    camTarget.look.set(frame.centre.x + offsetX, shownY + offsetY, shownZ);
   } else if (state.mode === "locker" && lockerWall) {
     // The wall's centre is measured in world space, origin included, so it is
     // used as it comes.
@@ -567,14 +574,23 @@ function updateLocker(dt, time) {
   if (!lockerWall) return;
   lockerWall.items.forEach((holder, index) => {
     const spinner = holder.userData.spinner;
-    if (!spinner) return;
+    const home = holder.userData.home;
+    const present = holder.userData.present;
+    if (!spinner || !home || !present) return;
+
     if (state.mode === "lockerFocus" && index === state.lockerIndex) {
-      spinner.rotation.y = damp(spinner.rotation.y, state.focusYaw, 9, dt);
-      spinner.rotation.x = damp(spinner.rotation.x, state.focusPitch, 9, dt);
+      // Off the shelf and clear of the panelling before it turns, and no
+      // further round than the room it has allows.
+      spinner.rotation.y = damp(spinner.rotation.y, clamp(state.focusYaw, -present.yaw, present.yaw), 9, dt);
+      spinner.rotation.x = damp(spinner.rotation.x, clamp(state.focusPitch, -present.pitch, present.pitch), 9, dt);
+      holder.position.y = damp(holder.position.y, home.y + present.lift, 6, dt);
+      holder.position.z = damp(holder.position.z, home.z + present.push, 6, dt);
     } else {
       const sway = quality.calm ? 0 : Math.sin(time * 0.28 + index) * 0.03;
       spinner.rotation.y = damp(spinner.rotation.y, sway, 2.4, dt);
       spinner.rotation.x = damp(spinner.rotation.x, 0, 4, dt);
+      holder.position.y = damp(holder.position.y, home.y, 5, dt);
+      holder.position.z = damp(holder.position.z, home.z, 5, dt);
     }
   });
 }
@@ -769,7 +785,7 @@ function openLocker(ownerId) {
   const locker = hall.lockers[ownerId];
   if (!locker || state.lockerId === ownerId) return;
 
-  wipe(locker.color, () => {
+  wipe({ color: locker.color, icon: locker.icon, label: `Opening ${locker.team}` }, () => {
     if (lockerWall) lockerWall.dispose();
     lockerWall = buildLockerWall(lockerRoom.room, locker);
 
@@ -809,7 +825,7 @@ function closeLocker() {
   if (!IN_LOCKER(state.mode)) return;
   const returning = state.lockerId;
 
-  wipe("#0a1220", () => {
+  wipe({ color: "#f2c14a", icon: "🏆", label: "Back to the Hall" }, () => {
     if (lockerWall) lockerWall.dispose();
     lockerWall = null;
     state.lockerId = null;
@@ -877,13 +893,15 @@ function fillLockerHud(locker) {
    request is kept — the ones in between are rooms nobody asked to stay in. */
 let wiping = false;
 let pendingWipe = null;
-function wipe(color, midpoint) {
+function wipe(look, midpoint) {
   if (wiping) {
-    pendingWipe = { color, midpoint };
+    pendingWipe = { look, midpoint };
     return;
   }
   wiping = true;
-  dom.wipe.style.background = color;
+  dom.wipe.style.setProperty("--wipe-team", look.color);
+  dom.wipeCrest.textContent = look.icon;
+  dom.wipeLabel.textContent = look.label;
   dom.wipe.classList.add("on");
   setTimeout(() => {
     midpoint();
@@ -893,7 +911,7 @@ function wipe(color, midpoint) {
       if (pendingWipe) {
         const next = pendingWipe;
         pendingWipe = null;
-        wipe(next.color, next.midpoint);
+        wipe(next.look, next.midpoint);
       }
     }, 380);
   }, 300);

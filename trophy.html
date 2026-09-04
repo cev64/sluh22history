@@ -254,16 +254,69 @@
       pointer-events: none;
     }
 
-    /* A short curtain over a change of room. */
+    /* The curtain between rooms: a dark ground with the crest of wherever you
+       are going turning inside a ring, so the pause reads as loading rather
+       than as a colour flashing on the screen. */
     #wipe {
       position: absolute;
       inset: 0;
       z-index: 8;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(60% 50% at 50% 50%, color-mix(in srgb, var(--wipe-team, #1a2b45) 40%, transparent), transparent 70%),
+        rgba(4, 8, 14, .96);
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
-      transition: opacity .3s ease;
+      transition: opacity .28s ease, visibility .28s;
     }
-    #wipe.on { opacity: 1; }
+    #wipe.on { opacity: 1; visibility: visible; }
+
+    .wipe-card { display: grid; justify-items: center; gap: 20px; }
+
+    .wipe-dial {
+      position: relative;
+      width: 86px;
+      height: 86px;
+      display: grid;
+      place-items: center;
+    }
+    .wipe-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid color-mix(in srgb, var(--wipe-team, #7f93b8) 30%, transparent);
+      border-top-color: var(--wipe-team, #f2c14a);
+      border-right-color: color-mix(in srgb, var(--wipe-team, #f2c14a) 70%, transparent);
+      animation: wipe-spin 900ms linear infinite;
+    }
+    @keyframes wipe-spin { to { transform: rotate(1turn); } }
+
+    .wipe-crest {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--wipe-team, #1a2b45) 60%, rgba(8, 15, 26, .9));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16);
+      font-size: 27px;
+    }
+
+    .wipe-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: rgba(226, 236, 248, .8);
+      text-align: center;
+      max-width: 60vw;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wipe-ring { animation: none; border-top-color: var(--wipe-team, #f2c14a); }
+    }
 
     @media (max-width: 560px) {
       #lockerBar { gap: 11px; padding: 10px 14px 11px 10px; max-width: calc(100% - 20px); }
@@ -780,7 +833,6 @@
         </div>
         <div class="wordmark locker-only">
           <div class="mark">Team Locker</div>
-          <div class="sub">Every Accolade</div>
         </div>
       </div>
 
@@ -842,7 +894,15 @@
       </div>
     </aside>
 
-    <div id="wipe" aria-hidden="true"></div>
+    <div id="wipe" aria-hidden="true">
+      <div class="wipe-card">
+        <div class="wipe-dial">
+          <span class="wipe-ring"></span>
+          <span class="wipe-crest" id="wipeCrest">🏈</span>
+        </div>
+        <div class="wipe-label" id="wipeLabel"></div>
+      </div>
+    </div>
 
     <div id="loader">
       <div class="doorway">
