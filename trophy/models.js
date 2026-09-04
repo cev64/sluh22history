@@ -29,6 +29,15 @@ export function initMaterials({ envMap, quality }) {
   walnut.colorSpace = THREE.SRGBColorSpace;
   walnut.wrapS = walnut.wrapT = THREE.RepeatWrapping;
 
+  // The lowlight boards get their own cold grain rather than the walnut tinted
+  // blue: multiplying a warm brown by a cool colour only makes mud, and under
+  // the hall's key light it came back looking like brass anyway.
+  const slate = new THREE.CanvasTexture(woodTexture({
+    base: "#242c38", grain: "#11161e", highlight: "#3b4757"
+  }));
+  slate.colorSpace = THREE.SRGBColorSpace;
+  slate.wrapS = slate.wrapT = THREE.RepeatWrapping;
+
   const metal = (color, roughness, extra = {}) =>
     new THREE.MeshStandardMaterial({ color, metalness: 1, roughness, envMap, envMapIntensity: 2.3, ...extra });
 
@@ -55,8 +64,11 @@ export function initMaterials({ envMap, quality }) {
     walnut: new THREE.MeshStandardMaterial({
       map: walnut, color: 0xd8b184, metalness: 0.12, roughness: 0.52, envMap, envMapIntensity: 0.55
     }),
+    slate: new THREE.MeshStandardMaterial({
+      map: slate, color: 0xb8c6d8, metalness: 0.16, roughness: 0.58, envMap, envMapIntensity: 0.5
+    }),
     velvet: new THREE.MeshStandardMaterial({ color: 0x2a1421, metalness: 0, roughness: 0.95 }),
-    textures: { marble, darkMarble, walnut }
+    textures: { marble, darkMarble, walnut, slate }
   };
 
   return shared;
@@ -158,23 +170,34 @@ function starGeometry(outer = 0.1, inner = 0.045, thickness = 0.03) {
 }
 
 /* A disc carrying the team crest on its front face, gold on the rim and back.
-   The cylinder's cap order is [side, top, bottom]; standing it up on X means
-   the "top" cap becomes the face the room sees. */
-export function crestDisc(item, { radius = 0.3, thickness = 0.055, label = null } = {}) {
-  const disc = new THREE.Mesh(
+
+   The crest is its own CircleGeometry rather than the cap of the cylinder
+   behind it. A cylinder lays its cap UVs out around the axis — u follows the
+   local z, v follows the local x — so standing one up to face the room
+   delivers any texture on it rotated a quarter turn. A circle's UVs run
+   straight across x and y, which is the orientation the crest was drawn in. */
+export function crestDisc(item, { radius = 0.3, thickness = 0.055, label = null, metal = null } = {}) {
+  const surround = metal || (item.tarnished ? shared.pewter : shared.gold);
+  const body = new THREE.Mesh(
     new THREE.CylinderGeometry(radius, radius, thickness, 56),
-    [shared.goldWarm, crestMaterial(item, label), shared.goldDark]
+    item.tarnished ? shared.tarnish : shared.goldWarm
   );
-  disc.rotation.x = Math.PI / 2;
+  body.rotation.x = Math.PI / 2;
+
+  const face = new THREE.Mesh(
+    new THREE.CircleGeometry(radius * 0.995, 64),
+    crestMaterial(item, label)
+  );
+  face.position.z = thickness / 2 + 0.002;
 
   const rim = new THREE.Mesh(
     new THREE.TorusGeometry(radius * 1.005, thickness * 0.44, 10, 60),
-    shared.gold
+    surround
   );
 
   const group = new THREE.Group();
-  group.add(disc, rim);
-  group.userData.crestFace = disc;
+  group.add(body, face, rim);
+  group.userData.crestFace = face;
   return group;
 }
 
@@ -236,7 +259,10 @@ export function buildPedestal(item, { height = 1.1 } = {}) {
   const plate = new THREE.Mesh(
     new THREE.PlaneGeometry(0.64, 0.16),
     new THREE.MeshStandardMaterial({
-      map: nameplateTexture({ title: item.title, sub: item.subtitle, accent: item.accent }),
+      map: nameplateTexture({
+        title: item.title, sub: item.subtitle, accent: item.accent,
+        metal: item.tarnished ? "pewter" : "brass"
+      }),
       metalness: 0.28,
       roughness: 0.32,
       envMap: shared.envMap,
@@ -460,7 +486,13 @@ export function buildPlaque(item) {
   const group = new THREE.Group();
   const board = new THREE.Group();
 
-  const backing = new THREE.Mesh(roundedBox(1.06, 1.30, 0.09, 0.05), shared.walnut);
+  // A lowlight is cast in pewter on a cold dark board, so the two walls are
+  // told apart from down the hall rather than only by what they say.
+  const metal = item.tarnished ? "pewter" : "brass";
+  const trimMetal = item.tarnished ? shared.pewter : shared.brass;
+  const timber = item.tarnished ? shared.slate : shared.walnut;
+
+  const backing = new THREE.Mesh(roundedBox(1.06, 1.30, 0.09, 0.05), timber);
   backing.castShadow = true;
 
   const face = new THREE.Mesh(
@@ -471,7 +503,8 @@ export function buildPlaque(item) {
         label: item.title,
         holder: item.subtitle,
         meta: item.meta,
-        accent: item.accent
+        accent: item.accent,
+        metal
       }),
       metalness: 0.26,
       roughness: 0.3,
@@ -483,12 +516,12 @@ export function buildPlaque(item) {
   // clear its front bevel or the board reads as one blank sheet of brass.
   face.position.set(0, -0.16, 0.062);
 
-  const trim = new THREE.Mesh(roundedBox(0.9, 0.685, 0.02, 0.02), shared.brass);
+  const trim = new THREE.Mesh(roundedBox(0.9, 0.685, 0.02, 0.02), trimMetal);
   trim.position.set(0, -0.16, 0.046);
 
   const studs = new THREE.Group();
   for (const [x, y] of [[-0.45, 0.575], [0.45, 0.575], [-0.45, -0.575], [0.45, -0.575]]) {
-    const stud = new THREE.Mesh(new THREE.SphereGeometry(0.028, 18, 14), shared.brass);
+    const stud = new THREE.Mesh(new THREE.SphereGeometry(0.028, 18, 14), trimMetal);
     stud.position.set(x, y, 0.055);
     stud.scale.z = 0.6;
     studs.add(stud);
@@ -503,7 +536,7 @@ export function buildPlaque(item) {
 
   const foot = new THREE.Mesh(roundedBox(0.66, 0.1, 0.36, 0.03), shared.darkMarble);
   foot.position.y = 0.05;
-  const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.34, 12), shared.brass);
+  const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.34, 12), trimMetal);
   strut.position.set(0, 0.24, -0.02);
 
   group.add(foot, strut, board);
