@@ -18,8 +18,6 @@ const LOST_SEASON = {
 const fmt = (value, digits = 2) =>
   Number(value).toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
-const fmt0 = (value) => Number(value).toLocaleString("en-US", { maximumFractionDigits: 0 });
-
 const ordinal = (n) => {
   const rules = new Intl.PluralRules("en-US", { type: "ordinal" });
   const suffix = { one: "st", two: "nd", few: "rd", other: "th" }[rules.select(n)];
@@ -493,5 +491,3 @@ export function buildHall(data) {
     }
   };
 }
-
-export const helpers = { fmt, fmt0, ordinal };

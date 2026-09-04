@@ -39,6 +39,7 @@ let scene;
 let camera;
 let renderer;
 let lights;
+let focusFill;
 let dust;
 let raycaster;
 let exhibits = [];
@@ -54,12 +55,16 @@ function detectQuality() {
   const cores = navigator.hardwareConcurrency || 4;
   const memory = navigator.deviceMemory || 4;
   const light = mobile && (cores <= 4 || memory <= 4);
+  // Someone who has asked the system for less motion should not be handed a
+  // room where every object sways and dust drifts through the light.
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
   return {
     mobile,
     light,
+    calm,
     pixelRatio: Math.min(devicePixelRatio || 1, light ? 1.5 : mobile ? 2 : 2),
     shadows: !light,
-    dust: light ? 200 : 420,
+    dust: calm ? 0 : light ? 200 : 420,
     anisotropy: light ? 2 : 8
   };
 }
@@ -121,6 +126,8 @@ async function boot() {
   buildRoom(scene, hall, layout);
   buildExhibits();
   lights = buildTravellingLights(scene, quality);
+  focusFill = new THREE.PointLight(0xfff0d6, 0, 9, 2);
+  scene.add(focusFill);
   dust = buildDust(scene, quality.dust);
 
   raycaster = new THREE.Raycaster();
@@ -133,7 +140,7 @@ async function boot() {
   onResize();
 
   // Handy from the console when tuning the room; nothing in the page reads it.
-  window.__hall = { scene, camera, renderer, exhibits, state, hall, layout };
+  window.__hall = { scene, camera, renderer, exhibits, state, hall, layout, goTo, focus: focusExhibit, exitFocus };
 
   dom.stage.classList.add("ready");
   dom.loader.classList.add("done");
@@ -235,6 +242,8 @@ function buildExhibits() {
       focusHeight: object.userData.focusHeight ?? 0.6,
       focusRadius: object.userData.focusRadius ?? 1.1,
       spin: object.userData.spin || [],
+      shadow,
+      sway: object.userData.faceForward ? 0.07 : 0.2,
       idlePhase: Math.random() * Math.PI * 2
     };
   });
@@ -258,23 +267,49 @@ function railToX(t) {
   return THREE.MathUtils.lerp(layout.positions[low], layout.positions[high], fraction);
 }
 
-function focusDistance(exhibit) {
+/* Framing an inspected exhibit.
+
+   The record sheet covers part of the viewport — a column down the right of a
+   desktop, the lower half of a phone — so the exhibit is both fitted into the
+   space that is left and aimed at the middle of it, rather than at the middle
+   of the screen. Everything is worked out in metres at the viewing distance,
+   so it holds at any zoom, aspect ratio or sheet size. */
+function focusFraming(exhibit) {
   const vertical = THREE.MathUtils.degToRad(camera.fov);
   const horizontal = 2 * Math.atan(Math.tan(vertical / 2) * camera.aspect);
   const radius = exhibit.focusRadius;
-  const fit = Math.max(radius / Math.tan(vertical / 2), radius / Math.tan(horizontal / 2));
-  return fit * 1.18 * state.focusZoom;
+
+  const narrow = innerWidth <= 860;
+  const sheetShare = narrow
+    ? Math.min(0.56, (dom.sheet.offsetHeight || innerHeight * 0.5) / innerHeight)
+    : Math.min(0.5, ((dom.sheet.offsetWidth || 372) + 32) / innerWidth);
+
+  // Give the object the clear part of the frame, then push back far enough that
+  // it fits inside that part rather than inside the whole viewport.
+  const clear = Math.max(0.35, 1 - sheetShare);
+  const fitHeight = radius / Math.tan(vertical / 2) / (narrow ? clear : 1);
+  const fitWidth = radius / Math.tan(horizontal / 2) / (narrow ? 1 : clear);
+  const distance = Math.max(fitHeight, fitWidth) * 1.24 * state.focusZoom;
+
+  const visibleHeight = 2 * distance * Math.tan(vertical / 2);
+  const visibleWidth = visibleHeight * camera.aspect;
+
+  return {
+    distance,
+    // Move the camera the other way from the panel, so the exhibit lands in the
+    // clear half.
+    offsetX: narrow ? 0 : sheetShare * visibleWidth * 0.5,
+    offsetY: narrow ? -sheetShare * visibleHeight * 0.5 : 0
+  };
 }
 
 function updateCameraTarget(dt) {
   if (state.mode === "focus" && exhibits[state.focusIndex]) {
     const exhibit = exhibits[state.focusIndex];
-    const centerY = exhibit.riser.position.y + exhibit.focusHeight + state.lift;
-    // On a phone the record sheet owns the bottom of the screen, so aim a
-    // little low and let the object ride high in the frame.
-    const bias = quality.mobile ? exhibit.focusRadius * 0.42 : 0;
-    camTarget.position.set(exhibit.x, centerY + 0.18, LAYOUT.itemZ + focusDistance(exhibit));
-    camTarget.look.set(exhibit.x, centerY - bias, LAYOUT.itemZ);
+    const centerY = exhibit.pedestal.userData.topY + state.lift + exhibit.focusHeight;
+    const { distance, offsetX, offsetY } = focusFraming(exhibit);
+    camTarget.position.set(exhibit.x + offsetX, centerY + 0.16 - offsetY, LAYOUT.itemZ + distance);
+    camTarget.look.set(exhibit.x + offsetX, centerY + offsetY, LAYOUT.itemZ);
   } else {
     const x = railToX(state.rail);
     // The camera leans into a flick, which reads as momentum without moving
@@ -328,6 +363,15 @@ function tick(now) {
 
   const active = exhibits[state.mode === "focus" ? state.focusIndex : current];
   if (active) lights.update(active.x, active.item.accent);
+
+  // The fill rides just off the camera's shoulder, so it lights whatever face
+  // the viewer has turned toward themselves.
+  focusFill.intensity = damp(focusFill.intensity, state.mode === "focus" ? 72 : 0, 4, dt);
+  focusFill.position.set(
+    camera.position.x - 0.9,
+    camera.position.y + 0.5,
+    camera.position.z - 0.4
+  );
   dust.update(dt, camera.position.x);
 
   renderer.render(scene, camera);
@@ -357,20 +401,24 @@ function updateExhibits(dt, time) {
     } else {
       // Idle: a slow quarter-turn sway, so the room is never still but nothing
       // ever spins away from you.
-      const sway = Math.sin(time * 0.32 + exhibit.idlePhase) * 0.22;
+      const sway = quality.calm ? 0 : Math.sin(time * 0.32 + exhibit.idlePhase) * exhibit.sway;
       exhibit.spinner.rotation.y = damp(exhibit.spinner.rotation.y, sway, 2.2, dt);
       exhibit.pivot.rotation.x = damp(exhibit.pivot.rotation.x, 0, 4, dt);
       exhibit.riser.position.y = damp(exhibit.riser.position.y, exhibit.pedestal.userData.topY, 4, dt);
     }
 
+    const lifted = focused ? state.lift : 0;
+    exhibit.shadow.material.opacity = 0.6 - lifted * 0.5;
+    exhibit.shadow.scale.setScalar(1 + lifted * 0.5);
+
     exhibit.spin.forEach(({ node, speed }) => {
-      node.rotation.y += speed * dt * (focused ? 0.35 : 1);
+      if (!quality.calm) node.rotation.y += speed * dt * (focused ? 0.35 : 1);
     });
 
     exhibit.glints.forEach((sprite, i) => {
       sprite.visible = near;
       if (!near) return;
-      const pulse = 0.5 + 0.5 * Math.sin(time * (1.1 + i * 0.37) + exhibit.idlePhase * 3);
+      const pulse = quality.calm ? 0.7 : 0.5 + 0.5 * Math.sin(time * (1.1 + i * 0.37) + exhibit.idlePhase * 3);
       const proximity = clamp(1 - distance / 4.5, 0, 1);
       sprite.material.opacity = pulse * proximity * (focused ? 0.95 : 0.55);
       sprite.scale.setScalar(0.22 + pulse * 0.2);
@@ -436,7 +484,14 @@ function onCurrentChanged(index) {
   dom.counter.textContent = `${item.itemIndex + 1} / ${hall.wings[item.wingIndex].count}`;
 
   dom.wings.querySelectorAll(".wing").forEach((button) => {
-    button.classList.toggle("active", button.dataset.wing === item.wing);
+    const active = button.dataset.wing === item.wing;
+    button.classList.toggle("active", active);
+    // On a phone the pill row scrolls; walking into a wing should bring its
+    // pill into view rather than leaving the highlight off-screen.
+    if (active && button.dataset.wing !== dom.wings.dataset.shown) {
+      dom.wings.dataset.shown = button.dataset.wing;
+      button.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
   });
   dom.progress.querySelectorAll(".progress-wing").forEach((bar) => {
     bar.classList.toggle("active", bar.dataset.wing === item.wing);
@@ -560,8 +615,11 @@ function bindInput() {
   let zoomStart = 1;
   let lastX = 0;
   let lastTime = 0;
+  let pinching = false;
 
-  const unitsPerPixel = () => (LAYOUT.spacing * 1.35) / Math.max(320, innerWidth) * 2.6;
+  // Dragging the full width of the screen walks about four pedestals, on a
+  // phone and on a desktop alike.
+  const unitsPerPixel = () => 4.2 / Math.max(360, innerWidth);
 
   canvas.addEventListener("pointerdown", (event) => {
     if (state.mode === "intro") return;
@@ -572,9 +630,13 @@ function bindInput() {
       const [a, b] = [...active.values()];
       pinchStart = Math.hypot(a.x - b.x, a.y - b.y);
       zoomStart = state.focusZoom;
+      // A pinch is not a drag, and must not land as a tap when the fingers lift.
+      pinching = true;
+      state.dragging = false;
       return;
     }
 
+    if (active.size === 1) pinching = false;
     state.dragging = true;
     state.pointerMoved = 0;
     startRail = state.rail;
@@ -623,6 +685,11 @@ function bindInput() {
     if (!active.has(event.pointerId)) return;
     active.delete(event.pointerId);
     if (active.size > 0) return;
+    if (pinching) {
+      pinching = false;
+      pinchStart = 0;
+      return;
+    }
     if (!state.dragging) return;
     state.dragging = false;
 

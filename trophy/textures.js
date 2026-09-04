@@ -463,11 +463,12 @@ export function environmentTexture(renderer) {
   const { element, ctx } = canvas(width, height);
 
   const sky = ctx.createLinearGradient(0, 0, 0, height);
-  sky.addColorStop(0, "#7d6a4a");
-  sky.addColorStop(0.34, "#2b3348");
-  sky.addColorStop(0.52, "#131c2b");
-  sky.addColorStop(0.75, "#0a121d");
-  sky.addColorStop(1, "#05080e");
+  sky.addColorStop(0, "#c2a878");
+  sky.addColorStop(0.3, "#5c6478");
+  sky.addColorStop(0.48, "#2c3a4f");
+  sky.addColorStop(0.62, "#1a2433");
+  sky.addColorStop(0.8, "#0d141f");
+  sky.addColorStop(1, "#070b12");
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width, height);
 

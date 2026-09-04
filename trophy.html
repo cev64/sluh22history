@@ -449,14 +449,21 @@
     #sheetClose:hover { transform: rotate(90deg); border-color: color-mix(in srgb, var(--accent) 55%, var(--edge)); }
     @media (max-width: 860px) { #sheetClose { top: 22px; } }
 
+    /* A column, not a grid: `overflow: hidden` on the stats block makes it a
+       scroll container, which zeroes its automatic minimum size — inside a grid
+       it was being squashed to one row and clipping the rest. Flex children
+       that refuse to shrink keep their full height and let the body scroll. */
     .sheet-body {
       flex: 1 1 auto;
+      min-height: 0;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       padding: 16px 22px 20px;
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 16px;
     }
+    .sheet-body > * { flex: 0 0 auto; }
 
     #sheetBlurb {
       margin: 0;
@@ -627,6 +634,10 @@
     @media (prefers-reduced-motion: reduce) {
       .grain, .crest, .loading-dots i { animation: none; }
       * { transition-duration: .01ms !important; }
+    }
+
+    @media (max-width: 560px) {
+      #summary, .meta-row .dot { display: none; }
     }
 
     /* Landscape phones have no room for a nameplate stack; trim it to one line. */

@@ -30,7 +30,7 @@ export function initMaterials({ envMap, quality }) {
   walnut.wrapS = walnut.wrapT = THREE.RepeatWrapping;
 
   const metal = (color, roughness, extra = {}) =>
-    new THREE.MeshStandardMaterial({ color, metalness: 1, roughness, envMap, envMapIntensity: 1.5, ...extra });
+    new THREE.MeshStandardMaterial({ color, metalness: 1, roughness, envMap, envMapIntensity: 2.3, ...extra });
 
   shared = {
     envMap,
@@ -66,20 +66,23 @@ export function materials() {
   return shared;
 }
 
-/* A tinted metal in a team's colour, cached so ten pillars sharing a palette
-   share a material. */
+/* A team's colour in metal, cached so ten exhibits sharing a palette share a
+   material. `metalness` is the dial that matters: at 0.95 the colour only tints
+   reflections, which is right for a thin accent ring but turns a broad face
+   into a white mirror. Large surfaces ask for painted metal instead — enough
+   metalness to catch the room, enough diffuse to stay the team's colour. */
 const teamMetalCache = new Map();
-export function teamMetal(color, { roughness = 0.26, emissive = 0.14 } = {}) {
-  const key = `${color}:${roughness}:${emissive}`;
+export function teamMetal(color, { roughness = 0.26, emissive = 0.14, metalness = 0.95, lighten = 0.1 } = {}) {
+  const key = `${color}:${roughness}:${emissive}:${metalness}:${lighten}`;
   if (!teamMetalCache.has(key)) {
     teamMetalCache.set(key, new THREE.MeshStandardMaterial({
-      color: new THREE.Color(mix(color, "#ffffff", 0.25)),
-      metalness: 0.95,
+      color: new THREE.Color(mix(color, "#ffffff", lighten)),
+      metalness,
       roughness,
       emissive: new THREE.Color(color),
       emissiveIntensity: emissive,
       envMap: shared.envMap,
-      envMapIntensity: 1.4
+      envMapIntensity: metalness > 0.8 ? 1.4 : 0.9
     }));
   }
   return teamMetalCache.get(key);
@@ -91,10 +94,10 @@ function crestMaterial(item, label) {
   if (!crestCache.has(key)) {
     crestCache.set(key, new THREE.MeshStandardMaterial({
       map: crestTexture({ icon: item.icon, color: item.color, label }),
-      metalness: 0.2,
-      roughness: 0.4,
+      metalness: 0.15,
+      roughness: 0.52,
       envMap: shared.envMap,
-      envMapIntensity: 1.1
+      envMapIntensity: 0.75
     }));
   }
   return crestCache.get(key);
@@ -292,7 +295,7 @@ export function buildCup(item) {
 
   // Loop handles standing in the plane of the front face, gap turned inward.
   const handles = new THREE.Group();
-  const handleGeometry = new THREE.TorusGeometry(0.125, 0.021, 10, 40, Math.PI * 1.34);
+  const handleGeometry = new THREE.TorusGeometry(0.128, 0.027, 12, 40, Math.PI * 1.4);
   const right = new THREE.Mesh(handleGeometry, shared.gold);
   right.position.set(0.288, 0.900, 0);
   right.rotation.z = -2.1;
@@ -398,7 +401,9 @@ export function buildShield(item) {
   rim.position.set(0, 1.02, -0.02);
   rim.castShadow = true;
 
-  const face = extrudedShield(1.0, 0.12, teamMetal(item.color, { roughness: 0.3, emissive: 0.12 }));
+  const face = extrudedShield(1.0, 0.12, teamMetal(item.color, {
+    roughness: 0.34, emissive: 0.1, metalness: 0.45, lighten: 0.04
+  }));
   face.position.set(0, 1.02, 0.03);
 
   const crest = crestDisc(item, { radius: 0.29, thickness: 0.05 });
@@ -470,21 +475,23 @@ export function buildPlaque(item) {
       envMapIntensity: 1.15
     })
   );
-  face.position.set(0, -0.16, 0.048);
+  // The trim is a shallow tray the face plate sits inside; the plate has to
+  // clear its front bevel or the board reads as one blank sheet of brass.
+  face.position.set(0, -0.16, 0.062);
 
-  const trim = new THREE.Mesh(roundedBox(0.9, 0.685, 0.012, 0.02), shared.brass);
-  trim.position.set(0, -0.16, 0.043);
+  const trim = new THREE.Mesh(roundedBox(0.9, 0.685, 0.02, 0.02), shared.brass);
+  trim.position.set(0, -0.16, 0.046);
 
   const studs = new THREE.Group();
   for (const [x, y] of [[-0.45, 0.575], [0.45, 0.575], [-0.45, -0.575], [0.45, -0.575]]) {
     const stud = new THREE.Mesh(new THREE.SphereGeometry(0.028, 18, 14), shared.brass);
-    stud.position.set(x, y, 0.05);
+    stud.position.set(x, y, 0.055);
     stud.scale.z = 0.6;
     studs.add(stud);
   }
 
   const crest = crestDisc(item, { radius: 0.165, thickness: 0.05 });
-  crest.position.set(0, 0.42, 0.055);
+  crest.position.set(0, 0.42, 0.062);
 
   board.add(backing, trim, face, studs, crest);
   board.position.y = 0.82;
@@ -504,67 +511,64 @@ export function buildPlaque(item) {
   return group;
 }
 
-/* The cellar prize. A trophy would be too kind. */
+/* The cellar prize. A trophy would be too kind.
+
+   Modelled facing +Z like everything else: the bowl opens toward the viewer,
+   the tank sits behind it on a shelf, and the lid is propped up the way it
+   always is in the photograph somebody posts in the group chat. The crest goes
+   on the front of the pedestal, the only face of a toilet you can actually
+   see from the aisle. */
 export function buildToilet(item) {
   const group = new THREE.Group();
 
   const bowl = new THREE.Mesh(lathe([
-    [0.00, 0.000], [0.215, 0.000], [0.220, 0.030], [0.150, 0.075],
-    [0.120, 0.180], [0.140, 0.290], [0.190, 0.370], [0.245, 0.420],
-    [0.268, 0.455], [0.262, 0.480], [0.225, 0.478], [0.205, 0.440],
-    [0.150, 0.390], [0.120, 0.330], [0.000, 0.320]
+    [0.000, 0.000], [0.215, 0.000], [0.222, 0.034], [0.155, 0.080],
+    [0.122, 0.190], [0.142, 0.300], [0.196, 0.382], [0.252, 0.432],
+    [0.274, 0.466], [0.268, 0.492], [0.228, 0.488], [0.208, 0.450],
+    [0.152, 0.398], [0.122, 0.336], [0.000, 0.326]
   ], 48), shared.porcelain);
   bowl.castShadow = true;
-  bowl.scale.set(1.12, 1, 1);
+  bowl.scale.set(1.14, 1, 1.02);
 
-  const seat = new THREE.Mesh(new THREE.TorusGeometry(0.225, 0.036, 12, 48), shared.porcelain);
+  const seat = new THREE.Mesh(new THREE.TorusGeometry(0.228, 0.034, 12, 44), shared.porcelain);
   seat.rotation.x = Math.PI / 2;
-  seat.scale.set(1.14, 1, 1);
-  seat.position.y = 0.5;
+  seat.scale.set(1.16, 1, 1);
+  seat.position.y = 0.512;
 
-  const lid = new THREE.Mesh(roundedBox(0.52, 0.05, 0.46, 0.12), shared.porcelain);
-  lid.position.set(0, 0.545, -0.36);
-  lid.rotation.x = -1.16;
-
-  const tank = new THREE.Mesh(roundedBox(0.52, 0.52, 0.26, 0.05), shared.porcelain);
-  tank.position.set(0, 0.48, -0.30);
+  // The shelf the cistern stands on, and the cistern itself.
+  const shelf = new THREE.Mesh(roundedBox(0.5, 0.34, 0.34, 0.05), shared.porcelain);
+  shelf.position.set(0, 0.17, -0.34);
+  const tank = new THREE.Mesh(roundedBox(0.52, 0.46, 0.26, 0.045), shared.porcelain);
+  tank.position.set(0, 0.57, -0.34);
   tank.castShadow = true;
-  const tankLid = new THREE.Mesh(roundedBox(0.58, 0.06, 0.32, 0.03), shared.porcelain);
-  tankLid.position.set(0, 0.755, -0.30);
+  const tankLid = new THREE.Mesh(roundedBox(0.58, 0.055, 0.32, 0.025), shared.porcelain);
+  tankLid.position.set(0, 0.825, -0.34);
 
-  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.09, 12), shared.tarnish);
+  // Lid propped against the cistern.
+  const lid = new THREE.Mesh(roundedBox(0.48, 0.045, 0.44, 0.13), shared.porcelain);
+  lid.position.set(0, 0.70, -0.16);
+  lid.rotation.x = 1.28;
+
+  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.017, 0.085, 12), shared.tarnish);
   handle.rotation.z = Math.PI / 2;
-  handle.position.set(0.20, 0.66, -0.175);
+  handle.position.set(0.21, 0.74, -0.24);
 
-  // Tarnished laurel on the tank, in place of the gold the winner gets.
-  const wreath = new THREE.Mesh(new THREE.TorusGeometry(0.115, 0.014, 8, 40), shared.tarnish);
-  wreath.position.set(0, 0.50, -0.164);
+  // Tarnished laurel and the team crest, mounted where the plaque would go on
+  // a trophy nobody wanted to win.
+  const wreath = new THREE.Mesh(new THREE.TorusGeometry(0.128, 0.014, 8, 36), shared.tarnish);
+  wreath.position.set(0, 0.175, 0.168);
+  const crest = crestDisc(item, { radius: 0.112, thickness: 0.04 });
+  crest.position.set(0, 0.175, 0.178);
 
-  const crest = crestDisc(item, { radius: 0.145, thickness: 0.05 });
-  crest.position.set(0, 0.50, -0.155);
-  crest.rotation.y = Math.PI;
-  crest.scale.setScalar(0.98);
-
-  const plaque = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.38, 0.1),
-    new THREE.MeshStandardMaterial({
-      map: nameplateTexture({ title: item.plate, sub: null, accent: item.accent }),
-      metalness: 0.28,
-      roughness: 0.36,
-      envMap: shared.envMap
-    })
-  );
-  plaque.position.set(0, 0.19, 0.245);
-  plaque.rotation.x = -0.1;
-
-  group.add(bowl, seat, lid, tank, tankLid, handle, wreath, crest, plaque);
-  // Modelled facing away; turned around once here so the tank plaque and the
-  // crest meet the viewer.
-  group.rotation.y = Math.PI;
-  group.userData.focusHeight = 0.42;
-  group.userData.focusRadius = 1.0;
+  group.add(bowl, seat, shelf, tank, tankLid, lid, handle, wreath, crest);
+  group.scale.setScalar(1.16);
+  group.userData.focusHeight = 0.48;
+  group.userData.focusRadius = 0.76;
   group.userData.spin = [];
-  group.userData.glints = [new THREE.Vector3(0, 0.5, -0.2)];
+  group.userData.glints = [
+    new THREE.Vector3(0.2, 0.5, 0.16),
+    new THREE.Vector3(0, 0.83, -0.3)
+  ];
   return group;
 }
 

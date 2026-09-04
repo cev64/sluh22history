@@ -243,7 +243,7 @@ export function buildRoom(scene, hall, layout) {
 
     // Brass lettering set into the floor where the wing begins.
     const inlay = new THREE.Mesh(
-      new THREE.PlaneGeometry(3.4, 3.4),
+      new THREE.PlaneGeometry(3.0, 3.0),
       new THREE.MeshBasicMaterial({
         map: floorInlayTexture({ name: wing.name, accent: wing.accent }),
         transparent: true,
@@ -252,7 +252,7 @@ export function buildRoom(scene, hall, layout) {
       })
     );
     inlay.rotation.x = -Math.PI / 2;
-    inlay.position.set(wing.centerX, 0.012, LAYOUT.itemZ + 2.6);
+    inlay.position.set(wing.centerX, 0.012, LAYOUT.itemZ + 2.0);
     room.add(inlay);
 
     // An arch marking the threshold into every wing after the first.
