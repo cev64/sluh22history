@@ -270,7 +270,7 @@ function buildExhibits() {
 
 // A pillar is most of a plinth already, and a plaque has to land at reading
 // height; the plinth under each exhibit is cut to suit what stands on it.
-const PLINTH_HEIGHT = { cup: 1.12, pillar: 0.86, plaque: 0.92, toilet: 0.84 };
+const PLINTH_HEIGHT = { cup: 0.72, pillar: 0.86, plaque: 0.92, toilet: 0.84 };
 
 function buildPedestalFor(item) {
   return buildPedestal(item, { height: PLINTH_HEIGHT[item.kind] ?? LAYOUT.pedestalHeight });
@@ -357,8 +357,8 @@ function updateCameraTarget(dt) {
     // the exhibits themselves.
     const lean = clamp(state.velocity * 0.14, -0.7, 0.7);
     const ease = state.intro * state.intro;
-    camTarget.position.set(x + lean * 0.55, 2.34 + ease * 2.2, LAYOUT.itemZ + 7.2 + ease * 6.6);
-    camTarget.look.set(x + lean * 1.6, 1.62 + ease * 0.25, LAYOUT.itemZ);
+    camTarget.position.set(x + lean * 0.55, 2.52 + ease * 2.2, LAYOUT.itemZ + 6.7 + ease * 6.6);
+    camTarget.look.set(x + lean * 1.6, 1.80 + ease * 0.25, LAYOUT.itemZ);
   }
 
   const speed = state.mode === "focus" ? 5.4 : 4.2;

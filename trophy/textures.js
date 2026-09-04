@@ -345,6 +345,118 @@ export function recordFaceTexture({ value, label, holder, meta, accent, metal = 
   return finish(element);
 }
 
+/* The two printed inserts on the league trophy itself.
+
+   The real trophy ships with sample artwork in both — a placeholder design on
+   the plaque between its columns and a "custom text" strip across the base.
+   These fill them in: the champion's crest on the plaque, the year on the base. */
+export function teamPlaqueTexture({ icon, color, label }) {
+  const width = 512;
+  const height = 720;
+  const { element, ctx } = canvas(width, height);
+
+  const ground = ctx.createLinearGradient(0, 0, 0, height);
+  ground.addColorStop(0, "#16233a");
+  ground.addColorStop(0.5, mix(color, "#101a2c", 0.35));
+  ground.addColorStop(1, "#111c30");
+  ctx.fillStyle = ground;
+  ctx.fillRect(0, 0, width, height);
+
+  // A wash of the team's colour behind the crest, so the insert reads as
+  // theirs from across the hall before the emoji is legible.
+  const halo = ctx.createRadialGradient(width / 2, height * 0.42, 10, width / 2, height * 0.42, width * 0.62);
+  halo.addColorStop(0, mix(color, "#ffffff", 0.3));
+  halo.addColorStop(0.45, color);
+  halo.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = halo;
+  ctx.fillRect(0, 0, width, height);
+  ctx.globalAlpha = 1;
+
+  ctx.strokeStyle = mix(color, "#ffffff", 0.55);
+  ctx.lineWidth = 6;
+  ctx.strokeRect(18, 18, width - 36, height - 36);
+  ctx.globalAlpha = 0.5;
+  ctx.strokeStyle = "rgba(255,255,255,.5)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(32, 32, width - 64, height - 64);
+  ctx.globalAlpha = 1;
+
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `${width * 0.56}px ${EMOJI_FONT}`;
+  ctx.shadowColor = "rgba(0,0,0,.55)";
+  ctx.shadowBlur = width * 0.05;
+  ctx.shadowOffsetY = width * 0.014;
+  ctx.fillText(icon || "🏈", width / 2, height * 0.41);
+  ctx.restore();
+
+  if (label) {
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const size = fitText(ctx, label.toUpperCase(), width * 0.82, 58, 700);
+    ctx.font = `700 ${size}px ${DISPLAY_FONT}`;
+    ctx.letterSpacing = "3px";
+    ctx.fillStyle = "rgba(0,0,0,.5)";
+    ctx.fillText(label.toUpperCase(), width / 2, height * 0.755 + 3);
+    ctx.fillStyle = "rgba(255,250,240,.97)";
+    ctx.fillText(label.toUpperCase(), width / 2, height * 0.755);
+    ctx.restore();
+  }
+
+  return finish(element);
+}
+
+export function yearPlateTexture({ year, color }) {
+  const width = 1024;
+  const height = 460;
+  const { element, ctx } = canvas(width, height);
+
+  const ground = ctx.createLinearGradient(0, 0, 0, height);
+  ground.addColorStop(0, "#0b1421");
+  ground.addColorStop(0.5, "#060c15");
+  ground.addColorStop(1, "#0a1220");
+  ctx.fillStyle = ground;
+  ctx.fillRect(0, 0, width, height);
+
+  const wash = ctx.createRadialGradient(width / 2, height / 2, 10, width / 2, height / 2, width * 0.55);
+  wash.addColorStop(0, color);
+  wash.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.globalAlpha = 0.34;
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, 0, width, height);
+  ctx.globalAlpha = 1;
+
+  ctx.strokeStyle = mix(color, "#ffffff", 0.5);
+  ctx.lineWidth = 7;
+  ctx.strokeRect(20, 20, width - 40, height - 40);
+  ctx.globalAlpha = 0.45;
+  ctx.strokeStyle = "rgba(255,255,255,.6)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(36, 36, width - 72, height - 72);
+  ctx.globalAlpha = 1;
+
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const size = fitText(ctx, String(year), width * 0.72, 250, 700);
+  ctx.font = `700 ${size}px ${DISPLAY_FONT}`;
+  ctx.letterSpacing = "16px";
+  ctx.fillStyle = "rgba(0,0,0,.6)";
+  ctx.fillText(String(year), width / 2 + 4, height / 2 + 5);
+  const ink = ctx.createLinearGradient(0, height * 0.28, 0, height * 0.72);
+  ink.addColorStop(0, "#ffffff");
+  ink.addColorStop(0.5, mix(color, "#ffffff", 0.75));
+  ink.addColorStop(1, mix(color, "#ffffff", 0.35));
+  ctx.fillStyle = ink;
+  ctx.fillText(String(year), width / 2, height / 2);
+  ctx.restore();
+
+  return finish(element);
+}
+
 /* The hanging banner that names a wing. Cloth, not metal. */
 export function bannerTexture({ name, kicker, accent }) {
   const width = 1024;
