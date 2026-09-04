@@ -50,6 +50,12 @@ const SIZE = {
 
 const WALL_Z = -0.55;
 
+/* The top of the room's wainscot rail, and the line the wall's contents stop
+   at. Rows stack downward, so a manager with all four of them reaches furthest
+   down — far enough that the brass rail cut through the bottom row of plaques. */
+const TRIM_TOP = 0.39;
+const WALL_FLOOR = TRIM_TOP + 0.24;
+
 const ordinal = (n) => {
   const suffix = { 1: "st", 2: "nd", 3: "rd" }[n] || "th";
   return `${n}${suffix}`;
@@ -95,6 +101,7 @@ export function buildLockerRoom(scene) {
     })
   );
   back.position.set(0, 3.5, WALL_Z - 0.1);
+  back.userData.part = "panel";
   room.add(back);
 
   // A wainscot and a rail, so the wall has a floor line to sit on.
@@ -109,8 +116,10 @@ export function buildLockerRoom(scene) {
     })
   );
   wainscot.position.set(0, 0.17, WALL_Z + 0.06);
+  wainscot.userData.part = "wainscot";
   const rail = new THREE.Mesh(new THREE.BoxGeometry(13, 0.06, 0.3), mat.brass);
   rail.position.set(0, 0.36, WALL_Z + 0.1);
+  rail.userData.part = "rail";
   room.add(wainscot, rail);
 
   const floorTexture = mat.textures.darkMarble.clone();
@@ -414,6 +423,15 @@ export function buildLockerWall(room, locker) {
     });
   }
 
+  /* Nothing on the wall may come down into the wainscot. Lift the whole
+     composition to the floor line rather than moving the trim, which is what
+     gives the room its floor to stand on. */
+  wall.updateMatrixWorld(true);
+  const reach = new THREE.Box3();
+  items.forEach((holder) => reach.expandByObject(holder));
+  const floorLift = Math.max(0, WALL_FLOOR - reach.min.y);
+  wall.position.y = floorLift;
+
   // A pool of the team's colour on the floor in front of the wall.
   const pool = new THREE.Mesh(
     new THREE.PlaneGeometry(7, 3.4),
@@ -423,7 +441,7 @@ export function buildLockerWall(room, locker) {
     })
   );
   pool.rotation.x = -Math.PI / 2;
-  pool.position.set(0, 0.02, WALL_Z + 1.6);
+  pool.position.set(0, 0.02 - floorLift, WALL_Z + 1.6);
   wall.add(track(pool));
 
   room.add(wall);
