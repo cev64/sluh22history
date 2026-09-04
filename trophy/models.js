@@ -82,7 +82,7 @@ export function teamMetal(color, { roughness = 0.26, emissive = 0.14, metalness 
       emissive: new THREE.Color(color),
       emissiveIntensity: emissive,
       envMap: shared.envMap,
-      envMapIntensity: metalness > 0.8 ? 1.4 : 0.9
+      envMapIntensity: metalness > 0.8 ? 1.4 : 0.5
     }));
   }
   return teamMetalCache.get(key);
@@ -401,8 +401,12 @@ export function buildShield(item) {
   rim.position.set(0, 1.02, -0.02);
   rim.castShadow = true;
 
+  // A shield is a broad flat face pointed straight at both the key light and
+  // the viewer's fill, which is the worst case for a bright material: it was
+  // clipping to cream. It takes the manager's colour raw, with no lightening,
+  // no emissive lift, and only a trace of the room in it.
   const face = extrudedShield(1.0, 0.12, teamMetal(item.color, {
-    roughness: 0.34, emissive: 0.1, metalness: 0.45, lighten: 0.04
+    roughness: 0.46, emissive: 0, metalness: 0.3, lighten: 0
   }));
   face.position.set(0, 1.02, 0.03);
 

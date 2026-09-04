@@ -120,8 +120,8 @@ async function boot() {
   scene.environmentIntensity = 2.4;
   initMaterials({ envMap, quality });
 
-  scene.add(new THREE.HemisphereLight(0x9fbdff, 0x2a1a10, 1.15));
-  scene.add(new THREE.AmbientLight(0x4a5f80, 0.55));
+  scene.add(new THREE.HemisphereLight(0x9fbdff, 0x2a1a10, 1.5));
+  scene.add(new THREE.AmbientLight(0x4a5f80, 0.75));
 
   buildRoom(scene, hall, layout);
   buildExhibits();
@@ -139,8 +139,14 @@ async function boot() {
   addEventListener("resize", onResize);
   onResize();
 
-  // Handy from the console when tuning the room; nothing in the page reads it.
-  window.__hall = { scene, camera, renderer, exhibits, state, hall, layout, goTo, focus: focusExhibit, exitFocus };
+  /* A console handle for tuning the room and for driving it from a headless
+     browser. Nothing in the page reads it. `camTarget`/`lookAt` are the poses
+     the camera is easing toward — useful because at a low frame rate the
+     camera can be a long way behind them. */
+  window.__hall = {
+    scene, camera, renderer, exhibits, state, hall, layout,
+    camTarget, lookAt, goTo, focus: focusExhibit, exitFocus
+  };
 
   dom.stage.classList.add("ready");
   dom.loader.classList.add("done");
@@ -365,8 +371,10 @@ function tick(now) {
   if (active) lights.update(active.x, active.item.accent);
 
   // The fill rides just off the camera's shoulder, so it lights whatever face
-  // the viewer has turned toward themselves.
-  focusFill.intensity = damp(focusFill.intensity, state.mode === "focus" ? 72 : 0, 4, dt);
+  // the viewer has turned toward themselves. Gold can take a lot of it; the
+  // painted shields and engraved plates clip long before it does, so this is
+  // set by what the diffuse surfaces will take.
+  focusFill.intensity = damp(focusFill.intensity, state.mode === "focus" ? 20 : 0, 4, dt);
   focusFill.position.set(
     camera.position.x - 0.9,
     camera.position.y + 0.5,

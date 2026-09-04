@@ -203,7 +203,7 @@ export function crestTexture({ icon, color, label, size = 512 }) {
   ctx.clearRect(0, 0, size, size);
 
   const field = ctx.createRadialGradient(half, half * 0.75, size * 0.05, half, half, half);
-  field.addColorStop(0, mix(color, "#ffffff", 0.45));
+  field.addColorStop(0, mix(color, "#ffffff", 0.14));
   field.addColorStop(0.55, color);
   field.addColorStop(1, mix(color, "#000000", 0.55));
   ctx.beginPath();
@@ -228,7 +228,7 @@ export function crestTexture({ icon, color, label, size = 512 }) {
 
   ctx.beginPath();
   ctx.arc(half, half, half * 0.9, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(255,236,190,.85)";
+  ctx.strokeStyle = "rgba(236,206,150,.75)";
   ctx.lineWidth = size * 0.035;
   ctx.stroke();
 

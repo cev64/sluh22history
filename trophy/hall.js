@@ -387,10 +387,13 @@ export function buildDust(scene, count = 420) {
    them and a wash on each neighbour. Lighting the whole hall at once would
    cost thirty lights and look flat anyway. */
 export function buildTravellingLights(scene, quality) {
-  // Intensities are in candela: a spot falls off as intensity / distance^decay,
-  // so the numbers have to be in the hundreds to light a pedestal four metres
-  // below the ceiling.
-  const key = new THREE.SpotLight(0xffe3b8, 320, 22, 0.62, 0.45, 1.5);
+  // Intensities are in candela: a spot falls off as intensity / distance^decay.
+  // The ceiling is four metres above a plinth, so these run high — but not as
+  // high as they want to be. Gold is specular and swallows a lot of light
+  // before it looks lit; the painted shields and engraved plates beside it are
+  // diffuse and clip long before that. The key is set by what the flat
+  // surfaces will take, and the ambient below carries the rest.
+  const key = new THREE.SpotLight(0xffe3b8, 150, 22, 0.62, 0.45, 1.5);
   key.position.set(0, 5.3, LAYOUT.itemZ + 1.9);
   key.target.position.set(0, 1.3, LAYOUT.itemZ);
   if (quality.shadows) {
@@ -404,7 +407,7 @@ export function buildTravellingLights(scene, quality) {
   scene.add(key, key.target);
 
   const wings = [-1, 1].map((side) => {
-    const light = new THREE.SpotLight(0xbcd2ff, 130, 20, 0.7, 0.65, 1.6);
+    const light = new THREE.SpotLight(0xbcd2ff, 72, 20, 0.7, 0.65, 1.6);
     light.position.set(side * LAYOUT.spacing, 5.0, LAYOUT.itemZ + 2.4);
     light.target.position.set(side * LAYOUT.spacing, 1.1, LAYOUT.itemZ);
     scene.add(light, light.target);
@@ -413,7 +416,7 @@ export function buildTravellingLights(scene, quality) {
 
   // A low warm bounce off the wall behind the exhibits, so nothing is lit from
   // one side only.
-  const rim = new THREE.PointLight(0xff9d5c, 60, 16, 2);
+  const rim = new THREE.PointLight(0xff9d5c, 42, 16, 2);
   rim.position.set(0, 1.9, LAYOUT.wallZ + 1.4);
   scene.add(rim);
 

@@ -219,7 +219,9 @@ function championExhibits(data, careers) {
       ],
       links: [
         { label: `${season.year} Season`, href: `${season.year}.html` },
-        { label: `${champ.owner}'s Profile`, href: `alltime.html#owner=${champ.ownerId}` }
+        ...(careers[champ.ownerId]
+          ? [{ label: `${champ.owner}'s Profile`, href: `alltime.html#owner=${champ.ownerId}` }]
+          : [])
       ]
     });
   });
@@ -291,6 +293,8 @@ function recordExhibits(data, careers) {
   const bestPct = top(veterans, (c) => c.pct);
   const mostPlayoffWins = top(veterans, (c) => c.playoffWins);
 
+  // Some marks are held by managers who left before this record book existed.
+  // They keep the plaque; there is just no profile page to send anyone to.
   const plaque = (id, label, value, holder, meta, blurb, ownerId, color, icon, stats = []) => ({
     id: `rec-${id}`,
     kind: "plaque",
@@ -305,7 +309,9 @@ function recordExhibits(data, careers) {
     meta,
     blurb,
     stats,
-    links: ownerId ? [{ label: `${holder} · Profile`, href: `alltime.html#owner=${ownerId}` }] : []
+    links: careers[ownerId]
+      ? [{ label: `${holder} · Profile`, href: `alltime.html#owner=${ownerId}` }]
+      : []
   });
 
   return [
