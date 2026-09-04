@@ -182,20 +182,65 @@ export function buildLockerWall(room, locker) {
 
   /* Hangs one piece on the wall. The holder sits where the piece goes; the
      spinner inside it is pivoted on the piece's own centre, so inspecting a
-     trophy turns it in place instead of swinging it around its foot. */
-  const mount = (object, x, y, z, meta) => {
+     trophy turns it in place instead of swinging it around its foot.
+
+     Turning a piece sweeps a sphere around that centre, and a wall has two
+     surfaces close enough to be caught by it: the panelling behind, and the
+     shelf underneath anything standing on one. So each piece works out how far
+     it must come forward and lift to turn freely — and where coming forward
+     far enough would fly it at the viewer, as it would for a banner three
+     metres wide, how far it may turn instead. */
+  const CLEAR = 0.06;
+  const MAX_PUSH = 0.45;
+  const wallFace = WALL_Z - 0.1;
+
+  const mount = (object, x, y, z, meta, { standsOn = null } = {}) => {
     object.updateMatrixWorld(true);
-    const localCentre = new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3());
+    const bounds = new THREE.Box3().setFromObject(object);
+    const localCentre = bounds.getCenter(new THREE.Vector3());
+    const half = bounds.getSize(new THREE.Vector3()).multiplyScalar(0.5);
+
     const spinner = new THREE.Group();
     spinner.position.copy(localCentre);
     object.position.sub(localCentre);
     spinner.add(object);
 
+    // A piece stands on its own underside, not on its origin. Several are
+    // modelled with a bevelled base that reaches below y=0, and trusting the
+    // origin sank them a couple of centimetres into the shelf.
+    const seatY = standsOn === null ? y : standsOn - bounds.min.y;
+
     const holder = new THREE.Group();
-    holder.position.set(x, y, z);
+    holder.position.set(x, seatY, z);
     holder.add(spinner);
+
+    // Where the piece turns about, and how far its corners reach from there.
+    const centreZ = z + localCentre.z;
+    const centreY = seatY + localCentre.y;
+    const sweep = half.length();
+
+    const push = Math.min(MAX_PUSH, Math.max(0, sweep - (centreZ - wallFace) + CLEAR));
+    const lift = standsOn === null
+      ? 0
+      : Math.max(0, sweep - (centreY - standsOn) + CLEAR);
+
+    // Whatever depth is left once it has come forward decides how far it turns.
+    const room = centreZ + push - wallFace - CLEAR;
+    const limit = (reachAcross, reachDeep) => {
+      const reach = Math.hypot(reachAcross, reachDeep);
+      if (reach <= room) return Infinity;
+      return Math.max(0.08, Math.asin(Math.min(1, room / reach)) - Math.atan2(reachDeep, reachAcross));
+    };
+
     holder.userData.locker = meta;
     holder.userData.spinner = spinner;
+    holder.userData.home = holder.position.clone();
+    holder.userData.present = {
+      push,
+      lift,
+      yaw: limit(half.x, half.z),
+      pitch: limit(half.y, half.z)
+    };
     wall.add(track(holder));
     items.push(holder);
     return holder;
@@ -211,6 +256,7 @@ export function buildLockerWall(room, locker) {
       })
     );
     plate.position.set(x, y, WALL_Z + 0.06);
+    plate.userData.part = `caption:${text}`;
     wall.add(track(plate));
   };
 
@@ -278,15 +324,21 @@ export function buildLockerWall(room, locker) {
     const tallest = hasTitle ? SIZE.trophy : SIZE.bowl;
     const shelfY = cursor - CAPTION_DROP - tallest;
 
-    const shelf = new THREE.Mesh(roundedBox(4.6, 0.11, 0.62, 0.03), mat.darkMarble);
-    shelf.position.set(0, shelfY - 0.055, WALL_Z + 0.32);
+    const shelfGeometry = roundedBox(4.6, 0.11, 0.62, 0.03);
+    shelfGeometry.computeBoundingBox();
+    const shelfTop = shelfGeometry.boundingBox.max.y;
+    const shelf = new THREE.Mesh(shelfGeometry, mat.darkMarble);
+    shelf.position.set(0, shelfY - shelfTop, WALL_Z + 0.32);
     const shelfEdge = new THREE.Mesh(roundedBox(4.64, 0.022, 0.66, 0.01), teamMetal(accent, { emissive: 0.5 }));
-    shelfEdge.position.set(0, shelfY - 0.115, WALL_Z + 0.32);
+    shelfEdge.position.set(0, shelfY - shelfTop - 0.062, WALL_Z + 0.32);
     for (const x of [-2.1, 0, 2.1]) {
       const bracket = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.2, 10), mat.brass);
-      bracket.position.set(x, shelfY - 0.2, WALL_Z + 0.14);
+      bracket.position.set(x, shelfY - shelfTop - 0.145, WALL_Z + 0.14);
+      bracket.userData.part = "bracket";
       wall.add(track(bracket));
     }
+    shelf.userData.part = "shelf";
+    shelfEdge.userData.part = "shelfEdge";
     wall.add(track(shelf), track(shelfEdge));
 
     const spots = spread(locker.trophies.length, {
@@ -324,7 +376,7 @@ export function buildLockerWall(room, locker) {
           { label: "Points Against", value: entry.team.pa.toFixed(2) }
         ],
         links: [{ label: `${entry.year} Season`, href: `${entry.year}.html` }]
-      });
+      }, { standsOn: shelfY });
     });
 
     cursor = shelfY - 0.16 - ROW_GAP;

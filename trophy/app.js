@@ -165,7 +165,8 @@ async function boot() {
     scene, camera, renderer, exhibits, state, hall, layout,
     camTarget, lookAt, goTo, focus: focusExhibit, exitFocus,
     openLocker, closeLocker, focusLockerItem, exitLockerFocus,
-    lockerWall: () => lockerWall
+    lockerWall: () => lockerWall,
+    lockerRoom: () => lockerRoom
   };
 
   dom.stage.classList.add("ready");
@@ -406,7 +407,9 @@ function wallFraming() {
 
 function updateCameraTarget(dt) {
   if (state.mode === "lockerFocus" && lockerWall && lockerWall.items[state.lockerIndex]) {
-    const frame = lockerWall.items[state.lockerIndex].userData.frame;
+    const holder = lockerWall.items[state.lockerIndex];
+    const frame = holder.userData.frame;
+    const present = holder.userData.present;
     const framing = focusFraming({
       focusHalfWidth: frame.halfWidth,
       focusHalfHeight: frame.halfHeight
@@ -416,8 +419,10 @@ function updateCameraTarget(dt) {
     // comes closer than arm's length.
     const distance = Math.max(framing.distance, 2.4 * state.focusZoom);
     const { offsetX, offsetY } = framing;
-    camTarget.position.set(frame.centre.x + offsetX, frame.centre.y + offsetY, frame.centre.z + distance);
-    camTarget.look.set(frame.centre.x + offsetX, frame.centre.y + offsetY, frame.centre.z);
+    const shownY = frame.centre.y + present.lift;
+    const shownZ = frame.centre.z + present.push;
+    camTarget.position.set(frame.centre.x + offsetX, shownY + offsetY, shownZ + distance);
+    camTarget.look.set(frame.centre.x + offsetX, shownY + offsetY, shownZ);
   } else if (state.mode === "locker" && lockerWall) {
     // The wall's centre is measured in world space, origin included, so it is
     // used as it comes.
@@ -569,14 +574,23 @@ function updateLocker(dt, time) {
   if (!lockerWall) return;
   lockerWall.items.forEach((holder, index) => {
     const spinner = holder.userData.spinner;
-    if (!spinner) return;
+    const home = holder.userData.home;
+    const present = holder.userData.present;
+    if (!spinner || !home || !present) return;
+
     if (state.mode === "lockerFocus" && index === state.lockerIndex) {
-      spinner.rotation.y = damp(spinner.rotation.y, state.focusYaw, 9, dt);
-      spinner.rotation.x = damp(spinner.rotation.x, state.focusPitch, 9, dt);
+      // Off the shelf and clear of the panelling before it turns, and no
+      // further round than the room it has allows.
+      spinner.rotation.y = damp(spinner.rotation.y, clamp(state.focusYaw, -present.yaw, present.yaw), 9, dt);
+      spinner.rotation.x = damp(spinner.rotation.x, clamp(state.focusPitch, -present.pitch, present.pitch), 9, dt);
+      holder.position.y = damp(holder.position.y, home.y + present.lift, 6, dt);
+      holder.position.z = damp(holder.position.z, home.z + present.push, 6, dt);
     } else {
       const sway = quality.calm ? 0 : Math.sin(time * 0.28 + index) * 0.03;
       spinner.rotation.y = damp(spinner.rotation.y, sway, 2.4, dt);
       spinner.rotation.x = damp(spinner.rotation.x, 0, 4, dt);
+      holder.position.y = damp(holder.position.y, home.y, 5, dt);
+      holder.position.z = damp(holder.position.z, home.z, 5, dt);
     }
   });
 }
