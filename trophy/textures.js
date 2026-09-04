@@ -1,12 +1,47 @@
-/* Everything in the hall is drawn at runtime — there are no image files. Marble,
-   walnut, brushed brass, the engraved nameplates and the team crests are all
-   painted onto 2D canvases and handed to three.js as textures, which keeps the
-   whole room to one 340KB library and nothing else to download. */
+/* Everything in the hall is drawn at runtime. Marble, walnut, brushed brass and
+   the engraved nameplates are all painted onto 2D canvases and handed to
+   three.js as textures, which keeps the whole room to one 340KB library and
+   nothing else to download.
+
+   The one exception is the team logos, which are real artwork rather than
+   something a canvas can invent. They arrive as data URIs (see team-logos.js)
+   and get painted into these same canvases. */
 
 import * as THREE from "three";
 
 const DISPLAY_FONT = '"Space Grotesk", Inter, system-ui, sans-serif';
 const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+
+/* Team logos, decoded up front. Every texture here is painted synchronously, so
+   an image has to be ready before a single canvas is drawn — a logo that is
+   still loading would silently paint nothing and bake an empty crest into a
+   texture that is never regenerated. `loadTeamLogos` is awaited before the hall
+   is built; anything missing falls back to the owner's emoji. */
+const logos = new Map();
+
+export function loadTeamLogos(sources) {
+  const table = sources || (typeof window !== "undefined" && window.TEAM_LOGOS) || {};
+  return Promise.all(Object.entries(table).map(([ownerId, src]) => new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => { logos.set(ownerId, image); resolve(); };
+    image.onerror = () => resolve();
+    image.src = src;
+  })));
+}
+
+export function teamLogo(ownerId) {
+  return (ownerId && logos.get(ownerId)) || null;
+}
+
+/* Draws a logo to fit a box, centred, keeping its aspect. The files are not all
+   square — they come in at 72×72, 73×72 and 64.8×64.8 — so nothing may assume
+   one, and an SVG sized only by its viewBox reports that size here. */
+function drawLogo(ctx, image, cx, cy, box) {
+  const w = image.naturalWidth || image.width || 1;
+  const h = image.naturalHeight || image.height || 1;
+  const scale = box / Math.max(w, h);
+  ctx.drawImage(image, cx - (w * scale) / 2, cy - (h * scale) / 2, w * scale, h * scale);
+}
 
 let anisotropy = 4;
 
@@ -222,11 +257,27 @@ export function nameplateTexture({ title, sub, accent, metal = "brass" }) {
 /* A team crest: the emoji the league already uses for that manager, set in a
    coloured roundel with a brass rim. This is the closest thing the league has
    to a logo, so the hall treats it as one. */
-export function crestTexture({ icon, color, label, size = 512 }) {
+export function crestTexture({ icon, color, label, ownerId, size = 512 }) {
   const { element, ctx } = canvas(size, size);
   const half = size / 2;
 
   ctx.clearRect(0, 0, size, size);
+
+  /* With a real logo the crest is left bare: no coloured field, no rays, no
+     painted ring. The canvas stays transparent around the mark so the gold (or
+     pewter) of the medallion itself shows through and the logo reads as struck
+     into the metal rather than printed on a badge. */
+  const logo = teamLogo(ownerId);
+  if (logo) {
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,.5)";
+    ctx.shadowBlur = size * 0.035;
+    ctx.shadowOffsetY = size * 0.012;
+    drawLogo(ctx, logo, half, half * (label ? 0.9 : 1), size * (label ? 0.6 : 0.74));
+    ctx.restore();
+    if (label) crestLabel(ctx, label, size);
+    return finish(element);
+  }
 
   const field = ctx.createRadialGradient(half, half * 0.75, size * 0.05, half, half, half);
   field.addColorStop(0, mix(color, "#ffffff", 0.14));
@@ -274,21 +325,23 @@ export function crestTexture({ icon, color, label, size = 512 }) {
   ctx.fillText(icon || "🏈", half, half * (label ? 0.92 : 1));
   ctx.restore();
 
-  if (label) {
-    ctx.save();
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    const labelSize = fitText(ctx, label.toUpperCase(), size * 0.68, size * 0.075, 800, DISPLAY_FONT, "3px");
-    ctx.font = `800 ${labelSize}px ${DISPLAY_FONT}`;
-    ctx.letterSpacing = "3px";
-    ctx.fillStyle = "rgba(0,0,0,.4)";
-    ctx.fillText(label.toUpperCase(), half, size * 0.795 + 2);
-    ctx.fillStyle = "rgba(255,246,226,.95)";
-    ctx.fillText(label.toUpperCase(), half, size * 0.795);
-    ctx.restore();
-  }
+  if (label) crestLabel(ctx, label, size);
 
   return finish(element);
+}
+
+function crestLabel(ctx, label, size) {
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const labelSize = fitText(ctx, label.toUpperCase(), size * 0.68, size * 0.075, 800, DISPLAY_FONT, "3px");
+  ctx.font = `800 ${labelSize}px ${DISPLAY_FONT}`;
+  ctx.letterSpacing = "3px";
+  ctx.fillStyle = "rgba(0,0,0,.4)";
+  ctx.fillText(label.toUpperCase(), size / 2, size * 0.795 + 2);
+  ctx.fillStyle = "rgba(255,246,226,.95)";
+  ctx.fillText(label.toUpperCase(), size / 2, size * 0.795);
+  ctx.restore();
 }
 
 /* The face of a record plaque: the number first, then what it is and who owns it. */
@@ -356,7 +409,8 @@ export function recordFaceTexture({ value, label, holder, meta, accent, metal = 
    The real trophy ships with sample artwork in both — a placeholder design on
    the plaque between its columns and a "custom text" strip across the base.
    These fill them in: the champion's crest on the plaque, the year on the base. */
-export function teamPlaqueTexture({ icon, color, label }) {
+export function teamPlaqueTexture({ icon, color, label, ownerId }) {
+  const logo = teamLogo(ownerId);
   const width = 512;
   const height = 720;
   const { element, ctx } = canvas(width, height);
@@ -368,13 +422,14 @@ export function teamPlaqueTexture({ icon, color, label }) {
   ctx.fillStyle = ground;
   ctx.fillRect(0, 0, width, height);
 
-  // A wash of the team's colour behind the crest, so the insert reads as
-  // theirs from across the hall before the emoji is legible.
+  /* A wash of the team's colour behind the mark, so the insert reads as theirs
+     from across the hall. Kept faint under a logo, which carries its own
+     colour and only needs separating from the plaque's dark ground. */
   const halo = ctx.createRadialGradient(width / 2, height * 0.42, 10, width / 2, height * 0.42, width * 0.62);
   halo.addColorStop(0, mix(color, "#ffffff", 0.3));
   halo.addColorStop(0.45, color);
   halo.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.globalAlpha = 0.85;
+  ctx.globalAlpha = logo ? 0.3 : 0.85;
   ctx.fillStyle = halo;
   ctx.fillRect(0, 0, width, height);
   ctx.globalAlpha = 1;
@@ -389,13 +444,17 @@ export function teamPlaqueTexture({ icon, color, label }) {
   ctx.globalAlpha = 1;
 
   ctx.save();
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = `${width * 0.56}px ${EMOJI_FONT}`;
   ctx.shadowColor = "rgba(0,0,0,.55)";
   ctx.shadowBlur = width * 0.05;
   ctx.shadowOffsetY = width * 0.014;
-  ctx.fillText(icon || "🏈", width / 2, height * 0.41);
+  if (logo) {
+    drawLogo(ctx, logo, width / 2, height * 0.41, width * 0.66);
+  } else {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `${width * 0.56}px ${EMOJI_FONT}`;
+    ctx.fillText(icon || "🏈", width / 2, height * 0.41);
+  }
   ctx.restore();
 
   if (label) {
@@ -467,7 +526,8 @@ export function yearPlateTexture({ year, color }) {
 
 /* A team's flag, hung across the top of their locker wall: crest on the hoist,
    name and manager on the fly, the way a club banner is laid out. */
-export function teamFlagTexture({ icon, color, team, owner, since }) {
+export function teamFlagTexture({ icon, color, team, owner, since, ownerId }) {
+  const logo = teamLogo(ownerId);
   const width = 1200;
   const height = 636;
   const { element, ctx } = canvas(width, height);
@@ -496,28 +556,35 @@ export function teamFlagTexture({ icon, color, team, owner, since }) {
   ctx.strokeRect(44, 44, width - 88, height - 88);
   ctx.globalAlpha = 1;
 
-  // The crest roundel on the hoist.
+  // The mark on the hoist. A logo flies bare on the field; an emoji needs the
+  // roundel behind it to read at all.
   const cx = width * 0.195;
   const cy = height * 0.5;
   const r = height * 0.285;
-  const roundel = ctx.createRadialGradient(cx, cy - r * 0.3, r * 0.1, cx, cy, r);
-  roundel.addColorStop(0, mix(color, "#ffffff", 0.3));
-  roundel.addColorStop(1, mix(color, "#000000", 0.45));
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fillStyle = roundel;
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,238,190,.9)";
-  ctx.lineWidth = 10;
-  ctx.stroke();
+  if (!logo) {
+    const roundel = ctx.createRadialGradient(cx, cy - r * 0.3, r * 0.1, cx, cy, r);
+    roundel.addColorStop(0, mix(color, "#ffffff", 0.3));
+    roundel.addColorStop(1, mix(color, "#000000", 0.45));
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = roundel;
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,238,190,.9)";
+    ctx.lineWidth = 10;
+    ctx.stroke();
+  }
 
   ctx.save();
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = `${r * 1.05}px ${EMOJI_FONT}`;
   ctx.shadowColor = "rgba(0,0,0,.5)";
   ctx.shadowBlur = 18;
-  ctx.fillText(icon || "🏈", cx, cy);
+  if (logo) {
+    drawLogo(ctx, logo, cx, cy, r * 2.3);
+  } else {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `${r * 1.05}px ${EMOJI_FONT}`;
+    ctx.fillText(icon || "🏈", cx, cy);
+  }
   ctx.restore();
 
   ctx.save();

@@ -9,7 +9,7 @@
 
 import * as THREE from "three";
 import { buildHall } from "./accolades.js";
-import { environmentTexture, glintTexture, setAnisotropy, waitForFonts } from "./textures.js";
+import { environmentTexture, glintTexture, loadTeamLogos, setAnisotropy, waitForFonts } from "./textures.js";
 import { buildExhibitObject, buildPedestal, initMaterials } from "./models.js";
 import { LAYOUT, buildDust, buildRoom, buildTravellingLights, contactShadow, planLayout } from "./hall.js";
 import { buildLockerRoom, buildLockerWall } from "./locker.js";
@@ -118,7 +118,10 @@ async function boot() {
   }
 
   setAnisotropy(Math.min(quality.anisotropy, renderer.capabilities.getMaxAnisotropy()));
-  await waitForFonts();
+  // Both gates for the same reason: every texture here is painted once, on a
+  // canvas, synchronously. A font or a logo that arrives afterwards is too late
+  // to appear in one.
+  await Promise.all([waitForFonts(), loadTeamLogos()]);
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x070d17);
@@ -785,7 +788,7 @@ function openLocker(ownerId) {
   const locker = hall.lockers[ownerId];
   if (!locker || state.lockerId === ownerId) return;
 
-  wipe({ color: locker.color, icon: locker.icon, label: `Opening ${locker.team}` }, () => {
+  wipe({ color: locker.color, icon: locker.icon, ownerId: locker.ownerId, label: `Opening ${locker.team}` }, () => {
     if (lockerWall) lockerWall.dispose();
     lockerWall = buildLockerWall(lockerRoom.room, locker);
 
@@ -880,7 +883,7 @@ function fillLockerHud(locker) {
   dom.lockerTeam.textContent = locker.team;
   dom.lockerOwner.textContent = locker.name;
   dom.lockerSummary.textContent = locker.summary;
-  dom.lockerCrest.textContent = locker.icon;
+  paintCrest(dom.lockerCrest, locker.ownerId, locker.icon);
   dom.lockerCrest.style.setProperty("--team", locker.color);
 }
 
@@ -893,6 +896,22 @@ function fillLockerHud(locker) {
    request is kept — the ones in between are rooms nobody asked to stay in. */
 let wiping = false;
 let pendingWipe = null;
+/* Paints a team's mark into one of the HUD's crest chips. The logo is the same
+   data URI the 3D textures are drawn from, so nothing extra is fetched; an
+   owner without one (the two departed 2021 teams) keeps their emoji. */
+function paintCrest(node, ownerId, fallback) {
+  const src = ownerId && window.TEAM_LOGOS && window.TEAM_LOGOS[ownerId];
+  node.textContent = "";
+  if (!src) {
+    node.textContent = fallback || "\u{1F3C8}";
+    return;
+  }
+  const image = document.createElement("img");
+  image.src = src;
+  image.alt = "";
+  node.append(image);
+}
+
 function wipe(look, midpoint) {
   if (wiping) {
     pendingWipe = { look, midpoint };
@@ -900,7 +919,7 @@ function wipe(look, midpoint) {
   }
   wiping = true;
   dom.wipe.style.setProperty("--wipe-team", look.color);
-  dom.wipeCrest.textContent = look.icon;
+  paintCrest(dom.wipeCrest, look.ownerId, look.icon);
   dom.wipeLabel.textContent = look.label;
   dom.wipe.classList.add("on");
   setTimeout(() => {

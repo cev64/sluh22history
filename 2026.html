@@ -3483,7 +3483,27 @@
       .odds-pct::after { content: attr(data-label); margin-left: 3px; font-size: 9px; color: var(--muted); }
     }
 
-  </style>
+      /* A logo is the team's identity on its own, so the chip stops shouting the
+       team colour underneath it — a teal shield on a teal chip loses its edge.
+       The colour stays as a hairline ring, which keeps the row scannable. An
+       emoji badge is unchanged: it needs the colour to read at all. */
+    .team-badge:has(.team-logo),
+    .mini-badge:has(.team-logo),
+    .profile-logo:has(.team-logo) {
+      background: #fff;
+      box-shadow: inset 0 0 0 1.5px var(--team-color, #667);
+    }
+    .team-badge .team-logo,
+    .mini-badge .team-logo,
+    .profile-logo .team-logo {
+      width: 82%;
+      height: 82%;
+      object-fit: contain;
+      display: block;
+      margin: auto;
+    }
+</style>
+  <script src="team-logos.js"></script>
 </head>
 <body>
   <header class="topbar">
@@ -3599,17 +3619,26 @@
     const SEASON = 2026;
     const REGULAR_WEEKS = 14;
 
+    /* A team's mark for a badge: their logo where there is one, otherwise the
+       emoji. The logos are the same data URIs the 3D trophy room paints from
+       (team-logos.js), keyed by owner id so a team keeps its mark through a
+       rename. The two departed 2021 teams have no logo and keep their emoji. */
+    const teamMark = (team) => {
+      const src = team && team.ownerId && window.TEAM_LOGOS && window.TEAM_LOGOS[team.ownerId];
+      return src ? `<img class="team-logo" src="${src}" alt="">` : (team && team.icon) || "";
+    };
+
     const teams = {
-      first:    { name: "First and Ted",               owner: "Ted Williams",       division: "Xavier",    icon: "🏇",  color: "#7c3945" },
-      game:     { name: "Game of Throws",              owner: "Charlie Vonderheid", division: "Xavier",    icon: "🏰",  color: "#c05b2a" },
-      hamilton: { name: "Hamilton Administration",     owner: "Niko Nadreau",       division: "Xavier",    icon: "🎭",  color: "#304f91" },
-      roll:     { name: "Roll Bill (Croskey-Merritt)", owner: "JP Torack",          division: "Xavier",    icon: "🦬",  color: "#9d542e" },
-      infinity: { name: "To infinity and Bijan",       owner: "Ian Farroll",        division: "Xavier",    icon: "👑",  color: "#b78d0a" },
-      hawaii:   { name: "Hawaii McLovins VIII",        owner: "Matt Windler",       division: "Ignatius",  icon: "🌴",  color: "#3a3c9d" },
-      left:     { name: "The Left Tacklers",           owner: "Nathan Rich",        division: "Ignatius",  icon: "🛡️", color: "#166a83" },
-      kareem:   { name: "Team Kareem Pie 🍑",          owner: "Matthew Kluba",      division: "Ignatius",  icon: "🏈",  color: "#719b70" },
-      laporta:  { name: "LaPorta Potty",               owner: "Grant Thornberry",   division: "Ignatius",  icon: "🚽",  color: "#6a78a7" },
-      jared:    { name: "Jared's Pack Attack",         owner: "Jared Thornberry",   division: "Ignatius",  icon: "🟣",  color: "#4d3f93" }
+      first:    { name: "First and Ted",               ownerId: "ted_williams", owner: "Ted Williams",       division: "Xavier",    icon: "🏇",  color: "#7c3945" },
+      game:     { name: "Game of Throws",              ownerId: "charlie_vonderheid", owner: "Charlie Vonderheid", division: "Xavier",    icon: "🏰",  color: "#c05b2a" },
+      hamilton: { name: "Hamilton Administration",     ownerId: "niko_nadreau", owner: "Niko Nadreau",       division: "Xavier",    icon: "🎭",  color: "#304f91" },
+      roll:     { name: "Roll Bill (Croskey-Merritt)", ownerId: "jp_torack", owner: "JP Torack",          division: "Xavier",    icon: "🦬",  color: "#9d542e" },
+      infinity: { name: "To infinity and Bijan",       ownerId: "ian_farroll", owner: "Ian Farroll",        division: "Xavier",    icon: "👑",  color: "#b78d0a" },
+      hawaii:   { name: "Hawaii McLovins VIII",        ownerId: "matt_windler", owner: "Matt Windler",       division: "Ignatius",  icon: "🌴",  color: "#3a3c9d" },
+      left:     { name: "The Left Tacklers",           ownerId: "nathan_rich", owner: "Nathan Rich",        division: "Ignatius",  icon: "🛡️", color: "#166a83" },
+      kareem:   { name: "Team Kareem Pie 🍑",          ownerId: "matthew_kluba", owner: "Matthew Kluba",      division: "Ignatius",  icon: "🏈",  color: "#719b70" },
+      laporta:  { name: "LaPorta Potty",               ownerId: "grant_thornberry", owner: "Grant Thornberry",   division: "Ignatius",  icon: "🚽",  color: "#6a78a7" },
+      jared:    { name: "Jared's Pack Attack",         ownerId: "jared_thornberry", owner: "Jared Thornberry",   division: "Ignatius",  icon: "🟣",  color: "#4d3f93" }
     };
 
     const divisionOrder = {
@@ -4511,14 +4540,14 @@
       const t = teams[id];
       return `
         <button class="team-button" data-team="${id}" aria-label="Open ${t.name} schedule">
-          <span class="team-badge" style="--team-color:${t.color}">${t.icon}</span>
+          <span class="team-badge" style="--team-color:${t.color}">${teamMark(t)}</span>
           <span class="team-meta"><span class="team-name">${t.name}</span><span class="owner">${t.owner}</span></span>
         </button>`;
     }
 
     function miniTeam(id, extra = "") {
       const t = teams[id];
-      return `<span class="mini-badge" style="--team-color:${t.color}">${t.icon}</span>${extra}`;
+      return `<span class="mini-badge" style="--team-color:${t.color}">${teamMark(t)}</span>${extra}`;
     }
 
     function emptyState(title, copy) {
@@ -5470,7 +5499,7 @@
       document.getElementById("drawerHero").style.setProperty("--drawer-color", t.color);
       const badge = document.getElementById("drawerBadge");
       badge.style.setProperty("--team-color", t.color);
-      badge.textContent = t.icon;
+      badge.innerHTML = teamMark(t);
       document.getElementById("drawerName").textContent = t.name;
       document.getElementById("drawerOwner").textContent = `${t.owner} · ${t.division} Division`;
       document.getElementById("drawerStats").innerHTML = `

@@ -2967,7 +2967,27 @@
       .team-flags { margin-left: 6px; gap: 4px; }
       .bracket-rounds { padding: 12px 12px 14px; gap: 12px; }
     }
-  </style>
+      /* A logo is the team's identity on its own, so the chip stops shouting the
+       team colour underneath it — a teal shield on a teal chip loses its edge.
+       The colour stays as a hairline ring, which keeps the row scannable. An
+       emoji badge is unchanged: it needs the colour to read at all. */
+    .team-badge:has(.team-logo),
+    .mini-badge:has(.team-logo),
+    .profile-logo:has(.team-logo) {
+      background: #fff;
+      box-shadow: inset 0 0 0 1.5px var(--team-color, #667);
+    }
+    .team-badge .team-logo,
+    .mini-badge .team-logo,
+    .profile-logo .team-logo {
+      width: 82%;
+      height: 82%;
+      object-fit: contain;
+      display: block;
+      margin: auto;
+    }
+</style>
+  <script src="team-logos.js"></script>
 </head>
 <body>
   <header class="topbar">
@@ -2999,7 +3019,7 @@
       <article class="outcome-card champion-outcome">
         <div class="outcome-label">🏆 2022 Champion</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#304f91">🎭</span>
+          <span class="team-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">🎭</span>
           <div>
             <h2>Hamilton Administration</h2>
             <span>Niko Nadreau · 9–5 regular season</span>
@@ -3020,7 +3040,7 @@
       <article class="outcome-card loser-outcome">
         <div class="outcome-label">💩 2022 Last Place</div>
         <div class="outcome-team">
-          <span class="team-badge" style="--team-color:#c05b2a">🍝</span>
+          <span class="team-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">🍝</span>
           <div>
             <h2>Olave Garden</h2>
             <span>Charlie Vonderheid · 4–10 regular season</span>
@@ -3118,22 +3138,22 @@
               <div class="round-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
               <div class="round-games">
                 <div class="matchup bye">
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e" data-owner-logo="jp_torack">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span></span></div>
                   <div class="bye-label">Bye</div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="ridley" aria-label="Open Ridley Me This schedule"><span class="mini-badge" style="--team-color:#4f7558">🏃</span><span class="bracket-team-name">Ridley Me This</span></button><span class="score">114.12</span></div>
-                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">128.10</span></div>
+                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="ridley" aria-label="Open Ridley Me This schedule"><span class="mini-badge" style="--team-color:#4f7558" data-owner-logo="ian_farroll">🏃</span><span class="bracket-team-name">Ridley Me This</span></button><span class="score">114.12</span></div>
+                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">128.10</span></div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="steeler" aria-label="Open Steeler Virginity schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Steeler Virginity</span></button><span class="score">88.74</span></div>
-                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">137.26</span></div>
+                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="steeler" aria-label="Open Steeler Virginity schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">🏈</span><span class="bracket-team-name">Steeler Virginity</span></button><span class="score">88.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5" data-owner-logo="jared_thornberry">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">137.26</span></div>
                 </div>
 
                 <div class="matchup bye">
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span></span></div>
                   <div class="bye-label">Bye</div>
                 </div>
               </div>
@@ -3143,13 +3163,13 @@
               <div class="round-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
               <div class="round-games">
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.74</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">119.30</span></div>
+                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e" data-owner-logo="jp_torack">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">119.30</span></div>
                 </div>
 
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">119.98</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">164.86</span></div>
+                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5" data-owner-logo="jared_thornberry">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">119.98</span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">164.86</span></div>
                 </div>
               </div>
             </div>
@@ -3158,8 +3178,8 @@
               <div class="round-title"><strong>Championship</strong><span>NFL Week 17</span></div>
               <div class="round-games">
                 <div class="matchup championship-matchup">
-                  <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">82.98</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">120.66</span></div>
+                  <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e" data-owner-logo="jp_torack">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">82.98</span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">120.66</span></div>
                 </div>
               </div>
             </div>
@@ -3174,11 +3194,11 @@
                 <div class="mobile-lane-label">Top Half</div>
                 <div class="matchup mobile-bye-card">
                   <div class="matchup-kicker">#1 Seed · Bye</div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e" data-owner-logo="jp_torack">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span></span></div>
                 </div>
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="ridley" aria-label="Open Ridley Me This schedule"><span class="mini-badge" style="--team-color:#4f7558">🏃</span><span class="bracket-team-name">Ridley Me This</span></button><span class="score">114.12</span></div>
-                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">128.10</span></div>
+                  <div class="matchup-row"><span class="seed">#5</span><button type="button" class="mini-team bracket-team-button" data-team="ridley" aria-label="Open Ridley Me This schedule"><span class="mini-badge" style="--team-color:#4f7558" data-owner-logo="ian_farroll">🏃</span><span class="bracket-team-name">Ridley Me This</span></button><span class="score">114.12</span></div>
+                  <div class="matchup-row winner"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">128.10</span></div>
                 </div>
               </div>
 
@@ -3186,11 +3206,11 @@
                 <div class="mobile-lane-label">Bottom Half</div>
                 <div class="matchup mobile-bye-card">
                   <div class="matchup-kicker">#2 Seed · Bye</div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span></span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span></span></div>
                 </div>
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="steeler" aria-label="Open Steeler Virginity schedule"><span class="mini-badge" style="--team-color:#719b70">🏈</span><span class="bracket-team-name">Steeler Virginity</span></button><span class="score">88.74</span></div>
-                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">137.26</span></div>
+                  <div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="steeler" aria-label="Open Steeler Virginity schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">🏈</span><span class="bracket-team-name">Steeler Virginity</span></button><span class="score">88.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5" data-owner-logo="jared_thornberry">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">137.26</span></div>
                 </div>
               </div>
             </div>
@@ -3201,14 +3221,14 @@
             <div class="mobile-lane-grid">
               <div class="mobile-bracket-lane mobile-semifinal-lane">
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.74</span></div>
-                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">119.30</span></div>
+                  <div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">101.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e" data-owner-logo="jp_torack">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">119.30</span></div>
                 </div>
               </div>
               <div class="mobile-bracket-lane mobile-semifinal-lane">
                 <div class="matchup">
-                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">119.98</span></div>
-                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">164.86</span></div>
+                  <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="zach" aria-label="Open Zach Milfson schedule"><span class="mini-badge" style="--team-color:#6f4ab5" data-owner-logo="jared_thornberry">🤖</span><span class="bracket-team-name">Zach Milfson</span></button><span class="score">119.98</span></div>
+                  <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">164.86</span></div>
                 </div>
               </div>
             </div>
@@ -3218,8 +3238,8 @@
           <section class="mobile-bracket-stage championship-stage">
             <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
             <div class="matchup championship-matchup mobile-championship-card">
-              <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">82.98</span></div>
-              <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">120.66</span></div>
+              <div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="yung" aria-label="Open Yung Gravy Fan Page schedule"><span class="mini-badge" style="--team-color:#9d542e" data-owner-logo="jp_torack">😎</span><span class="bracket-team-name">Yung Gravy Fan Page</span></button><span class="score">82.98</span></div>
+              <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">🎭</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">120.66</span></div>
             </div>
           </section>
         </div>
@@ -3234,15 +3254,15 @@
               <div class="round-games">
                 <div class="matchup">
                   <div class="matchup-kicker">Game 1</div>
-                  <div class="matchup-row winner"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="matt" aria-label="Open MattWindy schedule"><span class="mini-badge" style="--team-color:#3a3c9d">🌴</span><span class="bracket-team-name">MattWindy</span></button><span class="score">137.42</span></div>
-                  <div class="matchup-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="olave" aria-label="Open Olave Garden schedule"><span class="mini-badge" style="--team-color:#c05b2a">🍝</span><span class="bracket-team-name">Olave Garden</span></button><span class="score">96.74</span></div>
+                  <div class="matchup-row winner"><span class="seed">#7</span><button type="button" class="mini-team bracket-team-button" data-team="matt" aria-label="Open MattWindy schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">🌴</span><span class="bracket-team-name">MattWindy</span></button><span class="score">137.42</span></div>
+                  <div class="matchup-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="olave" aria-label="Open Olave Garden schedule"><span class="mini-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">🍝</span><span class="bracket-team-name">Olave Garden</span></button><span class="score">96.74</span></div>
                   <div class="matchup-path">Loser → Last-Place Game</div>
                 </div>
 
                 <div class="matchup">
                   <div class="matchup-kicker">Game 2</div>
-                  <div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="larry" aria-label="Open larrylarry69 schedule"><span class="mini-badge" style="--team-color:#b14e3c">🦹</span><span class="bracket-team-name">larrylarry69</span></button><span class="score">88.48</span></div>
-                  <div class="matchup-row winner"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="smell" aria-label="Open Smell My Pittman schedule"><span class="mini-badge" style="--team-color:#7c3945">🟣</span><span class="bracket-team-name">Smell My Pittman</span></button><span class="score">103.48</span></div>
+                  <div class="matchup-row"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="larry" aria-label="Open larrylarry69 schedule"><span class="mini-badge" style="--team-color:#b14e3c" data-owner-logo="grant_thornberry">🦹</span><span class="bracket-team-name">larrylarry69</span></button><span class="score">88.48</span></div>
+                  <div class="matchup-row winner"><span class="seed">#9</span><button type="button" class="mini-team bracket-team-button" data-team="smell" aria-label="Open Smell My Pittman schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">🟣</span><span class="bracket-team-name">Smell My Pittman</span></button><span class="score">103.48</span></div>
                   <div class="matchup-path">Loser → Last-Place Game</div>
                 </div>
               </div>
@@ -3253,8 +3273,8 @@
               <div class="round-games">
                 <div class="matchup last-place-matchup">
                   <div class="matchup-kicker">Final</div>
-                  <div class="matchup-row winner"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="larry" aria-label="Open larrylarry69 schedule"><span class="mini-badge" style="--team-color:#b14e3c">🦹</span><span class="bracket-team-name">larrylarry69</span></button><span class="score">134.60</span></div>
-                  <div class="matchup-row last-place-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="olave" aria-label="Open Olave Garden schedule"><span class="mini-badge" style="--team-color:#c05b2a">🍝</span><span class="bracket-team-name">Olave Garden</span></button><span class="score">104.60</span></div>
+                  <div class="matchup-row winner"><span class="seed">#8</span><button type="button" class="mini-team bracket-team-button" data-team="larry" aria-label="Open larrylarry69 schedule"><span class="mini-badge" style="--team-color:#b14e3c" data-owner-logo="grant_thornberry">🦹</span><span class="bracket-team-name">larrylarry69</span></button><span class="score">134.60</span></div>
+                  <div class="matchup-row last-place-row"><span class="seed">#10</span><button type="button" class="mini-team bracket-team-button" data-team="olave" aria-label="Open Olave Garden schedule"><span class="mini-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">🍝</span><span class="bracket-team-name">Olave Garden</span></button><span class="score">104.60</span></div>
                   <div class="matchup-path">Loser = last place in the league</div>
                 </div>
               </div>
@@ -3305,6 +3325,24 @@
       matthew_kluba: { name: "Matthew Kluba" },
       matt_windler: { name: "Matt Windler" }
     };
+
+    /* A team's mark for a badge: their logo where there is one, otherwise the
+       emoji. The logos are the same data URIs the 3D trophy room paints from
+       (team-logos.js), keyed by owner id so a team keeps its mark through a
+       rename. The two departed 2021 teams have no logo and keep their emoji. */
+    const teamMark = (team) => {
+      const src = team && team.ownerId && window.TEAM_LOGOS && window.TEAM_LOGOS[team.ownerId];
+      return src ? `<img class="team-logo" src="${src}" alt="">` : (team && team.icon) || "";
+    };
+
+    /* The hero cards and the playoff bracket are hand-written markup rather than
+       templates, so their badges ship with the season's emoji and an owner id.
+       Swap in the logo here instead of inlining a data URI thirty times over,
+       which would put most of a megabyte into the page. */
+    document.querySelectorAll("[data-owner-logo]").forEach((node) => {
+      const src = window.TEAM_LOGOS && window.TEAM_LOGOS[node.dataset.ownerLogo];
+      if (src) node.innerHTML = `<img class="team-logo" src="${src}" alt="">`;
+    });
 
     const teams = {
       yung: { name: "Yung Gravy Fan Page", ownerId: "jp_torack", owner: "JP Torack", division: null, record: "10–4", wins: 10, losses: 4, pf: 1881.56, pa: 1616.36, divRecord: null, icon: "😎", color: "#9d542e", regRank: 1, finalRank: 2 },
@@ -3391,7 +3429,7 @@
       const t = teams[id];
       return `
         <button class="team-button" data-team="${id}" aria-label="Open ${t.name} schedule">
-          <span class="team-badge" style="--team-color:${t.color}">${t.icon}</span>
+          <span class="team-badge" style="--team-color:${t.color}">${teamMark(t)}</span>
           <span class="team-meta"><span class="team-name">${t.name}</span><span class="owner">${t.owner}</span></span>
         </button>`;
     }
@@ -3555,7 +3593,7 @@
       document.getElementById("drawerHero").style.setProperty("--drawer-color", t.color);
       const badge = document.getElementById("drawerBadge");
       badge.style.setProperty("--team-color", t.color);
-      badge.textContent = t.icon;
+      badge.innerHTML = teamMark(t);
       document.getElementById("drawerName").textContent = t.name;
       document.getElementById("drawerOwner").textContent = `${t.owner} · ${t.division} Division`;
       document.getElementById("drawerStats").innerHTML = `
@@ -3967,7 +4005,7 @@
 
     function miniTeam(id) {
       const t = teams[id];
-      return `<span class="mini-badge" style="--team-color:${t.color}">${t.icon}</span>`;
+      return `<span class="mini-badge" style="--team-color:${t.color}">${teamMark(t)}</span>`;
     }
 
     function cardHead(title, chip, meta) {
