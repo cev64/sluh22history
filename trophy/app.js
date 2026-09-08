@@ -51,6 +51,22 @@ const state = {
 
 const IN_LOCKER = (mode) => mode === "locker" || mode === "lockerFocus";
 
+/* Small screens, and the subset of them that are phones held upright.
+
+   `isNarrow` is the HUD's long-standing breakpoint: below it the record sheet
+   takes the bottom of the screen rather than a column down its side, and the
+   chrome is measured accordingly.
+
+   `isUpright` is narrower still — narrow AND taller than it is wide — and it is
+   what the room reshapes itself around: the drag axis in the hall, the fold of a
+   locker wall, how that wall is framed. A phone on its side is a short, wide
+   rectangle, which wants exactly what a desktop wants and none of what a phone
+   held upright does, so it is not upright and nothing changes for it. Above the
+   breakpoint, neither is ever true and nothing changes at all. */
+const NARROW_AT = 860;
+const isNarrow = () => innerWidth <= NARROW_AT;
+const isUpright = () => isNarrow() && innerHeight > innerWidth;
+
 const dom = {};
 let hall;
 let layout;
@@ -530,7 +546,7 @@ function railToX(t) {
    place an object skews it, and a trophy you are turning in your hands should
    not lean as you turn it. */
 function focusFraming(exhibit) {
-  const narrow = innerWidth <= 860;
+  const narrow = isNarrow();
   const pad = narrow ? 14 : 24;
 
   // The top chrome, and whatever the sheet is currently covering.
@@ -580,12 +596,13 @@ function focusFraming(exhibit) {
    bottom. Whatever will not fit is reachable by dragging. */
 function wallFraming() {
   if (!lockerWall) return { distance: 12, offsetX: 0, offsetY: 0 };
-  const pad = innerWidth <= 860 ? 12 : 24;
+  const narrow = isNarrow();
+  const pad = narrow ? 12 : 24;
   const band = {
     width: Math.max(160, innerWidth - pad * 2),
-    height: Math.max(160, innerHeight - (innerWidth <= 860 ? 210 : 216))
+    height: Math.max(160, innerHeight - (narrow ? 210 : 216))
   };
-  const centreY = (innerWidth <= 860 ? 84 : 92) + band.height / 2;
+  const centreY = (narrow ? 84 : 92) + band.height / 2;
 
   const vertical = THREE.MathUtils.degToRad(camera.fov);
   const horizontal = 2 * Math.atan(Math.tan(vertical / 2) * camera.aspect);
@@ -594,13 +611,57 @@ function wallFraming() {
   const reach = lockerWall.size.z / 2;
   const fitHeight = lockerWall.size.y / 2 / (Math.tan(vertical / 2) * (band.height / innerHeight)) + reach;
   const fitWidth = lockerWall.size.x / 2 / (Math.tan(horizontal / 2) * (band.width / innerWidth)) + reach;
-  const distance = Math.max(fitHeight, fitWidth) * 1.05 / state.lockerWallZoom;
+  /* A folded wall is fitted to the width alone. Fitting its height as well is
+     what a portrait screen does badly: it holds the whole nine metres at once
+     and every piece on it comes out too small to read, with the width of the
+     screen going spare on both sides. Fitted across, the wall fills the screen
+     and the rest of it is below the fold, which is where a thumb expects the
+     rest of anything to be. */
+  const fit = lockerWall.narrow ? fitWidth : Math.max(fitHeight, fitWidth);
+  const distance = fit * 1.05 / state.lockerWallZoom;
 
   const visibleHeight = 2 * distance * Math.tan(vertical / 2);
   return {
     distance,
     offsetX: 0,
-    offsetY: (centreY / innerHeight - 0.5) * visibleHeight
+    offsetY: (centreY / innerHeight - 0.5) * visibleHeight,
+    /* How much wall the band holds, in metres. The offset above puts the wall's
+       centre in the middle of the band rather than the middle of the screen, so
+       anything asking how much of the wall is actually on show has to measure
+       the band — measuring the viewport counts the strip behind the header and
+       the strip behind the HUD as places you can see a pennant. */
+    bandWidth: visibleHeight * camera.aspect * (band.width / innerWidth),
+    bandHeight: visibleHeight * (band.height / innerHeight)
+  };
+}
+
+/* Where the wall rests when it is first opened: dead centre when the whole of
+   it is in the band, and with its top against the top of the band when it is
+   not. The flag is the manager's name, and opening a wall halfway down it is
+   like opening a page in the middle of a sentence. */
+function wallTopPan() {
+  if (!lockerWall) return 0;
+  const { bandHeight } = wallFraming();
+  return Math.max(0, (lockerWall.size.y - bandHeight) / 2);
+}
+
+/* How far the wall may be dragged from that resting frame, in metres.
+
+   An unfolded wall is framed whole, so there is nothing to reach for and the
+   drag is only ever a nudge around the room: it keeps the fixed slack it has
+   always had. A folded one has most of itself below the fold, so its reach is
+   however much of the wall the band is not holding, plus a margin so the last
+   row is never jammed against the bottom of the band. */
+const WIDE_PAN = { x: 3.2, y: 2.6 };
+
+function wallPanLimits() {
+  if (!lockerWall) return { x: 0, y: 0 };
+  if (!lockerWall.narrow) return WIDE_PAN;
+  const { bandWidth, bandHeight } = wallFraming();
+  const margin = 0.35;
+  return {
+    x: Math.max(0, (lockerWall.size.x - bandWidth) / 2) + margin,
+    y: Math.max(0, (lockerWall.size.y - bandHeight) / 2) + margin
   };
 }
 
@@ -614,7 +675,7 @@ function applyPetFraming() {
   if (!tucker || state.pet < 0.001) return;
   // On a phone his card takes the bottom of the screen, so he is lifted into
   // the half that is left rather than sitting behind it.
-  const narrow = innerWidth <= 860;
+  const narrow = isNarrow();
   if (narrow) {
     petPose.position.set(tucker.x + 0.06, tucker.daisTop + 1.02, tucker.z + 2.5);
     petPose.look.set(tucker.x, tucker.daisTop + 0.66, tucker.z);
@@ -1084,6 +1145,13 @@ function enterHall() {
   state.mode = "hall";
   dom.stage.classList.add("entered");
   dom.loader.classList.add("done", "gone");
+  // The hints name the gesture, and on a phone held upright it is not the same
+  // gesture. Set once on the way in: the hall is not re-entered on a rotation,
+  // and a hint that rewrote itself mid-swipe would be its own distraction.
+  if (isUpright()) {
+    dom.hint.textContent = "Swipe up to walk the hall · tap a trophy to inspect it";
+    dom.lockerHint.textContent = "Swipe to move down the wall · tap anything to see it up close";
+  }
   setTimeout(() => dom.hint.classList.add("show"), 900);
   setTimeout(() => dom.hint.classList.remove("show"), 6500);
 }
@@ -1100,7 +1168,8 @@ function openLocker(ownerId) {
 
   wipe({ color: locker.color, icon: locker.icon, ownerId: locker.ownerId, label: `Opening ${locker.team}` }, () => {
     if (lockerWall) lockerWall.dispose();
-    lockerWall = buildLockerWall(lockerRoom.room, locker);
+    lockerRoom.setNarrow(isUpright());
+    lockerWall = buildLockerWall(lockerRoom.room, locker, { narrow: isUpright() });
 
     state.lockerId = ownerId;
     state.lockerIndex = -1;
@@ -1115,10 +1184,12 @@ function openLocker(ownerId) {
     // in the middle of it.
     scene.fog = null;
 
+    state.lockerPanY = wallTopPan();
+
     const framing = wallFraming();
     camera.position.set(
       lockerWall.centre.x,
-      lockerWall.centre.y + framing.offsetY,
+      lockerWall.centre.y + state.lockerPanY + framing.offsetY,
       lockerWall.centre.z + framing.distance
     );
     lookAt.copy(camera.position).setZ(lockerWall.centre.z);
@@ -1288,13 +1359,24 @@ function bindInput() {
   let startPanY = 0;
   let pinchStart = 0;
   let zoomStart = 1;
-  let lastX = 0;
+  let lastAlong = 0;
+  let movedAlong = 0;
   let lastTime = 0;
   let pinching = false;
 
-  // Dragging the full width of the screen walks about four stops, on a phone
-  // and on a desktop alike. Stops, not indices: see `railToStop`.
-  const stopsPerPixel = () => 4.2 / Math.max(360, innerWidth);
+  /* Dragging the length of the screen walks about four stops, on a phone and on
+     a desktop alike. Stops, not indices: see `railToStop`.
+
+     Which way you drag depends on the shape of the screen. A desktop drags the
+     hall sideways, because that is the direction the hall runs and there is a
+     screen's width to do it in. A phone held upright has that width in the
+     wrong direction and a thumb that swings up and down, so the same walk is
+     driven by a vertical swipe — swipe up to go further along, exactly like
+     scrolling anything else on a phone. Only the axis changes: a stop is the
+     same distance, and the flick carries the same way. */
+  const railAxis = () => (isUpright() ? "y" : "x");
+  const stopsPerPixel = () =>
+    (railAxis() === "y" ? 4.2 / Math.max(360, innerHeight) : 4.2 / Math.max(360, innerWidth));
 
   canvas.addEventListener("pointerdown", (event) => {
     if (state.mode === "intro") return;
@@ -1314,9 +1396,11 @@ function bindInput() {
     if (active.size === 1) pinching = false;
     state.dragging = true;
     state.pointerMoved = 0;
+    movedAlong = 0;
     startStop = railToStop(state.rail);
-    startX = lastX = event.clientX;
+    startX = event.clientX;
     startY = event.clientY;
+    lastAlong = railAxis() === "y" ? event.clientY : event.clientX;
     startYaw = state.focusYaw;
     startPitch = state.focusPitch;
     startPanX = state.lockerPanX;
@@ -1373,20 +1457,24 @@ function bindInput() {
       // A wall is panned, not travelled: drag moves the view across it, and
       // the reach is bounded by how much of the wall is off-screen.
       const metresPerPixel = wallFraming().distance * 0.0016;
-      state.lockerPanX = clamp(startPanX - dx * metresPerPixel, -3.2, 3.2);
-      state.lockerPanY = clamp(startPanY + dy * metresPerPixel, -2.6, 2.6);
+      const reach = wallPanLimits();
+      state.lockerPanX = clamp(startPanX - dx * metresPerPixel, -reach.x, reach.x);
+      state.lockerPanY = clamp(startPanY + dy * metresPerPixel, -reach.y, reach.y);
       return;
     }
 
     // Walking away from him is how you stop petting him.
     if (state.petFocus && state.pointerMoved > 12) leavePet();
-    state.rail = clamp(stopToRail(startStop - dx * stopsPerPixel()), -0.4, exhibits.length - 0.6);
+    const along = railAxis() === "y" ? dy : dx;
+    const at = railAxis() === "y" ? event.clientY : event.clientX;
+    movedAlong = Math.max(movedAlong, Math.abs(along));
+    state.rail = clamp(stopToRail(startStop - along * stopsPerPixel()), -0.4, exhibits.length - 0.6);
     const now = performance.now();
     const elapsed = Math.max(8, now - lastTime);
     // Also in stops per second, so the throw below carries the same number of
     // stops wherever on the rail it is let go.
-    state.velocity = -(event.clientX - lastX) * stopsPerPixel() * (1000 / elapsed);
-    lastX = event.clientX;
+    state.velocity = -(at - lastAlong) * stopsPerPixel() * (1000 / elapsed);
+    lastAlong = at;
     lastTime = now;
   });
 
@@ -1406,7 +1494,10 @@ function bindInput() {
       handleTap(event);
       return;
     }
-    if (state.mode === "hall") {
+    // A drag across the rail's axis is a drag; a drag along the other one never
+    // touched the rail, and re-snapping from wherever the camera happens to
+    // have glided to would answer it by walking you back a stop.
+    if (state.mode === "hall" && movedAlong >= 9) {
       // Carry the flick a little way, then let the stops pull the camera in.
       const projected = railToStop(state.rail) + clamp(state.velocity * 0.28, -3.2, 3.2);
       state.railTarget = snapRail(stopToRail(projected));
@@ -1563,6 +1654,22 @@ function onResize() {
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, quality.pixelRatio));
+
+  /* A wall is folded at build time, so turning a phone on its side while one is
+     open has to cut it again. Only when the breakpoint is actually crossed: an
+     ordinary resize, or a mobile browser's address bar sliding away, must not
+     throw away a wall and drop the viewer back at the top of it. */
+  const locker = lockerWall && hall.lockers[state.lockerId];
+  if (locker && lockerWall.narrow !== isUpright()) {
+    const focused = state.mode === "lockerFocus" ? state.lockerIndex : -1;
+    lockerWall.dispose();
+    lockerRoom.setNarrow(isUpright());
+    lockerWall = buildLockerWall(lockerRoom.room, locker, { narrow: isUpright() });
+    state.lockerPanX = 0;
+    state.lockerPanY = wallTopPan();
+    state.lockerWallZoom = 1;
+    if (focused >= 0) state.lockerIndex = Math.min(focused, lockerWall.items.length - 1);
+  }
 }
 
 boot();

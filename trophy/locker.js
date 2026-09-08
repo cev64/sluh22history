@@ -17,7 +17,12 @@
    A row centres itself and wraps when it runs long, so a manager with one
    berth and a manager with five both get a composed wall. The whole thing is
    built when a locker is opened and thrown away when it closes: ten lockers of
-   canvas textures resident at once is not worth the memory. */
+   canvas textures resident at once is not worth the memory.
+
+   On a phone the same wall is folded narrower — fewer to a row, a shorter shelf,
+   a smaller flag. A portrait screen has width to spare in exactly the direction
+   a wall does not need it, so the fold trades the empty sides for a wall the
+   thumb scrolls down and pieces roughly twice the size. */
 
 import * as THREE from "three";
 import {
@@ -52,10 +57,30 @@ const SIZE = {
 
 const WALL_Z = -0.55;
 
+/* How far the panelling reaches above the floor line in each shape, and how far
+   it drops below it so the room has no seam at the skirting. Both carry a
+   couple of rows of headroom over the fullest wall in the league today, because
+   a manager who reaches the bracket once more gains a whole row of pennants in
+   a single season and the panel is not rebuilt for it. */
+const PANEL = { wide: 10.5, narrow: 14.5, below: 1 };
+
 /* Pennant cloth. Every berth flies the same blue so a wall reads at a glance
    as "five Januaries in the bracket"; a division crown flies gold. */
 const PENNANT_BLUE = "#2a5fcc";
 const PENNANT_GOLD = "#7a5205";
+
+/* The wash on each honour's year plate: gold under a star, red under a ribbon,
+   so the plate belongs to the badge above it rather than to the team. */
+const STAR_PLATE = "#e0aa2c";
+const RIBBON_PLATE = "#c8102e";
+
+/* How wide each row is allowed to run, and how wide the fittings are cut, in
+   the two shapes the wall comes in. Everything else about a wall is the same in
+   both: the same pieces, the same order, the same rules for stacking them. */
+const GRID = {
+  wide:   { pennants: 6, honours: 6, trophies: 5, plaques: 6, shelf: 4.6, flag: 1, pool: 7 },
+  narrow: { pennants: 3, honours: 3, trophies: 3, plaques: 3, shelf: 2.7, flag: 0.78, pool: 4.2 }
+};
 
 /* The top of the room's wainscot rail, and the line the wall's contents stop
    at. Rows stack downward, so a manager with all five of them reaches furthest
@@ -98,20 +123,20 @@ export function buildLockerRoom(scene) {
 
   const panelling = mat.textures.darkMarble.clone();
   panelling.needsUpdate = true;
-  panelling.repeat.set(4, 2.7);
 
   // Tall enough for the fullest wall in the league. The composition stacks
   // downward and is then lifted clear of the wainscot, so every row a manager
   // has pushes their flag higher — and a nine-metre panel left the flag of a
-  // manager with all five rows hanging in the black above the panelling.
+  // manager with all five rows hanging in the black above the panelling. A
+  // folded wall is taller again, so the panel is cut to whichever shape the
+  // room is currently showing.
   const back = new THREE.Mesh(
-    new THREE.PlaneGeometry(13, 10),
+    new THREE.PlaneGeometry(13, 1),
     new THREE.MeshStandardMaterial({
       map: panelling, color: 0x6a7d96, metalness: 0.3, roughness: 0.55,
       envMap: mat.envMap, envMapIntensity: 0.7
     })
   );
-  back.position.set(0, 4, WALL_Z - 0.1);
   back.userData.part = "panel";
   room.add(back);
 
@@ -155,16 +180,15 @@ export function buildLockerRoom(scene) {
     new THREE.PlaneGeometry(11, 0.16),
     new THREE.MeshBasicMaterial({ color: 0xffd9a0 })
   );
-  cove.position.set(0, 9.6, WALL_Z + 0.6);
   room.add(cove);
 
-  const lights = [];
+  const washes = [];
   for (const x of [-3.4, 3.4]) {
     const wash = new THREE.SpotLight(0xfff0d4, 58, 26, 1.0, 0.85, 1.2);
     wash.position.set(x, 6.2, WALL_Z + 4.6);
     wash.target.position.set(x * 0.5, 2.6, WALL_Z);
     room.add(wash, wash.target);
-    lights.push(wash);
+    washes.push(wash);
   }
   const front = new THREE.PointLight(0xffe9c8, 26, 22, 1.5);
   front.position.set(0, 3.0, WALL_Z + 5.4);
@@ -172,13 +196,52 @@ export function buildLockerRoom(scene) {
   const ambient = new THREE.HemisphereLight(0xbcd4ff, 0x2a1a10, 0.95);
   room.add(ambient);
 
+  /* Cuts the room to the shape of wall about to stand against it. A folded wall
+     runs half as tall again as an unfolded one, and the panelling, the cove and
+     the two washes all have to reach that far. Called before a wall is built
+     rather than every frame — the shapes only swap when the viewport crosses
+     the breakpoint. */
+  const setNarrow = (narrow) => {
+    const height = narrow ? PANEL.narrow : PANEL.wide;
+    back.geometry.dispose();
+    back.geometry = new THREE.PlaneGeometry(13, height + PANEL.below);
+    back.position.set(0, (height - PANEL.below) / 2, WALL_Z - 0.1);
+    panelling.repeat.set(4, (height + PANEL.below) * 0.27);
+    // The cove is a bright bar, not a light. It only has to stay above
+    // everything on the wall, or it reads as a strip light behind the flag.
+    cove.position.set(0, height + 0.6, WALL_Z + 0.6);
+
+    /* A folded wall is read a screenful at a time on the way down it, so the
+       light has to cover all of it evenly. Two spots aimed at the middle of a
+       thirteen-metre wall only burn a hole in it: the hot spot blew a gold star
+       out to white while the flag four metres above it sat in the dark. Wide
+       open, further back, much weaker, and most of the work handed to the
+       ambient instead. */
+    washes.forEach((wash, index) => {
+      const x = index === 0 ? -3.4 : 3.4;
+      wash.position.set(narrow ? x * 0.7 : x, narrow ? 7.0 : 6.2, WALL_Z + (narrow ? 7.5 : 4.6));
+      wash.target.position.set(x * (narrow ? 0.25 : 0.5), narrow ? 6.5 : 2.6, WALL_Z);
+      wash.target.updateMatrixWorld();
+      wash.angle = narrow ? 1.35 : 1.0;
+      wash.penumbra = narrow ? 1 : 0.85;
+      wash.distance = narrow ? 48 : 26;
+      wash.intensity = narrow ? 30 : 58;
+    });
+    front.position.set(0, narrow ? 6.5 : 3.0, WALL_Z + (narrow ? 8 : 5.4));
+    front.distance = narrow ? 48 : 22;
+    front.intensity = narrow ? 22 : 26;
+    ambient.intensity = narrow ? 2.1 : 0.95;
+  };
+  setNarrow(false);
+
   scene.add(room);
-  return { room, lights: [...lights, front, ambient] };
+  return { room, lights: [...washes, front, ambient], setNarrow };
 }
 
 /* Builds one manager's wall into `room`, and hands back the pieces the camera
    and the pointer need: what can be clicked, and how big the wall came out. */
-export function buildLockerWall(room, locker) {
+export function buildLockerWall(room, locker, { narrow = false } = {}) {
+  const grid = narrow ? GRID.narrow : GRID.wide;
   const mat = materials();
   const wall = new THREE.Group();
   const items = [];
@@ -283,7 +346,12 @@ export function buildLockerWall(room, locker) {
   /* ------------------------------------------------------------------ flag */
   let cursor = WALL_TOP;
 
-  mount(buildTeamFlag(locker), 0, cursor - SIZE.flagHalf - 0.12, WALL_Z + 0.14, {
+  // The flag is the one piece wider than any row, so on a narrow wall it is
+  // what would set the width for everything else. It comes down to size.
+  const flagHalf = SIZE.flagHalf * grid.flag;
+  const flag = buildTeamFlag(locker);
+  flag.scale.setScalar(grid.flag);
+  mount(flag, 0, cursor - flagHalf - 0.12, WALL_Z + 0.14, {
     id: "flag",
     kind: "flag",
     title: locker.team,
@@ -292,14 +360,14 @@ export function buildLockerWall(room, locker) {
     stats: locker.stats,
     links: [{ label: "Full Profile", href: `alltime.html#owner=${locker.ownerId}` }]
   });
-  cursor -= SIZE.flagHalf * 2 + 0.12 + ROW_GAP;
+  cursor -= flagHalf * 2 + 0.12 + ROW_GAP;
 
   /* -------------------------------------------------------------- pennants */
   if (locker.berths.length) {
     label("PLAYOFF BERTHS", 0, cursor, 1.9);
     const railY = cursor - CAPTION_DROP;
     const spots = spread(locker.berths.length, {
-      perRow: 6, gap: 0.46, top: railY, rowGap: SIZE.pennant + 0.22
+      perRow: grid.pennants, gap: 0.46, top: railY, rowGap: SIZE.pennant + 0.22
     });
     locker.berths.forEach((berth, index) => {
       const spot = spots[index];
@@ -331,27 +399,28 @@ export function buildLockerWall(room, locker) {
         links: [{ label: `${berth.year} Season`, href: `${berth.year}.html` }]
       });
     });
-    const rows = Math.ceil(locker.berths.length / 6);
+    const rows = Math.ceil(locker.berths.length / grid.pennants);
     cursor = railY - rows * SIZE.pennant - (rows - 1) * 0.22 - ROW_GAP;
   }
 
   /* --------------------------------------------------------- season honours */
-  /* What the regular season handed out before the bracket did: a gold star for
-     leading the league in points, a red-white-and-blue ribbon for the most
-     wins. They sit directly under the pennants because they are won the same
-     way — over fourteen weeks, not in January. */
-  if (locker.honours.length) {
-    label("SEASON HONORS", 0, cursor, 1.9);
-    const railY = cursor - CAPTION_DROP;
-    const spots = spread(locker.honours.length, {
-      perRow: 6, gap: 0.56, top: railY, rowGap: SIZE.honour + 0.18
+  /* What the regular season handed out before the bracket did: a row of gold
+     stars for leading the league in points, then a row of ribbons for finishing
+     with the most wins. They sit directly under the pennants because they are
+     won the same way — over fourteen weeks, not in January.
+
+     Neither row is captioned. A gold star and a first-place rosette already say
+     what they are, and two more headings stacked between the pennants and the
+     trophy shelf turned a wall into a list of headings. */
+  const honourRow = (honours, build, { gapAfter = ROW_GAP } = {}) => {
+    if (!honours.length) return;
+    const top = cursor;
+    const spots = spread(honours.length, {
+      perRow: grid.honours, gap: 0.56, top, rowGap: SIZE.honour + 0.18
     });
-    locker.honours.forEach((honour, index) => {
+    honours.forEach((honour, index) => {
       const spot = spots[index];
-      const badge = honour.kind === "star"
-        ? buildScoringStar({ year: honour.year, accent: "#e0aa2c" })
-        : buildWinsRibbon({ year: honour.year, accent: "#c8102e" });
-      mount(badge, spot.x, spot.y, WALL_Z + 0.2, {
+      mount(build(honour), spot.x, spot.y, WALL_Z + 0.2, {
         id: honour.id,
         kind: honour.kind,
         title: honour.title,
@@ -361,9 +430,16 @@ export function buildLockerWall(room, locker) {
         links: [{ label: `${honour.year} Season`, href: `${honour.year}.html` }]
       });
     });
-    const rows = Math.ceil(locker.honours.length / 6);
-    cursor = railY - rows * SIZE.honour - (rows - 1) * 0.18 - ROW_GAP;
-  }
+    const rows = Math.ceil(honours.length / grid.honours);
+    cursor = top - rows * SIZE.honour - (rows - 1) * 0.18 - gapAfter;
+  };
+
+  // The two rows are one idea, so they sit closer to each other than to the
+  // pennants above and the shelf below.
+  honourRow(locker.stars, (honour) => buildScoringStar({ year: honour.year, accent: STAR_PLATE }), {
+    gapAfter: locker.ribbons.length ? 0.18 : ROW_GAP
+  });
+  honourRow(locker.ribbons, (honour) => buildWinsRibbon({ year: honour.year, accent: RIBBON_PLATE }));
 
   /* ------------------------------------------------------------ the shelf */
   /* The shelf is always here, stocked or bare. A manager with nothing on it
@@ -374,14 +450,14 @@ export function buildLockerWall(room, locker) {
     const tallest = hasTitle ? SIZE.trophy : SIZE.bowl;
     const shelfY = cursor - CAPTION_DROP - tallest;
 
-    const shelfGeometry = roundedBox(4.6, 0.11, 0.62, 0.03);
+    const shelfGeometry = roundedBox(grid.shelf, 0.11, 0.62, 0.03);
     shelfGeometry.computeBoundingBox();
     const shelfTop = shelfGeometry.boundingBox.max.y;
     const shelf = new THREE.Mesh(shelfGeometry, mat.darkMarble);
     shelf.position.set(0, shelfY - shelfTop, WALL_Z + 0.32);
-    const shelfEdge = new THREE.Mesh(roundedBox(4.64, 0.022, 0.66, 0.01), teamMetal(accent, { emissive: 0.5 }));
+    const shelfEdge = new THREE.Mesh(roundedBox(grid.shelf + 0.04, 0.022, 0.66, 0.01), teamMetal(accent, { emissive: 0.5 }));
     shelfEdge.position.set(0, shelfY - shelfTop - 0.062, WALL_Z + 0.32);
-    for (const x of [-2.1, 0, 2.1]) {
+    for (const x of [-(grid.shelf / 2 - 0.2), 0, grid.shelf / 2 - 0.2]) {
       const bracket = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.2, 10), mat.brass);
       bracket.position.set(x, shelfY - shelfTop - 0.145, WALL_Z + 0.14);
       bracket.userData.part = "bracket";
@@ -392,7 +468,7 @@ export function buildLockerWall(room, locker) {
     wall.add(track(shelf), track(shelfEdge));
 
     const spots = spread(locker.trophies.length, {
-      perRow: 5, gap: hasTitle ? 0.92 : 0.74, top: shelfY, rowGap: 1.15
+      perRow: grid.trophies, gap: hasTitle ? 0.92 : 0.74, top: shelfY, rowGap: 1.15
     });
 
     const PLACE = { 1: "Champion", 2: "Runner-up", 3: "Third place" };
@@ -403,6 +479,9 @@ export function buildLockerWall(room, locker) {
         object = buildLeagueTrophy({
           year: entry.year,
           color: accent,
+          // Without an ownerId the plaque between the columns falls back to the
+          // manager's emoji, which is what every locker trophy was wearing.
+          ownerId: locker.ownerId,
           icon: locker.icon,
           subtitle: locker.team,
           accent
@@ -436,7 +515,7 @@ export function buildLockerWall(room, locker) {
   if (locker.plaques.length) {
     label("PERSONAL BESTS", 0, cursor, 1.8);
     const spots = spread(locker.plaques.length, {
-      perRow: 6, gap: 0.90, top: cursor - CAPTION_DROP - SIZE.plaqueHalf, rowGap: SIZE.plaqueHalf * 2 + 0.2
+      perRow: grid.plaques, gap: 0.90, top: cursor - CAPTION_DROP - SIZE.plaqueHalf, rowGap: SIZE.plaqueHalf * 2 + 0.2
     });
     locker.plaques.forEach((entry, index) => {
       const spot = spots[index];
@@ -475,7 +554,7 @@ export function buildLockerWall(room, locker) {
 
   // A pool of the team's colour on the floor in front of the wall.
   const pool = new THREE.Mesh(
-    new THREE.PlaneGeometry(7, 3.4),
+    new THREE.PlaneGeometry(grid.pool, 3.4),
     new THREE.MeshBasicMaterial({
       map: radialTexture(), color: new THREE.Color(accent),
       transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false
@@ -512,6 +591,7 @@ export function buildLockerWall(room, locker) {
     items,
     centre,
     size,
+    narrow,
     dispose() {
       room.remove(wall);
       perishable.forEach((resource) => resource.dispose?.());

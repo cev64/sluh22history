@@ -767,8 +767,8 @@ function seasonHonours(data) {
     });
   });
 
-  // Newest first, and within a year the star before the ribbon, so a manager
-  // who took both in one season reads left to right the way the season did.
+  // Newest first. The wall splits them into a row of stars and a row of
+  // ribbons, so each row comes out in season order on its own.
   Object.values(byOwner).forEach((list) => {
     list.sort((a, b) => (b.year - a.year) || (a.kind === "star" ? -1 : 1));
   });
@@ -833,6 +833,7 @@ export function buildLockers(data, careers) {
       .map((berth) => ({ ...berth, division: crowned.has(berth.year) }))
       .sort((a, b) => b.year - a.year);
     const trophies = (trophyCase[career.ownerId] || []).sort((a, b) => b.year - a.year);
+    // Kept apart rather than in one list: the wall gives each its own row.
     const honours = honourRoll[career.ownerId] || [];
     const stars = honours.filter((honour) => honour.kind === "star");
     const ribbons = honours.filter((honour) => honour.kind === "ribbon");
@@ -908,7 +909,8 @@ export function buildLockers(data, careers) {
       titles: [...career.titles].sort((a, b) => b - a),
       trophies,
       berths,
-      honours,
+      stars,
+      ribbons,
       plaques,
       seasons: career.seasons,
       summary: [
