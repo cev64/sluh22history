@@ -277,7 +277,7 @@ function buildShaft(scene, hall, layout) {
      land on has nowhere else to get light from. It lives on the room rather
      than on the scene so that it goes out with the hall: a locker wall is lit
      by its own lamps and does not want this one on top of them. */
-  room.add(new THREE.HemisphereLight(0xa9c4ee, 0x3a2a1a, 0.55));
+  room.add(new THREE.HemisphereLight(0xa9c4ee, 0x3a2a1a, 0.4));
 
   scene.add(room);
   return { room, floor: back };
@@ -654,7 +654,7 @@ export function buildTravellingLights(scene, quality, { vertical = false } = {})
      candela, and the ambient below carrying most of the load. */
   const key = new THREE.SpotLight(
     0xffe3b8,
-    vertical ? 170 : 150,
+    vertical ? 88 : 150,
     vertical ? 30 : 22,
     vertical ? 1.05 : 0.62,
     vertical ? 0.95 : 0.45,
@@ -674,7 +674,7 @@ export function buildTravellingLights(scene, quality, { vertical = false } = {})
 
   const wings = [-1, 1].map((side) => {
     const light = new THREE.SpotLight(
-      0xbcd2ff, vertical ? 44 : 72, vertical ? 26 : 20, vertical ? 1.0 : 0.7, vertical ? 0.9 : 0.65, vertical ? 1.1 : 1.6
+      0xbcd2ff, vertical ? 24 : 72, vertical ? 26 : 20, vertical ? 1.0 : 0.7, vertical ? 0.9 : 0.65, vertical ? 1.1 : 1.6
     );
     light.position.set(0, 5.0, LAYOUT.itemZ + 2.4);
     light.target.position.set(0, 1.1, LAYOUT.itemZ);
@@ -685,7 +685,7 @@ export function buildTravellingLights(scene, quality, { vertical = false } = {})
   // A low warm bounce off the wall behind the exhibits, so nothing is lit from
   // one side only. In a shaft the wall is a metre and a half back rather than
   // five, so the same lamp there would scorch it.
-  const rim = new THREE.PointLight(0xff9d5c, vertical ? 5 : 42, vertical ? 6 : 16, 2);
+  const rim = new THREE.PointLight(0xff9d5c, vertical ? 3 : 42, vertical ? 6 : 16, 2);
   rim.position.set(0, 1.9, wallZ + (vertical ? 0.28 : 1.4));
   scene.add(rim);
 

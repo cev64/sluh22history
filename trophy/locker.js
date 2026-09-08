@@ -9,8 +9,8 @@
    Rows run down the wall in the order a trophy case fills up:
 
      flag        the team's colours, across the top
-     pennants    one per playoff berth, hung point-down from a rail
-     honours     a gold star per scoring title, a ribbon per best record
+     pennants    one per playoff berth, hung point-down from a rail, with that
+                 season's star and ribbon pinned to its two posts
      shelf       a league trophy per title, a silver bowl per title game
      plaques     personal bests, mounted in a row
 
@@ -46,7 +46,6 @@ const CAPTION_DROP = 0.28;
 const SIZE = {
   flagHalf: 0.80,
   pennant: 0.62,
-  honour: 0.80,
   trophy: 0.90,
   bowl: 0.46,
   plaqueHalf: 0.43,
@@ -78,7 +77,7 @@ const RIBBON_PLATE = "#c8102e";
    fittings are cut. The folded wall is not a narrower version of this — it is
    laid out in columns instead of rows, and takes its measurements from COLUMN
    below. All the two share is the pool of light on the floor in front. */
-const ROWS = { pennants: 6, honours: 6, trophies: 5, plaques: 6, shelf: 4.6, flag: 1 };
+const ROWS = { pennants: 6, trophies: 5, plaques: 6, shelf: 4.6, flag: 1 };
 const POOL = { wide: 7, narrow: 4.6 };
 
 /* How wide the team flag is at full size, rod and all — the number the folded
@@ -95,8 +94,8 @@ const FLAG_WIDTH = 3.35;
    middle of a phone. */
 const COLUMN = {
   pitch: 1.32,   // across, from one column to the next
-  drop: 1.0,     // down, from one cell to the next
-  hang: 0.92,    // pennants, stars and ribbons
+  drop: 1.16,    // down, from one cell to the next
+  pennant: 1.3,  // before the cell takes it in — a berth is read before anything
   trophy: 0.74,  // on top of whatever the shelf scale already is
   plaque: 0.82
 };
@@ -104,6 +103,17 @@ const COLUMN = {
 /* The air around a piece inside its cell. Without it two neighbours can be
    exactly the height of the gap between them and still read as touching. */
 const CELL_PAD = 0.14;
+
+/* How much bigger a berth's pennant is than it used to be on an unfolded wall,
+   now that the two honour rows have folded onto its corners and left the room. */
+const PENNANT_BIG = 1.45;
+
+/* A star or a ribbon pinned to a pennant's post: how wide it is against the
+   pennant, how far in from the pennant's edge the pin sits and how far down from
+   its top, all as fractions of the pennant as built — so one set of numbers does
+   for a pennant at full size on a desktop wall and one cut to a cell on a
+   phone. */
+const BADGE = { span: 0.52, post: 0.62, drop: 0.15, out: 0.12 };
 
 /* The top of the room's wainscot rail, and the line the wall's contents stop
    at. Rows stack downward, so a manager with all five of them reaches furthest
@@ -376,9 +386,35 @@ export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } =
      viewer who reads left to right. A phone's wall hangs them in columns: it
      has height to spare instead, and a viewer who wants the whole case in one
      look rather than a wall to scroll. */
+  const honourPiece = (honour, { compact = false } = {}) => ({
+    kind: honour.kind,
+    hangs: true,
+    build: (scale) => {
+      const badge = honour.kind === "star"
+        ? buildScoringStar({ year: honour.year, accent: STAR_PLATE }, { compact })
+        : buildWinsRibbon({ year: honour.year, accent: RIBBON_PLATE }, { compact });
+      badge.scale.setScalar(scale);
+      return badge;
+    },
+    meta: {
+      id: honour.id,
+      kind: honour.kind,
+      title: honour.title,
+      subtitle: honour.subtitle,
+      blurb: honour.blurb,
+      stats: honour.stats,
+      links: [{ label: `${honour.year} Season`, href: `${honour.year}.html` }]
+    }
+  });
+
   const pennantPiece = (berth) => ({
     kind: "pennant",
     hangs: true,
+    // The star for that season on the left post, the ribbon on the right.
+    badges: [
+      ...(berth.star ? [{ side: -1, piece: honourPiece(berth.star, { compact: true }) }] : []),
+      ...(berth.ribbon ? [{ side: 1, piece: honourPiece(berth.ribbon, { compact: true }) }] : [])
+    ],
     build: (scale) => {
       const pennant = buildPennant({
         year: berth.year,
@@ -409,27 +445,6 @@ export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } =
         ...(berth.division ? [{ label: "First Round", value: "Bye" }] : [])
       ],
       links: [{ label: `${berth.year} Season`, href: `${berth.year}.html` }]
-    }
-  });
-
-  const honourPiece = (honour) => ({
-    kind: honour.kind,
-    hangs: true,
-    build: (scale) => {
-      const badge = honour.kind === "star"
-        ? buildScoringStar({ year: honour.year, accent: STAR_PLATE })
-        : buildWinsRibbon({ year: honour.year, accent: RIBBON_PLATE });
-      badge.scale.setScalar(scale);
-      return badge;
-    },
-    meta: {
-      id: honour.id,
-      kind: honour.kind,
-      title: honour.title,
-      subtitle: honour.subtitle,
-      blurb: honour.blurb,
-      stats: honour.stats,
-      links: [{ label: `${honour.year} Season`, href: `${honour.year}.html` }]
     }
   });
 
@@ -502,10 +517,16 @@ export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } =
     }
   });
 
+  /* The berths carry the season's honours on their own corners, so there is no
+     row of stars and no row of ribbons: an honour whose season never reached the
+     bracket has no pennant to sit on and joins the berths as a piece in its own
+     right, which is the only way one ever appears on its own. */
   const sections = [
-    { id: "pennants", caption: "PLAYOFF BERTHS", pieces: locker.berths.map(pennantPiece) },
-    { id: "stars", pieces: locker.stars.map(honourPiece) },
-    { id: "ribbons", pieces: locker.ribbons.map(honourPiece) },
+    {
+      id: "pennants",
+      caption: "PLAYOFF BERTHS",
+      pieces: [...locker.berths.map(pennantPiece), ...locker.looseHonours.map((honour) => honourPiece(honour))]
+    },
     { id: "trophies", caption: "TROPHIES", pieces: locker.trophies.map(trophyPiece), always: true },
     { id: "plaques", caption: "PERSONAL BESTS", pieces: locker.plaques.map(plaquePiece) }
   ];
@@ -542,6 +563,49 @@ export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } =
     }
   };
 
+  /* Hangs one piece, then pins whatever belongs to it on its own top corners.
+
+     A star and a ribbon are won over a season, and the pennant for that season
+     is already on the wall saying which season it was — so rather than taking a
+     row of their own they sit on its two posts, the star on the left and the
+     ribbon on the right. They are mounted separately from the pennant, not
+     built into it, because each is still its own thing to tap.
+
+     Both the pin's size and where it goes are measured off the piece as built,
+     so the same line works for a pennant at full size on a desktop wall and one
+     cut to a cell on a phone. */
+  const measure = (object) => {
+    object.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(object);
+    return { centre: box.getCenter(new THREE.Vector3()), size: box.getSize(new THREE.Vector3()) };
+  };
+
+  const hangPiece = (piece, object, x, y, z) => {
+    /* Everything is placed by where it looks like it is, not by where its
+       origin happens to be. A pennant is modelled hanging off its rail and a
+       plaque around its own middle, so mounting both at the same point put one
+       of them half its own height below the other. Measuring first and offsetting
+       by the difference lands every piece dead centre on the slot it was given,
+       whatever it is. */
+    const { centre, size } = measure(object);
+    const holder = mount(object, x - centre.x, y - centre.y, z, piece.meta);
+
+    (piece.badges || []).forEach(({ side, piece: badge }) => {
+      const pin = badge.build(1);
+      const natural = measure(pin);
+      pin.scale.multiplyScalar((size.x * BADGE.span) / Math.max(0.001, natural.size.x));
+      const pinned = measure(pin);
+      mount(
+        pin,
+        x + side * size.x * BADGE.post - pinned.centre.x,
+        y + size.y * (0.5 - BADGE.drop) - pinned.centre.y,
+        z + BADGE.out,
+        badge.meta
+      );
+    });
+    return holder;
+  };
+
   /* ------------------------------------------------------------------ flag */
   let cursor = WALL_TOP;
 
@@ -570,40 +634,33 @@ export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } =
   /* ------------------------------------------------------------------ rows */
 
   /* The unfolded wall: one band per kind of thing, stacked in the order a
-     trophy case fills up, each band captioned except the two the honours hang
-     in — a gold star and a first-place rosette say what they are, and two more
-     headings between the pennants and the shelf turned the wall into a list of
-     headings. */
+     trophy case fills up, each band with its own heading. */
   function layoutRows() {
     hangFlag(ROWS.flag);
 
     /* One band of one kind of thing. `drop` is how much height a row of them
-       takes; `centred` is for the pieces that hang by their middle rather than
-       from their top, which is every plaque and none of the rest. */
-    const hangRow = (pieces, { perRow, gap, drop, rowGap, caption, gapAfter = ROW_GAP, centred = false, z = 0.2 }) => {
+       takes, and everything is hung by its middle inside that band — `mount`
+       centres a piece on the point it is given, so hanging a pennant from the
+       top of its band put half a pennant's worth of it back up through the
+       heading above. */
+    const hangRow = (pieces, { perRow, gap, drop, rowGap, caption, gapAfter = ROW_GAP, z = 0.2, scale = 1 }) => {
       if (!pieces.length) return;
       if (caption) label(caption, 0, cursor, 1.9);
       const top = caption ? cursor - CAPTION_DROP : cursor;
       const spots = spread(pieces.length, { perRow, gap, top, rowGap: drop + rowGap });
       pieces.forEach((piece, index) => {
-        const y = centred ? spots[index].y - drop / 2 : spots[index].y;
-        mount(piece.build(1), spots[index].x, y, WALL_Z + z, piece.meta);
+        hangPiece(piece, piece.build(scale), spots[index].x, spots[index].y - drop / 2, WALL_Z + z);
       });
       const rows = Math.ceil(pieces.length / perRow);
       cursor = top - rows * drop - (rows - 1) * rowGap - gapAfter;
     };
 
+    /* The berths run bigger than they used to. They are the row a wall is read
+       by — one a January — and with the two honour rows folded onto their
+       corners there is the height to give them. */
     hangRow(sectionOf("pennants").pieces, {
-      perRow: ROWS.pennants, gap: 0.46, drop: SIZE.pennant, rowGap: 0.22, caption: "PLAYOFF BERTHS"
-    });
-    // The two honour rows are one idea, so they sit closer to each other than to
-    // the pennants above and the shelf below.
-    hangRow(sectionOf("stars").pieces, {
-      perRow: ROWS.honours, gap: 0.56, drop: SIZE.honour, rowGap: 0.18,
-      gapAfter: locker.ribbons.length ? 0.18 : ROW_GAP
-    });
-    hangRow(sectionOf("ribbons").pieces, {
-      perRow: ROWS.honours, gap: 0.56, drop: SIZE.honour, rowGap: 0.18
+      perRow: ROWS.pennants, gap: 0.88, drop: SIZE.pennant * PENNANT_BIG + 0.16, rowGap: 0.24,
+      caption: "PLAYOFF BERTHS", scale: PENNANT_BIG
     });
 
     /* The shelf is always here, stocked or bare. A manager with nothing on it
@@ -635,7 +692,7 @@ export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } =
 
     hangRow(sectionOf("plaques").pieces, {
       perRow: ROWS.plaques, gap: 0.90, drop: SIZE.plaqueHalf * 2, rowGap: 0.2,
-      caption: "PERSONAL BESTS", centred: true, z: 0.14
+      caption: "PERSONAL BESTS", z: 0.14
     });
   }
 
@@ -665,9 +722,8 @@ export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } =
       sectionOf("trophies").pieces,
       sectionOf("plaques").pieces
     ].filter((lane) => lane.length);
-    const honours = [...sectionOf("stars").pieces, ...sectionOf("ribbons").pieces];
 
-    if (!lanes.length && !honours.length) {
+    if (!lanes.length) {
       hangFlag(0.7);
       return;
     }
@@ -715,29 +771,10 @@ export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } =
       // Everything else is centred in its cell: `mount` hangs a piece by its own
       // middle, so one line does for a pennant, a rosette and a plaque however
       // differently each of them is modelled.
-      const scale = piece.hangs ? COLUMN.hang : COLUMN.plaque;
+      const scale = piece.hangs ? COLUMN.pennant : COLUMN.plaque;
       const z = piece.hangs ? WALL_Z + 0.2 : WALL_Z + 0.14;
-      mount(fitCell(piece.build(scale)), x, cellTop - COLUMN.drop / 2, z, piece.meta);
+      hangPiece(piece, fitCell(piece.build(scale)), x, cellTop - COLUMN.drop / 2, z);
     };
-
-    /* ------------------------------------------------------------- honours */
-    /* Across the top rather than down a column of their own, because they are
-       the one thing a manager collects a few of rather than one a season.
-
-       A full row sits on the columns' own centre lines. A row that is short of
-       one is centred across them instead — a single star belongs over the middle
-       column, and a pair belongs in the two gaps between the three, not shoved
-       against the left-hand edge with a hole where the third would have been. */
-    const perRow = Math.min(3, across);
-    honours.forEach((piece, index) => {
-      const row = Math.floor(index / perRow);
-      const inRow = Math.min(perRow, honours.length - row * perRow);
-      const at = index % perRow;
-      hangInCell(piece, (at - (inRow - 1) / 2) * COLUMN.pitch, cursor - row * COLUMN.drop);
-    });
-    if (honours.length) {
-      cursor -= Math.ceil(honours.length / perRow) * COLUMN.drop + 0.12;
-    }
 
     /* ------------------------------------------------------------- columns */
     const top = cursor;

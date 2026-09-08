@@ -63,6 +63,16 @@ const IN_LOCKER = (mode) => mode === "locker" || mode === "lockerFocus";
    rectangle, which wants exactly what a desktop wants and none of what a phone
    held upright does, so it is not upright and nothing changes for it. Above the
    breakpoint, neither is ever true and nothing changes at all. */
+/* How hard the render is pushed before the tone map. A shaft is read at arm's
+   length through a phone, and at the corridor's exposure every glazed or gold
+   surface in it clipped — a porcelain lid, the face of a cup, a brass plate —
+   and took the lettering next to it with them. The locker room keeps its own
+   lamps and wants the exposure it was lit for, so the two are set separately
+   rather than the whole site being turned down. Both are swapped behind the
+   wipe that covers a change of room, so neither is ever seen changing. */
+const HALL_EXPOSURE = innerWidth <= 860 && innerHeight > innerWidth ? 0.86 : 1.06;
+const LOCKER_EXPOSURE = 1.06;
+
 const NARROW_AT = 860;
 const isNarrow = () => innerWidth <= NARROW_AT;
 const isUpright = () => isNarrow() && innerHeight > innerWidth;
@@ -149,7 +159,7 @@ async function boot() {
   renderer.setPixelRatio(quality.pixelRatio);
   renderer.setSize(innerWidth, innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.06;
+  renderer.toneMappingExposure = HALL_EXPOSURE;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   if (quality.shadows) {
     renderer.shadowMap.enabled = true;
@@ -1200,6 +1210,7 @@ function openLocker(ownerId) {
 
     hallGroup.visible = false;
     lockerRoom.room.visible = true;
+    renderer.toneMappingExposure = LOCKER_EXPOSURE;
     // The hall's fog is tuned to a long aisle; a wall two rooms away would sit
     // in the middle of it.
     scene.fog = null;
@@ -1235,6 +1246,7 @@ function closeLocker() {
 
     lockerRoom.room.visible = false;
     hallGroup.visible = true;
+    renderer.toneMappingExposure = HALL_EXPOSURE;
     scene.fog = hallFog;
 
     dom.stage.classList.remove("in-locker", "focused");
