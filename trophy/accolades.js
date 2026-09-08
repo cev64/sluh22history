@@ -698,6 +698,84 @@ function divisionCrowns(data) {
   return byOwner;
 }
 
+/* The two honours the regular season hands out on its own, before a bracket is
+   drawn: a gold star for scoring the most points, and a red-white-and-blue
+   ribbon for finishing with the most wins. They are read off the standings, so
+   a team can take one, both or neither in a year it never reached the playoffs
+   — and in 2024 the league's top scorer and its best record were two different
+   managers, which is the whole reason both hang on the wall.
+
+   The leaders are found across every team that played that season, departed
+   managers included. If the year was led by somebody who is no longer in the
+   league, nobody still here gets to claim it. Wins tie often, so a ribbon is
+   shared; points, scored to two decimal places, effectively never do, but the
+   tie is honoured the same way if it ever comes. */
+function seasonHonours(data) {
+  const byOwner = {};
+
+  data.seasons.forEach((season) => {
+    const teams = Object.values(season.teams);
+    if (!teams.length) return;
+    const size = teams.length;
+    const topPoints = Math.max(...teams.map((team) => team.pf));
+    const topWins = Math.max(...teams.map((team) => team.wins));
+    const scorers = teams.filter((team) => team.pf === topPoints);
+    const winners = teams.filter((team) => team.wins === topWins);
+
+    scorers.filter(inTheHall).forEach((team) => {
+      const others = scorers.filter((other) => other !== team).map((other) => other.name);
+      (byOwner[team.ownerId] || (byOwner[team.ownerId] = [])).push({
+        kind: "star",
+        year: season.year,
+        team,
+        id: `points-${season.year}`,
+        title: `${season.year} Scoring Title`,
+        subtitle: team.name,
+        blurb: others.length
+          ? `${team.name} put up ${fmt(team.pf)} points across the ${season.year} regular season, level with ${others.join(", ")} for the most in the league.`
+          : `${team.name} put up ${fmt(team.pf)} points across the ${season.year} regular season — more than any of the other ${size - 1} teams in the league.`,
+        stats: [
+          { label: "Points For", value: fmt(team.pf) },
+          { label: "Per Game", value: fmt(team.pf / Math.max(1, team.wins + team.losses)) },
+          { label: "Record", value: `${team.wins}–${team.losses}` },
+          { label: "Finish", value: ordinal(team.finalRank) },
+          ...(others.length ? [{ label: "Shared With", value: others.join(", ") }] : [])
+        ]
+      });
+    });
+
+    winners.filter(inTheHall).forEach((team) => {
+      const others = winners.filter((other) => other !== team).map((other) => other.name);
+      (byOwner[team.ownerId] || (byOwner[team.ownerId] = [])).push({
+        kind: "ribbon",
+        year: season.year,
+        team,
+        id: `wins-${season.year}`,
+        title: `${season.year} Best Record`,
+        subtitle: team.name,
+        blurb: others.length
+          ? `${team.name} finished the ${season.year} regular season at ${team.wins}–${team.losses}, tied for the most wins in the league with ${others.join(", ")}.`
+          : `${team.name} finished the ${season.year} regular season at ${team.wins}–${team.losses}, the most wins of any team that year.`,
+        stats: [
+          { label: "Record", value: `${team.wins}–${team.losses}` },
+          { label: "Points For", value: fmt(team.pf) },
+          { label: "Points Against", value: fmt(team.pa) },
+          { label: "Finish", value: ordinal(team.finalRank) },
+          ...(others.length ? [{ label: "Shared With", value: others.join(", ") }] : [])
+        ]
+      });
+    });
+  });
+
+  // Newest first, and within a year the star before the ribbon, so a manager
+  // who took both in one season reads left to right the way the season did.
+  Object.values(byOwner).forEach((list) => {
+    list.sort((a, b) => (b.year - a.year) || (a.kind === "star" ? -1 : 1));
+  });
+
+  return byOwner;
+}
+
 /* A manager's biggest win, by margin. */
 function biggestWin(data, ownerId) {
   let best = null;
@@ -746,6 +824,7 @@ export function buildLockers(data, careers) {
   const playoffs = playoffSeasons(data);
   const trophyCase = podiums(data, careers);
   const crowns = divisionCrowns(data);
+  const honourRoll = seasonHonours(data);
   const lockers = {};
 
   Object.values(careers).filter((career) => career.seasons.length).forEach((career) => {
@@ -754,6 +833,9 @@ export function buildLockers(data, careers) {
       .map((berth) => ({ ...berth, division: crowned.has(berth.year) }))
       .sort((a, b) => b.year - a.year);
     const trophies = (trophyCase[career.ownerId] || []).sort((a, b) => b.year - a.year);
+    const honours = honourRoll[career.ownerId] || [];
+    const stars = honours.filter((honour) => honour.kind === "star");
+    const ribbons = honours.filter((honour) => honour.kind === "ribbon");
     const bestFinish = Math.min(...career.finishes.map((f) => f.rank));
     const bestFinishYears = career.finishes.filter((f) => f.rank === bestFinish).map((f) => f.year);
     const bestSeason = career.seasons.reduce((best, s) => (s.pf > best.pf ? s : best));
@@ -826,6 +908,7 @@ export function buildLockers(data, careers) {
       titles: [...career.titles].sort((a, b) => b - a),
       trophies,
       berths,
+      honours,
       plaques,
       seasons: career.seasons,
       summary: [
@@ -833,6 +916,8 @@ export function buildLockers(data, careers) {
         career.titles.length ? `${career.titles.length} ${career.titles.length === 1 ? "title" : "titles"}` : null,
         berths.length ? `${berths.length} playoff ${berths.length === 1 ? "berth" : "berths"}` : null,
         crowned.size ? `${crowned.size} division ${crowned.size === 1 ? "title" : "titles"}` : null,
+        stars.length ? `${stars.length} scoring ${stars.length === 1 ? "title" : "titles"}` : null,
+        ribbons.length ? `${ribbons.length} best ${ribbons.length === 1 ? "record" : "records"}` : null,
         `${career.wins}–${career.losses}`
       ].filter(Boolean).join(" · "),
       stats: [

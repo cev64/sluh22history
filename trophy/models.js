@@ -818,6 +818,166 @@ export function buildPennant(item) {
   return group;
 }
 
+/* ---------------------------------------------------------- season honours */
+
+/* Both honours hang by their ring from a point at their own origin, the way a
+   pennant hangs from its rail, so a row of stars and ribbons lines up along its
+   top edge no matter how far each one drops below it. */
+
+/* The season each honour belongs to, on the same engraved plate the league
+   trophy carries its year on. The plate's aspect ratio is the texture's. */
+function yearPlate(item, width = 0.30) {
+  return new THREE.Mesh(
+    new THREE.PlaneGeometry(width, width * 0.449),
+    new THREE.MeshStandardMaterial({
+      map: yearPlateTexture({ year: item.year, color: item.accent }),
+      metalness: 0.3,
+      roughness: 0.34,
+      envMap: shared.envMap,
+      envMapIntensity: 0.9
+    })
+  );
+}
+
+/* The gold star for leading the league in regular-season scoring. A star and
+   nothing else: it is the one honour the standings hand out for putting up
+   points rather than for winning with them, and it should read as a gold star
+   from across the room. */
+export function buildScoringStar(item) {
+  const group = new THREE.Group();
+
+  const hanger = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.009, 8, 20), shared.brass);
+  hanger.position.y = -0.03;
+
+  const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.09, 6), shared.brass);
+  chain.position.y = -0.09;
+
+  // A dark disc behind the star, so the points do not disappear into the
+  // panelling the way an unbacked star did against the lighter walls. Matte and
+  // barely reflective on purpose: any of the hall's existing dark materials
+  // caught enough of the warm key light to read as a silver medal with a gold
+  // star sitting on it, which is a different award altogether.
+  const backing = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.185, 0.185, 0.03, 40),
+    new THREE.MeshStandardMaterial({
+      color: 0x0a1018, metalness: 0.2, roughness: 0.62,
+      envMap: shared.envMap, envMapIntensity: 0.25
+    })
+  );
+  backing.rotation.x = Math.PI / 2;
+  backing.position.y = -0.30;
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.186, 0.014, 10, 44), shared.brass);
+  rim.position.y = -0.30;
+
+  const star = new THREE.Mesh(starGeometry(0.145, 0.062, 0.05), shared.gold);
+  star.position.set(0, -0.30, 0.028);
+  star.castShadow = true;
+
+  const plate = yearPlate(item);
+  plate.position.set(0, -0.63, 0.004);
+
+  group.add(hanger, chain, backing, rim, star, plate);
+  group.userData.glints = [new THREE.Vector3(0.06, -0.16, 0.07)];
+  return group;
+}
+
+/* The scalloped edge of a rosette. Drawn as one closed curve whose radius
+   ripples, rather than as a ring of separate pleats: it extrudes into a single
+   watertight shape and costs one mesh instead of sixteen. */
+function rosetteShape(radius, lobes = 15, depth = 0.16) {
+  const shape = new THREE.Shape();
+  const steps = lobes * 10;
+  for (let i = 0; i <= steps; i += 1) {
+    const angle = (i / steps) * TAU;
+    const r = radius * (1 - depth / 2 + (depth / 2) * Math.cos(angle * lobes));
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    if (i === 0) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
+  }
+  shape.closePath();
+  return shape;
+}
+
+function rosetteLayer(radius, color, { lobes = 15, depth = 0.16 } = {}) {
+  const geometry = new THREE.ExtrudeGeometry(rosetteShape(radius, lobes, depth), {
+    depth: 0.012, bevelEnabled: true, bevelThickness: 0.008, bevelSize: 0.008, bevelSegments: 2
+  });
+  geometry.computeVertexNormals();
+  return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
+    color, metalness: 0.04, roughness: 0.82, envMap: shared.envMap, envMapIntensity: 0.3
+  }));
+}
+
+/* A prize ribbon's swallow-tailed tail. */
+function ribbonTail(width, length, color) {
+  const shape = new THREE.Shape();
+  const half = width / 2;
+  shape.moveTo(-half, 0);
+  shape.lineTo(half, 0);
+  shape.lineTo(half, -length);
+  shape.lineTo(0, -length + width * 0.44);
+  shape.lineTo(-half, -length);
+  shape.closePath();
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: 0.01, bevelEnabled: true, bevelThickness: 0.005, bevelSize: 0.005, bevelSegments: 1
+  });
+  geometry.computeVertexNormals();
+  return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
+    color, metalness: 0.04, roughness: 0.82, side: THREE.DoubleSide,
+    envMap: shared.envMap, envMapIntensity: 0.3
+  }));
+}
+
+/* The red, white and blue ribbon for finishing a season with the most wins.
+   A rosette pleated red, white and blue from the middle out, with two tails
+   under it, so it reads as a first-place ribbon at a glance rather than as one
+   more team colour on a wall already full of them. */
+const RIBBON = { red: 0xa80a24, white: 0xeef2f8, blue: 0x14337f };
+
+export function buildWinsRibbon(item) {
+  const group = new THREE.Group();
+
+  const hanger = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.009, 8, 20), shared.brass);
+  hanger.position.y = -0.03;
+  const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.07, 6), shared.brass);
+  chain.position.y = -0.08;
+
+  // Tails first, so the rosette sits over the top of where they are pinned.
+  const tails = new THREE.Group();
+  tails.position.set(0, -0.17, -0.012);
+  [[-0.10, 0.28, RIBBON.blue], [0.10, -0.28, RIBBON.red]].forEach(([x, lean, color]) => {
+    const tail = ribbonTail(0.125, 0.38, color);
+    tail.position.set(x, 0, 0);
+    tail.rotation.z = lean;
+    tails.add(tail);
+  });
+
+  const rosette = new THREE.Group();
+  rosette.position.y = -0.20;
+  const blue = rosetteLayer(0.17, RIBBON.blue);
+  const white = rosetteLayer(0.125, RIBBON.white, { lobes: 13, depth: 0.18 });
+  white.position.z = 0.016;
+  white.rotation.z = Math.PI / 13;
+  const red = rosetteLayer(0.082, RIBBON.red, { lobes: 11, depth: 0.2 });
+  red.position.z = 0.032;
+
+  const button = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.026, 26), shared.gold);
+  button.rotation.x = Math.PI / 2;
+  button.position.z = 0.05;
+  const pip = new THREE.Mesh(starGeometry(0.03, 0.013, 0.014), shared.goldWarm);
+  pip.position.z = 0.066;
+
+  rosette.add(blue, white, red, button, pip);
+
+  const plate = yearPlate(item, 0.28);
+  plate.position.set(0, -0.665, 0.004);
+
+  group.add(hanger, chain, tails, rosette, plate);
+  group.userData.glints = [new THREE.Vector3(0, -0.14, 0.09)];
+  return group;
+}
+
 /* The team's flag, across the top of their wall. */
 export function buildTeamFlag(locker) {
   const group = new THREE.Group();

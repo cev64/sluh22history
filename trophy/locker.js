@@ -10,6 +10,7 @@
 
      flag        the team's colours, across the top
      pennants    one per playoff berth, hung point-down from a rail
+     honours     a gold star per scoring title, a ribbon per best record
      shelf       a league trophy per title, a silver bowl per title game
      plaques     personal bests, mounted in a row
 
@@ -20,8 +21,8 @@
 
 import * as THREE from "three";
 import {
-  buildLeagueTrophy, buildPennant, buildPlaque, buildPodiumBowl, buildTeamFlag,
-  materials, roundedBox, teamMetal
+  buildLeagueTrophy, buildPennant, buildPlaque, buildPodiumBowl, buildScoringStar,
+  buildTeamFlag, buildWinsRibbon, materials, roundedBox, teamMetal
 } from "./models.js";
 import { mix, radialTexture } from "./textures.js";
 
@@ -40,6 +41,7 @@ const CAPTION_DROP = 0.28;
 const SIZE = {
   flagHalf: 0.80,
   pennant: 0.62,
+  honour: 0.80,
   trophy: 0.90,
   bowl: 0.46,
   plaqueHalf: 0.43,
@@ -50,8 +52,13 @@ const SIZE = {
 
 const WALL_Z = -0.55;
 
+/* Pennant cloth. Every berth flies the same blue so a wall reads at a glance
+   as "five Januaries in the bracket"; a division crown flies gold. */
+const PENNANT_BLUE = "#2a5fcc";
+const PENNANT_GOLD = "#7a5205";
+
 /* The top of the room's wainscot rail, and the line the wall's contents stop
-   at. Rows stack downward, so a manager with all four of them reaches furthest
+   at. Rows stack downward, so a manager with all five of them reaches furthest
    down — far enough that the brass rail cut through the bottom row of plaques. */
 const TRIM_TOP = 0.39;
 const WALL_FLOOR = TRIM_TOP + 0.24;
@@ -91,16 +98,20 @@ export function buildLockerRoom(scene) {
 
   const panelling = mat.textures.darkMarble.clone();
   panelling.needsUpdate = true;
-  panelling.repeat.set(4, 2.4);
+  panelling.repeat.set(4, 2.7);
 
+  // Tall enough for the fullest wall in the league. The composition stacks
+  // downward and is then lifted clear of the wainscot, so every row a manager
+  // has pushes their flag higher — and a nine-metre panel left the flag of a
+  // manager with all five rows hanging in the black above the panelling.
   const back = new THREE.Mesh(
-    new THREE.PlaneGeometry(13, 9),
+    new THREE.PlaneGeometry(13, 10),
     new THREE.MeshStandardMaterial({
       map: panelling, color: 0x6a7d96, metalness: 0.3, roughness: 0.55,
       envMap: mat.envMap, envMapIntensity: 0.7
     })
   );
-  back.position.set(0, 3.5, WALL_Z - 0.1);
+  back.position.set(0, 4, WALL_Z - 0.1);
   back.userData.part = "panel";
   room.add(back);
 
@@ -144,7 +155,7 @@ export function buildLockerRoom(scene) {
     new THREE.PlaneGeometry(11, 0.16),
     new THREE.MeshBasicMaterial({ color: 0xffd9a0 })
   );
-  cove.position.set(0, 8.6, WALL_Z + 0.6);
+  cove.position.set(0, 9.6, WALL_Z + 0.6);
   room.add(cove);
 
   const lights = [];
@@ -294,11 +305,11 @@ export function buildLockerWall(room, locker) {
       const spot = spots[index];
       const pennant = buildPennant({
         year: berth.year,
-        color: accent,
-        // A division crown flies gold cloth with gold braid, keeping only a
-        // trace of the team's colour — blending the two halfway just produced
-        // a washed-out version of the ordinary pennant.
-        cloth: berth.division ? mix("#9c6c14", accent, 0.18) : accent,
+        // Pennant cloth says what the berth was, not who won it: league blue
+        // for a berth, gold for a division crown. The team's own colour is
+        // already everywhere else on the wall, and using it here meant a row
+        // of pennants only ever told you whose locker you were standing in.
+        cloth: berth.division ? PENNANT_GOLD : PENNANT_BLUE,
         crown: berth.division,
         note: berth.division ? "DIVISION CHAMPS" : "PLAYOFFS"
       });
@@ -322,6 +333,36 @@ export function buildLockerWall(room, locker) {
     });
     const rows = Math.ceil(locker.berths.length / 6);
     cursor = railY - rows * SIZE.pennant - (rows - 1) * 0.22 - ROW_GAP;
+  }
+
+  /* --------------------------------------------------------- season honours */
+  /* What the regular season handed out before the bracket did: a gold star for
+     leading the league in points, a red-white-and-blue ribbon for the most
+     wins. They sit directly under the pennants because they are won the same
+     way — over fourteen weeks, not in January. */
+  if (locker.honours.length) {
+    label("SEASON HONORS", 0, cursor, 1.9);
+    const railY = cursor - CAPTION_DROP;
+    const spots = spread(locker.honours.length, {
+      perRow: 6, gap: 0.56, top: railY, rowGap: SIZE.honour + 0.18
+    });
+    locker.honours.forEach((honour, index) => {
+      const spot = spots[index];
+      const badge = honour.kind === "star"
+        ? buildScoringStar({ year: honour.year, accent: "#e0aa2c" })
+        : buildWinsRibbon({ year: honour.year, accent: "#c8102e" });
+      mount(badge, spot.x, spot.y, WALL_Z + 0.2, {
+        id: honour.id,
+        kind: honour.kind,
+        title: honour.title,
+        subtitle: honour.subtitle,
+        blurb: honour.blurb,
+        stats: honour.stats,
+        links: [{ label: `${honour.year} Season`, href: `${honour.year}.html` }]
+      });
+    });
+    const rows = Math.ceil(locker.honours.length / 6);
+    cursor = railY - rows * SIZE.honour - (rows - 1) * 0.18 - ROW_GAP;
   }
 
   /* ------------------------------------------------------------ the shelf */
