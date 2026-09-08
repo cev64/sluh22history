@@ -843,9 +843,13 @@ function yearPlate(item, width = 0.30) {
    nothing else: it is the one honour the standings hand out for putting up
    points rather than for winning with them, and it should read as a gold star
    from across the room. */
-export function buildScoringStar(item) {
+export function buildScoringStar(item, { compact = false } = {}) {
   const group = new THREE.Group();
 
+  /* Compact is the form that gets pinned to the corner of a pennant. It loses
+     the ring, the chain and the year plate — the pennant it is pinned to is
+     already saying which season this was, and at that size the plate would be a
+     smudge under a medal too small to read it. */
   const hanger = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.009, 8, 20), shared.brass);
   hanger.position.y = -0.03;
 
@@ -879,6 +883,15 @@ export function buildScoringStar(item) {
   }));
   star.position.set(0, -0.30, 0.028);
   star.castShadow = true;
+
+  if (compact) {
+    // Built around the origin rather than hanging below it, so a pin sits where
+    // it is put rather than a third of a pennant lower.
+    [backing, rim, star].forEach((part) => { part.position.y += 0.30; });
+    group.add(backing, rim, star);
+    group.userData.glints = [new THREE.Vector3(0.06, 0.14, 0.07)];
+    return group;
+  }
 
   const plate = yearPlate(item);
   plate.position.set(0, -0.63, 0.004);
@@ -942,7 +955,7 @@ function ribbonTail(width, length, color) {
    more team colour on a wall already full of them. */
 const RIBBON = { red: 0xa80a24, white: 0xeef2f8, blue: 0x14337f };
 
-export function buildWinsRibbon(item) {
+export function buildWinsRibbon(item, { compact = false } = {}) {
   const group = new THREE.Group();
 
   const hanger = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.009, 8, 20), shared.brass);
@@ -976,6 +989,13 @@ export function buildWinsRibbon(item) {
   pip.position.z = 0.066;
 
   rosette.add(blue, white, red, button, pip);
+
+  if (compact) {
+    [tails, rosette].forEach((part) => { part.position.y += 0.20; });
+    group.add(tails, rosette);
+    group.userData.glints = [new THREE.Vector3(0, 0.06, 0.09)];
+    return group;
+  }
 
   const plate = yearPlate(item, 0.28);
   plate.position.set(0, -0.665, 0.004);

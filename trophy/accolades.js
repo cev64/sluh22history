@@ -833,10 +833,23 @@ export function buildLockers(data, careers) {
       .map((berth) => ({ ...berth, division: crowned.has(berth.year) }))
       .sort((a, b) => b.year - a.year);
     const trophies = (trophyCase[career.ownerId] || []).sort((a, b) => b.year - a.year);
-    // Kept apart rather than in one list: the wall gives each its own row.
+    /* Each honour is pinned to the berth of its own year rather than kept in a
+       list of its own. A star and a ribbon belong to a season, and the pennant
+       for that season is already on the wall saying which season it was, so the
+       wall hangs them on its corners.
+
+       An honour can outlive its pennant: leading the league in points is done
+       over fourteen weeks and does not require reaching the bracket. Nobody has
+       managed one without the other yet, but the ones that have no pennant to
+       sit on are kept aside rather than dropped. */
     const honours = honourRoll[career.ownerId] || [];
     const stars = honours.filter((honour) => honour.kind === "star");
     const ribbons = honours.filter((honour) => honour.kind === "ribbon");
+    berths.forEach((berth) => {
+      berth.star = stars.find((honour) => honour.year === berth.year) || null;
+      berth.ribbon = ribbons.find((honour) => honour.year === berth.year) || null;
+    });
+    const looseHonours = honours.filter((honour) => !berths.some((berth) => berth.year === honour.year));
     // Still on the locker's own card, where it costs nothing; it is only the
     // plaque of it that is gone from the wall.
     const bestFinish = Math.min(...career.finishes.map((f) => f.rank));
@@ -902,6 +915,7 @@ export function buildLockers(data, careers) {
       berths,
       stars,
       ribbons,
+      looseHonours,
       plaques,
       seasons: career.seasons,
       summary: [
