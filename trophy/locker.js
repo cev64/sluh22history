@@ -96,7 +96,7 @@ const COLUMN = {
   pitch: 1.32,   // across, from one column to the next
   drop: 1.16,    // down, from one cell to the next
   pennant: 1.3,  // before the cell takes it in — a berth is read before anything
-  trophy: 0.74,  // on top of whatever the shelf scale already is
+  trophy: 0.9,   // on top of whatever the shelf scale already is
   plaque: 0.82
 };
 
