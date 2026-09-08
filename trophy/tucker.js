@@ -819,11 +819,13 @@ function buildAffection(scale) {
    shading survives on a weak device. Everything the room needs afterwards is
    on the returned handle: where he is, what to raycast against, how to pet him
    and one `update` to call every frame. */
-export function buildTucker({ x = 0, z = 0, quality } = {}) {
+export function buildTucker({ x = 0, y = 0, z = 0, quality } = {}) {
   const mat = buildCoat(quality);
 
   const group = new THREE.Group();
-  group.position.set(x, 0, z);
+  // `y` is the height his dais stands at. It is zero in the corridor, where the
+  // floor is the floor; in the shaft his dais is a shelf like everything else's.
+  group.position.set(x, y, z);
 
   const dais = buildDais(mat);
   group.add(dais);
@@ -1060,9 +1062,10 @@ export function buildTucker({ x = 0, z = 0, quality } = {}) {
     proxy,
     lamp,
     x,
+    y,
     z,
-    topY: DAIS_HEIGHT + STANDING_HEIGHT,
-    daisTop: DAIS_HEIGHT,
+    topY: y + DAIS_HEIGHT + STANDING_HEIGHT,
+    daisTop: y + DAIS_HEIGHT,
     pet,
     update,
     get pats() { return anim.pats; },
