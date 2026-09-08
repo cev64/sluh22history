@@ -684,16 +684,25 @@ function podiums(data, careers) {
 function divisionCrowns(data) {
   const byOwner = {};
   data.seasons.forEach((season) => {
+    const crown = (key) => {
+      const team = season.teams[key];
+      if (!inTheHall(team)) return;
+      (byOwner[team.ownerId] || (byOwner[team.ownerId] = new Set())).add(season.year);
+    };
+
     const played = (label) => new Set(
       season.postseasonGames.filter((game) => game.label === label).flatMap((game) => [game.a, game.b])
     );
     const quarters = played("Quarterfinal");
     const semis = played("Semifinal");
-    [...semis].filter((key) => !quarters.has(key)).forEach((key) => {
-      const team = season.teams[key];
-      if (!inTheHall(team)) return;
-      (byOwner[team.ownerId] || (byOwner[team.ownerId] = new Set())).add(season.year);
-    });
+    [...semis].filter((key) => !quarters.has(key)).forEach(crown);
+
+    /* A season whose bracket gave no byes at all leaves the rule above with
+       nothing to read, so those years name their champions in the standings
+       instead. 2021 is the one: eight teams, eight quarterfinals, and the two
+       managers who topped their divisions played in the first round like
+       everybody else. */
+    Object.keys(season.teams).filter((key) => season.teams[key].divisionChamp).forEach(crown);
   });
   return byOwner;
 }
