@@ -8,7 +8,8 @@
    everywhere. It also saves ten requests.
 
    Keyed by owner id, because a manager keeps their logo when the team name
-   changes. Regenerate with tools/build-logos.mjs after replacing a file in
+   changes. Most are vector; a raster is taken where that is the artwork that
+   exists. Regenerate with tools/build-logos.mjs after replacing a file in
    logos/. Plain script, not a module, so it works from file:// like
    league-data.js. */
 
