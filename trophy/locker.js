@@ -74,13 +74,36 @@ const PENNANT_GOLD = "#7a5205";
 const STAR_PLATE = "#e0aa2c";
 const RIBBON_PLATE = "#c8102e";
 
-/* How wide each row is allowed to run, and how wide the fittings are cut, in
-   the two shapes the wall comes in. Everything else about a wall is the same in
-   both: the same pieces, the same order, the same rules for stacking them. */
-const GRID = {
-  wide:   { pennants: 6, honours: 6, trophies: 5, plaques: 6, shelf: 4.6, flag: 1, pool: 7 },
-  narrow: { pennants: 3, honours: 3, trophies: 3, plaques: 3, shelf: 2.7, flag: 0.78, pool: 4.2 }
+/* How wide each row of the unfolded wall is allowed to run, and how wide its
+   fittings are cut. The folded wall is not a narrower version of this — it is
+   laid out in columns instead of rows, and takes its measurements from COLUMN
+   below. All the two share is the pool of light on the floor in front. */
+const ROWS = { pennants: 6, honours: 6, trophies: 5, plaques: 6, shelf: 4.6, flag: 1 };
+const POOL = { wide: 7, narrow: 4.6 };
+
+/* How wide the team flag is at full size, rod and all — the number the folded
+   wall divides by to cut one down to its grid. */
+const FLAG_WIDTH = 3.35;
+
+/* One cell of the folded wall's grid, and how far each kind of piece is scaled
+   down to sit inside one.
+
+   The columns are set much further apart than a piece is wide. Every piece on
+   this wall is taller than it is wide, so what a cell can hold is decided by its
+   height and never by its width — spreading the columns costs nothing and is
+   what stops three columns of small things reading as one narrow stripe down the
+   middle of a phone. */
+const COLUMN = {
+  pitch: 1.32,   // across, from one column to the next
+  drop: 1.0,     // down, from one cell to the next
+  hang: 0.92,    // pennants, stars and ribbons
+  trophy: 0.74,  // on top of whatever the shelf scale already is
+  plaque: 0.82
 };
+
+/* The air around a piece inside its cell. Without it two neighbours can be
+   exactly the height of the gap between them and still read as touching. */
+const CELL_PAD = 0.14;
 
 /* The top of the room's wainscot rail, and the line the wall's contents stop
    at. Rows stack downward, so a manager with all five of them reaches furthest
@@ -240,8 +263,7 @@ export function buildLockerRoom(scene) {
 
 /* Builds one manager's wall into `room`, and hands back the pieces the camera
    and the pointer need: what can be clicked, and how big the wall came out. */
-export function buildLockerWall(room, locker, { narrow = false } = {}) {
-  const grid = narrow ? GRID.narrow : GRID.wide;
+export function buildLockerWall(room, locker, { narrow = false, aspect = 1.2 } = {}) {
   const mat = materials();
   const wall = new THREE.Group();
   const items = [];
@@ -343,34 +365,21 @@ export function buildLockerWall(room, locker, { narrow = false } = {}) {
     wall.add(track(plate));
   };
 
-  /* ------------------------------------------------------------------ flag */
-  let cursor = WALL_TOP;
+  /* ---------------------------------------------------- what goes on the wall */
 
-  // The flag is the one piece wider than any row, so on a narrow wall it is
-  // what would set the width for everything else. It comes down to size.
-  const flagHalf = SIZE.flagHalf * grid.flag;
-  const flag = buildTeamFlag(locker);
-  flag.scale.setScalar(grid.flag);
-  mount(flag, 0, cursor - flagHalf - 0.12, WALL_Z + 0.14, {
-    id: "flag",
-    kind: "flag",
-    title: locker.team,
-    subtitle: locker.name,
-    blurb: `${locker.name} has run ${locker.team} for ${locker.seasons.length} ${locker.seasons.length === 1 ? "season" : "seasons"}. ${locker.summary}.`,
-    stats: locker.stats,
-    links: [{ label: "Full Profile", href: `alltime.html#owner=${locker.ownerId}` }]
-  });
-  cursor -= flagHalf * 2 + 0.12 + ROW_GAP;
+  /* Every piece the wall can carry, in the order a trophy case fills up, each
+     with the words it says when it is tapped and a builder that makes it at
+     whatever size the composition has room for.
 
-  /* -------------------------------------------------------------- pennants */
-  if (locker.berths.length) {
-    label("PLAYOFF BERTHS", 0, cursor, 1.9);
-    const railY = cursor - CAPTION_DROP;
-    const spots = spread(locker.berths.length, {
-      perRow: grid.pennants, gap: 0.46, top: railY, rowGap: SIZE.pennant + 0.22
-    });
-    locker.berths.forEach((berth, index) => {
-      const spot = spots[index];
+     Gathering them before hanging any of them is what lets the same set go up
+     two ways. A desktop wall hangs them in rows: it has width to spare and a
+     viewer who reads left to right. A phone's wall hangs them in columns: it
+     has height to spare instead, and a viewer who wants the whole case in one
+     look rather than a wall to scroll. */
+  const pennantPiece = (berth) => ({
+    kind: "pennant",
+    hangs: true,
+    build: (scale) => {
       const pennant = buildPennant({
         year: berth.year,
         // Pennant cloth says what the berth was, not who won it: league blue
@@ -381,99 +390,54 @@ export function buildLockerWall(room, locker, { narrow = false } = {}) {
         crown: berth.division,
         note: berth.division ? "DIVISION CHAMPS" : "PLAYOFFS"
       });
-      mount(pennant, spot.x, spot.y, WALL_Z + 0.2, {
-        id: `berth-${berth.year}`,
-        kind: "pennant",
-        title: berth.division ? `${berth.year} Division Champs` : `${berth.year} Playoffs`,
-        subtitle: berth.team.name,
-        blurb: berth.division
-          ? `${locker.name} topped their division in ${berth.year} at ${berth.team.wins}–${berth.team.losses} and sat out the first round.`
-          : `${locker.name} reached the ${berth.year} bracket with ${berth.team.name}, ${berth.team.wins}–${berth.team.losses} in the regular season.`,
-        stats: [
-          { label: "Record", value: `${berth.team.wins}–${berth.team.losses}` },
-          { label: "Points For", value: berth.team.pf.toFixed(2) },
-          { label: "Finish", value: `${berth.team.finalRank}` },
-          { label: "Reached", value: ["Quarterfinal", "Semifinal", "Championship"][berth.depth] },
-          ...(berth.division ? [{ label: "First Round", value: "Bye" }] : [])
-        ],
-        links: [{ label: `${berth.year} Season`, href: `${berth.year}.html` }]
-      });
-    });
-    const rows = Math.ceil(locker.berths.length / grid.pennants);
-    cursor = railY - rows * SIZE.pennant - (rows - 1) * 0.22 - ROW_GAP;
-  }
-
-  /* --------------------------------------------------------- season honours */
-  /* What the regular season handed out before the bracket did: a row of gold
-     stars for leading the league in points, then a row of ribbons for finishing
-     with the most wins. They sit directly under the pennants because they are
-     won the same way — over fourteen weeks, not in January.
-
-     Neither row is captioned. A gold star and a first-place rosette already say
-     what they are, and two more headings stacked between the pennants and the
-     trophy shelf turned a wall into a list of headings. */
-  const honourRow = (honours, build, { gapAfter = ROW_GAP } = {}) => {
-    if (!honours.length) return;
-    const top = cursor;
-    const spots = spread(honours.length, {
-      perRow: grid.honours, gap: 0.56, top, rowGap: SIZE.honour + 0.18
-    });
-    honours.forEach((honour, index) => {
-      const spot = spots[index];
-      mount(build(honour), spot.x, spot.y, WALL_Z + 0.2, {
-        id: honour.id,
-        kind: honour.kind,
-        title: honour.title,
-        subtitle: honour.subtitle,
-        blurb: honour.blurb,
-        stats: honour.stats,
-        links: [{ label: `${honour.year} Season`, href: `${honour.year}.html` }]
-      });
-    });
-    const rows = Math.ceil(honours.length / grid.honours);
-    cursor = top - rows * SIZE.honour - (rows - 1) * 0.18 - gapAfter;
-  };
-
-  // The two rows are one idea, so they sit closer to each other than to the
-  // pennants above and the shelf below.
-  honourRow(locker.stars, (honour) => buildScoringStar({ year: honour.year, accent: STAR_PLATE }), {
-    gapAfter: locker.ribbons.length ? 0.18 : ROW_GAP
-  });
-  honourRow(locker.ribbons, (honour) => buildWinsRibbon({ year: honour.year, accent: RIBBON_PLATE }));
-
-  /* ------------------------------------------------------------ the shelf */
-  /* The shelf is always here, stocked or bare. A manager with nothing on it
-     should see the space their trophies are going to occupy. */
-  {
-    label("TROPHIES", 0, cursor, 1.9);
-    const hasTitle = locker.trophies.some((entry) => entry.place === 1);
-    const tallest = hasTitle ? SIZE.trophy : SIZE.bowl;
-    const shelfY = cursor - CAPTION_DROP - tallest;
-
-    const shelfGeometry = roundedBox(grid.shelf, 0.11, 0.62, 0.03);
-    shelfGeometry.computeBoundingBox();
-    const shelfTop = shelfGeometry.boundingBox.max.y;
-    const shelf = new THREE.Mesh(shelfGeometry, mat.darkMarble);
-    shelf.position.set(0, shelfY - shelfTop, WALL_Z + 0.32);
-    const shelfEdge = new THREE.Mesh(roundedBox(grid.shelf + 0.04, 0.022, 0.66, 0.01), teamMetal(accent, { emissive: 0.5 }));
-    shelfEdge.position.set(0, shelfY - shelfTop - 0.062, WALL_Z + 0.32);
-    for (const x of [-(grid.shelf / 2 - 0.2), 0, grid.shelf / 2 - 0.2]) {
-      const bracket = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.2, 10), mat.brass);
-      bracket.position.set(x, shelfY - shelfTop - 0.145, WALL_Z + 0.14);
-      bracket.userData.part = "bracket";
-      wall.add(track(bracket));
+      pennant.scale.setScalar(scale);
+      return pennant;
+    },
+    meta: {
+      id: `berth-${berth.year}`,
+      kind: "pennant",
+      title: berth.division ? `${berth.year} Division Champs` : `${berth.year} Playoffs`,
+      subtitle: berth.team.name,
+      blurb: berth.division
+        ? `${locker.name} topped their division in ${berth.year} at ${berth.team.wins}–${berth.team.losses} and sat out the first round.`
+        : `${locker.name} reached the ${berth.year} bracket with ${berth.team.name}, ${berth.team.wins}–${berth.team.losses} in the regular season.`,
+      stats: [
+        { label: "Record", value: `${berth.team.wins}–${berth.team.losses}` },
+        { label: "Points For", value: berth.team.pf.toFixed(2) },
+        { label: "Finish", value: `${berth.team.finalRank}` },
+        { label: "Reached", value: ["Quarterfinal", "Semifinal", "Championship"][berth.depth] },
+        ...(berth.division ? [{ label: "First Round", value: "Bye" }] : [])
+      ],
+      links: [{ label: `${berth.year} Season`, href: `${berth.year}.html` }]
     }
-    shelf.userData.part = "shelf";
-    shelfEdge.userData.part = "shelfEdge";
-    wall.add(track(shelf), track(shelfEdge));
+  });
 
-    const spots = spread(locker.trophies.length, {
-      perRow: grid.trophies, gap: hasTitle ? 0.92 : 0.74, top: shelfY, rowGap: 1.15
-    });
+  const honourPiece = (honour) => ({
+    kind: honour.kind,
+    hangs: true,
+    build: (scale) => {
+      const badge = honour.kind === "star"
+        ? buildScoringStar({ year: honour.year, accent: STAR_PLATE })
+        : buildWinsRibbon({ year: honour.year, accent: RIBBON_PLATE });
+      badge.scale.setScalar(scale);
+      return badge;
+    },
+    meta: {
+      id: honour.id,
+      kind: honour.kind,
+      title: honour.title,
+      subtitle: honour.subtitle,
+      blurb: honour.blurb,
+      stats: honour.stats,
+      links: [{ label: `${honour.year} Season`, href: `${honour.year}.html` }]
+    }
+  });
 
-    const PLACE = { 1: "Champion", 2: "Runner-up", 3: "Third place" };
-    locker.trophies.forEach((entry, index) => {
-      const spot = spots[index];
+  const PLACE = { 1: "Champion", 2: "Runner-up", 3: "Third place" };
+  const trophyPiece = (entry) => ({
+    kind: entry.place === 1 ? "title" : "bowl",
+    stands: true,
+    build: (scale) => {
       let object;
       if (entry.place === 1) {
         object = buildLeagueTrophy({
@@ -486,39 +450,33 @@ export function buildLockerWall(room, locker, { narrow = false } = {}) {
           subtitle: locker.team,
           accent
         });
-        object.scale.setScalar(SIZE.trophyScale);
+        object.scale.setScalar(SIZE.trophyScale * scale);
       } else {
         object = buildPodiumBowl({ year: entry.year, metal: entry.metal, accent });
-        object.scale.setScalar(SIZE.bowlScale);
+        object.scale.setScalar(SIZE.bowlScale * scale);
       }
-      mount(object, spot.x, spot.y, WALL_Z + 0.34, {
-        id: `place-${entry.year}`,
-        kind: entry.place === 1 ? "title" : "bowl",
-        title: `${entry.year} ${PLACE[entry.place]}`,
-        subtitle: entry.team.name,
-        blurb: entry.lost
-          ? `${locker.name} won the ${entry.year} league title. The season's box scores did not survive.`
-          : `${locker.name} finished ${ordinal(entry.place)} of ${entry.size} in ${entry.year} at ${entry.team.wins}–${entry.team.losses}.`,
-        stats: entry.lost ? [] : [
-          { label: "Record", value: `${entry.team.wins}–${entry.team.losses}` },
-          { label: "Points For", value: entry.team.pf.toFixed(2) },
-          { label: "Points Against", value: entry.team.pa.toFixed(2) }
-        ],
-        links: [{ label: `${entry.year} Season`, href: `${entry.year}.html` }]
-      }, { standsOn: shelfY });
-    });
+      return object;
+    },
+    meta: {
+      id: `place-${entry.year}`,
+      kind: entry.place === 1 ? "title" : "bowl",
+      title: `${entry.year} ${PLACE[entry.place]}`,
+      subtitle: entry.team.name,
+      blurb: entry.lost
+        ? `${locker.name} won the ${entry.year} league title. The season's box scores did not survive.`
+        : `${locker.name} finished ${ordinal(entry.place)} of ${entry.size} in ${entry.year} at ${entry.team.wins}–${entry.team.losses}.`,
+      stats: entry.lost ? [] : [
+        { label: "Record", value: `${entry.team.wins}–${entry.team.losses}` },
+        { label: "Points For", value: entry.team.pf.toFixed(2) },
+        { label: "Points Against", value: entry.team.pa.toFixed(2) }
+      ],
+      links: [{ label: `${entry.year} Season`, href: `${entry.year}.html` }]
+    }
+  });
 
-    cursor = shelfY - 0.16 - ROW_GAP;
-  }
-
-  /* --------------------------------------------------------------- plaques */
-  if (locker.plaques.length) {
-    label("PERSONAL BESTS", 0, cursor, 1.8);
-    const spots = spread(locker.plaques.length, {
-      perRow: grid.plaques, gap: 0.90, top: cursor - CAPTION_DROP - SIZE.plaqueHalf, rowGap: SIZE.plaqueHalf * 2 + 0.2
-    });
-    locker.plaques.forEach((entry, index) => {
-      const spot = spots[index];
+  const plaquePiece = (entry) => ({
+    kind: "plaque",
+    build: (scale) => {
       const plaque = buildPlaque({
         title: entry.title,
         subtitle: entry.bigValue,
@@ -529,18 +487,267 @@ export function buildLockerWall(room, locker, { narrow = false } = {}) {
         icon: locker.icon,
         ownerId: locker.ownerId
       }, { mounted: true });
-      plaque.scale.setScalar(SIZE.plaqueScale);
-      mount(plaque, spot.x, spot.y, WALL_Z + 0.14, {
-        id: `plaque-${entry.id}`,
-        kind: "plaque",
-        title: entry.title,
-        subtitle: entry.bigValue,
-        meta: entry.meta,
-        blurb: entry.blurb,
-        stats: entry.stats,
-        links: []
-      });
+      plaque.scale.setScalar(SIZE.plaqueScale * scale);
+      return plaque;
+    },
+    meta: {
+      id: `plaque-${entry.id}`,
+      kind: "plaque",
+      title: entry.title,
+      subtitle: entry.bigValue,
+      meta: entry.meta,
+      blurb: entry.blurb,
+      stats: entry.stats,
+      links: []
+    }
+  });
+
+  const sections = [
+    { id: "pennants", caption: "PLAYOFF BERTHS", pieces: locker.berths.map(pennantPiece) },
+    { id: "stars", pieces: locker.stars.map(honourPiece) },
+    { id: "ribbons", pieces: locker.ribbons.map(honourPiece) },
+    { id: "trophies", caption: "TROPHIES", pieces: locker.trophies.map(trophyPiece), always: true },
+    { id: "plaques", caption: "PERSONAL BESTS", pieces: locker.plaques.map(plaquePiece) }
+  ];
+  const sectionOf = (id) => sections.find((section) => section.id === id);
+
+  /* A shelf, with its top surface at `topY` — which is the line whatever stands
+     on it is seated on. A long one down a wall carries a case of trophies; a
+     short one carries exactly one, which is what a column of them is made of. */
+  const hangShelf = (centreX, width, topY, { depth = 0.62, thickness = 0.11 } = {}) => {
+    const geometry = roundedBox(width, thickness, depth, Math.min(0.03, thickness / 3));
+    geometry.computeBoundingBox();
+    const lift = geometry.boundingBox.max.y;
+    const shelf = new THREE.Mesh(geometry, mat.darkMarble);
+    shelf.position.set(centreX, topY - lift, WALL_Z + 0.32);
+    const long = width > 1.4;
+    const edge = new THREE.Mesh(
+      roundedBox(width + 0.04, long ? 0.022 : 0.012, depth + 0.04, 0.008),
+      long ? teamMetal(accent, { emissive: 0.5 }) : mat.brass
+    );
+    edge.position.set(centreX, topY - lift - thickness * 0.56, WALL_Z + 0.32);
+    shelf.userData.part = "shelf";
+    edge.userData.part = "shelfEdge";
+    wall.add(track(shelf), track(edge));
+
+    /* Three brackets under a long shelf and none under a short one. A single
+       bracket under a shelf the width of one trophy reads as a post holding the
+       trophy up rather than as a bracket holding the shelf. */
+    if (!long) return;
+    for (const x of [-(width / 2 - 0.2), 0, width / 2 - 0.2]) {
+      const bracket = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.2, 10), mat.brass);
+      bracket.position.set(centreX + x, topY - lift - thickness * 0.5 - 0.1, WALL_Z + 0.14);
+      bracket.userData.part = "bracket";
+      wall.add(track(bracket));
+    }
+  };
+
+  /* ------------------------------------------------------------------ flag */
+  let cursor = WALL_TOP;
+
+  /* The team's colours across the top, at whatever size the wall below it came
+     out. On an unfolded wall that is full size; on a folded one it is cut to the
+     width of the grid, because a flag wider than everything it introduces reads
+     as the wall's frame rather than as the first thing on it. */
+  const hangFlag = (scale) => {
+    const flag = buildTeamFlag(locker);
+    flag.scale.setScalar(scale);
+    const half = SIZE.flagHalf * scale;
+    mount(flag, 0, cursor - half - 0.12, WALL_Z + 0.14, {
+      id: "flag",
+      kind: "flag",
+      title: locker.team,
+      subtitle: locker.name,
+      blurb: `${locker.name} has run ${locker.team} for ${locker.seasons.length} ${locker.seasons.length === 1 ? "season" : "seasons"}. ${locker.summary}.`,
+      stats: locker.stats,
+      links: [{ label: "Full Profile", href: `alltime.html#owner=${locker.ownerId}` }]
     });
+    cursor -= half * 2 + 0.12 + (narrow ? 0.22 : ROW_GAP);
+  };
+
+  if (narrow) layoutColumns(); else layoutRows();
+
+  /* ------------------------------------------------------------------ rows */
+
+  /* The unfolded wall: one band per kind of thing, stacked in the order a
+     trophy case fills up, each band captioned except the two the honours hang
+     in — a gold star and a first-place rosette say what they are, and two more
+     headings between the pennants and the shelf turned the wall into a list of
+     headings. */
+  function layoutRows() {
+    hangFlag(ROWS.flag);
+
+    /* One band of one kind of thing. `drop` is how much height a row of them
+       takes; `centred` is for the pieces that hang by their middle rather than
+       from their top, which is every plaque and none of the rest. */
+    const hangRow = (pieces, { perRow, gap, drop, rowGap, caption, gapAfter = ROW_GAP, centred = false, z = 0.2 }) => {
+      if (!pieces.length) return;
+      if (caption) label(caption, 0, cursor, 1.9);
+      const top = caption ? cursor - CAPTION_DROP : cursor;
+      const spots = spread(pieces.length, { perRow, gap, top, rowGap: drop + rowGap });
+      pieces.forEach((piece, index) => {
+        const y = centred ? spots[index].y - drop / 2 : spots[index].y;
+        mount(piece.build(1), spots[index].x, y, WALL_Z + z, piece.meta);
+      });
+      const rows = Math.ceil(pieces.length / perRow);
+      cursor = top - rows * drop - (rows - 1) * rowGap - gapAfter;
+    };
+
+    hangRow(sectionOf("pennants").pieces, {
+      perRow: ROWS.pennants, gap: 0.46, drop: SIZE.pennant, rowGap: 0.22, caption: "PLAYOFF BERTHS"
+    });
+    // The two honour rows are one idea, so they sit closer to each other than to
+    // the pennants above and the shelf below.
+    hangRow(sectionOf("stars").pieces, {
+      perRow: ROWS.honours, gap: 0.56, drop: SIZE.honour, rowGap: 0.18,
+      gapAfter: locker.ribbons.length ? 0.18 : ROW_GAP
+    });
+    hangRow(sectionOf("ribbons").pieces, {
+      perRow: ROWS.honours, gap: 0.56, drop: SIZE.honour, rowGap: 0.18
+    });
+
+    /* The shelf is always here, stocked or bare. A manager with nothing on it
+       should see the space their trophies are going to occupy — and a manager
+       with more than one shelf's worth gets a second shelf rather than a second
+       row of trophies standing in mid-air on top of the first. */
+    {
+      const trophies = sectionOf("trophies").pieces;
+      label("TROPHIES", 0, cursor, 1.9);
+      const hasTitle = locker.trophies.some((entry) => entry.place === 1);
+      const tallest = hasTitle ? SIZE.trophy : SIZE.bowl;
+      const rowGap = tallest + 0.28;
+      const rows = Math.max(1, Math.ceil(trophies.length / ROWS.trophies));
+      const firstY = cursor - CAPTION_DROP - tallest;
+
+      for (let row = 0; row < rows; row += 1) hangShelf(0, ROWS.shelf, firstY - row * rowGap);
+
+      const spots = spread(trophies.length, {
+        perRow: ROWS.trophies, gap: hasTitle ? 0.92 : 0.74, top: firstY, rowGap
+      });
+      trophies.forEach((piece, index) => {
+        mount(piece.build(1), spots[index].x, spots[index].y, WALL_Z + 0.34, piece.meta, {
+          standsOn: spots[index].y
+        });
+      });
+
+      cursor = firstY - (rows - 1) * rowGap - 0.16 - ROW_GAP;
+    }
+
+    hangRow(sectionOf("plaques").pieces, {
+      perRow: ROWS.plaques, gap: 0.90, drop: SIZE.plaqueHalf * 2, rowGap: 0.2,
+      caption: "PERSONAL BESTS", centred: true, z: 0.14
+    });
+  }
+
+  /* --------------------------------------------------------------- columns */
+
+  /* The folded wall: three columns and, above them, the season's honours in
+     rows.
+
+     One column per kind of thing — berths, trophies, personal bests — reading
+     down, so a glance across the wall is a glance at what sort of career this
+     is. One piece to a cell and never two in one, whatever a manager has.
+
+     The stars and the ribbons go across the top instead of down a column of
+     their own, three to a row on the columns' own centre lines and a new row
+     when there are more than three, because they are the one thing a manager
+     collects a few of rather than one a season.
+
+     Everything is on the screen at once. That is the point of folding it — a
+     phone that has to be scrolled to find out whether a manager has a trophy is
+     a phone that never gets scrolled. What it costs is size: six personal bests
+     down a column is six rows deep however wide the phone is, and a piece comes
+     out about a third of what it is on a desktop wall. Reading a plaque means
+     tapping it, which is what tapping it has always been for. */
+  function layoutColumns() {
+    const lanes = [
+      sectionOf("pennants").pieces,
+      sectionOf("trophies").pieces,
+      sectionOf("plaques").pieces
+    ].filter((lane) => lane.length);
+    const honours = [...sectionOf("stars").pieces, ...sectionOf("ribbons").pieces];
+
+    if (!lanes.length && !honours.length) {
+      hangFlag(0.7);
+      return;
+    }
+
+    const across = Math.max(1, lanes.length);
+    const laneX = (index) => (index - (across - 1) / 2) * COLUMN.pitch;
+
+    // The flag is cut to the width of the columns under it and held to one row's
+    // worth of height, so it introduces the case rather than crowding it.
+    const width = across * COLUMN.pitch;
+    hangFlag(Math.min(COLUMN.drop * 1.02 / (SIZE.flagHalf * 2), (width * 0.66) / FLAG_WIDTH));
+
+    /* Nothing may grow out of its cell. The pieces are modelled at whatever size
+       suited a wall with room to spread — a pennant is nearly twice a plaque's
+       height — so each is measured once it is built and taken in if it does not
+       fit. Trusting a scale per kind instead was what put the point of a
+       one-berth manager's only pennant through the top of the plaque under it. */
+    const fitCell = (object, height = COLUMN.drop) => {
+      object.updateMatrixWorld(true);
+      const size = new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3());
+      const room = Math.min(
+        (COLUMN.pitch - CELL_PAD * 2) / Math.max(0.001, size.x),
+        (height - CELL_PAD) / Math.max(0.001, size.y),
+        1
+      );
+      if (room < 1) object.scale.multiplyScalar(room);
+      return object;
+    };
+
+    const hangInCell = (piece, x, cellTop) => {
+      if (piece.stands) {
+        // Its own shelf, because a column of trophies standing on one shelf is a
+        // column of trophies standing on nothing.
+        const trophy = fitCell(piece.build(COLUMN.trophy), COLUMN.drop - 0.2);
+        trophy.updateMatrixWorld(true);
+        const span = new THREE.Box3().setFromObject(trophy).getSize(new THREE.Vector3()).x;
+        const shelfY = cellTop - COLUMN.drop + 0.14;
+        // A shelf a little wider than what stands on it, rather than the width of
+        // the whole column: a cup on a shelf three times its width is a cup that
+        // has been left on a windowsill.
+        hangShelf(x, Math.max(0.34, span * 1.5), shelfY, { depth: 0.36, thickness: 0.05 });
+        mount(trophy, x, shelfY, WALL_Z + 0.34, piece.meta, { standsOn: shelfY });
+        return;
+      }
+      // Everything else is centred in its cell: `mount` hangs a piece by its own
+      // middle, so one line does for a pennant, a rosette and a plaque however
+      // differently each of them is modelled.
+      const scale = piece.hangs ? COLUMN.hang : COLUMN.plaque;
+      const z = piece.hangs ? WALL_Z + 0.2 : WALL_Z + 0.14;
+      mount(fitCell(piece.build(scale)), x, cellTop - COLUMN.drop / 2, z, piece.meta);
+    };
+
+    /* ------------------------------------------------------------- honours */
+    /* Across the top rather than down a column of their own, because they are
+       the one thing a manager collects a few of rather than one a season.
+
+       A full row sits on the columns' own centre lines. A row that is short of
+       one is centred across them instead — a single star belongs over the middle
+       column, and a pair belongs in the two gaps between the three, not shoved
+       against the left-hand edge with a hole where the third would have been. */
+    const perRow = Math.min(3, across);
+    honours.forEach((piece, index) => {
+      const row = Math.floor(index / perRow);
+      const inRow = Math.min(perRow, honours.length - row * perRow);
+      const at = index % perRow;
+      hangInCell(piece, (at - (inRow - 1) / 2) * COLUMN.pitch, cursor - row * COLUMN.drop);
+    });
+    if (honours.length) {
+      cursor -= Math.ceil(honours.length / perRow) * COLUMN.drop + 0.12;
+    }
+
+    /* ------------------------------------------------------------- columns */
+    const top = cursor;
+    let deepest = 0;
+    lanes.forEach((lane, index) => {
+      lane.forEach((piece, row) => hangInCell(piece, laneX(index), top - row * COLUMN.drop));
+      deepest = Math.max(deepest, lane.length);
+    });
+
+    cursor = top - deepest * COLUMN.drop;
   }
 
   /* Nothing on the wall may come down into the wainscot. Lift the whole
@@ -554,7 +761,7 @@ export function buildLockerWall(room, locker, { narrow = false } = {}) {
 
   // A pool of the team's colour on the floor in front of the wall.
   const pool = new THREE.Mesh(
-    new THREE.PlaneGeometry(grid.pool, 3.4),
+    new THREE.PlaneGeometry(narrow ? POOL.narrow : POOL.wide, 3.4),
     new THREE.MeshBasicMaterial({
       map: radialTexture(), color: new THREE.Color(accent),
       transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false

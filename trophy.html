@@ -346,7 +346,14 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      #lockerHint { bottom: calc(var(--pad-bottom) + 112px); font-size: 9.5px; }
+      /* The bar goes entirely on a phone. Everything on it — the crest, the team,
+         the manager — is already on the flag at the top of the wall, and the
+         summary is on the flag's own card a tap away. What it was costing was a
+         hundred and fifty pixels off the bottom of the wall, which on a screen
+         this size is the difference between a pennant you can see and one you
+         can only find. The hint drops into the space it leaves. */
+      #stage.in-locker #lockerBar { display: none; }
+      #lockerHint { bottom: calc(var(--pad-bottom) + 4px); font-size: 9.5px; }
     }
     #stage.focused .bottom * { pointer-events: none; }
 

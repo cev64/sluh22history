@@ -11,7 +11,7 @@ import * as THREE from "three";
 import { buildHall } from "./accolades.js";
 import { environmentTexture, glintTexture, loadTeamLogos, setAnisotropy, waitForFonts } from "./textures.js";
 import { buildExhibitObject, buildPedestal, initMaterials } from "./models.js";
-import { LAYOUT, buildDust, buildRoom, buildTravellingLights, contactShadow, planLayout } from "./hall.js";
+import { LAYOUT, buildDust, buildRoom, buildTravellingLights, contactShadow, planLayout, railPlace } from "./hall.js";
 import { buildLockerRoom, buildLockerWall } from "./locker.js";
 import { buildTucker } from "./tucker.js";
 
@@ -126,7 +126,12 @@ async function boot() {
   }
 
   hall = buildHall(window.LEAGUE_DATA || LEAGUE_DATA);
-  layout = planLayout(hall);
+  /* Which way the gallery runs is settled here, once, because the room is built
+     around it: a corridor and a shaft are different buildings, not two views of
+     one. Turning the phone afterwards refolds a locker wall but leaves the hall
+     as it was built — the rail's own axis follows the room, so the swipe and
+     the exhibits always agree, which is the whole point of having two. */
+  layout = planLayout(hall, { vertical: isUpright() });
 
   const canvas = dom.canvas;
   try {
@@ -182,10 +187,10 @@ async function boot() {
   buildMascot();
   buildRailStops();
   lockerRoom = buildLockerRoom(scene);
-  lights = buildTravellingLights(scene, quality);
+  lights = buildTravellingLights(scene, quality, { vertical: layout.vertical });
   focusFill = new THREE.PointLight(0xfff0d6, 0, 9, 2);
   scene.add(focusFill);
-  dust = buildDust(scene, quality.dust);
+  dust = buildDust(scene, quality.dust, { vertical: layout.vertical });
 
   raycaster = new THREE.Raycaster();
 
@@ -289,8 +294,9 @@ function buildExhibits() {
   });
 
   exhibits = hall.rail.map((item, index) => {
+    const place = railPlace(layout, layout.positions[index]);
     const stand = new THREE.Group();
-    stand.position.set(layout.positions[index], 0, LAYOUT.itemZ);
+    stand.position.set(place.x, place.y, place.z);
 
     const pedestal = buildPedestalFor(item);
     const riser = new THREE.Group();
@@ -314,7 +320,7 @@ function buildExhibits() {
     pivot.add(spinner);
     riser.add(pivot);
 
-    const shadow = contactShadow(0.95, 0.6);
+    const shadow = contactShadow(0.95, layout.vertical ? 0.42 : 0.6);
     const glints = (object.userData.glints || []).map((offset) => {
       const sprite = new THREE.Sprite(glintMaterial.clone());
       sprite.position.copy(offset);
@@ -338,7 +344,10 @@ function buildExhibits() {
       spinner,
       object,
       glints,
-      x: layout.positions[index],
+      // Where the exhibit stands, and how far along the rail that is. In a
+      // corridor the two are the same number; in a shaft they are not.
+      place,
+      along: layout.positions[index],
       focusHeight: middle.y,
       focusHalfWidth: Math.hypot(size.x, size.z) / 2,
       focusHalfHeight: size.y / 2,
@@ -369,9 +378,13 @@ function buildMascot() {
   if (before < 0 || before + 1 >= exhibits.length) return;
 
   tuckerRail = before + 0.5;
+  // He stands in the gap between two wings, wherever that gap has ended up: on
+  // the floor of the corridor, or on his own shelf partway down the shaft.
+  const spot = railToPlace(tuckerRail);
   tucker = buildTucker({
-    x: railToX(tuckerRail),
-    z: LAYOUT.itemZ + 0.95,
+    x: spot.x,
+    y: spot.y,
+    z: LAYOUT.itemZ + (layout.vertical ? 0.55 : 0.95),
     quality
   });
   hallGroup.add(tucker.group);
@@ -525,12 +538,20 @@ function buildPedestalFor(item) {
 
 /* ------------------------------------------------------------------ camera */
 
-function railToX(t) {
+/* How far along the rail a fractional index is. A point in the room comes from
+   handing this to `railPlace`; the number itself is what the travelling lights
+   ride and what the fog and the dust are measured against. */
+function railToAlong(t) {
   const clamped = clamp(t, 0, exhibits.length - 1);
   const low = Math.floor(clamped);
   const high = Math.min(exhibits.length - 1, low + 1);
   const fraction = clamped - low;
   return THREE.MathUtils.lerp(layout.positions[low], layout.positions[high], fraction);
+}
+
+/* Where the camera's own position on the rail is, in the room. */
+function railToPlace(t) {
+  return railPlace(layout, railToAlong(t));
 }
 
 /* Framing an inspected exhibit.
@@ -600,7 +621,7 @@ function wallFraming() {
   const pad = narrow ? 12 : 24;
   const band = {
     width: Math.max(160, innerWidth - pad * 2),
-    height: Math.max(160, innerHeight - (narrow ? 210 : 216))
+    height: Math.max(160, innerHeight - (narrow ? LOCKER_CHROME : 216))
   };
   const centreY = (narrow ? 84 : 92) + band.height / 2;
 
@@ -611,58 +632,44 @@ function wallFraming() {
   const reach = lockerWall.size.z / 2;
   const fitHeight = lockerWall.size.y / 2 / (Math.tan(vertical / 2) * (band.height / innerHeight)) + reach;
   const fitWidth = lockerWall.size.x / 2 / (Math.tan(horizontal / 2) * (band.width / innerWidth)) + reach;
-  /* A folded wall is fitted to the width alone. Fitting its height as well is
-     what a portrait screen does badly: it holds the whole nine metres at once
-     and every piece on it comes out too small to read, with the width of the
-     screen going spare on both sides. Fitted across, the wall fills the screen
-     and the rest of it is below the fold, which is where a thumb expects the
-     rest of anything to be. */
-  const fit = lockerWall.narrow ? fitWidth : Math.max(fitHeight, fitWidth);
-  const distance = fit * 1.05 / state.lockerWallZoom;
+  // Both shapes are framed whole. The folded wall is folded precisely so that it
+  // can be: a case you have to scroll is a case you cannot take in.
+  const distance = Math.max(fitHeight, fitWidth) * 1.05 / state.lockerWallZoom;
 
   const visibleHeight = 2 * distance * Math.tan(vertical / 2);
   return {
     distance,
     offsetX: 0,
-    offsetY: (centreY / innerHeight - 0.5) * visibleHeight,
-    /* How much wall the band holds, in metres. The offset above puts the wall's
-       centre in the middle of the band rather than the middle of the screen, so
-       anything asking how much of the wall is actually on show has to measure
-       the band — measuring the viewport counts the strip behind the header and
-       the strip behind the HUD as places you can see a pennant. */
-    bandWidth: visibleHeight * camera.aspect * (band.width / innerWidth),
-    bandHeight: visibleHeight * (band.height / innerHeight)
+    offsetY: (centreY / innerHeight - 0.5) * visibleHeight
   };
 }
 
-/* Where the wall rests when it is first opened: dead centre when the whole of
-   it is in the band, and with its top against the top of the band when it is
-   not. The flag is the manager's name, and opening a wall halfway down it is
-   like opening a page in the middle of a sentence. */
-function wallTopPan() {
-  if (!lockerWall) return 0;
-  const { bandHeight } = wallFraming();
-  return Math.max(0, (lockerWall.size.y - bandHeight) / 2);
+/* The shape of the space a locker wall has to fit into: how much taller the
+   band is than it is wide. The folded wall is composed to this, so a squarer
+   phone and a longer one get differently shaped cases and both fill the screen.
+
+   Measured from the same numbers `wallFraming` uses, but callable before there
+   is a wall to frame, because it is what decides how the wall is built. */
+/* Top bar plus everything along the bottom of a phone's locker, which since the
+   team bar was dropped from it is only the hint pill. The wall is framed to what
+   is left, so every pixel counted back here is a bigger pennant. */
+const LOCKER_CHROME = 152;
+
+function bandAspect() {
+  const narrow = isNarrow();
+  const pad = narrow ? 12 : 24;
+  const width = Math.max(160, innerWidth - pad * 2);
+  const height = Math.max(160, innerHeight - (narrow ? LOCKER_CHROME : 216));
+  return height / width;
 }
 
-/* How far the wall may be dragged from that resting frame, in metres.
-
-   An unfolded wall is framed whole, so there is nothing to reach for and the
-   drag is only ever a nudge around the room: it keeps the fixed slack it has
-   always had. A folded one has most of itself below the fold, so its reach is
-   however much of the wall the band is not holding, plus a margin so the last
-   row is never jammed against the bottom of the band. */
-const WIDE_PAN = { x: 3.2, y: 2.6 };
+/* How far the wall may be dragged from that resting frame. Both shapes are
+   framed whole, so there is never anything off screen to reach for and the drag
+   is only ever a nudge around the room. */
+const WALL_PAN = { x: 3.2, y: 2.6 };
 
 function wallPanLimits() {
-  if (!lockerWall) return { x: 0, y: 0 };
-  if (!lockerWall.narrow) return WIDE_PAN;
-  const { bandWidth, bandHeight } = wallFraming();
-  const margin = 0.35;
-  return {
-    x: Math.max(0, (lockerWall.size.x - bandWidth) / 2) + margin,
-    y: Math.max(0, (lockerWall.size.y - bandHeight) / 2) + margin
-  };
+  return lockerWall ? WALL_PAN : { x: 0, y: 0 };
 }
 
 /* Crouching to him. The hall pose is worked out as usual and then bent toward
@@ -715,19 +722,33 @@ function updateCameraTarget(dt) {
     camTarget.look.set(x, y, lockerWall.centre.z);
   } else if (state.mode === "focus" && exhibits[state.focusIndex]) {
     const exhibit = exhibits[state.focusIndex];
-    const centerY = exhibit.pedestal.userData.topY + state.lift + exhibit.focusHeight;
+    // An exhibit's own base, wherever the rail put it, plus everything that
+    // stands on top of it.
+    const centerY = exhibit.place.y + exhibit.pedestal.userData.topY + state.lift + exhibit.focusHeight;
     const { distance, offsetX, offsetY } = focusFraming(exhibit);
     const axisY = centerY + offsetY;
-    camTarget.position.set(exhibit.x + offsetX, axisY, LAYOUT.itemZ + distance);
-    camTarget.look.set(exhibit.x + offsetX, axisY, LAYOUT.itemZ);
+    camTarget.position.set(exhibit.place.x + offsetX, axisY, LAYOUT.itemZ + distance);
+    camTarget.look.set(exhibit.place.x + offsetX, axisY, LAYOUT.itemZ);
   } else {
-    const x = railToX(state.rail);
+    const spot = railToPlace(state.rail);
     // The camera leans into a flick, which reads as momentum without moving
-    // the exhibits themselves.
+    // the exhibits themselves — down the corridor, or down the shaft.
     const lean = clamp(state.velocity * 0.14, -0.7, 0.7);
     const ease = state.intro * state.intro;
-    camTarget.position.set(x + lean * 0.55, 2.52 + ease * 2.2, LAYOUT.itemZ + 6.7 + ease * 6.6);
-    camTarget.look.set(x + lean * 1.6, 1.80 + ease * 0.25, LAYOUT.itemZ);
+    /* The same eye height over whatever the exhibit is standing on, either way.
+       The shaft aims lower than the corridor for the same reason a phone's
+       record sheet takes the bottom of the screen and a desktop's takes the
+       side: on a phone the free part of the frame is its top two thirds, and
+       aiming below an exhibit is what lifts it into them. */
+    const eye = spot.y + 2.52 + ease * 2.2;
+    const aim = spot.y + (layout.vertical ? 1.42 : 1.80) + ease * 0.25;
+    if (layout.vertical) {
+      camTarget.position.set(spot.x, eye - lean * 0.55, LAYOUT.itemZ + 6.7 + ease * 6.6);
+      camTarget.look.set(spot.x, aim - lean * 1.6, LAYOUT.itemZ);
+    } else {
+      camTarget.position.set(spot.x + lean * 0.55, eye, LAYOUT.itemZ + 6.7 + ease * 6.6);
+      camTarget.look.set(spot.x + lean * 1.6, aim, LAYOUT.itemZ);
+    }
     applyPetFraming();
   }
 
@@ -771,7 +792,7 @@ function tick(now) {
     updateCameraTarget(dt);
     focusFill.intensity = damp(focusFill.intensity, state.mode === "lockerFocus" ? 10 : 0, 4, dt);
     focusFill.position.set(camera.position.x - 0.6, camera.position.y + 0.4, camera.position.z - 0.3);
-    dust.update(dt, camera.position.x);
+    dust.update(dt, layout.vertical ? camera.position.y : camera.position.x);
     renderer.render(scene, camera);
     return;
   }
@@ -800,8 +821,10 @@ function tick(now) {
     const pull = tucker
       ? Math.max(state.pet, clamp(1 - Math.abs(state.rail - tuckerRail) * 2.4, 0, 1))
       : 0;
-    const litX = tucker ? THREE.MathUtils.lerp(active.x, tucker.x, pull) : active.x;
-    lights.update(litX, pull > 0.5 ? "#ffd08a" : active.item.accent);
+    const lit = tucker
+      ? THREE.MathUtils.lerp(active.along, railToAlong(tuckerRail), pull)
+      : active.along;
+    lights.update(layout.vertical ? -lit : lit, pull > 0.5 ? "#ffd08a" : active.item.accent);
   }
 
   // The fill rides just off the camera's shoulder, so it lights whatever face
@@ -816,7 +839,7 @@ function tick(now) {
     camera.position.y + 0.5,
     camera.position.z - 0.4
   );
-  dust.update(dt, camera.position.x);
+  dust.update(dt, layout.vertical ? camera.position.y : camera.position.x);
 
   renderer.render(scene, camera);
 }
@@ -877,7 +900,9 @@ let metTucker = false;
    hall rather than by rail index, because he does not have one. */
 function updateMascot(dt, time) {
   if (!tucker) return;
-  const distance = Math.abs(camera.position.x - tucker.x);
+  const distance = layout.vertical
+    ? Math.abs(camera.position.y - tucker.y)
+    : Math.abs(camera.position.x - tucker.x);
   const near = distance < 15;
   tucker.group.visible = distance < 26;
   tucker.update(dt, time, {
@@ -1150,7 +1175,7 @@ function enterHall() {
   // and a hint that rewrote itself mid-swipe would be its own distraction.
   if (isUpright()) {
     dom.hint.textContent = "Swipe up to walk the hall · tap a trophy to inspect it";
-    dom.lockerHint.textContent = "Swipe to move down the wall · tap anything to see it up close";
+    dom.lockerHint.textContent = "Tap anything on the wall to see it up close";
   }
   setTimeout(() => dom.hint.classList.add("show"), 900);
   setTimeout(() => dom.hint.classList.remove("show"), 6500);
@@ -1169,7 +1194,7 @@ function openLocker(ownerId) {
   wipe({ color: locker.color, icon: locker.icon, ownerId: locker.ownerId, label: `Opening ${locker.team}` }, () => {
     if (lockerWall) lockerWall.dispose();
     lockerRoom.setNarrow(isUpright());
-    lockerWall = buildLockerWall(lockerRoom.room, locker, { narrow: isUpright() });
+    lockerWall = buildLockerWall(lockerRoom.room, locker, { narrow: isUpright(), aspect: bandAspect() });
 
     state.lockerId = ownerId;
     state.lockerIndex = -1;
@@ -1184,12 +1209,10 @@ function openLocker(ownerId) {
     // in the middle of it.
     scene.fog = null;
 
-    state.lockerPanY = wallTopPan();
-
     const framing = wallFraming();
     camera.position.set(
       lockerWall.centre.x,
-      lockerWall.centre.y + state.lockerPanY + framing.offsetY,
+      lockerWall.centre.y + framing.offsetY,
       lockerWall.centre.z + framing.distance
     );
     lookAt.copy(camera.position).setZ(lockerWall.centre.z);
@@ -1231,8 +1254,8 @@ function closeLocker() {
     state.lastStop = null;
     const exhibit = exhibits[index];
     if (exhibit) {
-      camera.position.set(exhibit.x, 2.52, LAYOUT.itemZ + 6.7);
-      lookAt.set(exhibit.x, 1.8, LAYOUT.itemZ);
+      camera.position.set(exhibit.place.x, exhibit.place.y + 2.52, LAYOUT.itemZ + 6.7);
+      lookAt.set(exhibit.place.x, exhibit.place.y + 1.8, LAYOUT.itemZ);
       camera.lookAt(lookAt);
     }
   });
@@ -1374,7 +1397,7 @@ function bindInput() {
      driven by a vertical swipe — swipe up to go further along, exactly like
      scrolling anything else on a phone. Only the axis changes: a stop is the
      same distance, and the flick carries the same way. */
-  const railAxis = () => (isUpright() ? "y" : "x");
+  const railAxis = () => (layout.vertical ? "y" : "x");
   const stopsPerPixel = () =>
     (railAxis() === "y" ? 4.2 / Math.max(360, innerHeight) : 4.2 / Math.max(360, innerWidth));
 
@@ -1664,9 +1687,9 @@ function onResize() {
     const focused = state.mode === "lockerFocus" ? state.lockerIndex : -1;
     lockerWall.dispose();
     lockerRoom.setNarrow(isUpright());
-    lockerWall = buildLockerWall(lockerRoom.room, locker, { narrow: isUpright() });
+    lockerWall = buildLockerWall(lockerRoom.room, locker, { narrow: isUpright(), aspect: bandAspect() });
     state.lockerPanX = 0;
-    state.lockerPanY = wallTopPan();
+    state.lockerPanY = 0;
     state.lockerWallZoom = 1;
     if (focused >= 0) state.lockerIndex = Math.min(focused, lockerWall.items.length - 1);
   }

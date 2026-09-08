@@ -16,27 +16,62 @@ export const LAYOUT = {
   pedestalHeight: 1.12
 };
 
-/* Walks the rail once and fixes where every pedestal stands, plus where each
+/* The same gallery, stood on its end.
+
+   A phone held upright is a tall window onto a room that runs sideways, and
+   walking it by swiping up asks the viewer to hold two directions in their head
+   at once: the swipe goes one way, the hall goes the other. So on a phone the
+   hall is not a corridor at all — it is a shaft, and the exhibits are stacked
+   one above another down it, each on its own shelf. Swiping up moves you down
+   the stack, which is the only thing a vertical swipe has ever meant.
+
+   The rail is unchanged: same order, same stops, same distances between them.
+   Only which axis those distances are spent on changes, and everything that
+   places something in the room asks `railPlace` rather than assuming x. */
+export const SHAFT = {
+  spacing: 4.6,       // more room than the corridor: nothing is beside anything
+  wingGap: 7.2,
+  wallZ: -2.9,        // the back of the shaft, much closer than a hall's wall
+  half: 3.5,          // how far the shelves and the shaft's edges reach across
+  shelfDrop: 0.2      // thickness of the shelf a pedestal stands on
+};
+
+/* Walks the rail once and fixes where every exhibit stands, plus where each
    wing begins and ends. Everything downstream — camera, arches, banners, the
-   HUD's progress bar — reads these numbers rather than recomputing them. */
-export function planLayout(hall) {
+   HUD's progress bar — reads these numbers rather than recomputing them.
+
+   Positions are distances along the rail, not coordinates. `railPlace` turns a
+   distance into a point, and it is the only place that knows which way the
+   gallery runs. */
+export function planLayout(hall, { vertical = false } = {}) {
+  const spacing = vertical ? SHAFT.spacing : LAYOUT.spacing;
+  const wingGap = vertical ? SHAFT.wingGap : LAYOUT.wingGap;
   let x = 0;
   const positions = [];
   hall.wings.forEach((wing, index) => {
-    if (index > 0) x += LAYOUT.wingGap;
+    if (index > 0) x += wingGap;
     wing.startX = x;
-    wing.archX = x - LAYOUT.wingGap / 2;
+    wing.archX = x - wingGap / 2;
     wing.items.forEach((item, itemIndex) => {
-      positions[item.railIndex] = x + itemIndex * LAYOUT.spacing;
+      positions[item.railIndex] = x + itemIndex * spacing;
     });
-    x += (wing.items.length - 1) * LAYOUT.spacing;
+    x += (wing.items.length - 1) * spacing;
     wing.endX = x;
     wing.centerX = (wing.startX + wing.endX) / 2;
   });
 
-  const minX = positions[0] - LAYOUT.wingGap;
-  const maxX = positions[positions.length - 1] + LAYOUT.wingGap;
-  return { positions, minX, maxX, length: maxX - minX };
+  const minX = positions[0] - wingGap;
+  const maxX = positions[positions.length - 1] + wingGap;
+  return { positions, minX, maxX, length: maxX - minX, vertical, spacing, wingGap };
+}
+
+/* A distance along the rail, as a point in the room. A corridor spends it going
+   right; a shaft spends it going down, so the first exhibit is at the top and
+   the rail reads like a page. */
+export function railPlace(layout, distance) {
+  return layout.vertical
+    ? { x: 0, y: -distance, z: LAYOUT.itemZ }
+    : { x: distance, y: 0, z: LAYOUT.itemZ };
 }
 
 function longBox(width, height, depth, material, position) {
@@ -50,6 +85,190 @@ function emissiveStrip(color, intensity) {
 }
 
 export function buildRoom(scene, hall, layout) {
+  return layout.vertical ? buildShaft(scene, hall, layout) : buildCorridor(scene, hall, layout);
+}
+
+/* ------------------------------------------------------------------- shaft */
+
+/* The gallery as a shaft: a panelled back wall running the whole rail, a shelf
+   under every exhibit, and an alcove of the wing's colour behind each one.
+
+   It is deliberately plainer than the corridor. A corridor is read down its
+   length, so it earns its pilasters, coffers and receding sconces — they are
+   what make it read as long. A shaft is read one shelf at a time through a
+   window the size of a phone, and everything that is not the exhibit in front
+   of you is either off the top of the screen or off the bottom of it. So the
+   parts that are left are the ones that say where you are: the shelf, the
+   alcove behind it, and the band you cross going into a new wing. */
+function buildShaft(scene, hall, layout) {
+  const mat = materials();
+  const room = new THREE.Group();
+  const span = layout.length;
+  const midY = -(layout.minX + layout.maxX) / 2;
+  const wallZ = SHAFT.wallZ;
+  const half = SHAFT.half;
+
+  // Which wing each exhibit belongs to, so a shelf can be lit in its colour.
+  const accentFor = [];
+  hall.wings.forEach((wing) => {
+    wing.items.forEach((item) => { accentFor[item.railIndex] = wing.accent; });
+  });
+
+  /* --------------------------------------------------------------- the back */
+  const panelTexture = mat.textures.darkMarble.clone();
+  panelTexture.needsUpdate = true;
+  panelTexture.repeat.set(2, span / 7);
+  const back = new THREE.Mesh(
+    new THREE.PlaneGeometry(half * 2 + 1.4, span),
+    new THREE.MeshStandardMaterial({
+      map: panelTexture, color: 0x8ba2bd, metalness: 0.3, roughness: 0.5,
+      envMap: mat.envMap, envMapIntensity: 0.85
+    })
+  );
+  back.position.set(0, midY, wallZ);
+  room.add(back);
+
+  // The two edges of the shaft: a walnut stile and a brass bead down each side,
+  // which is what stops the back wall reading as a flat backdrop.
+  const stileTexture = mat.textures.walnut.clone();
+  stileTexture.needsUpdate = true;
+  stileTexture.repeat.set(1, span / 4);
+  const stile = new THREE.MeshStandardMaterial({
+    map: stileTexture, color: 0x6d5539, metalness: 0.15, roughness: 0.66,
+    envMap: mat.envMap, envMapIntensity: 0.4
+  });
+  for (const side of [-1, 1]) {
+    room.add(longBox(0.9, span, 0.5, stile, [side * (half + 0.2), midY, wallZ + 0.24]));
+    room.add(longBox(0.1, span, 0.62, mat.brass, [side * (half - 0.3), midY, wallZ + 0.5]));
+    // A dim strip of light down each side, so the shaft has a length you can
+    // feel even where there is no shelf in frame.
+    room.add(longBox(0.05, span, 0.3, emissiveStrip(0xd9b168, 0.4), [side * (half + 0.62), midY, wallZ + 0.5]));
+  }
+
+  /* ------------------------------------------------------------ the shelves */
+  const count = layout.positions.length;
+  const dummy = new THREE.Object3D();
+
+  const shelves = new THREE.InstancedMesh(
+    roundedBox(half * 1.7, SHAFT.shelfDrop, 1.7, 0.05), mat.darkMarble, count
+  );
+  const lips = new THREE.InstancedMesh(
+    roundedBox(half * 1.72, 0.03, 1.76, 0.012), mat.brass, count
+  );
+  const brackets = new THREE.InstancedMesh(
+    new THREE.CylinderGeometry(0.05, 0.08, 0.34, 10), mat.brass, count * 2
+  );
+  const alcoves = new THREE.InstancedMesh(
+    roundedBox(half * 1.5, 3.2, 0.16, 0.06),
+    new THREE.MeshStandardMaterial({
+      color: 0x101b2c, metalness: 0.35, roughness: 0.55, envMap: mat.envMap, envMapIntensity: 0.5
+    }),
+    count
+  );
+
+  /* The wing's colour, washed into the back of each alcove. One instanced mesh
+     carrying a colour per instance: forty-one separate additive planes is forty
+     one draw calls for something nobody can see more than two of at a time. */
+  const washes = new THREE.InstancedMesh(
+    new THREE.PlaneGeometry(half * 1.5, 3.4),
+    new THREE.MeshBasicMaterial({
+      map: radialTexture(), transparent: true, opacity: 0.16,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    }),
+    count
+  );
+  const washColour = new THREE.Color();
+
+  layout.positions.forEach((distance, index) => {
+    const y = -distance;
+
+    dummy.rotation.set(0, 0, 0);
+    dummy.position.set(0, y + 1.55, wallZ + 0.14);
+    dummy.updateMatrix();
+    alcoves.setMatrixAt(index, dummy.matrix);
+
+    dummy.position.set(0, y - SHAFT.shelfDrop / 2, wallZ + 0.95);
+    dummy.updateMatrix();
+    shelves.setMatrixAt(index, dummy.matrix);
+
+    dummy.position.set(0, y - SHAFT.shelfDrop - 0.015, wallZ + 0.95);
+    dummy.updateMatrix();
+    lips.setMatrixAt(index, dummy.matrix);
+
+    [-1, 1].forEach((side, i) => {
+      dummy.position.set(side * half * 0.6, y - SHAFT.shelfDrop - 0.2, wallZ + 0.55);
+      dummy.updateMatrix();
+      brackets.setMatrixAt(index * 2 + i, dummy.matrix);
+    });
+
+    dummy.position.set(0, y + 1.55, wallZ + 0.24);
+    dummy.updateMatrix();
+    washes.setMatrixAt(index, dummy.matrix);
+    washes.setColorAt(index, washColour.set(accentFor[index] || "#f2c14a"));
+  });
+
+  [shelves, lips, brackets, alcoves, washes].forEach((mesh) => { mesh.instanceMatrix.needsUpdate = true; });
+  if (washes.instanceColor) washes.instanceColor.needsUpdate = true;
+  washes.renderOrder = 1;
+  room.add(shelves, lips, brackets, alcoves, washes);
+
+  /* ------------------------------------------------------- wing thresholds */
+  hall.wings.forEach((wing, wingIndex) => {
+    // The banner hangs in the gap above the wing's first shelf, so you pass it
+    // on the way in the same way the corridor's arch is passed through.
+    const bannerY = -(wing.startX - layout.wingGap * 0.46);
+    const banner = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.9, 1.4, 16, 1),
+      new THREE.MeshStandardMaterial({
+        map: bannerTexture({ name: wing.name, kicker: wing.kicker, accent: wing.accent }),
+        metalness: 0.05, roughness: 0.85, side: THREE.DoubleSide
+      })
+    );
+    banner.position.set(0, bannerY, wallZ + 0.6);
+    const position = banner.geometry.attributes.position;
+    for (let i = 0; i < position.count; i += 1) {
+      position.setZ(i, Math.sin(position.getX(i) * 2.2) * 0.05);
+    }
+    position.needsUpdate = true;
+    banner.geometry.computeVertexNormals();
+
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.036, 4.2, 12), mat.brass);
+    rod.rotation.z = Math.PI / 2;
+    rod.position.set(0, bannerY + 0.76, wallZ + 0.62);
+    room.add(banner, rod);
+
+    // A lintel across the shaft where one wing gives way to the next.
+    if (wingIndex > 0) {
+      const y = -wing.archX;
+      room.add(longBox(half * 2 + 1.2, 0.34, 0.7, mat.marble, [0, y, wallZ + 0.8]));
+      room.add(longBox(half * 2 + 1.3, 0.08, 0.84, mat.brass, [0, y - 0.2, wallZ + 0.86]));
+      const glow = new THREE.Mesh(
+        new THREE.PlaneGeometry(half * 2 + 1.2, 0.06),
+        emissiveStrip(new THREE.Color(wing.accent).getHex(), 1.2)
+      );
+      glow.position.set(0, y + 0.2, wallZ + 1.16);
+      room.add(glow);
+    }
+  });
+
+  /* ------------------------------------------------------------------- ends */
+  for (const [y, facing] of [[-layout.minX, -1], [-layout.maxX, 1]]) {
+    const cap = new THREE.Mesh(
+      new THREE.PlaneGeometry(half * 2 + 1.4, LAYOUT.frontZ - wallZ),
+      new THREE.MeshStandardMaterial({ color: 0x0a1220, metalness: 0.3, roughness: 0.7, envMap: mat.envMap, envMapIntensity: 0.4 })
+    );
+    cap.rotation.x = facing * Math.PI / 2;
+    cap.position.set(0, y, (wallZ + LAYOUT.frontZ) / 2);
+    room.add(cap);
+  }
+
+  scene.add(room);
+  return { room, floor: back };
+}
+
+/* ---------------------------------------------------------------- corridor */
+
+function buildCorridor(scene, hall, layout) {
   const mat = materials();
   const room = new THREE.Group();
   const centerX = (layout.minX + layout.maxX) / 2;
@@ -339,12 +558,20 @@ function buildArch(x, accent, mat) {
 
 /* Motes in the light. They live in a slab that follows the camera down the
    hall, so a few hundred points cover a gallery of any length. */
-export function buildDust(scene, count = 420) {
+/* Motes in the light. They drift across the rail rather than up it, and wrap
+   around the camera so the same few hundred follow you the whole way: in a
+   corridor that means drifting upward and wrapping left to right, and in a
+   shaft it means drifting sideways and wrapping top to bottom. */
+export function buildDust(scene, count = 420, { vertical = false } = {}) {
   const positions = new Float32Array(count * 3);
   const speeds = new Float32Array(count);
+  // The axis the rail runs on, which is the one the motes wrap around; and the
+  // axis they drift along, which is the other one.
+  const along = vertical ? 1 : 0;
+  const drift = vertical ? 0 : 1;
   for (let i = 0; i < count; i += 1) {
-    positions[i * 3] = (Math.random() - 0.5) * 26;
-    positions[i * 3 + 1] = Math.random() * 5.4 + 0.2;
+    positions[i * 3 + along] = (Math.random() - 0.5) * 26;
+    positions[i * 3 + drift] = vertical ? (Math.random() - 0.5) * 7 : Math.random() * 5.4 + 0.2;
     positions[i * 3 + 2] = LAYOUT.wallZ + Math.random() * (LAYOUT.frontZ - LAYOUT.wallZ);
     speeds[i] = 0.02 + Math.random() * 0.06;
   }
@@ -365,18 +592,21 @@ export function buildDust(scene, count = 420) {
   points.frustumCulled = false;
   scene.add(points);
 
+  const driftFrom = vertical ? -3.5 : 0.15;
+  const driftTo = vertical ? 3.5 : 5.8;
+
   return {
     points,
-    update(delta, cameraX) {
+    update(delta, cameraAlong) {
       const array = geometry.attributes.position.array;
       for (let i = 0; i < count; i += 1) {
         const base = i * 3;
-        array[base + 1] += speeds[i] * delta;
-        array[base] += Math.sin(array[base + 1] * 1.4 + i) * delta * 0.06;
-        if (array[base + 1] > 5.8) array[base + 1] = 0.15;
-        const offset = array[base] - cameraX;
-        if (offset > 13) array[base] -= 26;
-        else if (offset < -13) array[base] += 26;
+        array[base + drift] += speeds[i] * delta;
+        array[base + along] += Math.sin(array[base + drift] * 1.4 + i) * delta * 0.06;
+        if (array[base + drift] > driftTo) array[base + drift] = driftFrom;
+        const offset = array[base + along] - cameraAlong;
+        if (offset > 13) array[base + along] -= 26;
+        else if (offset < -13) array[base + along] += 26;
       }
       geometry.attributes.position.needsUpdate = true;
     }
@@ -386,15 +616,21 @@ export function buildDust(scene, count = 420) {
 /* Three lights ride along with the viewer: a key on whatever is in front of
    them and a wash on each neighbour. Lighting the whole hall at once would
    cost thirty lights and look flat anyway. */
-export function buildTravellingLights(scene, quality) {
+export function buildTravellingLights(scene, quality, { vertical = false } = {}) {
+  const spacing = vertical ? SHAFT.spacing : LAYOUT.spacing;
+  const wallZ = vertical ? SHAFT.wallZ : LAYOUT.wallZ;
   // Intensities are in candela: a spot falls off as intensity / distance^decay.
   // The ceiling is four metres above a plinth, so these run high — but not as
   // high as they want to be. Gold is specular and swallows a lot of light
   // before it looks lit; the painted shields and engraved plates beside it are
   // diffuse and clip long before that. The key is set by what the flat
   // surfaces will take, and the ambient below carries the rest.
-  const key = new THREE.SpotLight(0xffe3b8, 150, 22, 0.62, 0.45, 1.5);
-  key.position.set(0, 5.3, LAYOUT.itemZ + 1.9);
+  /* In a shaft the key cannot hang above the exhibit the way it does in a
+     corridor — four metres up is the next shelf. It comes from in front
+     instead, close and slightly above, which is the only direction a shaft
+     leaves open. */
+  const key = new THREE.SpotLight(0xffe3b8, vertical ? 190 : 150, vertical ? 16 : 22, vertical ? 0.85 : 0.62, 0.45, 1.5);
+  key.position.set(0, vertical ? 2.9 : 5.3, LAYOUT.itemZ + (vertical ? 4.2 : 1.9));
   key.target.position.set(0, 1.3, LAYOUT.itemZ);
   if (quality.shadows) {
     key.castShadow = true;
@@ -408,8 +644,8 @@ export function buildTravellingLights(scene, quality) {
 
   const wings = [-1, 1].map((side) => {
     const light = new THREE.SpotLight(0xbcd2ff, 72, 20, 0.7, 0.65, 1.6);
-    light.position.set(side * LAYOUT.spacing, 5.0, LAYOUT.itemZ + 2.4);
-    light.target.position.set(side * LAYOUT.spacing, 1.1, LAYOUT.itemZ);
+    light.position.set(0, 5.0, LAYOUT.itemZ + 2.4);
+    light.target.position.set(0, 1.1, LAYOUT.itemZ);
     scene.add(light, light.target);
     return { light, side };
   });
@@ -417,20 +653,50 @@ export function buildTravellingLights(scene, quality) {
   // A low warm bounce off the wall behind the exhibits, so nothing is lit from
   // one side only.
   const rim = new THREE.PointLight(0xff9d5c, 42, 16, 2);
-  rim.position.set(0, 1.9, LAYOUT.wallZ + 1.4);
+  rim.position.set(0, 1.9, wallZ + 1.4);
   scene.add(rim);
+
+  /* Where each light sits relative to the base of whatever it is lighting, as
+     [along the rail, up off the base, out in front of it]. The corridor and the
+     shaft need different poses for the same reason they need different rooms:
+     in a corridor "up" and "along" are two different axes, so a light can hang
+     over an exhibit and its neighbours can stand beside it. In a shaft they are
+     the same axis — the space above an exhibit is the next exhibit — so
+     everything comes at it from the front instead, and the neighbours' washes
+     are the ones above and below. */
+  const POSE = vertical ? {
+    key:    { along: 1.4, out: 4.2 },
+    keyAim: { along: 1.3, out: 0 },
+    wing:   { along: 1.5, out: 3.4 },
+    wingAim:{ along: 1.3, out: 0 },
+    rim:    { along: 1.9, out: wallZ + 1.4 - LAYOUT.itemZ }
+  } : {
+    key:    { up: 5.3, out: 1.9 },
+    keyAim: { up: 1.3, out: 0 },
+    wing:   { up: 5.0, out: 2.4 },
+    wingAim:{ up: 1.1, out: 0 },
+    rim:    { up: 1.9, out: wallZ + 1.4 - LAYOUT.itemZ }
+  };
+
+  // `along` is where on the rail the light is riding; `step` slides it up or
+  // down the rail from there, which is how a neighbour's wash finds its
+  // neighbour in either room.
+  const place = (node, along, pose, step = 0) => {
+    if (vertical) node.position.set(0, along + pose.along + step, LAYOUT.itemZ + pose.out);
+    else node.position.set(along + step, pose.up, LAYOUT.itemZ + pose.out);
+  };
 
   return {
     key,
-    update(x, accent) {
-      key.position.x = x;
-      key.target.position.x = x;
+    update(along, accent) {
+      place(key, along, POSE.key);
+      place(key.target, along, POSE.keyAim);
       key.color.lerp(new THREE.Color(0xffe3b8).lerp(new THREE.Color(accent), 0.4), 0.08);
       wings.forEach(({ light, side }) => {
-        light.position.x = x + side * LAYOUT.spacing;
-        light.target.position.x = x + side * LAYOUT.spacing;
+        place(light, along, POSE.wing, side * spacing);
+        place(light.target, along, POSE.wingAim, side * spacing);
       });
-      rim.position.x = x;
+      place(rim, along, POSE.rim);
       rim.color.lerp(new THREE.Color(0xff9d5c).lerp(new THREE.Color(accent), 0.45), 0.06);
     }
   };
