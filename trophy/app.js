@@ -263,11 +263,6 @@ function cacheDom() {
     wipe: id("wipe"),
     wipeCrest: id("wipeCrest"),
     wipeLabel: id("wipeLabel"),
-    lockerBar: id("lockerBar"),
-    lockerCrest: id("lockerCrest"),
-    lockerTeam: id("lockerTeam"),
-    lockerOwner: id("lockerOwner"),
-    lockerSummary: id("lockerSummary"),
     lockerBack: id("lockerBack"),
     lockerBackLabel: id("lockerBackLabel"),
     lockerHint: id("lockerHint"),
@@ -621,7 +616,7 @@ function wallFraming() {
   const pad = narrow ? 12 : 24;
   const band = {
     width: Math.max(160, innerWidth - pad * 2),
-    height: Math.max(160, innerHeight - (narrow ? LOCKER_CHROME : 216))
+    height: Math.max(160, innerHeight - (narrow ? LOCKER_CHROME.narrow : LOCKER_CHROME.wide))
   };
   const centreY = (narrow ? 84 : 92) + band.height / 2;
 
@@ -650,16 +645,16 @@ function wallFraming() {
 
    Measured from the same numbers `wallFraming` uses, but callable before there
    is a wall to frame, because it is what decides how the wall is built. */
-/* Top bar plus everything along the bottom of a phone's locker, which since the
-   team bar was dropped from it is only the hint pill. The wall is framed to what
-   is left, so every pixel counted back here is a bigger pennant. */
-const LOCKER_CHROME = 152;
+/* What the locker's own chrome takes off the screen: the top bar, and the hint
+   pill along the bottom. Nothing else is on it since the team bar came off, and
+   every pixel counted back here is a bigger pennant. */
+const LOCKER_CHROME = { narrow: 152, wide: 168 };
 
 function bandAspect() {
   const narrow = isNarrow();
   const pad = narrow ? 12 : 24;
   const width = Math.max(160, innerWidth - pad * 2);
-  const height = Math.max(160, innerHeight - (narrow ? LOCKER_CHROME : 216));
+  const height = Math.max(160, innerHeight - (narrow ? LOCKER_CHROME.narrow : LOCKER_CHROME.wide));
   return height / width;
 }
 
@@ -1222,7 +1217,6 @@ function openLocker(ownerId) {
     dom.stage.classList.remove("focused");
     dom.sheet.setAttribute("aria-hidden", "true");
     dom.stage.style.setProperty("--accent", locker.color);
-    fillLockerHud(locker);
     dom.lockerBackLabel.textContent = "Hall of Fame";
     if (history.replaceState) history.replaceState(null, "", `#locker=${ownerId}`);
   });
@@ -1281,14 +1275,6 @@ function exitLockerFocus() {
   dom.stage.classList.remove("focused");
   dom.sheet.setAttribute("aria-hidden", "true");
   dom.lockerBackLabel.textContent = "Hall of Fame";
-}
-
-function fillLockerHud(locker) {
-  dom.lockerTeam.textContent = locker.team;
-  dom.lockerOwner.textContent = locker.name;
-  dom.lockerSummary.textContent = locker.summary;
-  paintCrest(dom.lockerCrest, locker.ownerId, locker.icon);
-  dom.lockerCrest.style.setProperty("--team", locker.color);
 }
 
 /* A short curtain over a change of room, so neither the build nor the camera

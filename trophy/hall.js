@@ -31,8 +31,14 @@ export const LAYOUT = {
 export const SHAFT = {
   spacing: 4.6,       // more room than the corridor: nothing is beside anything
   wingGap: 7.2,
-  wallZ: -2.9,        // the back of the shaft, much closer than a hall's wall
-  half: 3.5,          // how far the shelves and the shaft's edges reach across
+  /* The back of the shaft. Much closer than a corridor's wall, because the
+     exhibits stand on ledges out of it rather than on a floor in front of it —
+     the shelf has to reach from the wall to under the pedestal, and a wall five
+     metres back needs a five-metre shelf to get there. */
+  wallZ: -1.35,
+  shelfZ: 0.9,        // how far the shelf reaches out of the wall
+  shelfDepth: 1.9,
+  half: 2.3,          // how far the shaft's edges reach across
   shelfDrop: 0.2      // thickness of the shelf a pedestal stands on
 };
 
@@ -150,16 +156,16 @@ function buildShaft(scene, hall, layout) {
   const dummy = new THREE.Object3D();
 
   const shelves = new THREE.InstancedMesh(
-    roundedBox(half * 1.7, SHAFT.shelfDrop, 1.7, 0.05), mat.darkMarble, count
+    roundedBox(half * 1.4, SHAFT.shelfDrop, SHAFT.shelfDepth, 0.05), mat.darkMarble, count
   );
   const lips = new THREE.InstancedMesh(
-    roundedBox(half * 1.72, 0.03, 1.76, 0.012), mat.brass, count
+    roundedBox(half * 1.42, 0.03, SHAFT.shelfDepth + 0.06, 0.012), mat.brass, count
   );
   const brackets = new THREE.InstancedMesh(
     new THREE.CylinderGeometry(0.05, 0.08, 0.34, 10), mat.brass, count * 2
   );
   const alcoves = new THREE.InstancedMesh(
-    roundedBox(half * 1.5, 3.2, 0.16, 0.06),
+    roundedBox(half * 1.3, 3.2, 0.16, 0.06),
     new THREE.MeshStandardMaterial({
       color: 0x101b2c, metalness: 0.35, roughness: 0.55, envMap: mat.envMap, envMapIntensity: 0.5
     }),
@@ -170,7 +176,7 @@ function buildShaft(scene, hall, layout) {
      carrying a colour per instance: forty-one separate additive planes is forty
      one draw calls for something nobody can see more than two of at a time. */
   const washes = new THREE.InstancedMesh(
-    new THREE.PlaneGeometry(half * 1.5, 3.4),
+    new THREE.PlaneGeometry(half * 1.3, 3.4),
     new THREE.MeshBasicMaterial({
       map: radialTexture(), transparent: true, opacity: 0.16,
       blending: THREE.AdditiveBlending, depthWrite: false
@@ -187,16 +193,20 @@ function buildShaft(scene, hall, layout) {
     dummy.updateMatrix();
     alcoves.setMatrixAt(index, dummy.matrix);
 
-    dummy.position.set(0, y - SHAFT.shelfDrop / 2, wallZ + 0.95);
+    /* The shelf reaches out of the wall far enough to have the exhibit standing
+       on the middle of it. It used to sit against the wall behind them, which
+       from the front read as every pedestal in the hall hovering a metre in
+       front of the ledge it was supposed to be on. */
+    dummy.position.set(0, y - SHAFT.shelfDrop / 2, wallZ + SHAFT.shelfZ);
     dummy.updateMatrix();
     shelves.setMatrixAt(index, dummy.matrix);
 
-    dummy.position.set(0, y - SHAFT.shelfDrop - 0.015, wallZ + 0.95);
+    dummy.position.set(0, y - SHAFT.shelfDrop - 0.015, wallZ + SHAFT.shelfZ);
     dummy.updateMatrix();
     lips.setMatrixAt(index, dummy.matrix);
 
     [-1, 1].forEach((side, i) => {
-      dummy.position.set(side * half * 0.6, y - SHAFT.shelfDrop - 0.2, wallZ + 0.55);
+      dummy.position.set(side * half * 0.6, y - SHAFT.shelfDrop - 0.2, wallZ + 0.5);
       dummy.updateMatrix();
       brackets.setMatrixAt(index * 2 + i, dummy.matrix);
     });
@@ -261,6 +271,13 @@ function buildShaft(scene, hall, layout) {
     cap.position.set(0, y, (wallZ + LAYOUT.frontZ) / 2);
     room.add(cap);
   }
+
+  /* A shaft needs a little more ambient than a corridor — you are nose to nose
+     with the case rather than looking down a room, and what the key does not
+     land on has nowhere else to get light from. It lives on the room rather
+     than on the scene so that it goes out with the hall: a locker wall is lit
+     by its own lamps and does not want this one on top of them. */
+  room.add(new THREE.HemisphereLight(0xa9c4ee, 0x3a2a1a, 0.55));
 
   scene.add(room);
   return { room, floor: back };
@@ -627,10 +644,23 @@ export function buildTravellingLights(scene, quality, { vertical = false } = {})
   // surfaces will take, and the ambient below carries the rest.
   /* In a shaft the key cannot hang above the exhibit the way it does in a
      corridor — four metres up is the next shelf. It comes from in front
-     instead, close and slightly above, which is the only direction a shaft
-     leaves open. */
-  const key = new THREE.SpotLight(0xffe3b8, vertical ? 190 : 150, vertical ? 16 : 22, vertical ? 0.85 : 0.62, 0.45, 1.5);
-  key.position.set(0, vertical ? 2.9 : 5.3, LAYOUT.itemZ + (vertical ? 4.2 : 1.9));
+     instead, which is the only direction a shaft leaves open.
+
+     It is also much softer than the corridor's. A corridor's key is a spot on
+     one plinth in a long dark room and it is meant to read that way. In a shaft
+     the same light, thrown from in front at four metres, burned a hole in the
+     middle of whatever it hit and left the lettering on a plaque and the rim of
+     a bowl in the dark on either side of it. Wide open, further back, half the
+     candela, and the ambient below carrying most of the load. */
+  const key = new THREE.SpotLight(
+    0xffe3b8,
+    vertical ? 170 : 150,
+    vertical ? 30 : 22,
+    vertical ? 1.05 : 0.62,
+    vertical ? 0.95 : 0.45,
+    vertical ? 1.0 : 1.5
+  );
+  key.position.set(vertical ? 1.1 : 0, vertical ? 3.1 : 5.3, LAYOUT.itemZ + (vertical ? 3.3 : 1.9));
   key.target.position.set(0, 1.3, LAYOUT.itemZ);
   if (quality.shadows) {
     key.castShadow = true;
@@ -643,7 +673,9 @@ export function buildTravellingLights(scene, quality, { vertical = false } = {})
   scene.add(key, key.target);
 
   const wings = [-1, 1].map((side) => {
-    const light = new THREE.SpotLight(0xbcd2ff, 72, 20, 0.7, 0.65, 1.6);
+    const light = new THREE.SpotLight(
+      0xbcd2ff, vertical ? 44 : 72, vertical ? 26 : 20, vertical ? 1.0 : 0.7, vertical ? 0.9 : 0.65, vertical ? 1.1 : 1.6
+    );
     light.position.set(0, 5.0, LAYOUT.itemZ + 2.4);
     light.target.position.set(0, 1.1, LAYOUT.itemZ);
     scene.add(light, light.target);
@@ -651,9 +683,10 @@ export function buildTravellingLights(scene, quality, { vertical = false } = {})
   });
 
   // A low warm bounce off the wall behind the exhibits, so nothing is lit from
-  // one side only.
-  const rim = new THREE.PointLight(0xff9d5c, 42, 16, 2);
-  rim.position.set(0, 1.9, wallZ + 1.4);
+  // one side only. In a shaft the wall is a metre and a half back rather than
+  // five, so the same lamp there would scorch it.
+  const rim = new THREE.PointLight(0xff9d5c, vertical ? 5 : 42, vertical ? 6 : 16, 2);
+  rim.position.set(0, 1.9, wallZ + (vertical ? 0.28 : 1.4));
   scene.add(rim);
 
   /* Where each light sits relative to the base of whatever it is lighting, as
@@ -664,12 +697,20 @@ export function buildTravellingLights(scene, quality, { vertical = false } = {})
      the same axis — the space above an exhibit is the next exhibit — so
      everything comes at it from the front instead, and the neighbours' washes
      are the ones above and below. */
+  /* A shaft's key comes down at the exhibit from above and off to one side,
+     for the same reason a corridor's hangs over the plinth: a light square in
+     front of a glazed white bowl or a mirrored cup puts its own reflection back
+     down the lens, and the piece comes out with a hole burned in the middle of
+     it however gently it is lit. Off the axis, the highlight goes past the
+     viewer instead and what is left is the shape of the thing. `across` is that
+     sideways offset, and it means nothing in a corridor, where sideways is the
+     direction the rail already runs. */
   const POSE = vertical ? {
-    key:    { along: 1.4, out: 4.2 },
-    keyAim: { along: 1.3, out: 0 },
-    wing:   { along: 1.5, out: 3.4 },
-    wingAim:{ along: 1.3, out: 0 },
-    rim:    { along: 1.9, out: wallZ + 1.4 - LAYOUT.itemZ }
+    key:    { across: 1.1, along: 3.1, out: 3.3 },
+    keyAim: { across: 0, along: 1.2, out: 0 },
+    wing:   { across: -1.5, along: 1.5, out: 3.6 },
+    wingAim:{ across: 0, along: 1.2, out: 0 },
+    rim:    { across: 0, along: 1.9, out: wallZ + 0.28 - LAYOUT.itemZ }
   } : {
     key:    { up: 5.3, out: 1.9 },
     keyAim: { up: 1.3, out: 0 },
@@ -682,7 +723,7 @@ export function buildTravellingLights(scene, quality, { vertical = false } = {})
   // down the rail from there, which is how a neighbour's wash finds its
   // neighbour in either room.
   const place = (node, along, pose, step = 0) => {
-    if (vertical) node.position.set(0, along + pose.along + step, LAYOUT.itemZ + pose.out);
+    if (vertical) node.position.set(pose.across, along + pose.along + step, LAYOUT.itemZ + pose.out);
     else node.position.set(along + step, pose.up, LAYOUT.itemZ + pose.out);
   };
 
