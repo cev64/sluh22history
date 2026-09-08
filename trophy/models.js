@@ -869,7 +869,14 @@ export function buildScoringStar(item) {
   const rim = new THREE.Mesh(new THREE.TorusGeometry(0.186, 0.014, 10, 44), shared.brass);
   rim.position.y = -0.30;
 
-  const star = new THREE.Mesh(starGeometry(0.145, 0.062, 0.05), shared.gold);
+  /* Its own gold rather than the hall's mirror finish. A polished star this size
+     flares to a flat white disc the moment the camera lines up with the room's
+     key, which on a folded wall it does constantly; rougher, and reflecting far
+     less of the room, it stays a gold star from every angle it is seen from. */
+  const star = new THREE.Mesh(starGeometry(0.145, 0.062, 0.05), new THREE.MeshStandardMaterial({
+    color: 0xf0b53c, metalness: 0.92, roughness: 0.38,
+    envMap: shared.envMap, envMapIntensity: 0.9
+  }));
   star.position.set(0, -0.30, 0.028);
   star.castShadow = true;
 

@@ -174,80 +174,25 @@
     #stage.in-locker .hall-only { display: none; }
     #stage.in-locker .wordmark.locker-only { display: block; }
     #stage.in-locker .back.locker-only { display: inline-flex; }
-    #stage.in-locker #lockerBar { display: flex; }
     #stage.in-locker #lockerHint { display: block; }
     #stage.in-locker.focused #lockerHint { opacity: 0; }
 
-    #lockerBar {
-      position: absolute;
-      left: 50%;
-      bottom: calc(var(--pad-bottom) + 6px);
-      transform: translateX(-50%);
-      align-items: center;
-      gap: 14px;
-      max-width: min(560px, calc(100% - 32px));
-      padding: 12px 22px 13px 14px;
-      border-radius: 18px;
-      background: var(--glass);
-      border: 1px solid var(--edge);
-      border-top-color: color-mix(in srgb, var(--accent) 40%, var(--edge));
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, .55);
-      transition: opacity .35s ease, transform .45s cubic-bezier(.22,.9,.3,1);
-    }
-    #stage.in-locker.focused #lockerBar {
-      opacity: 0;
-      transform: translateX(-50%) translateY(24px);
-      pointer-events: none;
-    }
-
-    .locker-crest {
-      flex: 0 0 auto;
-      width: 46px;
-      height: 46px;
-      display: grid;
-      place-items: center;
-      border-radius: 13px;
-      background: color-mix(in srgb, var(--team, #1a2b45) 55%, rgba(8, 15, 26, .8));
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16);
-      font-size: 22px;
-    }
-    /* A logo fills the chip; an emoji falls back to the font size above. */
-    .locker-crest img, .wipe-crest img {
+    .wipe-crest img {
       width: 78%;
       height: 78%;
       object-fit: contain;
       display: block;
     }
-    .locker-copy { display: grid; gap: 2px; min-width: 0; }
-    /* Team names run long. Two lines beat an ellipsis — the name is the point
-       of the bar. */
-    .locker-team {
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      line-height: 1.15;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .locker-owner { font-size: 12px; font-weight: 500; color: var(--dim); }
-    .locker-summary {
-      margin-top: 3px;
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-      color: color-mix(in srgb, var(--accent) 80%, white);
-    }
-
+    /* The one thing left along the bottom of a locker. The team bar that used to
+       sit under it is gone: every word on it — the crest, the team, the manager,
+       the summary — is already on the flag at the top of the wall and on the
+       flag's own card a tap away, and what it cost was a strip off the bottom of
+       the wall that the wall would rather have had. */
     #lockerHint {
       display: none;
       position: absolute;
       left: 50%;
-      bottom: calc(var(--pad-bottom) + 108px);
+      bottom: calc(var(--pad-bottom) + 8px);
       transform: translateX(-50%);
       padding: 7px 15px;
       border-radius: 999px;
@@ -326,33 +271,7 @@
       .wipe-ring { animation: none; border-top-color: var(--wipe-team, #f2c14a); }
     }
 
-    /* On a phone the bar is competing with the wall for the screen, and the wall
-       is the reason anyone opened it. Every line is held to its own count so the
-       bar's height stays bounded no matter whose locker it is: a career that has
-       collected six things to list used to run the card to five lines of summary
-       and push the hint pill up through the middle of it. The team name keeps
-       its two lines — it is the point of the card — and the rest of the summary
-       is one tap away on the flag. */
     @media (max-width: 560px) {
-      #lockerBar { gap: 11px; padding: 10px 14px 11px 10px; max-width: calc(100% - 20px); }
-      .locker-crest { width: 38px; height: 38px; font-size: 18px; border-radius: 11px; }
-      .locker-team { font-size: 14px; }
-      .locker-owner { font-size: 11px; }
-      .locker-summary {
-        font-size: 8px;
-        line-height: 1.5;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      /* The bar goes entirely on a phone. Everything on it — the crest, the team,
-         the manager — is already on the flag at the top of the wall, and the
-         summary is on the flag's own card a tap away. What it was costing was a
-         hundred and fifty pixels off the bottom of the wall, which on a screen
-         this size is the difference between a pennant you can see and one you
-         can only find. The hint drops into the space it leaves. */
-      #stage.in-locker #lockerBar { display: none; }
       #lockerHint { bottom: calc(var(--pad-bottom) + 4px); font-size: 9.5px; }
     }
     #stage.focused .bottom * { pointer-events: none; }
@@ -960,14 +879,6 @@
         </div>
       </div>
 
-      <div id="lockerBar" class="locker-only">
-        <span id="lockerCrest" class="locker-crest" aria-hidden="true">🏈</span>
-        <span class="locker-copy">
-          <span id="lockerTeam" class="locker-team"></span>
-          <span id="lockerOwner" class="locker-owner"></span>
-          <span id="lockerSummary" class="locker-summary"></span>
-        </span>
-      </div>
       <div id="lockerHint" class="locker-only">Drag to look around the wall · tap anything to see it up close</div>
 
       <div class="bottom">

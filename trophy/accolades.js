@@ -837,8 +837,9 @@ export function buildLockers(data, careers) {
     const honours = honourRoll[career.ownerId] || [];
     const stars = honours.filter((honour) => honour.kind === "star");
     const ribbons = honours.filter((honour) => honour.kind === "ribbon");
+    // Still on the locker's own card, where it costs nothing; it is only the
+    // plaque of it that is gone from the wall.
     const bestFinish = Math.min(...career.finishes.map((f) => f.rank));
-    const bestFinishYears = career.finishes.filter((f) => f.rank === bestFinish).map((f) => f.year);
     const bestSeason = career.seasons.reduce((best, s) => (s.pf > best.pf ? s : best));
     const streak = ownStreak(data, career.ownerId);
     const rout = biggestWin(data, career.ownerId);
@@ -856,16 +857,6 @@ export function buildLockers(data, careers) {
           { label: "Opponent", value: rout.row.loser.name }
         ]
       }] : []),
-      {
-        id: "finish",
-        title: "Best Finish",
-        bigValue: ordinal(bestFinish),
-        meta: bestFinishYears.join(", "),
-        blurb: bestFinish === 1
-          ? `${career.name} has finished top of the league in ${bestFinishYears.join(", ")}.`
-          : `${career.name}'s highest finish is ${ordinal(bestFinish)}, in ${bestFinishYears.join(", ")}.`,
-        stats: [{ label: "Finishes", value: career.finishes.map((f) => `${f.year} ${ordinal(f.rank)}`).join(" · ") }]
-      },
       ...(career.bestWeek ? [{
         id: "week",
         title: "Highest Week",
