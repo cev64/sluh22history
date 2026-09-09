@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 """
-fetch-week.py — pull ONE week of box scores out of ESPN and save it as the
-weekly export the rest of this repo reads.
+fetch-season.py — pull every week of the season that has been played out of
+ESPN, into ONE file.
 
-Download this file, fill in the five settings below, and run it:
+Download this file, fill in the settings below, and run it:
 
-    python3 fetch-week.py            # the week set below
-    python3 fetch-week.py --week 3   # override for one run, without editing
+    python3 fetch-season.py
 
-It writes espn_boxscores_<year>/week_NN.json — exactly the filename and shape
-that belongs in the Drive weekly_box folder, and that tools/boxscores/week.mjs
-and tools/boxscores/import.mjs take as --in.
+There is no week to set. It walks the season from week 1 and stops at the first
+week that has not finished, so a run in October writes weeks 1 through whatever
+the newest completed week is. Run it again next week and it writes the same file
+with one more week in it.
+
+It writes season_<year>.json, holding every week it found. Upload that ONE file
+to the Drive weekly_box folder, replacing the copy already there — the site is
+rebuilt from whatever that file says, so a stat ESPN restated in an old week
+travels along with it and fixes itself.
 
 Needs Python 3 and requests (`pip install requests`). Nothing else.
 """
@@ -19,11 +24,7 @@ Needs Python 3 and requests (`pip install requests`). Nothing else.
 #  EDIT THIS BLOCK. Nothing else in this file needs touching.
 # ===========================================================================
 
-# --- change this every week ------------------------------------------------
-WEEK = 1
 YEAR = 2026
-
-# --- set once ---------------------------------------------------------------
 LEAGUE_ID = "42024189"
 
 # --- your ESPN login, set once and refreshed when it expires -----------------
@@ -140,7 +141,9 @@ def build_session(espn_s2, swid):
     return session
 
 
-def get_teams(session, league_id, year):
+def get_league(session, league_id, year):
+    """Team names, and how many weeks the season could possibly hold — the walk
+    below needs an upper bound so a broken season cannot loop forever."""
     url = BASE_URL.format(year=year, league_id=league_id)
     resp = session.get(url, params={"view": ["mTeam", "mSettings", "mStatus"]})
     resp.raise_for_status()
@@ -150,7 +153,10 @@ def get_teams(session, league_id, year):
     for t in data.get("teams", []):
         name = t.get("name") or f"{t.get('location', '')} {t.get('nickname', '')}".strip()
         teams[t["id"]] = name or f"Team {t['id']}"
-    return teams
+
+    status = data.get("status", {}) or {}
+    last = status.get("finalScoringPeriod") or status.get("latestScoringPeriod") or 18
+    return teams, min(int(last), 18)
 
 
 def fetch_week(session, league_id, year, week):
@@ -253,30 +259,26 @@ def check_finished(week_data):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Fetch one week of ESPN fantasy box scores as JSON.",
+        description="Fetch every completed week of an ESPN fantasy season into one JSON file.",
         epilog="With no flags it uses the settings at the top of this file.",
     )
-    parser.add_argument("--week", type=int, default=WEEK, help=f"Week to fetch (default: {WEEK})")
     parser.add_argument("--year", type=int, default=YEAR, help=f"Season year (default: {YEAR})")
     parser.add_argument("--league-id", default=os.environ.get("ESPN_LEAGUE_ID", LEAGUE_ID),
                         help=f"ESPN league ID (default: {LEAGUE_ID})")
     parser.add_argument("--espn-s2", default=None, help="espn_s2 cookie, overriding the one set above")
     parser.add_argument("--swid", default=None, help="SWID cookie, overriding the one set above")
-    parser.add_argument("--out-dir", default=None, help="Output directory (default: ./espn_boxscores_<year>)")
-    parser.add_argument("--force", action="store_true",
-                        help="Write the file even if the week looks unfinished")
+    parser.add_argument("--out", default=None, help="Output file (default: ./season_<year>.json)")
     args = parser.parse_args()
 
     espn_s2, swid = load_cookies(args.espn_s2, args.swid)
     session = build_session(espn_s2, swid)
 
-    out_dir = args.out_dir or f"espn_boxscores_{args.year}"
-    os.makedirs(out_dir, exist_ok=True)
+    out_path = args.out or f"season_{args.year}.json"
 
-    print(f"League {args.league_id}, {args.year}, week {args.week}")
+    print(f"League {args.league_id}, {args.year}")
 
     try:
-        teams = get_teams(session, args.league_id, args.year)
+        teams, last_possible = get_league(session, args.league_id, args.year)
     except requests.HTTPError as e:
         status = e.response.status_code if e.response is not None else None
         if status in (401, 403):
@@ -287,46 +289,53 @@ def main():
             )
         sys.exit(f"Failed to fetch league info ({e}).")
 
-    print(f"  {len(teams)} teams: {', '.join(teams.values())}")
+    print(f"  {len(teams)} teams: {', '.join(teams.values())}\n")
 
-    try:
-        raw = fetch_week(session, args.league_id, args.year, args.week)
-    except requests.HTTPError as e:
-        sys.exit(f"Failed to fetch week {args.week} ({e}).")
+    # Walk forward and stop at the first week that is not finished. Stopping
+    # rather than skipping is deliberate: weeks arrive in order, so the first
+    # unfinished one is the live week and everything past it is the future.
+    weeks = []
+    for week in range(1, last_possible + 1):
+        try:
+            raw = fetch_week(session, args.league_id, args.year, week)
+        except requests.HTTPError as e:
+            sys.exit(f"Failed to fetch week {week} ({e}).")
 
-    week_data = parse_week(raw, args.week, teams)
+        week_data = parse_week(raw, week, teams)
 
-    if not week_data["matchups"]:
+        if not week_data["matchups"]:
+            print(f"  week {week}: not played yet — stopping here")
+            break
+
+        warnings = check_finished(week_data)
+        if warnings:
+            print(f"  week {week}: still in progress ({sorted(set(warnings))[0]}) — stopping here")
+            break
+
+        weeks.append(week_data)
+        print(f"  week {week}: {len(week_data['matchups'])} matchups")
+
+    if not weeks:
         sys.exit(
-            f"\nNo matchups for week {args.week} — that week has not been played yet,\n"
-            f"or the week number is wrong. Nothing was written."
+            "\nNo completed week yet, so nothing was written. The file already in\n"
+            "Drive is still the right one — leave it there."
         )
 
-    warnings = check_finished(week_data)
-    if warnings and not args.force:
-        print(f"\nWeek {args.week} does not look finished:")
-        for w in sorted(set(warnings)):
-            print(f"  - {w}")
-        sys.exit(
-            "\nNothing was written. Wait for the week to finish and run this again,\n"
-            "or pass --force if you are sure this is right."
-        )
-    if warnings:
-        print(f"\n  writing anyway (--force), despite: {'; '.join(sorted(set(warnings)))}")
+    # Written compact rather than pretty: a whole season of lineups is a big
+    # file, it travels through Google Drive as base64, and nobody reads it by
+    # hand — the tools that do read it do not care about whitespace.
+    with open(out_path, "w") as f:
+        json.dump({"year": args.year, "weeks": weeks}, f, separators=(",", ":"))
 
-    path = os.path.join(out_dir, f"week_{args.week:02d}.json")
-    with open(path, "w") as f:
-        json.dump(week_data, f, indent=2)
-
-    print(f"\n  {len(week_data['matchups'])} matchups -> {path}")
-    for m in week_data["matchups"]:
+    size = os.path.getsize(out_path)
+    print(f"\n  weeks 1-{weeks[-1]['week']} -> {out_path}  ({size // 1024} KB)")
+    for m in weeks[-1]["matchups"]:
         home, away = m.get("home"), m.get("away")
         if home and away:
-            print(f"    {home['team_name']} {home['score']} — {away['team_name']} {away['score']}")
+            print(f"    week {weeks[-1]['week']}: {home['team_name']} {home['score']} — {away['team_name']} {away['score']}")
 
-    print(f"\nNext: upload {path} to the Drive weekly_box folder, then")
-    print(f"  node tools/boxscores/week.mjs --season {args.year} --in {out_dir} --write")
-    print(f"  node tools/boxscores/import.mjs --season {args.year} --in {out_dir}")
+    print(f"\nNext: upload {out_path} to the Drive weekly_box folder, replacing the copy")
+    print("      already there. The Tuesday task rebuilds the site from it.")
 
 
 if __name__ == "__main__":
