@@ -30,7 +30,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadSeason } from '../newsletter/season.mjs';
-import { readRawDir, ESPN_TEAM } from './raw.mjs';
+import { readRaw, ESPN_TEAM } from './raw.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const SEASON = Number(arg('--season', 2025));
@@ -101,7 +101,7 @@ function postseasonWeeks() {
 }
 const POST_WEEKS = postseasonWeeks();
 
-const rawWeeks = readRawDir(IN_DIR);
+const rawWeeks = readRaw(IN_DIR);
 
 const outDir = path.join(ROOT, 'boxscores', String(SEASON));
 fs.mkdirSync(outDir, { recursive: true });

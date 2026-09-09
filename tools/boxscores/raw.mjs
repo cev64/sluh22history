@@ -41,15 +41,12 @@ function decode(text, where) {
   return decode(Buffer.from(trimmed, 'base64').toString('utf8'), `${where} (base64)`);
 }
 
-/* One raw week, checked far enough that a caller can trust the shape it reads.
-   Nothing here interprets the contents — that is the importer's and the week
-   tool's job — this only guarantees the fields they key off exist. */
-export function readRawWeek(file) {
-  const where = path.basename(file);
-  const raw = decode(fs.readFileSync(file, 'utf8'), where);
-
+/* Checked far enough that a caller can trust the shape it reads. Nothing here
+   interprets the contents — that is the importer's and the week tool's job —
+   this only guarantees the fields they key off exist. */
+function checkWeek(raw, where) {
   if (!raw || typeof raw !== 'object') throw new Error(`${where} did not decode to an object`);
-  if (typeof raw.week !== 'number') throw new Error(`${where} has no numeric \`week\` — not a weekly export`);
+  if (typeof raw.week !== 'number') throw new Error(`${where} has no numeric \`week\``);
   if (!Array.isArray(raw.matchups)) throw new Error(`${where} has no \`matchups\` array`);
 
   for (const m of raw.matchups) {
@@ -63,14 +60,48 @@ export function readRawWeek(file) {
   return raw;
 }
 
-/* Every export file in a directory, oldest week first. */
-export function readRawDir(dir) {
-  const files = fs.readdirSync(dir)
-    .filter((f) => !f.startsWith('.'))
-    .filter((f) => fs.statSync(path.join(dir, f)).isFile())
-    .sort();
-  if (!files.length) throw new Error(`no files in ${dir}`);
-  return files.map((f) => readRawWeek(path.join(dir, f))).sort((a, b) => a.week - b.week);
+/* One export file, as a list of weeks.
+
+   Two shapes are accepted, because both have been the export at some point and
+   old files should keep working: a whole season, { year, weeks: [...] }, which
+   is what the fetcher writes now, and a single week, { year, week, matchups },
+   which is what it used to write one file at a time. */
+export function readRawFile(file) {
+  const where = path.basename(file);
+  const raw = decode(fs.readFileSync(file, 'utf8'), where);
+
+  if (raw && Array.isArray(raw.weeks)) {
+    if (!raw.weeks.length) throw new Error(`${where} has an empty \`weeks\` list`);
+    return raw.weeks.map((w, i) => checkWeek(w, `${where} weeks[${i}]`));
+  }
+  return [checkWeek(raw, where)];
+}
+
+/* Every week in an export, oldest first. Takes the export file itself or a
+   directory holding one or more. */
+export function readRaw(target) {
+  const stat = fs.statSync(target);
+
+  const files = stat.isDirectory()
+    ? fs.readdirSync(target)
+        .filter((f) => !f.startsWith('.'))
+        .filter((f) => fs.statSync(path.join(target, f)).isFile())
+        .sort()
+        .map((f) => path.join(target, f))
+    : [target];
+
+  if (!files.length) throw new Error(`no files in ${target}`);
+
+  const weeks = files.flatMap(readRawFile).sort((a, b) => a.week - b.week);
+
+  // Two files each claiming the same week is a stale copy left behind, and
+  // silently picking one of them would post whichever sorted last.
+  const seen = new Map();
+  for (const w of weeks) {
+    if (seen.has(w.week)) throw new Error(`week ${w.week} appears twice in ${target} — remove the stale export`);
+    seen.set(w.week, true);
+  }
+  return weeks;
 }
 
 /* ESPN team id -> this repo's permanent team id. Owners are permanent, team

@@ -20,9 +20,9 @@ score a reader can open on the site.
 
 ## The weekly export
 
-The league export writes one ESPN-shaped file per week, and it is the only
-source the site needs for a week: it carries the five matchups, both scores,
-both starting lineups and the team names as they stood that week. `week.mjs`
+The league export is one ESPN-shaped file for the whole season, and it is the
+only source the site needs: for every completed week it carries the five
+matchups, both scores, both starting lineups and the team names as they stood. `week.mjs`
 posts the scores from it and `import.mjs` turns the same file into the box
 scores, so the score on the page and the box score behind it cannot come from
 different places.
@@ -31,13 +31,16 @@ Files reach the repo as plain JSON, as base64 (which is what Google Drive's
 download returns), or inside Drive's `{ content, ... }` envelope. `raw.mjs`
 reads all three, so nothing has to be decoded first.
 
-`tools/boxscores/fetch-week.py` pulls one week straight from ESPN and writes it
-in that shape. It is self-contained: download it, fill in the settings block at
-the top — `WEEK`, `YEAR`, `LEAGUE_ID`, and the `SWID` / `ESPN_S2` cookies from a
-logged-in ESPN session — and run it with no arguments. It refuses to write a week
-that still scores zeroes, so a half-played week cannot reach the site. `--all`
-re-pulls every week from 1 through `WEEK`, which is how an ESPN stat correction
-to an old week gets back into Drive for `week.mjs` to find.
+`tools/boxscores/fetch-season.py` pulls the season straight from ESPN into one
+file. It is self-contained: download it, fill in the settings block at the top —
+`YEAR`, `LEAGUE_ID`, and the `SWID` / `ESPN_S2` cookies from a logged-in ESPN
+session — and run it with no arguments. There is no week to set: it walks
+forward and stops at the first week that has not finished, so a half-played week
+never reaches the site.
+
+It writes `season_<year>.json`, `{ year, weeks: [...] }`, which replaces the
+copy in Drive each week. Because the whole season is refetched every time, an
+ESPN stat correction to an old week travels along with it.
 
 The copy in this repository keeps placeholders for the two cookies and must stay
 that way: the repository is public, and an `espn_s2` cookie is a live login to an
@@ -48,22 +51,22 @@ ESPN account. Fill in your own copy, on your own machine.
 ## Posting a week
 
 ```bash
-node tools/boxscores/week.mjs --season 2026 --in /path/to/raw
-node tools/boxscores/week.mjs --season 2026 --in /path/to/raw --write
-node tools/boxscores/week.mjs --season 2026 --in /path/to/raw --write --apply-renames
+node tools/boxscores/week.mjs --season 2026 --in season_2026.json
+node tools/boxscores/week.mjs --season 2026 --in season_2026.json --write
+node tools/boxscores/week.mjs --season 2026 --in season_2026.json --write --apply-renames
 ```
 
-Every week in the export is reconciled against the page, not just the ones
-missing from it. A week already posted with the same scores is left alone, byte
-for byte; a week whose scores have moved — ESPN restates a stat days later — is
-rewritten and reported as a correction, with the old score beside the new one.
-Passing the whole season through on every run is therefore the normal way to use
-this, and the only way a correction to an old week reaches the site.
+The export is the authority. Every week it carries is written to `results`
+whether or not that week was already posted, so a stat ESPN restated in
+September fixes itself on the next run with nobody having to notice. A week on
+the page that the export does not carry is left alone — a short export is a bad
+download, not an instruction to delete a month of the season.
+
+`--in` takes the export file itself or a directory holding one or more.
 
 Without `--write` it reports and touches nothing: the `results` line it would
-post, every game with its margin, the high and low, and any team whose name in
-the export no longer matches the page. With `--write` it edits `results` in
-`<season>.html` — only the lines that are new or corrected — and then re-reads
+post, the game detail for any week new to the page, and any team whose name in
+the export no longer matches. With `--write` it rewrites `results` and re-reads
 the page to report the standings either side of the newest week, the playoff
 field, who moved in and out of it, and the Toilet Bowl order.
 
@@ -83,8 +86,8 @@ visitor keeps the old name on the trophy room's locker flag.
 Point the importer at the same folder:
 
 ```bash
-node tools/boxscores/import.mjs --season 2025 --in /path/to/raw
-node tools/boxscores/import.mjs --season 2026 --in /path/to/raw --week 5
+node tools/boxscores/import.mjs --season 2026 --in season_2026.json
+node tools/boxscores/import.mjs --season 2026 --in season_2026.json --week 5
 ```
 
 Nothing is written unless every week validates against the season page: the
