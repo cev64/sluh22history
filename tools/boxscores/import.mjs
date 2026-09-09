@@ -6,8 +6,10 @@
      node tools/boxscores/import.mjs --season 2026 --in /tmp/raw --week 5
 
    The raw files are ESPN-shaped: { year, week, matchups: [{ home, away }] },
-   each side carrying team_id, team_name, score and a players array. Two things
-   about them need handling rather than trusting:
+   each side carrying team_id, team_name, score and a players array. They are
+   read through raw.mjs, which is also what `week.mjs` posts the scores from, so
+   the box score behind a matchup and the score on the page cannot come from
+   different files. Two things about them need handling rather than trusting:
 
    1. `position` is shifted by one against what it claims. Every player in a TE
       lineup slot reports position "WR", every WR reports "RB/WR", every QB
@@ -17,8 +19,8 @@
       check is what keeps the mapping honest if the export changes.
 
    2. Teams are identified by an ESPN team id, and team names change during a
-      season. ESPN_TEAM maps id to this repo's permanent team id; nothing keys
-      off the name.
+      season. ESPN_TEAM (in raw.mjs) maps id to this repo's permanent team id;
+      nothing keys off the name.
 
    Nothing is written unless the week validates against the season page: same
    pairings, same scores, and every team's starters summing to its posted
@@ -28,6 +30,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadSeason } from '../newsletter/season.mjs';
+import { readRawDir, ESPN_TEAM } from './raw.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const SEASON = Number(arg('--season', 2025));
@@ -36,13 +39,6 @@ const ONLY_WEEK = arg('--week', null) ? Number(arg('--week')) : null;
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 if (!IN_DIR) throw new Error('--in <dir> is required: the folder holding the raw weekly export files');
-
-/* ESPN team id -> this repo's permanent team id. Owners are permanent, team
-   names are not, so the id is the only safe key. */
-const ESPN_TEAM = {
-  1: 'game', 2: 'kareem', 3: 'hawaii', 4: 'infinity', 5: 'left',
-  6: 'hamilton', 7: 'jared', 8: 'laporta', 9: 'roll', 11: 'first',
-};
 
 /* Raw `position` value -> the position it actually is. See the note above. */
 const POSITION = { TQB: 'QB', RB: 'RB', 'RB/WR': 'WR', WR: 'TE', 'D/ST': 'DST' };
@@ -105,8 +101,7 @@ function postseasonWeeks() {
 }
 const POST_WEEKS = postseasonWeeks();
 
-const files = fs.readdirSync(IN_DIR).filter((f) => f.endsWith('.json')).sort();
-if (!files.length) throw new Error(`no .json files in ${IN_DIR}`);
+const rawWeeks = readRawDir(IN_DIR);
 
 const outDir = path.join(ROOT, 'boxscores', String(SEASON));
 fs.mkdirSync(outDir, { recursive: true });
@@ -117,8 +112,7 @@ let playerCount = 0;
 let crossChecked = 0;
 let sumOnly = 0;
 
-for (const file of files) {
-  const raw = JSON.parse(fs.readFileSync(path.join(IN_DIR, file), 'utf8'));
+for (const raw of rawWeeks) {
   const week = raw.week;
   if (ONLY_WEEK !== null && week !== ONLY_WEEK) continue;
 

@@ -18,10 +18,50 @@ Two things read these files and nothing else does:
 Because both read the same file, a newsletter can never disagree with the box
 score a reader can open on the site.
 
+## The weekly export
+
+The league export writes one ESPN-shaped file per week, and it is the only
+source the site needs for a week: it carries the five matchups, both scores,
+both starting lineups and the team names as they stood that week. `week.mjs`
+posts the scores from it and `import.mjs` turns the same file into the box
+scores, so the score on the page and the box score behind it cannot come from
+different places.
+
+Files reach the repo as plain JSON, as base64 (which is what Google Drive's
+download returns), or inside Drive's `{ content, ... }` envelope. `raw.mjs`
+reads all three, so nothing has to be decoded first.
+
+`tools/boxscores/WEEKLY-TASK.md` is the scheduled job that drives both tools.
+
+## Posting a week
+
+```bash
+node tools/boxscores/week.mjs --season 2026 --in /path/to/raw
+node tools/boxscores/week.mjs --season 2026 --in /path/to/raw --write
+node tools/boxscores/week.mjs --season 2026 --in /path/to/raw --write --apply-renames
+```
+
+Without `--write` it reports and touches nothing: the `results` line it would
+post, every game with its margin, the high and low, and any team whose name in
+the export no longer matches the page. With `--write` it edits `results` in
+`<season>.html` — weeks already posted come out byte for byte unchanged — and
+then re-reads the page to report the standings either side of the new week, the
+playoff field, who moved in and out of it, and the Toilet Bowl order.
+
+Nothing is written unless the week's ten teams and five pairings match
+`schedule[week]` and every team's starters sum to its posted score. A pairing
+that disagrees with the schedule is either a bad export or a real schedule
+change, and guessing between them corrupts every standing computed from it.
+
+Team names are reported but only changed with `--apply-renames`, which edits all
+three places a current name lives: `teams` on the season page,
+`owners.<ownerId>.currentTeam` in `league-data.js`, and `CACHE_VERSION` in
+`sw.js` — league-data.js is served cache-first, so without the bump a returning
+visitor keeps the old name on the trophy room's locker flag.
+
 ## Importing
 
-The league export writes one ESPN-shaped file per week. Point the importer at
-the folder holding them:
+Point the importer at the same folder:
 
 ```bash
 node tools/boxscores/import.mjs --season 2025 --in /path/to/raw
@@ -31,7 +71,8 @@ node tools/boxscores/import.mjs --season 2026 --in /path/to/raw --week 5
 Nothing is written unless every week validates against the season page: the
 same pairings, the same scores, and every team's starters summing to its posted
 score. A box score that disagrees with the standings is a bad import, not a new
-fact, so the run fails whole rather than writing part of it.
+fact, so the run fails whole rather than writing part of it. Run after
+`week.mjs --write` and that check doubles as an audit of what it posted.
 
 Regular-season weeks are checked against `results`, playoff weeks against
 `postseason` — the block the bracket is drawn from. The page does not record
