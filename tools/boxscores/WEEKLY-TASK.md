@@ -6,6 +6,15 @@ screenshot of the league's results page. Nothing has to be uploaded now — the
 league's own weekly export carries the matchups, the scores and the current team
 names, and `tools/boxscores/week.mjs` posts from it.
 
+Getting the week into Drive is the one step still done by hand:
+
+```bash
+python3 fetch-week.py      # WEEK / YEAR / cookies set at the top of the file
+```
+
+then upload the `week_NN.json` it writes to the `weekly_box` folder. Everything
+after that is the prompt below.
+
 The prompt lives here so it is versioned next to the tools it drives. Editing one
 without the other is how the two drift apart.
 

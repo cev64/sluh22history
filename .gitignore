@@ -1,0 +1,6 @@
+# Where tools/boxscores/fetch-week.py drops the weekly export before it goes
+# to Drive.
+espn_boxscores_*/
+
+# Python bytecode from tools/boxscores/fetch-week.py
+__pycache__/
