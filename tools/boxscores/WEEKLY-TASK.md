@@ -188,3 +188,22 @@ from the export — that happens every run and is not news.
 
 If nothing was new and the export matched the page, there will be no diff to
 commit. Say "no new results" and open no PR.
+
+STEP 8 — SAY SO
+Nobody is watching this run, so a PR nobody is told about sits unmerged until
+next Tuesday. Call the PushNotification tool with status "proactive" and a
+message under 200 characters — one line, no markdown, leading with what to act
+on and ending with the PR URL:
+
+    SLUH '22 week 5 posted — PR ready to merge: <url>
+
+Send one ONLY when there is something to act on:
+  - you opened a PR, or
+  - you STOPPED on a problem (no export in Drive, pairings disagreeing with the
+    schedule, a short export that would have dropped weeks). Say what blocked
+    it, not just that something did — a silent failed run and a quiet week look
+    identical from a phone.
+
+Send NOTHING when the run was clean and simply had no new week. That is the
+expected outcome most of the season, and a notification saying so every week is
+how notifications get ignored.
