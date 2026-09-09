@@ -31,6 +31,13 @@ Files reach the repo as plain JSON, as base64 (which is what Google Drive's
 download returns), or inside Drive's `{ content, ... }` envelope. `raw.mjs`
 reads all three, so nothing has to be decoded first.
 
+`tools/boxscores/fetch-week.py` pulls one week straight from ESPN and writes it
+in that shape. Set `WEEK`, `YEAR` and `LEAGUE_ID` at the top of the file and run
+it with no arguments; it refuses to write a week that still scores zeroes, so a
+half-played week cannot reach the site. ESPN needs a logged-in session, and this
+repository is public, so the cookies live in an untracked
+`tools/boxscores/espn-cookies.json` — see the header of that script.
+
 `tools/boxscores/WEEKLY-TASK.md` is the scheduled job that drives both tools.
 
 ## Posting a week
