@@ -35,7 +35,9 @@ reads all three, so nothing has to be decoded first.
 in that shape. It is self-contained: download it, fill in the settings block at
 the top — `WEEK`, `YEAR`, `LEAGUE_ID`, and the `SWID` / `ESPN_S2` cookies from a
 logged-in ESPN session — and run it with no arguments. It refuses to write a week
-that still scores zeroes, so a half-played week cannot reach the site.
+that still scores zeroes, so a half-played week cannot reach the site. `--all`
+re-pulls every week from 1 through `WEEK`, which is how an ESPN stat correction
+to an old week gets back into Drive for `week.mjs` to find.
 
 The copy in this repository keeps placeholders for the two cookies and must stay
 that way: the repository is public, and an `espn_s2` cookie is a live login to an
@@ -51,12 +53,19 @@ node tools/boxscores/week.mjs --season 2026 --in /path/to/raw --write
 node tools/boxscores/week.mjs --season 2026 --in /path/to/raw --write --apply-renames
 ```
 
+Every week in the export is reconciled against the page, not just the ones
+missing from it. A week already posted with the same scores is left alone, byte
+for byte; a week whose scores have moved — ESPN restates a stat days later — is
+rewritten and reported as a correction, with the old score beside the new one.
+Passing the whole season through on every run is therefore the normal way to use
+this, and the only way a correction to an old week reaches the site.
+
 Without `--write` it reports and touches nothing: the `results` line it would
 post, every game with its margin, the high and low, and any team whose name in
 the export no longer matches the page. With `--write` it edits `results` in
-`<season>.html` — weeks already posted come out byte for byte unchanged — and
-then re-reads the page to report the standings either side of the new week, the
-playoff field, who moved in and out of it, and the Toilet Bowl order.
+`<season>.html` — only the lines that are new or corrected — and then re-reads
+the page to report the standings either side of the newest week, the playoff
+field, who moved in and out of it, and the Toilet Bowl order.
 
 Nothing is written unless the week's ten teams and five pairings match
 `schedule[week]` and every team's starters sum to its posted score. A pairing

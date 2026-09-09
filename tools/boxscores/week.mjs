@@ -7,9 +7,17 @@
      node tools/boxscores/week.mjs --season 2026 --in /tmp/raw --write
      node tools/boxscores/week.mjs --season 2026 --in /tmp/raw --week 5 --write --apply-renames
 
+   Every week in the export is reconciled against the page, not just the ones
+   missing from it. A week already posted with the same scores is left alone,
+   byte for byte; a week whose scores have MOVED — ESPN restates a stat days
+   later and a September game quietly becomes a different result — is rewritten
+   and reported as a correction. Passing the whole season through every week
+   is therefore the normal way to run this, and the only way a correction to an
+   old week ever reaches the site.
+
    Without --write nothing is touched: the run reads the export, checks it, and
    prints what it would post. With --write it edits `results` in <season>.html
-   and then reports the standings either side of the new week, which is the
+   and then reports the standings either side of the newest week, which is the
    material the recap is written from.
 
    The export is the same file `import.mjs` later turns into player-level box
@@ -19,8 +27,7 @@
    WHAT IS CHECKED, before anything is written:
      - the week's ten teams and five pairings match `schedule[week]`
      - every team's starters sum to its posted score
-     - the week is not already posted
-   A run that fails any of these writes nothing. A pairing that disagrees with
+   A run that fails either of these writes nothing. A pairing that disagrees with
    the schedule is either a bad export or a real schedule change, and guessing
    between them corrupts every standing downstream.
 
@@ -88,8 +95,6 @@ for (const raw of rawWeeks) {
   const week = raw.week;
   const where = `week ${week}`;
 
-  if (RESULTS[week] && RESULTS[week].length) { notes.push(`week ${week} is already posted — skipped`); continue; }
-
   const fixtures = SCHEDULE[week];
   if (!fixtures) {
     // Playoff weeks are the importer's business, checked against `postseason`.
@@ -148,7 +153,26 @@ for (const raw of rawWeeks) {
   const nameSeen = {};
   for (const g of games) for (const [id, name] of Object.entries(g.names)) nameSeen[id] = name;
 
-  pending.push({ week, row, nameSeen });
+  /* Against what the page already carries. A week that reads the same is left
+     alone; one whose scores moved is a correction, and the old numbers are
+     kept so the run can say what changed rather than just that something did. */
+  const onPage = RESULTS[week];
+  let status = 'new';
+  const changes = [];
+  if (onPage && onPage.length) {
+    const before = new Map();
+    onPage.forEach(([a, as, b, bs]) => before.set(key(a, b), { [a]: as, [b]: bs }));
+    for (const g of row) {
+      const was = before.get(key(g.a, g.b));
+      if (!was) { changes.push({ ...g, wasA: null, wasB: null }); continue; }
+      if (Math.abs(was[g.a] - g.as) > 0.005 || Math.abs(was[g.b] - g.bs) > 0.005) {
+        changes.push({ ...g, wasA: was[g.a], wasB: was[g.b] });
+      }
+    }
+    status = changes.length ? 'changed' : 'unchanged';
+  }
+
+  pending.push({ week, row, nameSeen, status, changes });
 }
 
 if (problems.length) {
@@ -157,8 +181,14 @@ if (problems.length) {
 
 for (const n of notes) console.log(`note: ${n}`);
 
+const toWrite = pending.filter((p) => p.status !== 'unchanged');
+
 if (!pending.length) {
-  console.log('\nno new results — every week in the export is already posted');
+  console.log('\nno usable weeks in the export');
+  process.exit(0);
+}
+if (!toWrite.length) {
+  console.log(`\nno new results and no corrections — all ${pending.length} week(s) in the export already match the page`);
   process.exit(0);
 }
 
@@ -191,10 +221,30 @@ for (const [id, exportName] of Object.entries(latestName)) {
 
 const label = (id) => (latestName[id] || teams[id].name);
 
-console.log(`\nSEASON ${SEASON} — ${pending.length} new week(s) from ${path.resolve(IN_DIR)}\n`);
+const counts = {
+  new: pending.filter((p) => p.status === 'new').length,
+  changed: pending.filter((p) => p.status === 'changed').length,
+  unchanged: pending.filter((p) => p.status === 'unchanged').length,
+};
+console.log(`\nSEASON ${SEASON} — ${pending.length} week(s) read from ${path.resolve(IN_DIR)}`);
+console.log(`  ${counts.new} new, ${counts.changed} corrected, ${counts.unchanged} already matching\n`);
 
-for (const { week, row } of pending) {
-  console.log(`WEEK ${week}   five games, checked against schedule[${week}]`);
+const unchanged = pending.filter((p) => p.status === 'unchanged').map((p) => p.week);
+if (unchanged.length) console.log(`unchanged, left exactly as they are: week ${unchanged.join(', ')}\n`);
+
+for (const { week, row, status, changes } of toWrite) {
+  console.log(status === 'changed'
+    ? `WEEK ${week}   CORRECTED — ${changes.length} game(s) moved since it was posted`
+    : `WEEK ${week}   five games, checked against schedule[${week}]`);
+
+  if (status === 'changed') {
+    for (const c of changes) {
+      const was = c.wasA === null
+        ? 'was not a pairing on the posted line'
+        : `was ${money(c.wasA)}–${money(c.wasB)}`;
+      console.log(`    ${label(c.a)} v ${label(c.b)}: ${was}, now ${money(c.as)}–${money(c.bs)}`);
+    }
+  }
   console.log(`\n  results[${week}] line:`);
   console.log(`    ${week}: [` + row.map((g) => `["${g.a}", ${num(g.as)}, "${g.b}", ${num(g.bs)}]`).join(', ') + '],');
 
@@ -238,10 +288,16 @@ if (!WRITE) {
   process.exit(0);
 }
 
+if (counts.changed) {
+  console.log('A corrected week changes every standing computed from it, so re-read the');
+  console.log('standings below rather than trusting an earlier run\'s.\n');
+}
+
 /* -------------------------------------------------------------- write */
 
-/* `results` is edited as text rather than regenerated, so weeks already posted
-   come out of this byte for byte unchanged. */
+/* `results` is edited as text rather than regenerated, so every week this run
+   is not writing comes out byte for byte unchanged. A week being written
+   replaces its own line and nothing else. */
 function postResults(src, rows) {
   const open = src.indexOf('    const results = {');
   if (open < 0) throw new Error(`${SEASON}.html has no \`const results = {\` block`);
@@ -257,9 +313,12 @@ function postResults(src, rows) {
     return src.slice(0, open) + '    const results = {\n' + lines.join('\n') + '\n    };' + src.slice(close);
   }
 
-  const body = src.slice(open + '    const results = {'.length, close)
-    .split('\n').filter((l) => l.trim());
   const weekOf = (l) => { const m = /^\s*(\d+)\s*:/.exec(l); return m ? Number(m[1]) : Infinity; };
+  const replacing = new Set(rows.map((r) => r.week));
+
+  const body = src.slice(open + '    const results = {'.length, close)
+    .split('\n').filter((l) => l.trim())
+    .filter((l) => !replacing.has(weekOf(l)));   // a corrected week drops its old line
 
   const merged = [...body, ...lines]
     .sort((a, b) => weekOf(a) - weekOf(b))
@@ -274,7 +333,7 @@ const touched = [];
 
 let pageSrc = fs.readFileSync(PAGE, 'utf8');
 try {
-  pageSrc = postResults(pageSrc, pending);
+  pageSrc = postResults(pageSrc, toWrite);
 } catch (e) {
   fail(`could not post the scores: ${e.message}`);
 }
@@ -324,12 +383,11 @@ console.log(`WROTE  ${touched.join(', ')}\n`);
    engine do the counting — the recap has to describe the same standings a
    reader sees, not a second implementation of them. */
 const after = await loadSeason(SEASON, ROOT);
-const posted = Object.keys(after.RESULTS).map(Number).sort((a, b) => a - b);
-const last = pending[pending.length - 1].week;
-const first = pending[0].week;
-const played = posted.filter((w) => w <= last).length;
+const postedWeeks = Object.keys(after.RESULTS).map(Number).sort((a, b) => a - b);
+const last = postedWeeks[postedWeeks.length - 1];
+const played = postedWeeks.length;
 
-console.log(`weeks posted: ${posted.join(', ')}`);
+console.log(`weeks posted: ${postedWeeks.join(', ')}`);
 for (const [id, line] of Object.entries(after.computeStats(last))) {
   if (line.gp !== played) {
     fail(`${id} has ${line.gp} games through week ${last}, expected ${played} — the page was written but the counts are wrong, check it before committing`);
@@ -337,7 +395,10 @@ for (const [id, line] of Object.entries(after.computeStats(last))) {
 }
 console.log(`every team has played ${played} — five games per posted week\n`);
 
-const prevWeek = posted.filter((w) => w < first).pop() || 0;
+/* Both sides are computed from the page as it stands now, so a correction to
+   an old week is reflected in the "before" column too — the comparison is
+   this week's effect on corrected standings, not on stale ones. */
+const prevWeek = postedWeeks.filter((w) => w < last).pop() || 0;
 const before = after.buildPicture(prevWeek);
 const now = after.buildPicture(last);
 const nameOf = (id) => after.teams[id].name;
@@ -374,5 +435,5 @@ if (now.flips.length) {
   console.log('  tiebreaks:      ' + now.flips.map(([a, b]) => `${nameOf(a)} / ${nameOf(b)}`).join(', '));
 }
 
-console.log(`\nnext: write weeklySummaries[${pending.map((p) => p.week).join('], weeklySummaries[')}], then`);
+console.log(`\nnext: write weeklySummaries[${toWrite.map((p) => p.week).join('], weeklySummaries[')}], then`);
 console.log(`      node tools/boxscores/import.mjs --season ${SEASON} --in ${path.resolve(IN_DIR)}`);

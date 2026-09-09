@@ -7,6 +7,12 @@ Download this file, fill in the five settings below, and run it:
 
     python3 fetch-week.py            # the week set below
     python3 fetch-week.py --week 3   # override for one run, without editing
+    python3 fetch-week.py --all      # re-pull every week from 1 through WEEK
+
+Use --all when ESPN has restated a stat in an earlier week. The site posts
+whatever the export says, so a correction only reaches it if the corrected week
+is fetched and uploaded again; --all re-pulls the whole season so far, and
+week.mjs then rewrites just the weeks whose scores actually moved.
 
 It writes espn_boxscores_<year>/week_NN.json — exactly the filename and shape
 that belongs in the Drive weekly_box folder, and that tools/boxscores/week.mjs
@@ -262,9 +268,11 @@ def main():
                         help=f"ESPN league ID (default: {LEAGUE_ID})")
     parser.add_argument("--espn-s2", default=None, help="espn_s2 cookie, overriding the one set above")
     parser.add_argument("--swid", default=None, help="SWID cookie, overriding the one set above")
+    parser.add_argument("--all", action="store_true",
+                        help="Re-pull every week from 1 through --week, to catch ESPN stat corrections")
     parser.add_argument("--out-dir", default=None, help="Output directory (default: ./espn_boxscores_<year>)")
     parser.add_argument("--force", action="store_true",
-                        help="Write the file even if the week looks unfinished")
+                        help="Write a week even if it looks unfinished")
     args = parser.parse_args()
 
     espn_s2, swid = load_cookies(args.espn_s2, args.swid)
@@ -289,42 +297,52 @@ def main():
 
     print(f"  {len(teams)} teams: {', '.join(teams.values())}")
 
-    try:
-        raw = fetch_week(session, args.league_id, args.year, args.week)
-    except requests.HTTPError as e:
-        sys.exit(f"Failed to fetch week {args.week} ({e}).")
+    weeks = range(1, args.week + 1) if args.all else [args.week]
+    written, skipped = [], []
 
-    week_data = parse_week(raw, args.week, teams)
+    for week in weeks:
+        try:
+            raw = fetch_week(session, args.league_id, args.year, week)
+        except requests.HTTPError as e:
+            sys.exit(f"Failed to fetch week {week} ({e}).")
 
-    if not week_data["matchups"]:
-        sys.exit(
-            f"\nNo matchups for week {args.week} — that week has not been played yet,\n"
-            f"or the week number is wrong. Nothing was written."
-        )
+        week_data = parse_week(raw, week, teams)
 
-    warnings = check_finished(week_data)
-    if warnings and not args.force:
-        print(f"\nWeek {args.week} does not look finished:")
-        for w in sorted(set(warnings)):
-            print(f"  - {w}")
+        if not week_data["matchups"]:
+            skipped.append((week, "not played yet"))
+            continue
+
+        warnings = check_finished(week_data)
+        if warnings and not args.force:
+            skipped.append((week, "; ".join(sorted(set(warnings)))))
+            continue
+
+        path = os.path.join(out_dir, f"week_{week:02d}.json")
+        with open(path, "w") as f:
+            json.dump(week_data, f, indent=2)
+        written.append((week, path, week_data))
+
+    # A single named week that could not be written is a failed run; in --all,
+    # the tail of the season is expected to be unplayed and is only reported.
+    if not written:
+        for week, why in skipped:
+            print(f"\n  week {week}: {why}")
         sys.exit(
             "\nNothing was written. Wait for the week to finish and run this again,\n"
             "or pass --force if you are sure this is right."
         )
-    if warnings:
-        print(f"\n  writing anyway (--force), despite: {'; '.join(sorted(set(warnings)))}")
 
-    path = os.path.join(out_dir, f"week_{args.week:02d}.json")
-    with open(path, "w") as f:
-        json.dump(week_data, f, indent=2)
+    for week, path, week_data in written:
+        print(f"\n  week {week}: {len(week_data['matchups'])} matchups -> {path}")
+        for m in week_data["matchups"]:
+            home, away = m.get("home"), m.get("away")
+            if home and away:
+                print(f"    {home['team_name']} {home['score']} — {away['team_name']} {away['score']}")
 
-    print(f"\n  {len(week_data['matchups'])} matchups -> {path}")
-    for m in week_data["matchups"]:
-        home, away = m.get("home"), m.get("away")
-        if home and away:
-            print(f"    {home['team_name']} {home['score']} — {away['team_name']} {away['score']}")
+    for week, why in skipped:
+        print(f"\n  week {week}: skipped, {why}")
 
-    print(f"\nNext: upload {path} to the Drive weekly_box folder, then")
+    print(f"\nNext: upload the file(s) in {out_dir} to the Drive weekly_box folder, then")
     print(f"  node tools/boxscores/week.mjs --season {args.year} --in {out_dir} --write")
     print(f"  node tools/boxscores/import.mjs --season {args.year} --in {out_dir}")
 
