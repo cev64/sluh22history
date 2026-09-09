@@ -1,9 +1,5 @@
-# ESPN login cookies for tools/boxscores/fetch-week.py. This repository is
-# public and espn_s2 is a live login to an ESPN account — it must never be
-# committed.
-tools/boxscores/espn-cookies.json
-
-# Where fetch-week.py drops the weekly export before it goes to Drive.
+# Where tools/boxscores/fetch-week.py drops the weekly export before it goes
+# to Drive.
 espn_boxscores_*/
 
 # Python bytecode from tools/boxscores/fetch-week.py

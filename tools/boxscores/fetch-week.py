@@ -3,46 +3,52 @@
 fetch-week.py — pull ONE week of box scores out of ESPN and save it as the
 weekly export the rest of this repo reads.
 
-    python3 tools/boxscores/fetch-week.py            # the week set below
-    python3 tools/boxscores/fetch-week.py --week 3   # override for one run
+Download this file, fill in the five settings below, and run it:
 
-It writes espn_boxscores_<year>/week_NN.json, which is exactly what
-tools/boxscores/week.mjs and tools/boxscores/import.mjs take as --in, and
-exactly what belongs in the Drive weekly_box folder.
+    python3 fetch-week.py            # the week set below
+    python3 fetch-week.py --week 3   # override for one run, without editing
 
-  ┌───────────────────────────────────────────────────────────────────┐
-  │ EDIT THESE THREE LINES. That is the whole weekly ritual.          │
-  └───────────────────────────────────────────────────────────────────┘
+It writes espn_boxscores_<year>/week_NN.json — exactly the filename and shape
+that belongs in the Drive weekly_box folder, and that tools/boxscores/week.mjs
+and tools/boxscores/import.mjs take as --in.
+
+Needs Python 3 and requests (`pip install requests`). Nothing else.
 """
 
+# ===========================================================================
+#  EDIT THIS BLOCK. Nothing else in this file needs touching.
+# ===========================================================================
+
+# --- change this every week ------------------------------------------------
 WEEK = 1
 YEAR = 2026
+
+# --- set once ---------------------------------------------------------------
 LEAGUE_ID = "42024189"
 
-# ---------------------------------------------------------------------------
-# YOUR ESPN LOGIN
+# --- your ESPN login, set once and refreshed when it expires -----------------
 #
 # The league is private, so ESPN needs two cookies from a logged-in browser
-# session. THIS REPOSITORY IS PUBLIC, so they are deliberately not written
-# here — anything committed to this file is on the internet, and an espn_s2
-# cookie is a live login to your ESPN account.
+# session. To find them: log in to fantasy.espn.com, open DevTools (F12) ->
+# Application (or Storage) -> Cookies -> https://fantasy.espn.com, and copy:
 #
-# Put them in tools/boxscores/espn-cookies.json instead, which .gitignore
-# keeps out of git:
+#   SWID     looks like {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} — keep the braces
+#   espn_s2  a very long string of letters, digits and %-escapes
 #
-#     {
-#       "swid": "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",
-#       "espn_s2": "AEB...long-string..."
-#     }
+# They last a few months. When the script starts failing with 401, come back
+# here and paste fresh ones.
 #
-# To find them: log in to fantasy.espn.com, open DevTools (F12) ->
-# Application/Storage -> Cookies -> https://fantasy.espn.com, and copy
-# "SWID" (with its curly braces) and "espn_s2".
-#
-# They last a few months. When the script starts returning 401, refresh that
-# file — nothing else changes. The environment variables ESPN_S2 and
-# ESPN_SWID work too, and --espn-s2 / --swid override everything.
-# ---------------------------------------------------------------------------
+#   ⚠  ONCE YOU PASTE THESE IN, THIS FILE HOLDS A LIVE LOGIN TO YOUR ESPN
+#      ACCOUNT. Keep your filled-in copy on your own machine. The version in
+#      the repository is public and must keep the placeholders below — never
+#      commit or share a copy with the real values in it.
+
+SWID = "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}"
+ESPN_S2 = "PASTE_YOUR_ESPN_S2_COOKIE_HERE"
+
+# ===========================================================================
+#  Nothing below here needs editing.
+# ===========================================================================
 
 import argparse
 import json
@@ -51,7 +57,6 @@ import sys
 
 import requests
 
-COOKIE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "espn-cookies.json")
 
 # ---------------------------------------------------------------------------
 # ESPN's static ID -> name lookup tables (football). These IDs are stable
@@ -91,34 +96,30 @@ LINEUP_SLOT_MAP = {
 BASE_URL = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{league_id}"
 
 
+def looks_like_placeholder(value):
+    """Recognised by shape, not by matching a copy of the placeholder text —
+    a find-and-replace that edits the settings at the top must not be able to
+    quietly move the goalposts as well."""
+    if not value:
+        return True
+    v = value.strip()
+    return v.startswith("PASTE_") or "XXXX" in v
+
+
 def load_cookies(cli_s2, cli_swid):
-    """--flag, then the environment, then the untracked cookie file."""
-    s2 = cli_s2 or os.environ.get("ESPN_S2")
-    swid = cli_swid or os.environ.get("ESPN_SWID")
-    if s2 and swid:
-        return s2, swid
+    """A --flag wins, then the environment, then the block at the top."""
+    s2 = cli_s2 or os.environ.get("ESPN_S2") or ESPN_S2
+    swid = cli_swid or os.environ.get("ESPN_SWID") or SWID
 
-    if os.path.exists(COOKIE_FILE):
-        try:
-            with open(COOKIE_FILE) as f:
-                saved = json.load(f)
-        except json.JSONDecodeError as e:
-            sys.exit(f"{COOKIE_FILE} is not valid JSON ({e}).")
-        s2 = s2 or saved.get("espn_s2")
-        swid = swid or saved.get("swid") or saved.get("SWID")
-
-    if not (s2 and swid):
+    if looks_like_placeholder(s2) or looks_like_placeholder(swid):
         sys.exit(
-            "No ESPN cookies found, and this league is private.\n\n"
-            f"Create {COOKIE_FILE} with:\n\n"
-            '    {\n'
-            '      "swid": "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",\n'
-            '      "espn_s2": "AEB...long-string..."\n'
-            '    }\n\n'
-            "Both come from a logged-in fantasy.espn.com session: DevTools (F12)\n"
-            "-> Application/Storage -> Cookies -> https://fantasy.espn.com.\n"
-            "That file is gitignored — do not paste the cookies into a tracked file,\n"
-            "this repository is public."
+            "This league is private and the ESPN cookies are still placeholders.\n\n"
+            "Open this file and fill in SWID and ESPN_S2 near the top. Both come\n"
+            "from a logged-in fantasy.espn.com session: DevTools (F12) ->\n"
+            "Application/Storage -> Cookies -> https://fantasy.espn.com.\n"
+            "Copy SWID with its curly braces, and espn_s2 whole.\n\n"
+            "Keep your filled-in copy to yourself — it is a live login to your\n"
+            "ESPN account, and this script lives in a public repository."
         )
     return s2, swid
 
@@ -253,14 +254,14 @@ def check_finished(week_data):
 def main():
     parser = argparse.ArgumentParser(
         description="Fetch one week of ESPN fantasy box scores as JSON.",
-        epilog="With no flags it uses the WEEK / YEAR / LEAGUE_ID set at the top of this file.",
+        epilog="With no flags it uses the settings at the top of this file.",
     )
     parser.add_argument("--week", type=int, default=WEEK, help=f"Week to fetch (default: {WEEK})")
     parser.add_argument("--year", type=int, default=YEAR, help=f"Season year (default: {YEAR})")
     parser.add_argument("--league-id", default=os.environ.get("ESPN_LEAGUE_ID", LEAGUE_ID),
                         help=f"ESPN league ID (default: {LEAGUE_ID})")
-    parser.add_argument("--espn-s2", default=None, help="espn_s2 cookie, overriding the cookie file")
-    parser.add_argument("--swid", default=None, help="SWID cookie, overriding the cookie file")
+    parser.add_argument("--espn-s2", default=None, help="espn_s2 cookie, overriding the one set above")
+    parser.add_argument("--swid", default=None, help="SWID cookie, overriding the one set above")
     parser.add_argument("--out-dir", default=None, help="Output directory (default: ./espn_boxscores_<year>)")
     parser.add_argument("--force", action="store_true",
                         help="Write the file even if the week looks unfinished")
@@ -281,7 +282,8 @@ def main():
         if status in (401, 403):
             sys.exit(
                 f"ESPN rejected the login ({status}).\n"
-                f"Your cookies have most likely expired — refresh {COOKIE_FILE}."
+                "Your cookies have most likely expired — paste fresh SWID and\n"
+                "ESPN_S2 values into the block at the top of this file."
             )
         sys.exit(f"Failed to fetch league info ({e}).")
 

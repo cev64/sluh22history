@@ -9,7 +9,7 @@ names, and `tools/boxscores/week.mjs` posts from it.
 Getting the week into Drive is the one step still done by hand:
 
 ```bash
-python3 tools/boxscores/fetch-week.py      # WEEK / YEAR set at the top of the file
+python3 fetch-week.py      # WEEK / YEAR / cookies set at the top of the file
 ```
 
 then upload the `week_NN.json` it writes to the `weekly_box` folder. Everything
