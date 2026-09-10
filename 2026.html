@@ -3046,6 +3046,177 @@
     .swc-game .swc-team.right { text-align: right; }
     .swc-game .swc-vs { flex: 0 0 auto; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .08em; }
 
+    /* Side bets — the running wagers members track week to week ------ */
+
+    .bet-premise {
+      margin: 0;
+      padding: 14px 20px 2px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .bet-premise strong { color: var(--ink); font-weight: 800; }
+
+    .bet-scoreboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: stretch;
+      gap: 10px;
+      padding: 14px 20px 4px;
+    }
+
+    .bet-side {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface-2);
+      padding: 12px 15px 13px 18px;
+      display: grid;
+      gap: 3px;
+      align-content: start;
+    }
+
+    .bet-side::before {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 4px;
+      background: var(--bet-color);
+    }
+
+    .bet-side.leading {
+      background: linear-gradient(180deg, #ffffff, var(--surface-2));
+      border-color: var(--bet-tint);
+      box-shadow: 0 14px 30px -22px var(--bet-color);
+    }
+
+    .bet-side small {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .bet-wins {
+      font-size: 38px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      font-variant-numeric: tabular-nums;
+      color: var(--bet-color);
+    }
+
+    .bet-bettor { font-size: 12.5px; font-weight: 800; }
+    .bet-teams { font-size: 11.5px; line-height: 1.45; color: var(--muted); overflow-wrap: anywhere; }
+
+    .bet-versus {
+      align-self: center;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      color: var(--muted);
+    }
+
+    .bet-meter {
+      display: flex;
+      align-items: stretch;
+      gap: 3px;
+      height: 14px;
+      margin: 13px 20px 0;
+      padding: 2px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-2);
+    }
+
+    .bet-meter span { border-radius: 999px; }
+    .bet-meter .bm-gap { flex: 1 1 auto; }
+
+    .bet-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      padding: 11px 20px 18px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .bet-status strong { color: var(--ink); font-weight: 800; }
+    .bet-status .bet-clinched { color: var(--green); font-weight: 800; }
+
+    .bet-table { min-width: 520px; }
+    .bet-table tbody tr.is-pending td { color: #97a3b2; }
+    .bet-table tbody tr.is-current { background: rgba(23, 105, 224, .07); }
+    .bet-table tbody tr.is-current td:first-child { font-weight: 900; }
+    .bet-table .bet-lead-a { color: var(--blue-2); font-weight: 800; }
+    .bet-table .bet-lead-b { color: var(--red); font-weight: 800; }
+    .bet-table .bet-lead-even { color: var(--muted); font-weight: 800; }
+
+    .bet-games {
+      display: grid;
+      gap: 8px;
+      padding: 14px 20px 18px;
+    }
+
+    .bet-game {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-2);
+    }
+
+    .bet-game-side {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .bet-game-side.right { flex-direction: row-reverse; text-align: right; }
+    .bet-game-side.lost { opacity: .6; }
+    .bgs-copy { min-width: 0; display: grid; gap: 1px; }
+    .bgs-name { font-size: 12.5px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+
+    .bgs-div {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .bet-game-side.won .bgs-div { color: var(--bet-color); }
+
+    .bet-game-mid {
+      font-size: 11.5px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      color: var(--muted);
+      text-align: center;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 560px) {
+      .bet-premise { padding: 12px 14px 2px; }
+      .bet-scoreboard { grid-template-columns: minmax(0, 1fr); padding: 12px 14px 2px; }
+      .bet-versus { justify-self: center; }
+      .bet-wins { font-size: 32px; }
+      .bet-meter { margin: 11px 14px 0; }
+      .bet-status { padding: 11px 14px 16px; }
+      .bet-games { padding: 12px 14px 16px; }
+      .bet-game { grid-template-columns: minmax(0, 1fr); gap: 7px; }
+      .bet-game-side.right { flex-direction: row; text-align: left; }
+      .bet-game-mid { text-align: left; }
+    }
+
     @media (max-width: 900px) {
       .live-hero .hero-inner { grid-template-columns: minmax(0, 1fr); }
       .hero-brief { order: 2; }
@@ -3564,6 +3735,7 @@
     <section id="panel-standings" class="live-panel" role="tabpanel"></section>
     <section id="panel-picture" class="live-panel" role="tabpanel"></section>
     <section id="panel-summary" class="live-panel" role="tabpanel"></section>
+    <section id="panel-sidebets" class="live-panel" role="tabpanel"></section>
     <section id="panel-sos" class="live-panel" role="tabpanel"></section>
   </main>
 
@@ -3607,6 +3779,7 @@
                                   owner changes their team name mid-year)
          2. `results`           — weekly scores, added one week at a time
          3. `weeklySummaries`   — the written recap for each week
+         4. `divisionBet`       — the terms of the Xavier/Ignatius wager
 
        Everything else (records, division standings, tiebreakers, the
        playoff field, the projected bracket, and Toilet Bowl seeding) is
@@ -3703,6 +3876,20 @@
           "Standings, seeding, and the projected bracket on this page recompute automatically the moment a week's scores are posted."
         ],
         generated: "Preseason outlook"
+      }
+    };
+
+    /* -----------------------------------------------------------------
+       SIDE BETS — wagers members made on the season, tracked on their own
+       tab. The Division War runs off `results` above: every game between
+       the two divisions counts once, so the ledger moves the moment a
+       week is posted. Only the names and terms live here.
+       ----------------------------------------------------------------- */
+    const divisionBet = {
+      title: "Division War",
+      sides: {
+        Xavier:   { bettor: "Niko Nadreau",     color: "#1769e0", tint: "rgba(23, 105, 224, .45)" },
+        Ignatius: { bettor: "Jared Thornberry", color: "#d71920", tint: "rgba(215, 25, 32, .42)" }
       }
     };
 
@@ -4502,10 +4689,66 @@
     }
 
     /* =================================================================
+       SIDE BETS — cross-division ledger
+
+       Records read from the first division's side throughout, so a single
+       pair of counters covers both bettors. A tie counts for neither.
+       ================================================================= */
+
+    const [BET_A, BET_B] = DIVISION_NAMES;
+
+    // The cross-division games on a week's slate, in schedule order.
+    function crossDivisionSlate(week) {
+      return (schedule[week] || []).filter(([a, b]) => teams[a].division !== teams[b].division);
+    }
+
+    // One row per regular-season week: its cross-division games, who won
+    // them, and the division record for that week and for the season.
+    function crossDivisionLedger() {
+      const rows = [];
+      const season = { [BET_A]: 0, [BET_B]: 0, ties: 0, decided: 0 };
+
+      for (let w = 1; w <= REGULAR_WEEKS; w++) {
+        const scored = results[w] || [];
+        const weekly = { [BET_A]: 0, [BET_B]: 0, ties: 0, decided: 0 };
+
+        const games = crossDivisionSlate(w).map(([a, b]) => {
+          const line = scored.find(([x, , y]) => (x === a && y === b) || (x === b && y === a));
+          if (!line) return { a, b, played: false, winner: null };
+
+          const [idA, scoreA, idB, scoreB] = line;
+          const scoreOf = { [idA]: scoreA, [idB]: scoreB };
+          weekly.decided += 1;
+          if (scoreA === scoreB) {
+            weekly.ties += 1;
+            return { a, b, played: true, winner: "tie", scoreOf };
+          }
+          const winner = scoreA > scoreB ? idA : idB;
+          weekly[teams[winner].division] += 1;
+          return { a, b, played: true, winner, scoreOf };
+        });
+
+        season[BET_A] += weekly[BET_A];
+        season[BET_B] += weekly[BET_B];
+        season.ties += weekly.ties;
+        season.decided += weekly.decided;
+
+        rows.push({ week: w, games, weekly, season: { ...season } });
+      }
+
+      return rows;
+    }
+
+    const emptyTally = () => ({ [BET_A]: 0, [BET_B]: 0, ties: 0, decided: 0 });
+    const betRecord = (tally) => (tally.ties
+      ? `${tally[BET_A]}\u2013${tally[BET_B]}\u2013${tally.ties}`
+      : `${tally[BET_A]}\u2013${tally[BET_B]}`);
+
+    /* =================================================================
        VIEW STATE
        ================================================================= */
 
-    const VIEWS = ["results", "standings", "picture", "summary", "sos"];
+    const VIEWS = ["results", "standings", "picture", "summary", "sidebets", "sos"];
 
     // Strength of schedule is a preseason view; once games are played the
     // week tabs carry results instead.
@@ -4527,9 +4770,9 @@
     const isPlayed = (w) => playedWeeks.includes(w);
 
     function viewLabels(week) {
-      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoff Picture", summary: "Preseason", sos: "Strength of Schedule" };
-      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary" };
-      return { results: "Matchups", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary" };
+      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoff Picture", summary: "Preseason", sidebets: "Side Bets", sos: "Strength of Schedule" };
+      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary", sidebets: "Side Bets" };
+      return { results: "Matchups", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary", sidebets: "Side Bets" };
     }
 
     /* =================================================================
@@ -5442,6 +5685,173 @@
     }
 
     /* =================================================================
+       SIDE BETS PANEL
+       ================================================================= */
+
+    function renderSideBetsPanel(week) {
+      const panel = document.getElementById("panel-sidebets");
+      const rows = crossDivisionLedger();
+      const totalGames = rows.reduce((n, r) => n + r.games.length, 0);
+      const season = week === 0 ? emptyTally() : rows[week - 1].season;
+      const remaining = totalGames - season.decided;
+      const margin = Math.abs(season[BET_A] - season[BET_B]);
+      const leader = season[BET_A] > season[BET_B] ? BET_A : season[BET_B] > season[BET_A] ? BET_B : null;
+      const clinched = leader && margin > remaining;
+      const throughLabel = weekLabel(asOfWeek(week));
+      const plural = (n) => (n === 1 ? "" : "s");
+
+      const sideCard = (division) => {
+        const bet = divisionBet.sides[division];
+        return `
+          <div class="bet-side ${leader === division ? "leading" : ""}" style="--bet-color:${bet.color}; --bet-tint:${bet.tint}">
+            <small>${division} Division</small>
+            <span class="bet-wins">${season[division]}</span>
+            <span class="bet-bettor">${bet.bettor}'s side</span>
+            <span class="bet-teams">${divisionOrder[division].map((id) => teams[id].name).join(" · ")}</span>
+          </div>`;
+      };
+
+      // The bar fills from each side toward the middle, so the gap between
+      // the two blocks is the number of games still to be played.
+      const share = (n) => (totalGames ? (n / totalGames) * 100 : 0);
+      const segment = (cls, color, n) => (n
+        ? `<span class="${cls}" style="flex:0 0 ${share(n)}%; background:${color}"></span>`
+        : "");
+
+      const standing = season.decided === 0
+        ? `<span>No cross-division games have been played yet — the ledger opens in Week 1.</span>`
+        : clinched
+          ? `<span class="bet-clinched">${divisionBet.sides[leader].bettor} has clinched it — ${leader} by ${margin} with ${remaining} left.</span>`
+          : leader
+            ? `<span><strong>${leader} leads by ${margin}</strong>, ${betRecord(season)} through ${throughLabel}.</span>`
+            : `<span><strong>Dead even</strong> at ${betRecord(season)} through ${throughLabel}.</span>`;
+
+      const betCard = `
+        <article class="card">
+          ${cardHead(divisionBet.title, "B", `${season.decided} of ${totalGames} games decided`)}
+          <p class="bet-premise">
+            <strong>${divisionBet.sides[BET_B].bettor}</strong> took ${BET_B} to win more games against ${BET_A}.
+            <strong>${divisionBet.sides[BET_A].bettor}</strong> took ${BET_A}. All ${totalGames} games between the two
+            divisions count once, and the division that wins more of them takes the bet.
+          </p>
+          <div class="bet-scoreboard">
+            ${sideCard(BET_A)}
+            <span class="bet-versus">VS</span>
+            ${sideCard(BET_B)}
+          </div>
+          <div class="bet-meter" role="img" aria-label="${BET_A} ${season[BET_A]}, ${BET_B} ${season[BET_B]}, ${remaining} game${plural(remaining)} left">
+            ${segment("bm-a", divisionBet.sides[BET_A].color, season[BET_A])}
+            ${segment("bm-t", "var(--gold)", season.ties)}
+            <span class="bm-gap"></span>
+            ${segment("bm-b", divisionBet.sides[BET_B].color, season[BET_B])}
+          </div>
+          <div class="bet-status">
+            ${standing}
+            <span>${remaining} game${plural(remaining)} left to play${season.ties ? ` · ${season.ties} tie${plural(season.ties)} counted for neither side` : ""}</span>
+          </div>
+        </article>`;
+
+      const ledgerCard = `
+        <article class="card">
+          ${cardHead("Week by Week", "W", `Records read ${BET_A}–${BET_B}`)}
+          <div class="table-wrap">
+            <table class="bet-table">
+              <thead>
+                <tr>
+                  <th>Week</th>
+                  <th>Games</th>
+                  <th>This Week</th>
+                  <th>Season</th>
+                  <th>Lead</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((r) => {
+                  // A week nobody has played has no record to report, so the
+                  // running total stops rather than repeating down the table.
+                  const pending = !isPlayed(r.week);
+                  const lead = r.season[BET_A] - r.season[BET_B];
+                  const leadClass = lead > 0 ? "bet-lead-a" : lead < 0 ? "bet-lead-b" : "bet-lead-even";
+                  const leadText = lead === 0 ? "Even" : `${lead > 0 ? BET_A : BET_B} +${Math.abs(lead)}`;
+                  return `
+                    <tr class="${pending ? "is-pending" : ""} ${r.week === week ? "is-current" : ""}">
+                      <td>Week ${r.week}${r.week === rivalryWeek ? " · Rivalry" : ""}</td>
+                      <td>${r.games.length}</td>
+                      <td>${pending || r.weekly.decided === 0 ? "—" : betRecord(r.weekly)}</td>
+                      <td>${pending ? "—" : betRecord(r.season)}</td>
+                      <td class="${pending ? "" : leadClass}">${pending ? "—" : leadText}</td>
+                    </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </article>`;
+
+      const gameSide = (id, game, position) => {
+        const t = teams[id];
+        const won = game.played && game.winner === id;
+        const lost = game.played && game.winner !== id && game.winner !== "tie";
+        return `
+          <span class="bet-game-side ${position} ${won ? "won" : ""} ${lost ? "lost" : ""}" style="--bet-color:${divisionBet.sides[t.division].color}">
+            ${miniTeam(id)}
+            <span class="bgs-copy">
+              <span class="bgs-name">${t.name}</span>
+              <span class="bgs-div">${t.division}${won ? " · Won" : ""}</span>
+            </span>
+          </span>`;
+      };
+
+      // Week 0 has no slate of its own, so the preseason view lays out
+      // every cross-division game the bet will be settled on.
+      const slateCard = week === 0
+        ? `
+          <article class="card">
+            ${cardHead("The Full Slate", "S", `${totalGames} cross-division games`)}
+            <div class="schedule-weeks">
+              ${rows.map((r) => `
+                <div class="schedule-week-card">
+                  <div class="swc-head"><span>Week ${r.week}</span><span>${r.games.length} game${plural(r.games.length)}</span></div>
+                  ${r.games.map((g) => `
+                    <div class="swc-game">
+                      <span class="swc-team">${teams[g.a].name}</span>
+                      <span class="swc-vs">VS</span>
+                      <span class="swc-team right">${teams[g.b].name}</span>
+                    </div>`).join("")}
+                </div>`).join("")}
+            </div>
+          </article>`
+        : (() => {
+            const row = rows[week - 1];
+            if (!row.games.length) {
+              return `<article class="card">
+                ${cardHead(`Week ${week} Cross-Division Games`, "X", "None scheduled")}
+                ${emptyState("All divisional this week", "Every Week " + week + " matchup is inside a division, so the bet does not move.")}
+              </article>`;
+            }
+            return `
+              <article class="card">
+                ${cardHead(`Week ${week} Cross-Division Games`, "X", row.weekly.decided ? `${BET_A} ${betRecord(row.weekly)} ${BET_B}` : "Not yet played")}
+                <div class="bet-games">
+                  ${row.games.map((g) => `
+                    <div class="bet-game">
+                      ${gameSide(g.a, g, "")}
+                      <span class="bet-game-mid">${g.played ? `${fmt(g.scoreOf[g.a])} – ${fmt(g.scoreOf[g.b])}` : "VS"}</span>
+                      ${gameSide(g.b, g, "right")}
+                    </div>`).join("")}
+                </div>
+              </article>`;
+          })();
+
+      panel.innerHTML = `
+        <div class="panel-stack">
+          ${betCard}
+          ${slateCard}
+          ${ledgerCard}
+        </div>
+        <div class="source-note">The ledger counts only games between the two divisions, and updates from the same posted scores as the rest of this page. Ties count for neither side.</div>`;
+    }
+
+    /* =================================================================
        TEAM DRAWER
        ================================================================= */
 
@@ -5539,6 +5949,7 @@
       renderStandingsPanel(state.week);
       renderPicturePanel(state.week);
       renderSummaryPanel(state.week);
+      renderSideBetsPanel(state.week);
       if (state.week === 0) renderSosPanel();
       document.querySelectorAll(".live-panel").forEach((panel) => {
         panel.classList.toggle("active", panel.id === `panel-${state.view}`);
@@ -5546,7 +5957,7 @@
     }
 
     function applyHash() {
-      const match = /^#w(\d{1,2})(?:-(results|standings|picture|summary|sos))?$/.exec(window.location.hash || "");
+      const match = /^#w(\d{1,2})(?:-(results|standings|picture|summary|sidebets|sos))?$/.exec(window.location.hash || "");
       if (!match) return false;
       const week = Number(match[1]);
       if (week < 0 || week > REGULAR_WEEKS) return false;
