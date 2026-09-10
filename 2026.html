@@ -3048,22 +3048,12 @@
 
     /* Side bets — the running wagers members track week to week ------ */
 
-    .bet-premise {
-      margin: 0;
-      padding: 14px 20px 2px;
-      font-size: 13.5px;
-      line-height: 1.6;
-      color: var(--muted);
-    }
-
-    .bet-premise strong { color: var(--ink); font-weight: 800; }
-
     .bet-scoreboard {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
       align-items: stretch;
       gap: 10px;
-      padding: 14px 20px 4px;
+      padding: 16px 20px 20px;
     }
 
     .bet-side {
@@ -3072,10 +3062,11 @@
       border: 1px solid var(--line);
       border-radius: 14px;
       background: var(--surface-2);
-      padding: 12px 15px 13px 18px;
+      padding: 16px 18px 18px;
       display: grid;
-      gap: 3px;
-      align-content: start;
+      gap: 4px;
+      justify-items: center;
+      align-content: center;
     }
 
     .bet-side::before {
@@ -3101,16 +3092,13 @@
     }
 
     .bet-wins {
-      font-size: 38px;
+      font-size: 46px;
       font-weight: 900;
       line-height: 1.05;
       letter-spacing: -.02em;
       font-variant-numeric: tabular-nums;
       color: var(--bet-color);
     }
-
-    .bet-bettor { font-size: 12.5px; font-weight: 800; }
-    .bet-teams { font-size: 11.5px; line-height: 1.45; color: var(--muted); overflow-wrap: anywhere; }
 
     .bet-versus {
       align-self: center;
@@ -3119,33 +3107,6 @@
       letter-spacing: .14em;
       color: var(--muted);
     }
-
-    .bet-meter {
-      display: flex;
-      align-items: stretch;
-      gap: 3px;
-      height: 14px;
-      margin: 13px 20px 0;
-      padding: 2px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--surface-2);
-    }
-
-    .bet-meter span { border-radius: 999px; }
-    .bet-meter .bm-gap { flex: 1 1 auto; }
-
-    .bet-status {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 16px;
-      padding: 11px 20px 18px;
-      font-size: 12.5px;
-      color: var(--muted);
-    }
-
-    .bet-status strong { color: var(--ink); font-weight: 800; }
-    .bet-status .bet-clinched { color: var(--green); font-weight: 800; }
 
     .bet-table { min-width: 520px; }
     .bet-table tbody tr.is-pending td { color: #97a3b2; }
@@ -3205,12 +3166,9 @@
     }
 
     @media (max-width: 560px) {
-      .bet-premise { padding: 12px 14px 2px; }
-      .bet-scoreboard { grid-template-columns: minmax(0, 1fr); padding: 12px 14px 2px; }
+      .bet-scoreboard { grid-template-columns: minmax(0, 1fr); padding: 14px 14px 16px; }
       .bet-versus { justify-self: center; }
-      .bet-wins { font-size: 32px; }
-      .bet-meter { margin: 11px 14px 0; }
-      .bet-status { padding: 11px 14px 16px; }
+      .bet-wins { font-size: 40px; }
       .bet-games { padding: 12px 14px 16px; }
       .bet-game { grid-template-columns: minmax(0, 1fr); gap: 7px; }
       .bet-game-side.right { flex-direction: row; text-align: left; }
@@ -5693,61 +5651,27 @@
       const rows = crossDivisionLedger();
       const totalGames = rows.reduce((n, r) => n + r.games.length, 0);
       const season = week === 0 ? emptyTally() : rows[week - 1].season;
-      const remaining = totalGames - season.decided;
-      const margin = Math.abs(season[BET_A] - season[BET_B]);
       const leader = season[BET_A] > season[BET_B] ? BET_A : season[BET_B] > season[BET_A] ? BET_B : null;
-      const clinched = leader && margin > remaining;
-      const throughLabel = weekLabel(asOfWeek(week));
       const plural = (n) => (n === 1 ? "" : "s");
 
+      // Just the two divisions and their wins — the week-by-week table
+      // below carries the detail.
       const sideCard = (division) => {
         const bet = divisionBet.sides[division];
         return `
           <div class="bet-side ${leader === division ? "leading" : ""}" style="--bet-color:${bet.color}; --bet-tint:${bet.tint}">
-            <small>${division} Division</small>
+            <small>${division}</small>
             <span class="bet-wins">${season[division]}</span>
-            <span class="bet-bettor">${bet.bettor}'s side</span>
-            <span class="bet-teams">${divisionOrder[division].map((id) => teams[id].name).join(" · ")}</span>
           </div>`;
       };
-
-      // The bar fills from each side toward the middle, so the gap between
-      // the two blocks is the number of games still to be played.
-      const share = (n) => (totalGames ? (n / totalGames) * 100 : 0);
-      const segment = (cls, color, n) => (n
-        ? `<span class="${cls}" style="flex:0 0 ${share(n)}%; background:${color}"></span>`
-        : "");
-
-      const standing = season.decided === 0
-        ? `<span>No cross-division games have been played yet — the ledger opens in Week 1.</span>`
-        : clinched
-          ? `<span class="bet-clinched">${divisionBet.sides[leader].bettor} has clinched it — ${leader} by ${margin} with ${remaining} left.</span>`
-          : leader
-            ? `<span><strong>${leader} leads by ${margin}</strong>, ${betRecord(season)} through ${throughLabel}.</span>`
-            : `<span><strong>Dead even</strong> at ${betRecord(season)} through ${throughLabel}.</span>`;
 
       const betCard = `
         <article class="card">
           ${cardHead(divisionBet.title, "B", `${season.decided} of ${totalGames} games decided`)}
-          <p class="bet-premise">
-            <strong>${divisionBet.sides[BET_B].bettor}</strong> took ${BET_B} to win more games against ${BET_A}.
-            <strong>${divisionBet.sides[BET_A].bettor}</strong> took ${BET_A}. All ${totalGames} games between the two
-            divisions count once, and the division that wins more of them takes the bet.
-          </p>
           <div class="bet-scoreboard">
             ${sideCard(BET_A)}
             <span class="bet-versus">VS</span>
             ${sideCard(BET_B)}
-          </div>
-          <div class="bet-meter" role="img" aria-label="${BET_A} ${season[BET_A]}, ${BET_B} ${season[BET_B]}, ${remaining} game${plural(remaining)} left">
-            ${segment("bm-a", divisionBet.sides[BET_A].color, season[BET_A])}
-            ${segment("bm-t", "var(--gold)", season.ties)}
-            <span class="bm-gap"></span>
-            ${segment("bm-b", divisionBet.sides[BET_B].color, season[BET_B])}
-          </div>
-          <div class="bet-status">
-            ${standing}
-            <span>${remaining} game${plural(remaining)} left to play${season.ties ? ` · ${season.ties} tie${plural(season.ties)} counted for neither side` : ""}</span>
           </div>
         </article>`;
 
