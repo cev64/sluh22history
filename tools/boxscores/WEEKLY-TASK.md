@@ -43,20 +43,23 @@ score to transcribe by hand.
 HOW THE PAGE WORKS — read this before editing.
 
 `2026.html` is a live-season hub. A week rail across the top (Week 0 through
-Week 14, a dropdown on phones) picks a week; each week has four tabs:
-Results, Standings, Playoff Picture, Weekly Summary.
+Week 14, a dropdown on phones) picks a week; each week has five tabs:
+Results, Standings, Playoff Picture, Weekly Summary, Side Bets.
 
-There are three blocks of data. Everything else on the page is COMPUTED from
+There are four blocks of data. Everything else on the page is COMPUTED from
 them and updates itself:
   - `teams`             franchise identity     <- the tool edits this on a rename
   - `results`           weekly scores          <- the tool writes this
   - `weeklySummaries`   the written recap      <- YOUR edit, the only one
+  - `divisionBet`       who bet on which side  <- set once, not a weekly edit
 
 Computed automatically, DO NOT hand-edit and DO NOT touch the engine:
 records, points for/against, games back, division order with the full
 rulebook tiebreakers, wild cards, clinch and elimination badges, the
 tiebreak explanations behind the info dots, the projected bracket, Toilet
-Bowl seeding, and the "Storylines" panel in the header.
+Bowl seeding, the "Storylines" panel in the header, and the Side Bets tab —
+the Xavier-vs-Ignatius ledger counts itself off `results` like everything
+else, so posting the week is all it needs.
 
 The finished 2025 season (`2025.html`) is the reference for what a
 completed week looks like. Match it.
@@ -169,8 +172,8 @@ new, write no recap at all.
 STEP 6 — VERIFY
 - Extract the <script> block and run `node --check` on it.
 - Serve the repo and load 2026.html at the new week in a browser. Confirm no
-  console errors, and that Results, Standings, Playoff Picture, and Weekly
-  Summary all render. Check the page at 390px wide too.
+  console errors, and that Results, Standings, Playoff Picture, Weekly Summary
+  and Side Bets all render. Check the page at 390px wide too.
 - Open a matchup's box score and confirm the lineups load.
 - Open a tiebreak info dot if any appear, and confirm it reads sensibly.
 - ONLY if a rename was applied: also load `trophy.html`. Confirm the hall opens
