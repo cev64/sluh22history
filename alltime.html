@@ -17,27 +17,23 @@
   <script src="league-data.js"></script>
   <script src="team-logos.js"></script>
   <script src="pwa.js" defer></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --navy: #0a1626;
-      --navy-2: #123252;
-      --ink: #0d1f33;
-      --muted: #5f7086;
-      --line: #e2e7ee;
+      --navy: #071827;
+      --navy-2: #102b43;
+      --ink: #0b1726;
+      --muted: #637083;
+      --line: #dce3eb;
       --panel: #ffffff;
       --surface: #f5f7fa;
-      --blue: #1a63e6;
-      --blue-2: #0d4fbd;
-      --gold: #f2a91f;
+      --blue: #1769e0;
+      --blue-2: #0f56bd;
+      --gold: #f6b73c;
       --gold-soft: #fff2cf;
-      --red: #dc2f2f;
-      --green: #128a53;
+      --red: #d71920;
+      --green: #16834a;
       --shadow: 0 16px 40px rgba(10, 22, 38, .12);
       --shadow-lg: 0 28px 64px rgba(10, 22, 38, .18);
-      --font-display: 'Space Grotesk', Inter, ui-sans-serif, system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -48,7 +44,7 @@
       margin: 0;
       background: var(--surface);
       color: var(--ink);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -253,14 +249,14 @@
     .card {
       overflow: hidden;
       border: 1px solid #dbe2e9;
-      border-radius: 16px;
+      border-radius: 18px;
       background: var(--panel);
       box-shadow: var(--shadow);
     }
 
     .card-head {
       min-height: 66px;
-      padding: 15px 18px;
+      padding: 19px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -278,7 +274,7 @@
     }
 
     .leaderboard-card .card-head h3 {
-      gap: 10px;
+      gap: 9px;
     }
 
     .champions-card .card-head {
@@ -314,6 +310,28 @@
       font-size: 15px;
     }
 
+    /* The neutral card icons match the chips on the season pages: a blue tile
+       carrying a drawn mark, sitting alongside the gold and red emoji tiles
+       the champion and loser cards already wear. */
+    .head-icon.mark {
+      background: var(--blue);
+      color: #fff;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.22),
+        0 6px 14px -5px rgba(23,105,224,.6);
+    }
+
+    .head-icon .chip-icon {
+      width: 17px;
+      height: 17px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     .card-head > span {
       color: var(--muted);
       font-size: 9px;
@@ -333,22 +351,22 @@
     }
 
     th {
-      padding: 11px 12px;
+      padding: 12px 14px;
       background: #f5f7f9;
-      color: #738091;
-      font-size: 8px;
-      font-weight: 950;
-      letter-spacing: .08em;
+      color: #6b7788;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .09em;
       text-align: left;
       text-transform: uppercase;
       white-space: nowrap;
     }
 
     td {
-      padding: 11px 12px;
+      padding: 13px 14px;
       border-top: 1px solid #edf0f3;
       color: #2b3d50;
-      font-size: 11px;
+      font-size: 13px;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
@@ -752,8 +770,8 @@
       gap: 11px;
       padding: 10px 16px 10px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(242, 169, 31, .45);
-      background: rgba(242, 169, 31, .14);
+      border: 1px solid rgba(246, 183, 60, .45);
+      background: rgba(246, 183, 60, .14);
       color: #fff;
       text-decoration: none;
       box-shadow: 0 14px 34px -20px rgba(0, 0, 0, .8);
@@ -761,8 +779,8 @@
     }
     .trophy-room-link:hover {
       transform: translateY(-2px);
-      border-color: rgba(242, 169, 31, .85);
-      background: rgba(242, 169, 31, .23);
+      border-color: rgba(246, 183, 60, .85);
+      background: rgba(246, 183, 60, .23);
     }
     .trophy-room-link:active { transform: translateY(0); }
 
@@ -1191,7 +1209,7 @@
 
 
     /* --- v2 visual refresh: refined elevation, motion, and accents --- */
-    ::selection { background: rgba(26, 99, 230, .22); color: var(--ink); }
+    ::selection { background: rgba(23, 105, 224, .22); color: var(--ink); }
 
     .table-wrap, .profile-panel {
       scrollbar-width: thin;
@@ -1246,7 +1264,6 @@
     .hero-metric strong,
     .profile-identity h2,
     .title-count {
-      font-family: var(--font-display);
       letter-spacing: -.02em;
     }
 
@@ -1258,20 +1275,11 @@
     .hero {
       position: relative;
       background:
-        #0f2740;
+        #102b43;
     }
 
     .home-hero h1 { color: #fff; }
 
-    /* Topbar gets a live gradient underline instead of a flat hairline */
-    .topbar { border-bottom: none; }
-    .topbar::after {
-      content: "";
-      display: block;
-      height: 2px;
-      background: var(--blue);
-      opacity: .85;
-    }
 
     /* Soft pulsing glow on the trophy tile */
     @media (prefers-reduced-motion: no-preference) {
@@ -1280,8 +1288,8 @@
       }
     }
     @keyframes v3Glow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(242,169,31,0); }
-      50% { box-shadow: 0 0 0 6px rgba(242,169,31,.18); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(246,183,60,0); }
+      50% { box-shadow: 0 0 0 6px rgba(246,183,60,.18); }
     }
   
     /* --- v4 modern overhaul: depth, glass, gradient accents, motion
@@ -1311,16 +1319,16 @@
       position: absolute;
       left: 0; right: 0; bottom: -1px;
       height: 2px;
-      background: rgba(26,99,230,.35);
+      background: rgba(23,105,224,.35);
       opacity: .7;
     }
     /* Champions header leans gold, losers header leans red */
     .champions-card .card-head::after {
-      background: rgba(242,169,31,.55);
+      background: rgba(246,183,60,.55);
       opacity: .85;
     }
     .losers-card .card-head::after {
-      background: rgba(220,47,47,.45);
+      background: rgba(215,25,32,.45);
     }
 
     /* Head icons feel like embossed tokens */
@@ -1336,12 +1344,12 @@
     }
     tbody tr { transition: background .18s ease, box-shadow .18s ease; }
     tbody tr:hover {
-      background: rgba(26,99,230,.05);
-      box-shadow: inset 3px 0 0 rgba(26,99,230,.6);
+      background: rgba(23,105,224,.05);
+      box-shadow: inset 3px 0 0 rgba(23,105,224,.6);
     }
     /* In the champions leaderboard the accent bar reads gold */
     .champions-card tbody tr:hover {
-      background: rgba(242,169,31,.08);
+      background: rgba(246,183,60,.08);
       box-shadow: inset 3px 0 0 var(--gold);
     }
 
@@ -1423,7 +1431,7 @@
     /* --- v5: adopt the season pages' dark banner + shield crest on home --- */
     .topbar {
       background: rgba(7, 24, 39, .96);
-      border-bottom: none;
+      border-bottom: 1px solid rgba(255,255,255,.08);
       color: #fff;
     }
     .brand-mark {
@@ -1569,7 +1577,7 @@
 
     <section class="section"><div class="card all-time-card">
         <div class="card-head">
-          <h3>All Time Standings</h3>
+          <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/></svg></span>All Time Standings</h3>
           <div class="mobile-sort">
             <label for="allTimeMobileSort">Sort</label>
             <select id="allTimeMobileSort" aria-label="Sort all-time standings">
@@ -2159,14 +2167,14 @@
           <section class="profile-grid">
             <div class="profile-card">
               <div class="profile-card-head">
-                <h3>Regular-Season Wins</h3>
+                <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.2 13.2V8.4M8 13.2V3.2M12.8 13.2V6.6"/></svg></span>Regular-Season Wins</h3>
               </div>
               <div class="chart-wrap">${renderWinsChart(profile)}</div>
             </div>
 
             <div class="profile-card">
               <div class="profile-card-head">
-                <h3>Season History</h3>
+                <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.6" y="3.4" width="10.8" height="10" rx="1.6"/><path d="M2.6 6.6h10.8M5.6 2.1v2.6M10.4 2.1v2.6"/></svg></span>Season History</h3>
               </div>
               <div class="season-history">${renderSeasonHistory(profile)}</div>
             </div>
@@ -2174,7 +2182,7 @@
 
           <section class="profile-card h2h-card">
             <div class="profile-card-head">
-              <h3>Head-to-Head Records</h3>
+              <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 4.6 5.5 8l-2.9 3.4M13.4 4.6 10.5 8l2.9 3.4M8 2.9v10.2"/></svg></span>Head-to-Head Records</h3>
               <div class="h2h-mobile-sort">
                 <label for="h2hMobileSort">Sort</label>
                 <select id="h2hMobileSort" aria-label="Sort head-to-head records">
