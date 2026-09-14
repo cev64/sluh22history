@@ -373,6 +373,20 @@
       font-weight: 900;
     }
 
+    .chip-icon {
+      width: 16px;
+      height: 16px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* An icon needs no side padding; a bare letter or number still does. */
+    .division-chip:has(.chip-icon) { padding: 0; width: 28px; }
+
     .card-head span { color: var(--muted); font-size: 12px; }
 
     .table-wrap { overflow-x: auto; }
@@ -4386,7 +4400,7 @@
       document.getElementById("panel-sos").innerHTML = `
         <div class="panel-stack">
           <article class="card">
-            ${cardHead(`Strength of Schedule`, "S", `Opponents' ${priorSeason.year} records`)}
+            ${cardHead(`Strength of Schedule`, "schedule", `Opponents' ${priorSeason.year} records`)}
             <div class="sos-legend">
               <span class="legend-key"><span class="sos-swatch tough"></span>Tougher than average</span>
               <span class="legend-key"><span class="sos-swatch easy"></span>Easier than average</span>
@@ -4673,7 +4687,7 @@
       };
 
       return `<article class="card">
-        ${cardHead("Playoff Odds", "%", oddsBasis(week))}
+        ${cardHead("Playoff Odds", "odds", oddsBasis(week))}
         <div class="odds-legend">
           <span class="legend-key"><span class="odds-key s-bye"></span>First-round bye</span>
           <span class="legend-key"><span class="odds-key s-in"></span>Playoffs, no bye</span>
@@ -4801,9 +4815,32 @@
       return `<div class="empty-state"><strong>${title}</strong><p>${copy}</p></div>`;
     }
 
+
+    /* Card icons. Each names what its card is showing, so a header reads
+       without needing a key. `cardHead` falls back to plain text for anything
+       not listed, which is how a division initial still lands in the chip. */
+    const CARD_ICONS = {
+      standings: '<path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/>',
+      schedule:  '<rect x="2.6" y="3.4" width="10.8" height="10" rx="1.6"/><path d="M2.6 6.6h10.8M5.6 2.1v2.6M10.4 2.1v2.6"/>',
+      rulebook:  '<path d="M8 4.6S6.5 3.1 3 3.1v9c3.5 0 5 1.5 5 1.5s1.5-1.5 5-1.5v-9c-3.5 0-5 1.5-5 1.5z"/><path d="M8 4.6v9"/>',
+      odds:      '<circle cx="8" cy="8" r="5.4"/><path d="M8 2.6V8h5.4"/>',
+      toilet:    '<path d="M8 2.4v7.2M5.1 6.7 8 9.6l2.9-2.9M3.2 13.2h9.6"/>',
+      notes:     '<rect x="3.1" y="2.5" width="9.8" height="11" rx="1.6"/><path d="M5.6 6h4.8M5.6 8.4h4.8M5.6 10.8h2.8"/>',
+      bracket:   '<path d="M2.6 3.6h3.3v3.9h3.6M2.6 12.4h3.3V8.5M9.5 8h3.9"/>',
+      versus:    '<path d="M2.6 4.6 5.5 8l-2.9 3.4M13.4 4.6 10.5 8l2.9 3.4M8 2.9v10.2"/>',
+      cross:     '<path d="M2.8 5.6h8.1L8.8 3.5M13.2 10.4H5.1l2.1 2.1"/>',
+      document:  '<path d="M9.2 2.6H5.1a1.6 1.6 0 0 0-1.6 1.6v7.6a1.6 1.6 0 0 0 1.6 1.6h5.8a1.6 1.6 0 0 0 1.6-1.6V6z"/><path d="M9.2 2.6V6h3.3"/>',
+      shield:    '<path d="M8 2.4 3.4 4.4v3.9c0 3 2 4.7 4.6 5.6 2.6-.9 4.6-2.6 4.6-5.6V4.4z"/>',
+      recap:     '<path d="M13.2 9.6a1.6 1.6 0 0 1-1.6 1.6H6.2l-3.4 2.6V4.2a1.6 1.6 0 0 1 1.6-1.6h7.2a1.6 1.6 0 0 1 1.6 1.6z"/>'
+    };
+
+    const chipMark = (chip) => (CARD_ICONS[chip]
+      ? `<svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true">${CARD_ICONS[chip]}</svg>`
+      : chip);
+
     function cardHead(title, chip, meta) {
       return `<div class="card-head">
-        <h3>${chip ? `<span class="division-chip">${chip}</span>` : ""}${title}</h3>
+        <h3>${chip ? `<span class="division-chip">${chipMark(chip)}</span>` : ""}${title}</h3>
         ${meta ? `<span>${meta}</span>` : ""}
       </div>`;
     }
@@ -5108,7 +5145,7 @@
       if (week === 0) {
         panel.innerHTML = `
           <article class="card">
-            ${cardHead("2026 Schedule", "S", `${REGULAR_WEEKS} weeks · 70 games`)}
+            ${cardHead("2026 Schedule", "schedule", `${REGULAR_WEEKS} weeks · 70 games`)}
             <div class="schedule-weeks">
               ${Object.keys(schedule).map(Number).sort((a, b) => a - b).map((w) => `
                 <div class="schedule-week-card">
@@ -5132,7 +5169,7 @@
               ${results[week].map(([a, as, b, bs]) => gameCard(week, a, as, b, bs)).join("")}
             </div>
             <article class="card">
-              ${cardHead(`Week ${week} Notes`, "W", "Scoring extremes")}
+              ${cardHead(`Week ${week} Notes`, "notes", "Scoring extremes")}
               ${weekSuperlatives(week)}
             </article>
           </div>`;
@@ -5143,7 +5180,7 @@
       const stats = computeStats(asOfWeek(week));
       panel.innerHTML = `
         <article class="card">
-          ${cardHead(`Week ${week} Matchups`, "M", week === rivalryWeek ? "Rivalry Week · not yet played" : "Not yet played")}
+          ${cardHead(`Week ${week} Matchups`, "versus", week === rivalryWeek ? "Rivalry Week · not yet played" : "Not yet played")}
           <div class="projected-matchups">
             ${(schedule[week] || []).map(([a, b]) => `
               <div class="projected-game">
@@ -5178,7 +5215,7 @@
         const ids = live ? picture.divisions[division] : divisionOrder[division];
         return `
         <article class="card">
-          ${cardHead(division, division.charAt(0))}
+          ${cardHead(division, "shield")}
           <div class="table-wrap">
             <table>
               <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
@@ -5261,7 +5298,7 @@
             ${emptyState("The bracket opens after Week 1",
               "Six teams make the playoffs: each division champion (with a Week 15 bye), each division runner-up, and two league-wide wild cards taken on record with points for as the first tiebreaker. The better wild card draws the weaker runner-up. The remaining four teams are reseeded 7 through 10 for the Toilet Bowl ladder. Once results are posted, this tab shows exactly where every team would land if the season ended that day.")}
             <article class="card">
-              ${cardHead("How the field is set", "R", "League rulebook, Sections 4 and 5")}
+              ${cardHead("How the field is set", "rulebook", "League rulebook, Sections 4 and 5")}
               <div class="projected-matchups">
                 <div class="projected-game">
                   <div class="pg-head">Week 15</div>
@@ -5287,7 +5324,7 @@
       const BRACKET_TITLE = "Projected Bracket";
       const bracketCard = `
         <article class="card">
-          ${cardHead(BRACKET_TITLE, "B", "Weeks 15–17")}
+          ${cardHead(BRACKET_TITLE, "bracket", "Weeks 15–17")}
           <div class="bracket-rounds">
             <div class="bracket-round">
               <div class="round-label">Round 1<span>Week 15</span></div>
@@ -5321,7 +5358,7 @@
       const toilet = picture.toiletSeeds;
       const toiletCard = `
         <article class="card">
-          ${cardHead("Toilet Bowl Watch", "T", "Seeds 7–10 · loser advances")}
+          ${cardHead("Toilet Bowl Watch", "toilet", "Seeds 7–10 · loser advances")}
           <div class="seed-list">
             ${toilet.map((id) => seedRow(picture, id)).join("")}
           </div>
@@ -5629,7 +5666,7 @@
 
     function newsletterCard(week) {
       return `<article class="card nl-card">
-        ${cardHead("Weekly Newsletter", "PDF", "One-page recap")}
+        ${cardHead("Weekly Newsletter", "document", "One-page recap")}
         <div class="nl-body">
           <p class="nl-copy">Week ${week} on one printable sheet: every result, the standings and seeding as they stood, and the box scores behind them.</p>
           <a class="nl-download" href="${newsletterUrl(week)}" download>Download PDF</a>
@@ -5671,7 +5708,7 @@
 
       panel.innerHTML = `
         <article class="card summary-card">
-          ${cardHead(week === 0 ? "Preseason Outlook" : `Week ${week} Recap`, week === 0 ? "0" : String(week), summary.generated || "League recap")}
+          ${cardHead(week === 0 ? "Preseason Outlook" : `Week ${week} Recap`, "recap", summary.generated || "League recap")}
           ${summary.headline ? `<div class="summary-meta">${summary.headline}</div>` : ""}
           ${summary.bullets
             ? `<ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>`
@@ -5705,7 +5742,7 @@
 
       const betCard = `
         <article class="card">
-          ${cardHead(divisionBet.title, "B", `${season.decided} of ${totalGames} games decided`)}
+          ${cardHead(divisionBet.title, "versus", `${season.decided} of ${totalGames} games decided`)}
           <div class="bet-scoreboard">
             ${sideCard(BET_A)}
             <span class="bet-versus">VS</span>
@@ -5715,7 +5752,7 @@
 
       const ledgerCard = `
         <article class="card">
-          ${cardHead("Week by Week", "W", `Records read ${BET_A}–${BET_B}`)}
+          ${cardHead("Week by Week", "notes", `Records read ${BET_A}–${BET_B}`)}
           <div class="table-wrap">
             <table class="bet-table">
               <thead>
@@ -5768,7 +5805,7 @@
       const slateCard = week === 0
         ? `
           <article class="card">
-            ${cardHead("The Full Slate", "S", `${totalGames} cross-division games`)}
+            ${cardHead("The Full Slate", "schedule", `${totalGames} cross-division games`)}
             <div class="schedule-weeks">
               ${rows.map((r) => `
                 <div class="schedule-week-card">
@@ -5786,13 +5823,13 @@
             const row = rows[week - 1];
             if (!row.games.length) {
               return `<article class="card">
-                ${cardHead(`Week ${week} Cross-Division Games`, "X", "None scheduled")}
+                ${cardHead(`Week ${week} Cross-Division Games`, "cross", "None scheduled")}
                 ${emptyState("All divisional this week", "Every Week " + week + " matchup is inside a division, so the bet does not move.")}
               </article>`;
             }
             return `
               <article class="card">
-                ${cardHead(`Week ${week} Cross-Division Games`, "X", row.weekly.decided ? `${BET_A} ${betRecord(row.weekly)} ${BET_B}` : "Not yet played")}
+                ${cardHead(`Week ${week} Cross-Division Games`, "cross", row.weekly.decided ? `${BET_A} ${betRecord(row.weekly)} ${BET_B}` : "Not yet played")}
                 <div class="bet-games">
                   ${row.games.map((g) => `
                     <div class="bet-game">
