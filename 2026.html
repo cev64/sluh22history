@@ -3588,7 +3588,6 @@
     .odds-key { width: 11px; height: 11px; min-height: 0; border-radius: 3px; background: #e7ebf0; display: block; flex: 0 0 auto; }
     .odds-key.s-bye { background: #0f4c9e; }
     .odds-key.s-in { background: #5a9bec; }
-    .odds-legend .sub-note { font-style: italic; }
 
     .odds-pct {
       flex: 0 0 auto;
@@ -3603,13 +3602,44 @@
     .odds-pct.settled { color: var(--ink); font-weight: 900; }
     .odds-head .odds-pct { font-size: 10px; font-weight: 900; color: var(--muted); }
 
+    /* The three figures are their own columns on a wide screen, so the wrapper
+       gets out of the way and lets them line up under the header. */
+    .odds-nums { display: contents; }
+
     @media (max-width: 700px) {
+      /* No room for a header row on a phone, so each figure carries its own
+         label and the three of them take a line of their own under the team. */
       .odds-head { display: none; }
-      .odds-row { flex-wrap: wrap; padding: 10px; gap: 8px; }
+      .odds-row { flex-wrap: wrap; padding: 11px 12px; gap: 9px; }
       .odds-team { flex: 1 1 auto; }
       .odds-track { order: 3; flex: 1 1 100%; }
-      .odds-pct { width: auto; }
-      .odds-pct::after { content: attr(data-label); margin-left: 3px; font-size: 9px; color: var(--muted); }
+
+      .odds-nums {
+        display: flex;
+        order: 2;
+        flex: 1 1 100%;
+        gap: 10px;
+      }
+
+      .odds-pct {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 2px;
+        text-align: left;
+      }
+
+      .odds-pct::after {
+        content: attr(data-label);
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
     }
 
       /* A logo is the team's identity on its own, so the chip stops shouting the
@@ -4404,8 +4434,7 @@
               <span>between the hardest and easiest schedules</span>
             </div>
           </div>
-        </div>
-        <div class="source-note">Opponent win percentage across all ${rows[0].games} scheduled games, using ${priorSeason.year} regular-season records. It measures who is on the schedule, not how good those teams are now.</div>`;
+        </div>`;
     }
 
 
@@ -4621,9 +4650,11 @@
             ${byeW > 0.4 ? `<span class="odds-seg s-bye" style="width:${byeW.toFixed(1)}%"></span>` : ""}
             ${inW > 0.4 ? `<span class="odds-seg s-in" style="width:${inW.toFixed(1)}%"></span>` : ""}
           </span>
-          <span class="odds-pct primary ${locked || gone ? "settled" : ""}">${show(playoff, locked || gone)}</span>
-          <span class="odds-pct ${flag === "z" || gone ? "settled" : ""}">${show(byeP, flag === "z" || gone)}</span>
-          <span class="odds-pct ${locked || gone ? "settled" : ""}">${show(outP, locked || gone)}</span>
+          <span class="odds-nums">
+            <span class="odds-pct primary ${locked || gone ? "settled" : ""}" data-label="Playoff">${show(playoff, locked || gone)}</span>
+            <span class="odds-pct ${flag === "z" || gone ? "settled" : ""}" data-label="Bye">${show(byeP, flag === "z" || gone)}</span>
+            <span class="odds-pct ${locked || gone ? "settled" : ""}" data-label="Out">${show(outP, locked || gone)}</span>
+          </span>
         </div>`;
       };
 
@@ -4633,14 +4664,15 @@
           <span class="legend-key"><span class="odds-key s-bye"></span>First-round bye</span>
           <span class="legend-key"><span class="odds-key s-in"></span>Playoffs, no bye</span>
           <span class="legend-key"><span class="odds-key out"></span>Missed</span>
-          <span class="legend-key sub-note">Six of ten make it, so the league average is 60%.</span>
         </div>
         <div class="odds-head">
           <span class="odds-team">Team</span>
           <span class="odds-track"></span>
-          <span class="odds-pct primary">Playoff</span>
-          <span class="odds-pct">Bye</span>
-          <span class="odds-pct">Out</span>
+          <span class="odds-nums">
+            <span class="odds-pct primary">Playoff</span>
+            <span class="odds-pct">Bye</span>
+            <span class="odds-pct">Out</span>
+          </span>
         </div>
         <div class="odds-grid">${ranked.map(row).join("")}</div>
       </article>`;
@@ -5075,8 +5107,7 @@
                     </div>`).join("")}
                 </div>`).join("")}
             </div>
-          </article>
-          <div class="source-note">Divisional opponents play twice; the extra cross-division game pairs teams that finished in the same divisional spot in 2025.</div>`;
+          </article>`;
         return;
       }
 
@@ -5090,8 +5121,7 @@
               ${cardHead(`Week ${week} Notes`, "W", "Scoring extremes")}
               ${weekSuperlatives(week)}
             </article>
-          </div>
-          <div class="source-note">Scores audited from the league's Week ${week} results screenshot.</div>`;
+          </div>`;
         markBoxScores(week);
         return;
       }
@@ -5108,8 +5138,7 @@
                 <div class="pg-side">${miniTeam(b)}<span class="pg-name">${teams[b].name}</span><span class="pg-rec">${stats[b].record}</span></div>
               </div>`).join("")}
           </div>
-        </article>
-        <div class="source-note">Records shown are through Week ${asOfWeek(week)}.</div>`;
+        </article>`;
     }
 
     /* =================================================================
@@ -5176,10 +5205,7 @@
           <div class="division-grid">${divisionCards}</div>
           ${legend}
           ${live ? oddsCard(asOf) : ""}
-        </div>
-        <div class="source-note">${live
-          ? `Division order applies the rulebook tiebreakers: head-to-head, points for, then division record. Records reflect Weeks 1–${asOf}.`
-          : "Division order is unranked until Week 1 results are posted."}</div>`;
+        </div>`;
     }
 
     /* =================================================================
@@ -5309,8 +5335,7 @@
           ${bracketCard}
           ${flipNote}
           ${toiletCard}
-        </div>
-        <div class="source-note">Seeding follows the rulebook: divisions first (head-to-head, points for, division record), then the two best remaining records league-wide as wild cards. Toilet Bowl seeds reset on wins, points for, then head-to-head.</div>`;
+        </div>`;
     }
 
     /* =================================================================
@@ -5637,8 +5662,7 @@
           ${summary.bullets
             ? `<ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>`
             : `<div class="summary-body">${summary.body.map((para) => `<p>${para}</p>`).join("")}</div>`}
-        </article>
-        <div class="source-note">Recaps are written from the posted results and do not change any standings on this page.</div>`;
+        </article>`;
       renderNewsletterLink(week);
     }
 
@@ -5771,8 +5795,7 @@
           ${betCard}
           ${slateCard}
           ${ledgerCard}
-        </div>
-        <div class="source-note">The ledger counts only games between the two divisions, and updates from the same posted scores as the rest of this page. Ties count for neither side.</div>`;
+        </div>`;
     }
 
     /* =================================================================
