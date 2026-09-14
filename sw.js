@@ -5,7 +5,7 @@
      - Google Fonts: stale-while-revalidate in a separate cache
    Bump CACHE_VERSION whenever the precache list or these rules change. */
 
-const CACHE_VERSION = 'v23';
+const CACHE_VERSION = 'v24';
 const SHELL_CACHE = `league-history-shell-${CACHE_VERSION}`;
 const FONT_CACHE = `league-history-fonts-${CACHE_VERSION}`;
 
@@ -41,6 +41,7 @@ const PRECACHE = [
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
   './icons/favicon-32.png',
+  './icons/crest.png',
 ];
 
 self.addEventListener('install', (event) => {
