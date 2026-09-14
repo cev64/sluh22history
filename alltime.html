@@ -1439,6 +1439,12 @@
       z-index: 0;
     }
 
+    /* A hero holding the champion and last-place cards already has a trophy
+       and a turd behind their scores. The cards are translucent, so the ball
+       showed through and tangled with both - at phone width it sat right on
+       top of them. One watermark per card is plenty. */
+    .hero:has(.outcome-grid)::before { content: none; }
+
     .hero-inner { position: relative; z-index: 1; }
 
     /* Small cards lift on hover for a tactile, modern feel */
@@ -2012,7 +2018,7 @@
     }
 
     let activeOwnerId = null;
-    let h2hSort = { key: "wins", direction: "desc" };
+    let h2hSort = { key: "pct", direction: "desc" };
 
     const h2hDefaults = {
       team: "asc",
@@ -2170,7 +2176,7 @@
       if (!profile) return;
 
       activeOwnerId = ownerId;
-      h2hSort = { key: "wins", direction: "desc" };
+      h2hSort = { key: "pct", direction: "desc" };
 
       document.getElementById("profileRoot").innerHTML = `
         <section class="profile-hero" style="--team-color:${profile.color}">
