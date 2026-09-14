@@ -36,6 +36,17 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? proces
 const SEASON = Number(arg('--season', 2025));
 const IN_DIR = arg('--in', null);
 const ONLY_WEEK = arg('--week', null) ? Number(arg('--week')) : null;
+
+/* A starter list that does not add up to its own team's score normally fails
+   the run, because a box score contradicting the score above it is the one
+   thing this importer exists to prevent. `--allow-sum-gap` downgrades just
+   that one check to a warning, for the case where the export itself is short:
+   ESPN restating a team total without restating the player rows behind it.
+   Nothing else relaxes - a pairing the page does not have, a score that
+   disagrees with the page, an unknown team, an unmapped position all still
+   stop the run. Used for 2023 week 14, where two lineups come up 2.00 and
+   3.30 shy of totals the page and the export agree on. */
+const ALLOW_SUM_GAP = process.argv.includes('--allow-sum-gap');
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 if (!IN_DIR) throw new Error('--in <dir> is required: the folder holding the raw weekly export files');
@@ -112,6 +123,7 @@ fs.mkdirSync(outDir, { recursive: true });
 
 const problems = [];
 const pending = [];
+const sumGaps = [];
 const written = [];
 let playerCount = 0;
 let crossChecked = 0;
@@ -173,7 +185,9 @@ for (const raw of rawWeeks) {
       }
       const sum = players.filter((p) => p.starter).reduce((t, p) => t + p.pts, 0);
       if (Math.abs(sum - side.score) > 0.02) {
-        problems.push(`week ${week} ${id}: starters sum to ${sum.toFixed(2)}, posted score is ${side.score}`);
+        const note = `week ${week} ${id}: starters sum to ${sum.toFixed(2)}, posted score is ${side.score}`;
+        if (ALLOW_SUM_GAP) sumGaps.push(note);
+        else problems.push(note);
       }
       lineups[id] = orderLineup(players);
       playerCount += players.length;
@@ -212,5 +226,11 @@ const have = fs.readdirSync(outDir)
   .filter(Boolean).map((m) => Number(m[1])).sort((a, b) => a - b);
 fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify(have) + '\n');
 
+if (sumGaps.length) {
+  console.error(`  accepted ${sumGaps.length} starter-sum gap(s) under --allow-sum-gap:`);
+  for (const g of sumGaps) console.error('    ' + g);
+}
+
 console.log(JSON.stringify({ season: SEASON, weeks: written.sort((a, b) => a - b), players: playerCount,
-  gamesCheckedAgainstPage: crossChecked, gamesCheckedOnlyBySum: sumOnly, index: have }, null, 2));
+  gamesCheckedAgainstPage: crossChecked, gamesCheckedOnlyBySum: sumOnly,
+  acceptedSumGaps: sumGaps, index: have }, null, 2));
