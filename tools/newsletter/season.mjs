@@ -9,6 +9,15 @@ import fs from 'fs';
 import path from 'path';
 
 function grab(src, name, open, close) {
+  /* A block is written either across several lines, closing on its own
+     indented line, or collapsed onto one. The single line has to be tried
+     first: the multi-line pattern does not anchor to the declaration it
+     started from, so against a one-line block it runs on to the next
+     `\n    };` in the file and swallows whatever sits between. That is how
+     2021 — whose divisionOrder is one line — used to drag `const fmt` into
+     the extract and fail to import with fmt declared twice. */
+  const single = src.match(new RegExp(`const ${name} = \\${open}.*\\${close};$`, 'm'));
+  if (single) return single[0];
   const m = src.match(new RegExp(`const ${name} = \\${open}(.*?)\\n    \\${close};`, 's'));
   return m ? `const ${name} = ${open}${m[1]}\n${close};` : null;
 }

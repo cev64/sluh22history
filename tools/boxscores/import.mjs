@@ -19,7 +19,7 @@
       check is what keeps the mapping honest if the export changes.
 
    2. Teams are identified by an ESPN team id, and team names change during a
-      season. ESPN_TEAM (in raw.mjs) maps id to this repo's permanent team id;
+      season. espnTeams(season) (in raw.mjs) maps id to this repo's team id;
       nothing keys off the name.
 
    Nothing is written unless the week validates against the season page: same
@@ -30,7 +30,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadSeason } from '../newsletter/season.mjs';
-import { readRaw, ESPN_TEAM } from './raw.mjs';
+import { readRaw, espnTeams } from './raw.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const SEASON = Number(arg('--season', 2025));
@@ -40,13 +40,16 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
 if (!IN_DIR) throw new Error('--in <dir> is required: the folder holding the raw weekly export files');
 
-/* Raw `position` value -> the position it actually is. See the note above. */
-const POSITION = { TQB: 'QB', RB: 'RB', 'RB/WR': 'WR', WR: 'TE', 'D/ST': 'DST' };
+/* Raw `position` value -> the position it actually is. See the note above.
+   `WR/TE` is the kicker: every starter carrying it played the K slot, in both
+   2021 and 2023. The league dropped the kicker after 2023, so the seasons from
+   2024 on simply never produce one. */
+const POSITION = { TQB: 'QB', RB: 'RB', 'RB/WR': 'WR', WR: 'TE', 'WR/TE': 'K', 'D/ST': 'DST' };
 
 /* A starter's slot proves its position, except FLEX which accepts several. */
-const SLOT_IMPLIES = { QB: 'QB', RB: 'RB', WR: 'WR', TE: 'TE', 'D/ST': 'DST' };
+const SLOT_IMPLIES = { QB: 'QB', RB: 'RB', WR: 'WR', TE: 'TE', K: 'K', 'D/ST': 'DST' };
 
-const SLOT_ORDER = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'D/ST'];
+const SLOT_ORDER = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'K', 'D/ST'];
 
 function normalisePlayer(p) {
   const pos = POSITION[p.position];
@@ -101,12 +104,14 @@ function postseasonWeeks() {
 }
 const POST_WEEKS = postseasonWeeks();
 
+const TEAM_BY_ESPN = espnTeams(SEASON);
 const rawWeeks = readRaw(IN_DIR);
 
 const outDir = path.join(ROOT, 'boxscores', String(SEASON));
 fs.mkdirSync(outDir, { recursive: true });
 
 const problems = [];
+const pending = [];
 const written = [];
 let playerCount = 0;
 let crossChecked = 0;
@@ -128,8 +133,8 @@ for (const raw of rawWeeks) {
   const games = [];
   for (const m of raw.matchups) {
     if (!m.home || !m.away) continue;                   // playoff byes carry an empty side
-    const home = ESPN_TEAM[m.home.team_id];
-    const away = ESPN_TEAM[m.away.team_id];
+    const home = TEAM_BY_ESPN[m.home.team_id];
+    const away = TEAM_BY_ESPN[m.away.team_id];
     if (!home || !away) { problems.push(`week ${week}: unknown ESPN team id`); continue; }
 
     const key = [home, away].sort().join('|');
@@ -182,18 +187,23 @@ for (const raw of rawWeeks) {
     });
   }
 
-  if (games.length) {
-    const out = path.join(outDir, `week-${week}.json`);
-    fs.writeFileSync(out, JSON.stringify({ season: SEASON, week, games }, null, 1) + '\n');
-    written.push(week);
-  }
+  if (games.length) pending.push({ week, games });
 }
 
 if (problems.length) {
   // Refuse the whole run: a partially-correct box score is worse than none,
-  // because everything downstream would present it as audited.
+  // because everything downstream would present it as audited. Weeks are held
+  // in memory until here for that reason — writing them as they validated
+  // meant a failing run still left the good ones on disk under a message
+  // saying nothing had been written.
   for (const p of problems.slice(0, 20)) console.error('  ' + p);
   throw new Error(`${problems.length} validation problem(s) — nothing was written`);
+}
+
+for (const { week, games } of pending) {
+  fs.writeFileSync(path.join(outDir, `week-${week}.json`),
+    JSON.stringify({ season: SEASON, week, games }, null, 1) + '\n');
+  written.push(week);
 }
 
 // The site asks for this to decide which matchups are clickable.
