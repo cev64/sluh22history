@@ -4458,6 +4458,17 @@
 
     const ODDS_ITERATIONS = 10000;
 
+    /* How much of a team's simulated scoring is drawn from its own games
+       rather than from the league-wide pool. Week 1 has a single game on
+       record — nowhere near enough to tell one team from another — so the
+       share starts at nothing and every matchup is a pure coin flip. It
+       climbs by the same step each week and reaches all-own at week 13, the
+       last week the odds still decide anything. */
+    const OWN_FORM_FULL_WEEK = 13;
+
+    const ownFormWeight = (week) =>
+      Math.min(1, Math.max(0, (week - 1) / (OWN_FORM_FULL_WEEK - 1)));
+
     function mulberry32(seed) {
       return function () {
         seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
@@ -4541,17 +4552,33 @@
       const tally = {};
       TEAM_IDS.forEach((id) => { tally[id] = { playoff: 0, division: 0, toilet: 0 }; });
 
-      // Both sides of a future game draw from the SAME league-wide pool of
-      // scores actually posted this season, so every matchup is still exactly
-      // a coin flip — but the points come along too. That matters: points for
-      // is the second tiebreaker, and freezing it at today's value made every
-      // future tie resolve with certainty, which quietly removed real
-      // uncertainty from the answer.
+      // A future score is always a real score, drawn either from the team's
+      // own games or from the league-wide pool of everything posted this
+      // season. `ownFormWeight` decides the split. While it is nothing, both
+      // sides draw from the same pool and every matchup is exactly a coin
+      // flip; as it climbs, a team that has been scoring 130 starts bringing
+      // that with it. Drawing real scores also carries the points along,
+      // which matters because points for is the second tiebreaker — freezing
+      // it at today's value made every future tie resolve with certainty.
       const rand = mulberry32(week * 7919 + 13);
       const pool = played.flatMap((g) => [g.as, g.bs]);
-      const draw = pool.length >= 10
+      const ownPool = {};
+      TEAM_IDS.forEach((id) => { ownPool[id] = []; });
+      played.forEach((g) => { ownPool[g.a].push(g.as); ownPool[g.b].push(g.bs); });
+
+      const ownShare = ownFormWeight(week);
+      const leagueDraw = pool.length >= 10
         ? () => pool[Math.floor(rand() * pool.length)]
         : () => 100 + rand() * 40;
+
+      // The `ownShare > 0` test short-circuits, so a week drawing purely from
+      // the league pool consumes no extra randomness and stays reproducible.
+      const draw = (id) => {
+        const own = ownPool[id];
+        return ownShare > 0 && own.length && rand() < ownShare
+          ? own[Math.floor(rand() * own.length)]
+          : leagueDraw();
+      };
 
       for (let iter = 0; iter < ODDS_ITERATIONS; iter++) {
         const sim = {};
@@ -4560,7 +4587,7 @@
         TEAM_IDS.forEach((a) => { h2h[a] = Object.assign({}, baseH2H[a]); });
 
         remaining.forEach(([a, b]) => {
-          const sa = draw(), sb = draw();
+          const sa = draw(a), sb = draw(b);
           sim[a].pf += sa; sim[b].pf += sb;
           const [win, lose] = sa >= sb ? [a, b] : [b, a];
           sim[win].wins += 1; sim[lose].losses += 1;
@@ -4598,6 +4625,16 @@
       });
       oddsCache[week] = out;
       return out;
+    }
+
+    /* The header has to say what the numbers rest on, because it changes as
+       the season goes: a coin flip at the start, each team's own scoring by
+       week 13, and a stated mix in between. */
+    function oddsBasis(week) {
+      const share = ownFormWeight(week);
+      if (share <= 0) return "Every remaining game a coin flip";
+      if (share >= 1) return "Remaining games from each team's own scoring";
+      return `${Math.round(share * 100)}% each team's own scoring`;
     }
 
     // "94%", "<1%", ">99%" — a bare 0 or 100 overstates what a simulation knows.
@@ -4659,7 +4696,7 @@
       };
 
       return `<article class="card">
-        ${cardHead("Playoff Odds", "%", `Every remaining game a coin flip`)}
+        ${cardHead("Playoff Odds", "%", oddsBasis(week))}
         <div class="odds-legend">
           <span class="legend-key"><span class="odds-key s-bye"></span>First-round bye</span>
           <span class="legend-key"><span class="odds-key s-in"></span>Playoffs, no bye</span>
