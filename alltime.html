@@ -95,7 +95,7 @@
       display: grid;
       place-items: center;
       border-radius: 10px 10px 13px 13px;
-      background: linear-gradient(145deg, #1a395b, #0d1d30);
+      background: #132b45;
       color: #fff;
       box-shadow: inset 0 0 0 2px rgba(255,255,255,.13);
       font-size: 13px;
@@ -144,9 +144,7 @@
     .hero {
       overflow: hidden;
       background:
-        radial-gradient(circle at 82% 5%, rgba(57, 118, 183, .36), transparent 28%),
-        radial-gradient(circle at 9% 110%, rgba(213, 161, 30, .18), transparent 34%),
-        linear-gradient(135deg, #0c1d30, #1d3551);
+        #152941;
       color: #fff;
     }
 
@@ -268,7 +266,7 @@
       justify-content: space-between;
       gap: 14px;
       border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, #fff, #fafbfd);
+      background: #fcfdfe;
     }
 
 
@@ -284,12 +282,12 @@
     }
 
     .champions-card .card-head {
-      background: linear-gradient(180deg, #fffef9, #fff6d7);
+      background: #fffae8;
       border-bottom-color: #eddc9e;
     }
 
     .losers-card .card-head {
-      background: linear-gradient(180deg, #fff, #fff2f1);
+      background: #fff8f8;
       border-bottom-color: #efc7c2;
     }
 
@@ -547,8 +545,7 @@
       overflow: hidden;
       padding: 29px 26px 25px;
       background:
-        radial-gradient(circle at 88% 5%, color-mix(in srgb, var(--team-color) 55%, transparent), transparent 32%),
-        linear-gradient(135deg, #0c1d30, #1a3552);
+        color-mix(in srgb, var(--team-color) 22%, #152941);
       color: #fff;
     }
 
@@ -604,12 +601,12 @@
     }
 
     .achievement-card.gold {
-      background: linear-gradient(145deg, #fffdf4, #fff7d8);
+      background: #fffae6;
       border-color: #ead99a;
     }
 
     .achievement-card.red {
-      background: linear-gradient(145deg, #fff, #fff0ef);
+      background: #fff7f7;
       border-color: #efc2be;
     }
 
@@ -756,7 +753,7 @@
       padding: 10px 16px 10px 12px;
       border-radius: 999px;
       border: 1px solid rgba(242, 169, 31, .45);
-      background: linear-gradient(140deg, rgba(242, 169, 31, .22), rgba(242, 169, 31, .06));
+      background: rgba(242, 169, 31, .14);
       color: #fff;
       text-decoration: none;
       box-shadow: 0 14px 34px -20px rgba(0, 0, 0, .8);
@@ -765,7 +762,7 @@
     .trophy-room-link:hover {
       transform: translateY(-2px);
       border-color: rgba(242, 169, 31, .85);
-      background: linear-gradient(140deg, rgba(242, 169, 31, .34), rgba(242, 169, 31, .12));
+      background: rgba(242, 169, 31, .23);
     }
     .trophy-room-link:active { transform: translateY(0); }
 
@@ -1261,24 +1258,10 @@
     .hero {
       position: relative;
       background:
-        linear-gradient(180deg, transparent 55%, rgba(4,10,18,.32) 100%),
-        radial-gradient(ellipse 620px 320px at 86% -10%, rgba(26, 99, 230, .40), transparent 60%),
-        radial-gradient(ellipse 460px 300px at 6% 118%, rgba(242, 169, 31, .22), transparent 62%),
-        linear-gradient(135deg, #050f1c 0%, #0f2740 55%, #123252 100%);
+        #0f2740;
     }
 
-    /* Foil-style gradient title on the home hero, with a plain-white fallback
-       for browsers without background-clip: text support. */
     .home-hero h1 { color: #fff; }
-    @supports (background-clip: text) or (-webkit-background-clip: text) {
-      .home-hero h1 {
-        background: linear-gradient(90deg, #ffffff 15%, #cfe0fb 55%, #ffe3a3 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-      }
-    }
 
     /* Topbar gets a live gradient underline instead of a flat hairline */
     .topbar { border-bottom: none; }
@@ -1286,7 +1269,7 @@
       content: "";
       display: block;
       height: 2px;
-      background: linear-gradient(90deg, var(--blue) 0%, var(--gold) 50%, var(--red) 100%);
+      background: var(--blue);
       opacity: .85;
     }
 
@@ -1307,10 +1290,7 @@
     /* Layered light mesh gives the page real depth instead of a flat wash */
     body {
       background:
-        radial-gradient(1100px 520px at 84% -8%, rgba(26,99,230,.09), transparent 60%),
-        radial-gradient(880px 460px at 2% 4%, rgba(242,169,31,.07), transparent 58%),
-        radial-gradient(820px 640px at 50% 122%, rgba(26,99,230,.06), transparent 62%),
-        linear-gradient(180deg, #f3f6fb 0%, #eaeff6 46%, #f3f6fb 100%);
+        #f0f4f9;
     }
 
     /* Premium card depth: crisp top highlight, soft contact + ambient shadow */
@@ -1331,16 +1311,16 @@
       position: absolute;
       left: 0; right: 0; bottom: -1px;
       height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(26,99,230,.4) 22%, rgba(242,169,31,.48) 50%, rgba(220,47,47,.35) 78%, transparent);
+      background: rgba(26,99,230,.35);
       opacity: .7;
     }
     /* Champions header leans gold, losers header leans red */
     .champions-card .card-head::after {
-      background: linear-gradient(90deg, transparent, rgba(242,169,31,.65) 50%, transparent);
+      background: rgba(242,169,31,.55);
       opacity: .85;
     }
     .losers-card .card-head::after {
-      background: linear-gradient(90deg, transparent, rgba(220,47,47,.5) 50%, transparent);
+      background: rgba(220,47,47,.45);
     }
 
     /* Head icons feel like embossed tokens */
@@ -1352,16 +1332,16 @@
 
     /* Table: brighter header, gradient row hover with a leading accent bar */
     th {
-      background: linear-gradient(180deg, #fbfcfe, #f2f6fb);
+      background: #f6f9fc;
     }
     tbody tr { transition: background .18s ease, box-shadow .18s ease; }
     tbody tr:hover {
-      background: linear-gradient(90deg, rgba(26,99,230,.07), rgba(26,99,230,.02) 55%, transparent);
+      background: rgba(26,99,230,.05);
       box-shadow: inset 3px 0 0 rgba(26,99,230,.6);
     }
     /* In the champions leaderboard the accent bar reads gold */
     .champions-card tbody tr:hover {
-      background: linear-gradient(90deg, rgba(242,169,31,.12), rgba(242,169,31,.03) 55%, transparent);
+      background: rgba(242,169,31,.08);
       box-shadow: inset 3px 0 0 var(--gold);
     }
 
@@ -1369,7 +1349,7 @@
     .home-year-count {
       position: relative;
       overflow: hidden;
-      background: linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+      background: rgba(255,255,255,.10);
       border-color: rgba(255,255,255,.22);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 18px 40px -22px rgba(0,0,0,.6);
     }
@@ -1378,7 +1358,6 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.3) 50%, transparent 60%);
         background-size: 220% 100%;
         background-position: -120% 0;
         animation: v4Sheen 6.5s ease-in-out infinite;
@@ -1400,7 +1379,6 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(120deg, transparent 42%, rgba(255,225,150,.16) 50%, transparent 58%);
         background-size: 240% 100%;
         background-position: -130% 0;
         animation: v4Sheen 8s ease-in-out infinite;
@@ -1418,9 +1396,6 @@
         inset: -38% 0;
         z-index: 0;
         pointer-events: none;
-        background:
-          radial-gradient(closest-side, rgba(26,99,230,.35), transparent),
-          radial-gradient(closest-side, rgba(242,169,31,.22), transparent);
         background-size: 55% 70%, 45% 60%;
         background-position: 8% 12%, 92% 88%;
         background-repeat: no-repeat;
@@ -1456,7 +1431,7 @@
       height: 48px;
       position: relative;
       border-radius: 0;
-      background: linear-gradient(145deg, #fff 0%, #dce6f3 100%);
+      background: #edf2f9;
       color: var(--navy);
       clip-path: polygon(50% 0, 92% 16%, 86% 78%, 50% 100%, 14% 78%, 8% 16%);
       box-shadow: inset 0 0 0 3px rgba(215, 25, 32, .55);
