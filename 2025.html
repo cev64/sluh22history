@@ -373,7 +373,21 @@
       font-weight: 900;
     }
 
-    .card-head span { color: var(--muted); font-size: 12px; }
+    .chip-icon {
+      width: 16px;
+      height: 16px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* An icon needs no side padding; a bare letter or number still does. */
+    .division-chip:has(.chip-icon) { padding: 0; width: 28px; }
+
+    .card-head > span { color: var(--muted); font-size: 12px; }
 
     .table-wrap { overflow-x: auto; }
 
@@ -1748,34 +1762,78 @@
       position: relative;
       overflow: hidden;
       min-width: 0;
-      padding: 16px;
+      padding: 14px 16px 14px 19px;
       border: 1px solid rgba(255,255,255,.17);
-      border-radius: 18px;
+      border-radius: 16px;
       background: rgba(255,255,255,.10);
       box-shadow: 0 18px 45px rgba(0,0,0,.22);
+
+      /* The crest sits to the left of both identity rows and the result runs
+         underneath them, so the card reads as two bands rather than three
+         stacked strips with air between each. */
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 13px;
+      align-items: center;
     }
 
-
-    .champion-outcome::after {
+    /* The whole card takes the colour of its outcome rather than wearing a
+       stripe, and the trophy or the turd it already carries in the label is
+       blown up behind the score as a watermark. Which card is which reads
+       from across the room; the emoji does the work no label needs to. */
+    .champion-outcome {
+      --outcome-accent: #f6b73c;
+      background: rgba(246,183,60,.10);
+      border-color: rgba(246,183,60,.34);
     }
 
-    .loser-outcome::after {
+    .loser-outcome {
+      --outcome-accent: #c9423c;
+      background: rgba(201,66,60,.11);
+      border-color: rgba(201,66,60,.32);
+    }
+
+    .outcome-card::after {
+      content: "🏆";
+      position: absolute;
+      right: -12px;
+      bottom: -26px;
+      font-size: 94px;
+      line-height: 1;
+      opacity: .09;
+      transform: rotate(-12deg);
+      pointer-events: none;
+    }
+
+    .loser-outcome::after { content: "💩"; }
+
+    /* Hands the crest and the name block straight to the card's own grid. */
+    .outcome-team { display: contents; }
+
+    .outcome-team .team-badge {
+      grid-area: 1 / 1 / 3 / 2;
+      align-self: center;
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      font-size: 25px;
+      box-shadow: 0 0 0 2px var(--outcome-accent);
     }
 
     .outcome-label {
-      position: relative;
-      z-index: 1;
+      grid-area: 1 / 2 / 2 / 3;
+      align-self: end;
       display: inline-flex;
       align-items: center;
       gap: 5px;
       width: fit-content;
-      padding: 4px 7px;
+      padding: 3px 8px;
       border-radius: 999px;
       color: #3b2a05;
       background: #ffe6a6;
       font-size: 8px;
       font-weight: 1000;
-      letter-spacing: .11em;
+      letter-spacing: .12em;
       line-height: 1;
       text-transform: uppercase;
     }
@@ -1785,68 +1843,66 @@
       background: #c9423c;
     }
 
-    .outcome-team {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      margin: 13px 0;
-    }
-
-    .outcome-team .team-badge {
-      width: 46px;
-      height: 46px;
-      flex: 0 0 auto;
-      border-radius: 12px;
-      font-size: 22px;
+    .outcome-team > div {
+      grid-area: 2 / 2 / 3 / 3;
+      align-self: start;
+      min-width: 0;
+      margin-top: 5px;
     }
 
     .outcome-team h2 {
       margin: 0;
-      font-size: 20px;
-      line-height: 1.08;
+      font-size: 21px;
+      line-height: 1.05;
       letter-spacing: -.03em;
+      overflow-wrap: anywhere;
     }
 
     .outcome-team span {
       display: block;
-      margin-top: 4px;
+      margin-top: 3px;
       color: #bfd0df;
-      font-size: 10px;
+      font-size: 10.5px;
     }
 
+    /* The two numbers sit next to each other so the result reads as one
+       scoreline, with the margin pinned to the far end. */
     .outcome-score {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-      align-items: center;
+      grid-area: 3 / 1 / 4 / 3;
+      display: flex;
+      align-items: flex-start;
       gap: 9px;
-      padding-top: 12px;
+      margin-top: 12px;
+      padding-top: 11px;
       border-top: 1px solid rgba(255,255,255,.14);
     }
 
     .outcome-score-side {
       min-width: 0;
+      flex: 0 1 auto;
     }
 
-    .outcome-score-side:last-child {
-      text-align: right;
+    .outcome-score-side:last-child small {
+      color: #93a6b8;
+    }
+
+    .outcome-score-side:last-child strong {
+      color: #c8d6e2;
     }
 
     .outcome-score strong {
       display: block;
       color: #fff;
-      font-size: 19px;
+      font-size: 23px;
       line-height: 1;
+      letter-spacing: -.02em;
       font-variant-numeric: tabular-nums;
     }
 
     .outcome-score small {
       display: block;
       overflow: hidden;
-      margin-top: 5px;
+      margin-top: 4px;
       color: #afc0d0;
       font-size: 8.5px;
       line-height: 1.15;
@@ -1855,12 +1911,45 @@
     }
 
     .outcome-status {
-      color: #8298ad;
-      font-size: 8px;
+      flex: 0 0 auto;
+      margin-top: 6px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.11);
+      color: #9fb2c4;
+      font-size: 7px;
       font-weight: 1000;
-      letter-spacing: .08em;
+      letter-spacing: .09em;
       text-align: center;
       white-space: nowrap;
+    }
+
+    /* How decisive it was, with the arrow pointing from the subject's side. */
+    .outcome-margin {
+      flex: 0 0 auto;
+      margin-left: auto;
+      align-self: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      color: var(--outcome-accent);
+      font-size: 11.5px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .outcome-margin svg {
+      width: 11px;
+      height: 11px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     @media (max-width: 700px) {
@@ -1871,25 +1960,26 @@
       }
 
       .outcome-card {
-        padding: 12px;
+        padding: 12px 13px 12px 16px;
         border-radius: 14px;
+        column-gap: 10px;
       }
 
       .outcome-label {
         padding: 3px 6px;
         font-size: 7px;
-      }
-
-      .outcome-team {
-        gap: 8px;
-        margin: 9px 0;
+        letter-spacing: .1em;
       }
 
       .outcome-team .team-badge {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        font-size: 18px;
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        font-size: 20px;
+      }
+
+      .outcome-team > div {
+        margin-top: 4px;
       }
 
       .outcome-team h2 {
@@ -1897,25 +1987,37 @@
       }
 
       .outcome-team span {
-        margin-top: 3px;
-        font-size: 8px;
+        margin-top: 2px;
+        font-size: 9px;
       }
 
       .outcome-score {
-        gap: 6px;
+        gap: 7px;
+        margin-top: 10px;
         padding-top: 9px;
       }
 
+      .outcome-margin {
+        padding: 3px 7px;
+        font-size: 10px;
+      }
+
+      .outcome-card::after {
+        font-size: 72px;
+        bottom: -20px;
+      }
+
       .outcome-score strong {
-        font-size: 16px;
+        font-size: 17px;
       }
 
       .outcome-score small {
         margin-top: 3px;
-        font-size: 7px;
+        font-size: 7.5px;
       }
 
       .outcome-status {
+        padding: 2px 5px;
         font-size: 6.5px;
       }
     }
@@ -2027,22 +2129,6 @@
     }
     .champion-outcome { border-color: rgba(246,183,60,.42); }
 
-    @media (prefers-reduced-motion: no-preference) {
-      .champion-outcome::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-size: 220% 100%;
-        background-position: -120% 0;
-        animation: v4Sheen 6s ease-in-out infinite;
-        pointer-events: none;
-        z-index: 0;
-      }
-    }
-    @keyframes v4Sheen {
-      0%, 15% { background-position: -120% 0; }
-      55%, 100% { background-position: 140% 0; }
-    }
 
     /* Animated aurora drift behind the hero content (motion-safe only) */
     @media (prefers-reduced-motion: no-preference) {
@@ -3253,7 +3339,7 @@
             <strong>131.36</strong>
             <small>The Left Tacklers</small>
           </div>
-        </div>
+        <span class="outcome-margin"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3.6M3.8 7.8 8 3.6l4.2 4.2"/></svg>6.26</span></div>
       </article>
       <article class="outcome-card loser-outcome">
         <div class="outcome-label">💩 2025 Last Place</div>
@@ -3274,7 +3360,7 @@
             <strong>139.02</strong>
             <small>Jared's Pack Attack</small>
           </div>
-        </div>
+        <span class="outcome-margin"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v9.4M3.8 8.2 8 12.4l4.2-4.2"/></svg>17.08</span></div>
       </article>
     </div>
   </section>
@@ -3307,7 +3393,7 @@
     <section id="final" class="view-panel" role="tabpanel">
       <div class="card final-card">
         <div class="card-head">
-          <h3><span class="division-chip">F</span> Final Standings</h3>
+          <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/></svg></span> Final Standings</h3>
           <span>Postseason finish · click a column to sort</span>
           <div class="mobile-sort-control">
             <label for="mobileFinalSort">Sort</label>
@@ -3736,7 +3822,7 @@
         return `
         <article class="card">
           <div class="card-head">
-            <h3><span class="division-chip">${division.charAt(0)}</span>${division}</h3>
+            <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4 3.4 4.4v3.9c0 3 2 4.7 4.6 5.6 2.6-.9 4.6-2.6 4.6-5.6V4.4z"/></svg></span>${division}</h3>
           </div>
           <div class="table-wrap">
             <table>
@@ -4851,7 +4937,7 @@
       };
 
       return `<article class="card">
-        ${cardHead("Playoff Odds", "%", oddsBasis(week))}
+        ${cardHead("Playoff Odds", "odds", oddsBasis(week))}
         <div class="odds-legend">
           <span class="legend-key"><span class="odds-key s-bye"></span>First-round bye</span>
           <span class="legend-key"><span class="odds-key s-in"></span>Playoffs, no bye</span>
@@ -4897,9 +4983,32 @@
       return `<span class="mini-badge" style="--team-color:${t.color}">${teamMark(t)}</span>`;
     }
 
+
+    /* Card icons. Each names what its card is showing, so a header reads
+       without needing a key. `cardHead` falls back to plain text for anything
+       not listed, which is how a division initial still lands in the chip. */
+    const CARD_ICONS = {
+      standings: '<path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/>',
+      schedule:  '<rect x="2.6" y="3.4" width="10.8" height="10" rx="1.6"/><path d="M2.6 6.6h10.8M5.6 2.1v2.6M10.4 2.1v2.6"/>',
+      rulebook:  '<path d="M8 4.6S6.5 3.1 3 3.1v9c3.5 0 5 1.5 5 1.5s1.5-1.5 5-1.5v-9c-3.5 0-5 1.5-5 1.5z"/><path d="M8 4.6v9"/>',
+      odds:      '<circle cx="8" cy="8" r="5.4"/><path d="M8 2.6V8h5.4"/>',
+      toilet:    '<path d="M8 2.4v7.2M5.1 6.7 8 9.6l2.9-2.9M3.2 13.2h9.6"/>',
+      notes:     '<rect x="3.1" y="2.5" width="9.8" height="11" rx="1.6"/><path d="M5.6 6h4.8M5.6 8.4h4.8M5.6 10.8h2.8"/>',
+      bracket:   '<path d="M2.6 3.6h3.3v3.9h3.6M2.6 12.4h3.3V8.5M9.5 8h3.9"/>',
+      versus:    '<path d="M2.6 4.6 5.5 8l-2.9 3.4M13.4 4.6 10.5 8l2.9 3.4M8 2.9v10.2"/>',
+      cross:     '<path d="M2.8 5.6h8.1L8.8 3.5M13.2 10.4H5.1l2.1 2.1"/>',
+      document:  '<path d="M9.2 2.6H5.1a1.6 1.6 0 0 0-1.6 1.6v7.6a1.6 1.6 0 0 0 1.6 1.6h5.8a1.6 1.6 0 0 0 1.6-1.6V6z"/><path d="M9.2 2.6V6h3.3"/>',
+      shield:    '<path d="M8 2.4 3.4 4.4v3.9c0 3 2 4.7 4.6 5.6 2.6-.9 4.6-2.6 4.6-5.6V4.4z"/>',
+      recap:     '<path d="M13.2 9.6a1.6 1.6 0 0 1-1.6 1.6H6.2l-3.4 2.6V4.2a1.6 1.6 0 0 1 1.6-1.6h7.2a1.6 1.6 0 0 1 1.6 1.6z"/>'
+    };
+
+    const chipMark = (chip) => (CARD_ICONS[chip]
+      ? `<svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true">${CARD_ICONS[chip]}</svg>`
+      : chip);
+
     function cardHead(title, chip, meta) {
       return `<div class="card-head">
-        <h3>${chip ? `<span class="division-chip">${chip}</span>` : ""}${title}</h3>
+        <h3>${chip ? `<span class="division-chip">${chipMark(chip)}</span>` : ""}${title}</h3>
         ${meta ? `<span>${meta}</span>` : ""}
       </div>`;
     }
@@ -5106,7 +5215,7 @@
             ${weekResults[week].map(([a, as, b, bs]) => gameCard(week, a, as, b, bs)).join("")}
           </div>
           <article class="card">
-            ${cardHead(`Week ${week} Notes`, "W", "Scoring extremes")}
+            ${cardHead(`Week ${week} Notes`, "notes", "Scoring extremes")}
             ${weekSuperlatives(week)}
           </article>
         </div>`;
@@ -5134,7 +5243,7 @@
         const ids = picture.divisions[division];
         return `
         <article class="card">
-          ${cardHead(division, division.charAt(0))}
+          ${cardHead(division, "shield")}
           <div class="table-wrap">
             <table>
               <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
@@ -5209,7 +5318,7 @@
       const BRACKET_TITLE = final ? "Playoff Bracket" : "Projected Bracket";
       const bracketCard = `
         <article class="card">
-          ${cardHead(BRACKET_TITLE, "B", "Weeks 15–17")}
+          ${cardHead(BRACKET_TITLE, "bracket", "Weeks 15–17")}
           <div class="bracket-rounds">
             <div class="bracket-round">
               <div class="round-label">Round 1<span>Week 15</span></div>
@@ -5243,7 +5352,7 @@
       const toilet = picture.toiletSeeds;
       const toiletCard = `
         <article class="card">
-          ${cardHead("Toilet Bowl Watch", "T", "Seeds 7–10 · loser advances")}
+          ${cardHead("Toilet Bowl Watch", "toilet", "Seeds 7–10 · loser advances")}
           <div class="seed-list">${toilet.map((id) => seedRow(picture, id)).join("")}</div>
           <div class="projected-matchups">
             ${projectedGame("Game 1 · Week 15", "#7", toilet[0], "#8", toilet[1], stats)}
@@ -5543,7 +5652,7 @@
 
     function newsletterCard(week) {
       return `<article class="card nl-card">
-        ${cardHead("Weekly Newsletter", "PDF", "One-page recap")}
+        ${cardHead("Weekly Newsletter", "document", "One-page recap")}
         <div class="nl-body">
           <p class="nl-copy">Week ${week} on one printable sheet: every result, the standings and seeding as they stood, and the box scores behind them.</p>
           <a class="nl-download" href="${newsletterUrl(week)}" download>Download PDF</a>
@@ -5580,7 +5689,7 @@
       }
       panel.innerHTML = `
         <article class="card summary-card">
-          ${cardHead(`Week ${week} Recap`, String(week), week === rivalryWeek ? "Rivalry Week" : "League recap")}
+          ${cardHead(`Week ${week} Recap`, "recap", week === rivalryWeek ? "Rivalry Week" : "League recap")}
           <div class="summary-meta">${summary.headline}</div>
           <ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>
         </article>`;
