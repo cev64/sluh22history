@@ -387,7 +387,7 @@
     /* An icon needs no side padding; a bare letter or number still does. */
     .division-chip:has(.chip-icon) { padding: 0; width: 28px; }
 
-    .card-head span { color: var(--muted); font-size: 12px; }
+    .card-head > span { color: var(--muted); font-size: 12px; }
 
     .table-wrap { overflow-x: auto; }
 
@@ -1777,20 +1777,35 @@
       align-items: center;
     }
 
-    /* The rail carries the outcome on its own: gold for the title, red for
-       last place, readable before a word has been read. */
-    .outcome-card::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--outcome-accent);
+    /* The whole card takes the colour of its outcome rather than wearing a
+       stripe, and the trophy or the turd it already carries in the label is
+       blown up behind the score as a watermark. Which card is which reads
+       from across the room; the emoji does the work no label needs to. */
+    .champion-outcome {
+      --outcome-accent: #f6b73c;
+      background: rgba(246,183,60,.10);
+      border-color: rgba(246,183,60,.34);
     }
 
-    .champion-outcome { --outcome-accent: #f6b73c; }
-    .loser-outcome { --outcome-accent: #c9423c; }
+    .loser-outcome {
+      --outcome-accent: #c9423c;
+      background: rgba(201,66,60,.11);
+      border-color: rgba(201,66,60,.32);
+    }
+
+    .outcome-card::after {
+      content: "🏆";
+      position: absolute;
+      right: -12px;
+      bottom: -26px;
+      font-size: 94px;
+      line-height: 1;
+      opacity: .09;
+      transform: rotate(-12deg);
+      pointer-events: none;
+    }
+
+    .loser-outcome::after { content: "💩"; }
 
     /* Hands the crest and the name block straight to the card's own grid. */
     .outcome-team { display: contents; }
@@ -1850,12 +1865,13 @@
       font-size: 10.5px;
     }
 
+    /* The two numbers sit next to each other so the result reads as one
+       scoreline, with the margin pinned to the far end. */
     .outcome-score {
       grid-area: 3 / 1 / 4 / 3;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-      align-items: center;
-      gap: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
       margin-top: 12px;
       padding-top: 11px;
       border-top: 1px solid rgba(255,255,255,.14);
@@ -1863,10 +1879,15 @@
 
     .outcome-score-side {
       min-width: 0;
+      flex: 0 1 auto;
     }
 
-    .outcome-score-side:last-child {
-      text-align: right;
+    .outcome-score-side:last-child small {
+      color: #93a6b8;
+    }
+
+    .outcome-score-side:last-child strong {
+      color: #c8d6e2;
     }
 
     .outcome-score strong {
@@ -1890,15 +1911,45 @@
     }
 
     .outcome-status {
+      flex: 0 0 auto;
+      margin-top: 6px;
       padding: 3px 7px;
       border-radius: 999px;
-      background: rgba(255,255,255,.09);
-      color: #8298ad;
-      font-size: 7.5px;
+      background: rgba(255,255,255,.11);
+      color: #9fb2c4;
+      font-size: 7px;
       font-weight: 1000;
       letter-spacing: .09em;
       text-align: center;
       white-space: nowrap;
+    }
+
+    /* How decisive it was, with the arrow pointing from the subject's side. */
+    .outcome-margin {
+      flex: 0 0 auto;
+      margin-left: auto;
+      align-self: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      color: var(--outcome-accent);
+      font-size: 11.5px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .outcome-margin svg {
+      width: 11px;
+      height: 11px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     @media (max-width: 700px) {
@@ -1941,9 +1992,19 @@
       }
 
       .outcome-score {
-        gap: 6px;
+        gap: 7px;
         margin-top: 10px;
         padding-top: 9px;
+      }
+
+      .outcome-margin {
+        padding: 3px 7px;
+        font-size: 10px;
+      }
+
+      .outcome-card::after {
+        font-size: 72px;
+        bottom: -20px;
       }
 
       .outcome-score strong {
@@ -3278,7 +3339,7 @@
             <strong>131.36</strong>
             <small>The Left Tacklers</small>
           </div>
-        </div>
+        <span class="outcome-margin"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3.6M3.8 7.8 8 3.6l4.2 4.2"/></svg>6.26</span></div>
       </article>
       <article class="outcome-card loser-outcome">
         <div class="outcome-label">💩 2025 Last Place</div>
@@ -3299,7 +3360,7 @@
             <strong>139.02</strong>
             <small>Jared's Pack Attack</small>
           </div>
-        </div>
+        <span class="outcome-margin"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v9.4M3.8 8.2 8 12.4l4.2-4.2"/></svg>17.08</span></div>
       </article>
     </div>
   </section>
