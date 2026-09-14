@@ -69,7 +69,7 @@
     }
 
     .topbar-inner {
-      min-height: 68px;
+      min-height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -102,17 +102,17 @@
     .brand-copy { display: grid; line-height: 1.05; }
     .brand-kicker {
       color: #738194;
-      font-size: 9px;
-      font-weight: 900;
+      font-size: 10px;
+      font-weight: 800;
       letter-spacing: .16em;
       text-transform: uppercase;
     }
     .brand-title {
       margin-top: 4px;
       color: var(--ink);
-      font-size: 18px;
-      font-weight: 950;
-      letter-spacing: -.025em;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -.02em;
     }
 
     .season-control {
@@ -145,27 +145,29 @@
     }
 
     .hero-inner {
-      padding: 50px 0 44px;
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(340px, .65fr);
-      gap: 36px;
-      align-items: end;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: stretch;
+      padding: 26px 20px 30px;
+      max-width: 1180px;
+      margin: 0 auto;
     }
 
     .eyebrow {
       color: #a8c9ed;
       font-size: 10px;
-      font-weight: 950;
-      letter-spacing: .19em;
+      font-weight: 800;
+      letter-spacing: .22em;
       text-transform: uppercase;
     }
 
     .hero h1 {
       max-width: 760px;
-      margin: 10px 0 13px;
-      font-size: clamp(46px, 7vw, 82px);
-      line-height: .93;
-      letter-spacing: -.06em;
+      margin: 8px 0 13px;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.04;
+      letter-spacing: -.02em;
     }
 
     .hero p {
@@ -750,15 +752,15 @@
     /* Compact all-time home header */
     .home-hero .hero-inner {
       min-height: 0;
-      padding: 28px 0;
+      padding: 26px 20px 30px;
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
     }
 
     .home-hero h1 {
       margin: 5px 0 0;
-      font-size: clamp(42px, 6vw, 66px);
-      line-height: .92;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.04;
     }
 
     /* The way into the 3D hall. It sits under the hero title rather than in the
@@ -882,10 +884,21 @@
       color: var(--blue-2);
     }
 
+    /* A short run of yard ticks closes the page out. */
+    .footer::before {
+      content: "";
+      display: block;
+      width: min(360px, 52%);
+      height: 7px;
+      margin: 0 auto 15px;
+      background: repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 15px);
+      opacity: .45;
+    }
+
     .footer {
-      padding: 4px 16px 34px;
-      color: #758394;
-      font-size: 9px;
+      padding: 26px 16px 34px;
+      color: #718092;
+      font-size: 11px;
       text-align: center;
     }
 
@@ -1049,7 +1062,7 @@
 
       .home-hero h1 {
         margin-top: 4px;
-        font-size: 34px;
+        font-size: 30px;
       }
 
       .trophy-room-link {
@@ -1268,14 +1281,13 @@
     }
 
     .hero h1 { font-weight: 700; }
-    .brand-title { font-weight: 700; letter-spacing: -.01em; }
+    .brand-title { font-weight: 800; letter-spacing: -.02em; }
 
     /* Richer hero backdrop with layered glow (vignette folded into the
        background stack itself so it stays behind the hero-inner content). */
     .hero {
       position: relative;
-      background:
-        #102b43;
+      border-bottom: 4px solid var(--red);
     }
 
     .home-hero h1 { color: #fff; }
@@ -1296,8 +1308,12 @@
        (purely visual — all-time tables, champions and copy are unchanged) --- */
 
     /* Layered light mesh gives the page real depth instead of a flat wash */
+    /* The field carries onto the page itself, at a sixth the strength it has
+       on the hero — enough to give the white space a grain, not a pattern. */
     body {
       background:
+        repeating-linear-gradient(90deg, transparent 0 149px, rgba(11,23,38,.045) 149px 150px),
+        repeating-linear-gradient(90deg, transparent 0 29px, rgba(11,23,38,.018) 29px 30px),
         #f0f4f9;
     }
 
@@ -1395,28 +1411,35 @@
       }
     }
 
-    /* Animated aurora drift behind the hero content (motion-safe only) */
-    @media (prefers-reduced-motion: no-preference) {
-      .hero { overflow: hidden; }
-      .hero::before {
-        content: "";
-        position: absolute;
-        inset: -38% 0;
-        z-index: 0;
-        pointer-events: none;
-        background-size: 55% 70%, 45% 60%;
-        background-position: 8% 12%, 92% 88%;
-        background-repeat: no-repeat;
-        filter: blur(14px);
-        opacity: .75;
-        animation: v4Aurora 18s ease-in-out infinite alternate;
-      }
-      .hero-inner { position: relative; z-index: 1; }
+    /* The hero is the field: yard lines every thirty pixels, a heavier one
+       every fifth, and two rows of hash marks across the middle. All of it
+       sits at an alpha you notice only once you look for it. */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.075) 28px 30px) 0 34% / 100% 7px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.075) 28px 30px) 0 68% / 100% 7px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 149px, rgba(255,255,255,.055) 149px 150px),
+        repeating-linear-gradient(90deg, transparent 0 29px, rgba(255,255,255,.022) 29px 30px),
+        rgba(7, 24, 39, .98);
     }
-    @keyframes v4Aurora {
-      0%   { background-position: 88% 88%, 10% 14%; }
-      100% { background-position: 74% 70%, 26% 30%; }
+
+    /* A ball resting off the right edge of the field, mostly out of frame. */
+    .hero::before {
+      content: "🏈";
+      position: absolute;
+      right: -26px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-24deg);
+      font-size: 150px;
+      line-height: 1;
+      opacity: .055;
+      pointer-events: none;
+      z-index: 0;
     }
+
+    .hero-inner { position: relative; z-index: 1; }
 
     /* Small cards lift on hover for a tactile, modern feel */
     .achievement-card {
@@ -1443,7 +1466,7 @@
       color: var(--navy);
       clip-path: polygon(50% 0, 92% 16%, 86% 78%, 50% 100%, 14% 78%, 8% 16%);
       box-shadow: inset 0 0 0 3px rgba(215, 25, 32, .55);
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 900;
       letter-spacing: -.05em;
     }
@@ -1459,6 +1482,7 @@
       border: 1px solid rgba(255,255,255,.16);
       border-radius: 10px;
       padding: 10px 38px 10px 14px;
+      font-size: 13px;
       font-weight: 800;
       outline: none;
       background-image:
