@@ -4209,8 +4209,7 @@
             </div>
           </article>
           ${standingsLegend(picture)}
-        </div>
-        <div class="source-note">2021 seeded off one league-wide order — record, then points for, with no head-to-head tiebreak. Divisions only decided the two champions, who took the #1 and #2 seeds. Records reflect Weeks 1–${week}.</div>`;
+        </div>`;
     }
 
     /* =================================================================
@@ -4310,10 +4309,7 @@
           ${bracketCard}
           ${flipNote}
           ${toiletCard}
-        </div>
-        <div class="source-note">${final
-          ? "Week 14 seeding — this is the bracket the league actually played."
-          : "The two division champions take #1 and #2; the next six in the league order fill #3 through #8."}</div>`;
+        </div>`;
     }
 
     /* Tiebreaker popover ------------------------------------------- */
@@ -4455,8 +4451,7 @@
             ${cardHead(`Week ${week} Notes`, "W", "Scoring extremes")}
             ${weekSuperlatives(week)}
           </article>
-        </div>
-        <div class="source-note">Week ${week} of the audited 2021 regular season.</div>`;
+        </div>`;
     }
 
     /* =================================================================
@@ -4476,8 +4471,7 @@
           ${cardHead(`Week ${week} Recap`, String(week), week === rivalryWeek ? "Rivalry Week" : "League recap")}
           <div class="summary-meta">${summary.headline}</div>
           <ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>
-        </article>
-        <div class="source-note">Recaps are written from the audited weekly scores.</div>`;
+        </article>`;
     }
 
     /* =================================================================
