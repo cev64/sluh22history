@@ -19,7 +19,7 @@
       check is what keeps the mapping honest if the export changes.
 
    2. Teams are identified by an ESPN team id, and team names change during a
-      season. ESPN_TEAM (in raw.mjs) maps id to this repo's permanent team id;
+      season. espnTeams(season) (in raw.mjs) maps id to this repo's team id;
       nothing keys off the name.
 
    Nothing is written unless the week validates against the season page: same
@@ -30,23 +30,37 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadSeason } from '../newsletter/season.mjs';
-import { readRaw, ESPN_TEAM } from './raw.mjs';
+import { readRaw, espnTeams } from './raw.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const SEASON = Number(arg('--season', 2025));
 const IN_DIR = arg('--in', null);
 const ONLY_WEEK = arg('--week', null) ? Number(arg('--week')) : null;
+
+/* A starter list that does not add up to its own team's score normally fails
+   the run, because a box score contradicting the score above it is the one
+   thing this importer exists to prevent. `--allow-sum-gap` downgrades just
+   that one check to a warning, for the case where the export itself is short:
+   ESPN restating a team total without restating the player rows behind it.
+   Nothing else relaxes - a pairing the page does not have, a score that
+   disagrees with the page, an unknown team, an unmapped position all still
+   stop the run. Used for 2023 week 14, where two lineups come up 2.00 and
+   3.30 shy of totals the page and the export agree on. */
+const ALLOW_SUM_GAP = process.argv.includes('--allow-sum-gap');
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 if (!IN_DIR) throw new Error('--in <dir> is required: the folder holding the raw weekly export files');
 
-/* Raw `position` value -> the position it actually is. See the note above. */
-const POSITION = { TQB: 'QB', RB: 'RB', 'RB/WR': 'WR', WR: 'TE', 'D/ST': 'DST' };
+/* Raw `position` value -> the position it actually is. See the note above.
+   `WR/TE` is the kicker: every starter carrying it played the K slot, in both
+   2021 and 2023. The league dropped the kicker after 2023, so the seasons from
+   2024 on simply never produce one. */
+const POSITION = { TQB: 'QB', RB: 'RB', 'RB/WR': 'WR', WR: 'TE', 'WR/TE': 'K', 'D/ST': 'DST' };
 
 /* A starter's slot proves its position, except FLEX which accepts several. */
-const SLOT_IMPLIES = { QB: 'QB', RB: 'RB', WR: 'WR', TE: 'TE', 'D/ST': 'DST' };
+const SLOT_IMPLIES = { QB: 'QB', RB: 'RB', WR: 'WR', TE: 'TE', K: 'K', 'D/ST': 'DST' };
 
-const SLOT_ORDER = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'D/ST'];
+const SLOT_ORDER = ['QB', 'RB', 'WR', 'TE', 'FLEX', 'K', 'D/ST'];
 
 function normalisePlayer(p) {
   const pos = POSITION[p.position];
@@ -101,12 +115,15 @@ function postseasonWeeks() {
 }
 const POST_WEEKS = postseasonWeeks();
 
+const TEAM_BY_ESPN = espnTeams(SEASON);
 const rawWeeks = readRaw(IN_DIR);
 
 const outDir = path.join(ROOT, 'boxscores', String(SEASON));
 fs.mkdirSync(outDir, { recursive: true });
 
 const problems = [];
+const pending = [];
+const sumGaps = [];
 const written = [];
 let playerCount = 0;
 let crossChecked = 0;
@@ -128,8 +145,8 @@ for (const raw of rawWeeks) {
   const games = [];
   for (const m of raw.matchups) {
     if (!m.home || !m.away) continue;                   // playoff byes carry an empty side
-    const home = ESPN_TEAM[m.home.team_id];
-    const away = ESPN_TEAM[m.away.team_id];
+    const home = TEAM_BY_ESPN[m.home.team_id];
+    const away = TEAM_BY_ESPN[m.away.team_id];
     if (!home || !away) { problems.push(`week ${week}: unknown ESPN team id`); continue; }
 
     const key = [home, away].sort().join('|');
@@ -168,7 +185,9 @@ for (const raw of rawWeeks) {
       }
       const sum = players.filter((p) => p.starter).reduce((t, p) => t + p.pts, 0);
       if (Math.abs(sum - side.score) > 0.02) {
-        problems.push(`week ${week} ${id}: starters sum to ${sum.toFixed(2)}, posted score is ${side.score}`);
+        const note = `week ${week} ${id}: starters sum to ${sum.toFixed(2)}, posted score is ${side.score}`;
+        if (ALLOW_SUM_GAP) sumGaps.push(note);
+        else problems.push(note);
       }
       lineups[id] = orderLineup(players);
       playerCount += players.length;
@@ -182,18 +201,23 @@ for (const raw of rawWeeks) {
     });
   }
 
-  if (games.length) {
-    const out = path.join(outDir, `week-${week}.json`);
-    fs.writeFileSync(out, JSON.stringify({ season: SEASON, week, games }, null, 1) + '\n');
-    written.push(week);
-  }
+  if (games.length) pending.push({ week, games });
 }
 
 if (problems.length) {
   // Refuse the whole run: a partially-correct box score is worse than none,
-  // because everything downstream would present it as audited.
+  // because everything downstream would present it as audited. Weeks are held
+  // in memory until here for that reason — writing them as they validated
+  // meant a failing run still left the good ones on disk under a message
+  // saying nothing had been written.
   for (const p of problems.slice(0, 20)) console.error('  ' + p);
   throw new Error(`${problems.length} validation problem(s) — nothing was written`);
+}
+
+for (const { week, games } of pending) {
+  fs.writeFileSync(path.join(outDir, `week-${week}.json`),
+    JSON.stringify({ season: SEASON, week, games }, null, 1) + '\n');
+  written.push(week);
 }
 
 // The site asks for this to decide which matchups are clickable.
@@ -202,5 +226,11 @@ const have = fs.readdirSync(outDir)
   .filter(Boolean).map((m) => Number(m[1])).sort((a, b) => a - b);
 fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify(have) + '\n');
 
+if (sumGaps.length) {
+  console.error(`  accepted ${sumGaps.length} starter-sum gap(s) under --allow-sum-gap:`);
+  for (const g of sumGaps) console.error('    ' + g);
+}
+
 console.log(JSON.stringify({ season: SEASON, weeks: written.sort((a, b) => a - b), players: playerCount,
-  gamesCheckedAgainstPage: crossChecked, gamesCheckedOnlyBySum: sumOnly, index: have }, null, 2));
+  gamesCheckedAgainstPage: crossChecked, gamesCheckedOnlyBySum: sumOnly,
+  acceptedSumGaps: sumGaps, index: have }, null, 2));

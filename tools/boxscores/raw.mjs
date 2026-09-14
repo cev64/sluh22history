@@ -104,10 +104,33 @@ export function readRaw(target) {
   return weeks;
 }
 
-/* ESPN team id -> this repo's permanent team id. Owners are permanent, team
-   names are not, so the id is the only safe key. Shared with the importer so
-   the two can never drift. */
+/* ESPN team id -> this repo's team id for that season. Owners are permanent,
+   team names are not, so the id is the only safe key.
+
+   The ids themselves hold steady across the league's history, but the team id
+   each one answers to does not: the archive pages key a season by the team as
+   it existed then, so ESPN 1 is `oneen` in 2021, `saint` in 2023 and `game`
+   from 2024 on. 2021 also ran twelve teams, two of which have since left.
+   Shared with the importer so the two can never drift. */
+const ESPN_TEAM_BY_SEASON = {
+  2021: {
+    1: 'oneen', 2: 'kareem', 3: 'hawaii', 4: 'rip', 5: 'left', 6: 'hamilton',
+    7: 'packers', 8: 'skeet', 9: 'beatcev', 10: 'inactive', 11: 'hotrod', 12: 'kroenke',
+  },
+  2023: {
+    1: 'saint', 2: 'kareem', 3: 'hawaii', 4: 'infinity', 5: 'left',
+    6: 'hamilton', 7: 'packers', 8: 'chubbed', 9: 'metcalf', 11: 'freiermuth',
+  },
+  2024: {
+    1: 'game', 2: 'kareem', 3: 'hawaii', 4: 'infinity', 5: 'left',
+    6: 'hamilton', 7: 'jared', 8: 'amon', 9: 'metcalf', 11: 'first',
+  },
+};
+
+/* The present-day roster, used for any season without an entry above. */
 export const ESPN_TEAM = {
   1: 'game', 2: 'kareem', 3: 'hawaii', 4: 'infinity', 5: 'left',
   6: 'hamilton', 7: 'jared', 8: 'laporta', 9: 'roll', 11: 'first',
 };
+
+export const espnTeams = (season) => ESPN_TEAM_BY_SEASON[season] || ESPN_TEAM;

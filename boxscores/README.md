@@ -135,3 +135,16 @@ nothing anywhere keys off a name.
 `D/ST`, `BE`, `IR`); `pos` is what he is. Injured reserve is kept distinct from
 the bench on purpose — an IR player could not have been started, so counting him
 as a bench call would invent a manager's mistake that was never available.
+
+## One known gap
+
+2023 week 14 carries two lineups whose starters do not add up to the score
+above them: The Saint Show is 2.00 short of 109.04, How I Metcalf Your Mother
+3.30 short of 95.44. The page and the league export agree on both team totals,
+so the standings are right and it is the export's own player rows that fall
+short — ESPN restating a total without restating the rows behind it.
+
+The importer fails a run over exactly this, so that week was brought in with
+`--allow-sum-gap`, which downgrades that one check to a warning and leaves
+every other check blocking. Anyone adding up that column will find the gap;
+this is where it is written down.
