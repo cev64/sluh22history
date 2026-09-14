@@ -3603,13 +3603,44 @@
     .odds-pct.settled { color: var(--ink); font-weight: 900; }
     .odds-head .odds-pct { font-size: 10px; font-weight: 900; color: var(--muted); }
 
+    /* The three figures are their own columns on a wide screen, so the wrapper
+       gets out of the way and lets them line up under the header. */
+    .odds-nums { display: contents; }
+
     @media (max-width: 700px) {
+      /* No room for a header row on a phone, so each figure carries its own
+         label and the three of them take a line of their own under the team. */
       .odds-head { display: none; }
-      .odds-row { flex-wrap: wrap; padding: 10px; gap: 8px; }
+      .odds-row { flex-wrap: wrap; padding: 11px 12px; gap: 9px; }
       .odds-team { flex: 1 1 auto; }
       .odds-track { order: 3; flex: 1 1 100%; }
-      .odds-pct { width: auto; }
-      .odds-pct::after { content: attr(data-label); margin-left: 3px; font-size: 9px; color: var(--muted); }
+
+      .odds-nums {
+        display: flex;
+        order: 2;
+        flex: 1 1 100%;
+        gap: 10px;
+      }
+
+      .odds-pct {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 2px;
+        text-align: left;
+      }
+
+      .odds-pct::after {
+        content: attr(data-label);
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
     }
 
       /* A logo is the team's identity on its own, so the chip stops shouting the
@@ -4621,9 +4652,11 @@
             ${byeW > 0.4 ? `<span class="odds-seg s-bye" style="width:${byeW.toFixed(1)}%"></span>` : ""}
             ${inW > 0.4 ? `<span class="odds-seg s-in" style="width:${inW.toFixed(1)}%"></span>` : ""}
           </span>
-          <span class="odds-pct primary ${locked || gone ? "settled" : ""}">${show(playoff, locked || gone)}</span>
-          <span class="odds-pct ${flag === "z" || gone ? "settled" : ""}">${show(byeP, flag === "z" || gone)}</span>
-          <span class="odds-pct ${locked || gone ? "settled" : ""}">${show(outP, locked || gone)}</span>
+          <span class="odds-nums">
+            <span class="odds-pct primary ${locked || gone ? "settled" : ""}" data-label="Playoff">${show(playoff, locked || gone)}</span>
+            <span class="odds-pct ${flag === "z" || gone ? "settled" : ""}" data-label="Bye">${show(byeP, flag === "z" || gone)}</span>
+            <span class="odds-pct ${locked || gone ? "settled" : ""}" data-label="Out">${show(outP, locked || gone)}</span>
+          </span>
         </div>`;
       };
 
@@ -4638,9 +4671,11 @@
         <div class="odds-head">
           <span class="odds-team">Team</span>
           <span class="odds-track"></span>
-          <span class="odds-pct primary">Playoff</span>
-          <span class="odds-pct">Bye</span>
-          <span class="odds-pct">Out</span>
+          <span class="odds-nums">
+            <span class="odds-pct primary">Playoff</span>
+            <span class="odds-pct">Bye</span>
+            <span class="odds-pct">Out</span>
+          </span>
         </div>
         <div class="odds-grid">${ranked.map(row).join("")}</div>
       </article>`;
