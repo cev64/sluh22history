@@ -85,18 +85,21 @@
       text-decoration: none;
     }
 
+    /* The league crest. It is a diamond with its own white outline, so it
+       needs no plate behind it and no shape cut around it. */
     .brand-mark {
-      width: 40px;
+      width: 46px;
       height: 46px;
       display: grid;
       place-items: center;
-      border-radius: 10px 10px 13px 13px;
-      background: #132b45;
-      color: #fff;
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.13);
-      font-size: 13px;
-      font-weight: 1000;
-      letter-spacing: -.03em;
+      flex: 0 0 auto;
+    }
+
+    .brand-mark img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     .brand-copy { display: grid; line-height: 1.05; }
@@ -918,7 +921,7 @@
       .topbar-inner { min-height: 56px; }
       .brand-kicker { display: none; }
       .brand-title { font-size: 15px; }
-      .brand-mark { width: 32px; height: 37px; font-size: 11px; }
+      .brand-mark { width: 36px; height: 36px; }
       .season-control > span { display: none; }
       .season-control select { padding: 7px 27px 7px 9px; font-size: 11px; }
 
@@ -1463,19 +1466,6 @@
       border-bottom: 1px solid rgba(255,255,255,.08);
       color: #fff;
     }
-    .brand-mark {
-      width: 42px;
-      height: 48px;
-      position: relative;
-      border-radius: 0;
-      background: #edf2f9;
-      color: var(--navy);
-      clip-path: polygon(50% 0, 92% 16%, 86% 78%, 50% 100%, 14% 78%, 8% 16%);
-      box-shadow: inset 0 0 0 3px rgba(215, 25, 32, .55);
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: -.05em;
-    }
     .brand-kicker { color: #9eb0c1; letter-spacing: .22em; }
     .brand-title { color: #fff; margin-top: 2px; }
 
@@ -1524,7 +1514,7 @@
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="alltime.html" aria-label="League History home">
-        <div class="brand-mark">LH</div>
+        <div class="brand-mark"><img src="icons/crest.png" alt="" width="46" height="46" /></div>
         <div class="brand-copy">
           <span class="brand-kicker">Fantasy Football</span>
           <span class="brand-title">League History</span>
