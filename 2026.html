@@ -4547,14 +4547,16 @@
     /* Early-season odds claim more certainty than the league has earned.
        One week on record is a single game out of fourteen, but four of the
        six seeds are division top-two, so inside a five-team division one
-       result swings a team much further than its weight. Weeks 1-6 fade
+       result swings a team much further than its weight. Weeks 1-8 fade
        the simulated odds toward the rate every team starts the year at --
        six of ten make the playoffs, two of ten take a division, four of
        ten land in the toilet bowl. The pull is strongest in week 1 and
-       gone by week 7, the midpoint of the fourteen-week regular season,
-       so the back half is the raw simulation and nothing else. */
+       gone by week 9, by which point every team has eight games on record
+       and the odds stand on the simulation alone. Stopping there keeps the
+       fade clear of the weeks when teams start clinching and being
+       eliminated, so it can never sit beside a proof and contradict it. */
     const EARLY_SHRINK_MAX = 0.3;
-    const EARLY_SHRINK_FULL_WEEK = 7;
+    const EARLY_SHRINK_FULL_WEEK = 9;
 
     const earlyShrink = (week) =>
       Math.max(0, 1 - (week - 1) / (EARLY_SHRINK_FULL_WEEK - 1)) * EARLY_SHRINK_MAX;
