@@ -1070,24 +1070,6 @@
       .page-title h2 { font-size: 21px; }
       .page-title p { margin-top: 3px; font-size: 10px; }
 
-      .view-tabs {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        width: 100%;
-        gap: 2px;
-        padding: 3px;
-        border-radius: 10px;
-      }
-
-      .view-tab {
-        min-width: 0;
-        padding: 8px 3px;
-        border-radius: 7px;
-        font-size: 10px;
-        line-height: 1.1;
-        white-space: normal;
-      }
-
       .division-grid { gap: 9px; }
 
       .card {
@@ -2786,34 +2768,6 @@
     @media (max-width: 560px) {
       .recap-list { padding: 4px 14px 16px; gap: 9px; }
       .recap-list li { font-size: 14px; }
-    }
-
-
-    /* The season view has three tabs and a week view has four, so lay them
-       out two-up on phones and let an odd last tab span the full row. */
-    @media (max-width: 700px) {
-      .view-tabs {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        width: 100%;
-        gap: 4px;
-        padding: 4px;
-        border-radius: 15px;
-      }
-
-      .view-tab {
-        display: grid;
-        place-items: center;
-        min-width: 0;
-        min-height: 40px;
-        padding: 9px 6px;
-        border-radius: 11px;
-        font-size: 12.5px;
-        line-height: 1.15;
-        white-space: normal;
-      }
-
-      .view-tab:last-child:nth-child(odd) { grid-column: 1 / -1; }
     }
 
 
