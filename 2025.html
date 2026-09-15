@@ -407,6 +407,9 @@
       text-align: right;
       border-bottom: 1px solid var(--line);
       background: #fbfcfd;
+      /* Without this "W–L" breaks at its dash the moment the column is
+         squeezed, and the header stacks onto two lines. */
+      white-space: nowrap;
     }
 
     th:first-child, th:nth-child(2) { text-align: left; }
@@ -430,7 +433,15 @@
       width: 36px;
     }
 
-    .team-cell { min-width: 250px; }
+    /* `td` keeps every cell on one line so the numbers never wrap. The team
+       cell has to opt out: a long enough name held on one line pushes the
+       whole table past its container and puts a scrollbar under a desktop
+       standings table that otherwise fits. It wraps inside its column now,
+       and the column still cannot fall below 250px. */
+    .team-cell { min-width: 250px; white-space: normal; }
+    .team-cell .team-button { min-width: 0; }
+    .team-cell .team-meta { min-width: 0; }
+    .team-cell .team-name { overflow-wrap: anywhere; }
     .team-button {
       display: inline-flex;
       align-items: center;
@@ -2283,6 +2294,7 @@
 
     /* Phones get a single dropdown instead of a rail that runs off-screen. */
     .week-select-wrap { display: none; }
+    .view-select-wrap { display: none; }
 
     @media (max-width: 700px) {
       .week-rail { display: none; }
@@ -2321,6 +2333,47 @@
       }
 
       #weekSelect:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+      /* Five view tabs on a phone came out as a cramped two-column grid with
+         an orphan on the last row. One control naming the view you are on
+         reads better and takes a line instead of three. */
+      .view-tabs { display: none; }
+
+      .view-select-wrap {
+        display: block;
+        position: relative;
+        width: 100%;
+      }
+
+      .view-select-wrap::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        width: 9px;
+        height: 9px;
+        margin-top: -6px;
+        border-right: 2.5px solid rgba(255, 255, 255, .8);
+        border-bottom: 2.5px solid rgba(255, 255, 255, .8);
+        transform: rotate(45deg);
+        pointer-events: none;
+      }
+
+      #viewSelect {
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        background: var(--navy);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, .14);
+        border-radius: 14px;
+        padding: 13px 42px 13px 16px;
+        font-size: 15px;
+        font-weight: 800;
+        box-shadow: var(--shadow);
+      }
+
+      #viewSelect:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
     }
 
     /* Panels ------------------------------------------------------- */
@@ -3411,6 +3464,9 @@
         <h2 id="weekTitle">2025 Season</h2>
       </div>
       <div class="view-tabs" id="viewTabs" role="tablist" aria-label="Season views"></div>
+      <div class="view-select-wrap">
+        <select id="viewSelect" aria-label="Season views"></select>
+      </div>
     </div>
 
     <section id="regular" class="view-panel active" role="tabpanel">
@@ -5183,6 +5239,10 @@
         <button type="button" class="view-tab ${v.id === state.view ? "active" : ""}" data-view="${v.id}"
           role="tab" aria-selected="${v.id === state.view}">${v.label}</button>`).join("");
 
+      // The same views as the phone's dropdown, kept in step with the tabs.
+      document.getElementById("viewSelect").innerHTML = viewsFor(state.week).map((v) =>
+        `<option value="${v.id}" ${v.id === state.view ? "selected" : ""}>${v.label}</option>`).join("");
+
       document.getElementById("weekTitle").textContent = state.week === 0
         ? "2025 Season"
         : `Week ${state.week} · 2025`;
@@ -5786,6 +5846,13 @@
       const tab = event.target.closest(".view-tab");
       if (!tab) return;
       state.view = tab.dataset.view;
+      renderViewTabs();
+      showActivePanel();
+      writeHash();
+    });
+
+    document.getElementById("viewSelect").addEventListener("change", (event) => {
+      state.view = event.target.value;
       renderViewTabs();
       showActivePanel();
       writeHash();
