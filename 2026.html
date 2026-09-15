@@ -4523,6 +4523,20 @@
 
     const ODDS_ITERATIONS = 10000;
 
+    /* Simulated scores are real results drawn with replacement, so two teams
+       land on exactly the same number far more often than a football game has
+       any business tying: one matchup in ten in week 1, when the pool holds
+       ten scores. A simulated season has no overtime to settle that, and
+       comparing the pair with `>=` used to hand every one of them to whichever
+       team the schedule listed first -- a 55/45 edge on what is meant to be a
+       coin flip, worth most of a projected win to a team named first in every
+       pair. Each drawn score now carries a nudge from the same seeded
+       generator, ten thousand times smaller than the cent a real score is
+       quoted to. No two scores and no two points-for totals ever come back
+       exactly level, so nothing is left for the array order to settle, and
+       every comparison the scores themselves decide is untouched. */
+    const TIE_NUDGE = 1e-6;
+
     /* How much of a team's simulated scoring is drawn from its own games
        rather than from the league-wide pool. Week 1 has a single game on
        record — nowhere near enough to tell one team from another — so the
@@ -4659,9 +4673,10 @@
       // the league pool consumes no extra randomness and stays reproducible.
       const draw = (id) => {
         const own = ownPool[id];
-        return ownShare > 0 && own.length && rand() < ownShare
+        const score = ownShare > 0 && own.length && rand() < ownShare
           ? own[Math.floor(rand() * own.length)]
           : leagueDraw();
+        return score + (rand() - 0.5) * TIE_NUDGE;
       };
 
       for (let iter = 0; iter < ODDS_ITERATIONS; iter++) {
@@ -4673,7 +4688,7 @@
         remaining.forEach(([a, b]) => {
           const sa = draw(a), sb = draw(b);
           sim[a].pf += sa; sim[b].pf += sb;
-          const [win, lose] = sa >= sb ? [a, b] : [b, a];
+          const [win, lose] = sa > sb ? [a, b] : [b, a];
           sim[win].wins += 1; sim[lose].losses += 1;
           h2h[win][lose] += 1;
           if (teams[a].division === teams[b].division) {
