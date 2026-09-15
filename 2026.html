@@ -3862,8 +3862,8 @@
       roll:     { name: "Kraft Mac and Cheese",        ownerId: "jp_torack", owner: "JP Torack",          division: "Xavier",    icon: "🦬",  color: "#9d542e" },
       infinity: { name: "Javaris Jamar Javarsion-Lamar", ownerId: "ian_farroll", owner: "Ian Farroll",        division: "Xavier",    icon: "👑",  color: "#b78d0a" },
       hawaii:   { name: "Hawaii McLovins VIII",        ownerId: "matt_windler", owner: "Matt Windler",       division: "Ignatius",  icon: "🌴",  color: "#3a3c9d" },
-      left:     { name: "The Left Tacklers",           ownerId: "nathan_rich", owner: "Nathan Rich",        division: "Ignatius",  icon: "🛡️", color: "#166a83" },
-      kareem:   { name: "Team Kareem Pie 🍑",          ownerId: "matthew_kluba", owner: "Matthew Kluba",      division: "Ignatius",  icon: "🏈",  color: "#719b70" },
+      left:     { name: "The  Left Tacklers ",         ownerId: "nathan_rich", owner: "Nathan Rich",        division: "Ignatius",  icon: "🛡️", color: "#166a83" },
+      kareem:   { name: "Team Kareem Pie 🥧",          ownerId: "matthew_kluba", owner: "Matthew Kluba",      division: "Ignatius",  icon: "🏈",  color: "#719b70" },
       laporta:  { name: "Baby Back Gibbs",             ownerId: "grant_thornberry", owner: "Grant Thornberry",   division: "Ignatius",  icon: "🚽",  color: "#6a78a7" },
       jared:    { name: "Jared's Pack Attack",         ownerId: "jared_thornberry", owner: "Jared Thornberry",   division: "Ignatius",  icon: "🟣",  color: "#4d3f93" }
     };
@@ -3912,7 +3912,9 @@
        Example:
          1: [["first", 118.42, "game", 104.06], ...]
        ----------------------------------------------------------------- */
-    const results = {};
+    const results = {
+      1: [["first", 117.72, "game", 156.9], ["hamilton", 119.56, "left", 128.46], ["roll", 153.76, "laporta", 132.02], ["infinity", 125.56, "jared", 104.1], ["hawaii", 128.66, "kareem", 149.16]],
+    };
 
     /* -----------------------------------------------------------------
        WEEKLY SUMMARIES — the written recap shown on each week's tab.
@@ -3930,6 +3932,17 @@
           "Standings, seeding, and the projected bracket on this page recompute automatically the moment a week's scores are posted."
         ],
         generated: "Preseason outlook"
+      },
+      1: {
+        headline: "Game of Throws opens with the league's biggest score and margin.",
+        bullets: [
+          "<strong>Game of Throws</strong> put up a league-high 156.90 and buried First and Ted by 39.18, the week's biggest margin.",
+          "<strong>Kraft Mac and Cheese</strong> outscored Baby Back Gibbs 153.76&ndash;132.02 in the week's second-highest total.",
+          "<strong>Jared's Pack Attack</strong> managed just 104.10, a league-low, in a loss to Javaris Jamar Javarsion-Lamar.",
+          "<strong>The  Left Tacklers </strong> held off Ramilton Administration 128.46&ndash;119.56, the week's closest game.",
+          "<strong>Team Kareem Pie 🥧</strong> and The  Left Tacklers  opened 1&ndash;0 atop Ignatius, while Game of Throws and Kraft Mac and Cheese lead Xavier."
+        ],
+        generated: "Week 1 recap"
       }
     };
 
