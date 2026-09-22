@@ -37,7 +37,7 @@
       "pts": 7.8,
       "proj": 14.1,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Justin Jefferson",
@@ -259,7 +259,7 @@
       "pts": 26.6,
       "proj": 18.52,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Matthew Golden",
@@ -399,7 +399,7 @@
       "pts": 21,
       "proj": 11.57,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Parker Washington",
@@ -449,7 +449,7 @@
       "pts": 8.1,
       "proj": 8.47,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Matthew Stafford",
@@ -551,7 +551,7 @@
       "pts": 4.1,
       "proj": 12.5,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaylen Waddle",
@@ -611,7 +611,7 @@
       "pts": 8.8,
       "proj": 12.31,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Woody Marks",
@@ -711,7 +711,7 @@
       "pts": 23.7,
       "proj": 10.93,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Terry McLaurin",
@@ -751,7 +751,7 @@
       "pts": 11.9,
       "proj": 9.6,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Bo Nix",
@@ -781,7 +781,7 @@
       "pts": 3.6,
       "proj": 9.53,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rashid Shaheed",
@@ -803,7 +803,7 @@
       "pts": 37.26,
       "proj": 16.39,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Saquon Barkley",
@@ -813,7 +813,7 @@
       "pts": 9,
       "proj": 17.67,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Omarion Hampton",
@@ -833,7 +833,7 @@
       "pts": 19.2,
       "proj": 13.74,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Malik Nabers",
@@ -843,7 +843,7 @@
       "pts": 12.9,
       "proj": 12.71,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "George Kittle",
@@ -863,7 +863,7 @@
       "pts": 26,
       "proj": 14.21,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Carnell Tate",
@@ -893,7 +893,7 @@
       "pts": 33.8,
       "proj": 9.2,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Mike Evans",
@@ -903,7 +903,7 @@
       "pts": 16.9,
       "proj": 10.65,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Kenyon Sadiq",
@@ -943,7 +943,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ]
    }
@@ -1155,7 +1155,7 @@
       "pts": 21.2,
       "proj": 15.59,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Tucker Kraft",
@@ -1315,7 +1315,7 @@
       "pts": 12.4,
       "proj": 21.05,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Drake London",
@@ -1375,7 +1375,7 @@
       "pts": 17.66,
       "proj": 16.84,
       "starter": false,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Denzel Boston",
@@ -1395,7 +1395,7 @@
       "pts": 10.1,
       "proj": 9.7,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Jonathon Brooks",
@@ -1405,7 +1405,7 @@
       "pts": 7.2,
       "proj": 10.71,
       "starter": false,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Rachaad White",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "left": [
@@ -1547,7 +1547,7 @@
       "pts": 7,
       "proj": 10.13,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jayden Reed",
@@ -1557,7 +1557,7 @@
       "pts": 5,
       "proj": 10.04,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Tyjae Spears",
@@ -1587,7 +1587,7 @@
       "pts": 0,
       "proj": 9.59,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      }
     ]
    }
