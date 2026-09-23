@@ -3325,6 +3325,62 @@
       display: block;
       margin: auto;
     }
+
+    /* Projected brackets on a week's Playoff Picture tab: the season bracket's
+       markup, with records in the score column and placeholders for open slots. */
+    .matchup-row.projected { color: var(--ink); font-weight: 800; }
+    .matchup-row .bk-rec { color: #758191; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .matchup-row.bk-tbd { min-height: 39px; }
+    .bk-tbd-name { min-width: 0; color: #8a95a2; font-size: 11.5px; font-style: italic; font-weight: 700; }
+    .bk-note { color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
+    .panel-stack > .losers-card { margin-top: 0; }
+
+    @media (max-width: 700px) {
+      .matchup-row .bk-rec { font-size: 8.5px; }
+      .matchup-row.bk-tbd { min-height: 28px; }
+      .bk-tbd-name { font-size: 8.5px; line-height: 1.12; }
+      .bk-note { font-size: 10px; }
+      .mobile-winner-tree .matchup-row.bk-tbd { min-height: 36px; }
+      .mobile-winner-tree .bk-tbd-name { font-size: 9.5px; line-height: 1.08; }
+      .mobile-winner-tree .matchup-row .bk-rec { font-size: 9px; }
+    }
+
+    /* Third-place game: a quiet card tucked under the title game. It sits at
+       the foot of the Championship column so the gold card keeps the centre. */
+    .winners-bracket .round-3 .round-games { position: relative; }
+    .third-place-matchup {
+      border-color: #dde3ea;
+      background: #fbfcfd;
+      box-shadow: none;
+      padding: 6px 10px;
+    }
+    .winners-bracket .third-place-matchup {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .third-place-matchup .matchup-row { padding: 5px 2px; font-size: 11px; }
+    .third-place-matchup .matchup-row .score { font-size: 12px; }
+    .third-place-matchup .mini-badge { width: 19px; height: 19px; border-radius: 6px; font-size: 10px; }
+    .third-place-matchup .matchup-row.bk-tbd { min-height: 31px; }
+    .third-place-matchup .bk-tbd-name { font-size: 10.5px; }
+    .third-place-matchup .place-note { color: #8a95a2; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+
+    @media (max-width: 700px) {
+      .mobile-third-place-card {
+        width: min(100%, 330px);
+        margin: 12px auto 0;
+      }
+      .mobile-winner-tree .third-place-matchup { padding: 4px 7px; box-shadow: none; }
+      .mobile-winner-tree .third-place-matchup .matchup-row { min-height: 28px; padding: 4px 0; }
+      .mobile-winner-tree .third-place-matchup .mini-badge { width: 20px; height: 20px; font-size: 10px; }
+      .mobile-winner-tree .third-place-matchup .mini-team > span:last-child { font-size: 8.5px; }
+      .mobile-winner-tree .third-place-matchup .matchup-row .score { font-size: 9px; }
+      .mobile-winner-tree .third-place-matchup .matchup-row.bk-tbd { min-height: 28px; }
+      .mobile-winner-tree .third-place-matchup .bk-tbd-name { font-size: 8.5px; }
+      .third-place-matchup .place-note { font-size: 8px; }
+    }
 </style>
   <script src="team-logos.js"></script>
 </head>
@@ -3518,7 +3574,7 @@
                 <div class="matchup championship-matchup">
                   <div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="game" aria-label="Open Game of Throws schedule"><span class="mini-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">🏰</span><span class="bracket-team-name">Game of Throws</span></button><span class="score">137.62</span></div>
                   <div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">131.36</span></div>
-                </div>
+                </div><div class="matchup third-place-matchup" data-week="17"><div class="matchup-kicker">Third Place</div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">110.48</span></div><div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">🏇</span><span class="bracket-team-name">First and Ted</span></button><span class="score">103.98</span></div></div>
               </div>
             </div>
           </div>
@@ -3648,7 +3704,7 @@
                   <button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button>
                   <span class="score">131.36</span>
                 </div>
-              </div>
+              </div><div class="matchup third-place-matchup mobile-third-place-card" data-week="17"><div class="matchup-kicker">Third Place</div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hawaii" aria-label="Open Hawaii McLovins VIII schedule"><span class="mini-badge" style="--team-color:#3a3c9d" data-owner-logo="matt_windler">🌴</span><span class="bracket-team-name">Hawaii McLovins VIII</span></button><span class="score">110.48</span></div><div class="matchup-row"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">🏇</span><span class="bracket-team-name">First and Ted</span></button><span class="score">103.98</span></div></div>
             </section>
           </div>
 </div>
@@ -5372,25 +5428,83 @@
        PLAYOFF PICTURE PANEL
        ================================================================= */
 
-    function seedRow(picture, id) {
-      const label = picture.seedLabels[id];
-      const t = picture.stats[id];
-      return `<div class="seed-row">
-        <span class="seed-chip ${label.kind}">${label.chip}</span>
-        <span class="seed-body">
-          ${miniTeam(id)}
-          <span class="seed-copy">
-            <strong>${teams[id].name}</strong>
-            <span>${teams[id].owner} · ${label.note}</span>
-          </span>
-        </span>
-        <span class="seed-line"><strong>${t.record}</strong><span>${fmt(t.pf)} PF</span></span>
-      </div>`;
+    /* The projected bracket reuses the Season view's Playoff Bracket markup
+       and classes wholesale, so a week's Playoff Picture reads as the same
+       object as the finished bracket — the desktop tree and the mobile lanes
+       alike. A team's record sits where the finished bracket shows a score,
+       and slots nobody has earned yet render as placeholder rows. */
+    function bkTeam(id) {
+      const t = teams[id];
+      return `<button type="button" class="mini-team bracket-team-button" data-team="${id}" aria-label="Open ${t.name} schedule"><span class="mini-badge" style="--team-color:${t.color}">${teamMark(t)}</span><span class="bracket-team-name">${t.name}</span></button>`;
     }
 
-    function projectedGame(title, seedA, idA, seedB, idB, stats) {
-      const line = (seed, id) => `<div class="pg-side"><span class="seed">${seed}</span>${miniTeam(id)}<span class="pg-name">${teams[id].name}</span><span class="pg-rec">${stats[id].record}</span></div>`;
-      return `<div class="projected-game"><div class="pg-head">${title}</div>${line(seedA, idA)}${line(seedB, idB)}</div>`;
+    const bkRow = (seed, id, stats) =>
+      `<div class="matchup-row projected"><span class="seed">${seed}</span>${bkTeam(id)}<span class="bk-rec">${stats[id].record}</span></div>`;
+
+    const bkTbd = (label) =>
+      `<div class="matchup-row bk-tbd"><span class="seed">—</span><span class="bk-tbd-name">${label}</span><span></span></div>`;
+
+    function bkGame(rows, { cls = "", kicker = "", path = "" } = {}) {
+      return `<div class="matchup${cls ? ` ${cls}` : ""}">${kicker ? `<div class="matchup-kicker">${kicker}</div>` : ""}${rows.join("")}${path ? `<div class="matchup-path">${path}</div>` : ""}</div>`;
+    }
+
+    const bkBye = (seed, id, stats) =>
+      `<div class="matchup bye">${bkRow(seed, id, stats)}<div class="bye-label">Bye</div></div>`;
+
+    const bkMobileBye = (seed, id, stats) =>
+      `<div class="matchup mobile-bye-card"><div class="matchup-kicker">${seed} Seed · Bye</div>${bkRow(seed, id, stats)}</div>`;
+
+    const bkRound = (n, title, week, games) =>
+      `<div class="round round-${n}"><div class="round-title"><strong>${title}</strong><span>${week}</span></div><div class="round-games">${games.join("")}</div></div>`;
+
+    const bkHead = (title, note) =>
+      `<div class="bracket-head"><div><h3>${title}</h3></div>${note ? `<span class="bk-note">${note}</span>` : ""}</div>`;
+
+    /* `lanes` is the mobile Round 1: one column per half of the bracket. */
+    function bkWinnersCard({ note, label, r1, semis, final, third, lanes }) {
+      return `
+        <div class="card bracket-card winners-card">
+          ${bkHead("Winner's Bracket", note)}
+          <div class="bracket-scroll">
+            <div class="bracket winners-bracket">
+              ${bkRound(1, "Round 1", "NFL Week 15", r1)}
+              ${bkRound(2, "Semifinals", "NFL Week 16", semis)}
+              ${bkRound(3, "Championship", "NFL Week 17", [bkGame(final, { cls: "championship-matchup" }), bkGame(third, { cls: "third-place-matchup", kicker: "Third Place" })])}
+            </div>
+          </div>
+          <div class="mobile-winner-tree" aria-label="${label}">
+            <section class="mobile-bracket-stage opening-stage">
+              <div class="mobile-stage-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
+              <div class="mobile-lane-grid">
+                ${lanes.map((lane) => `<div class="mobile-bracket-lane"><div class="mobile-lane-label">${lane.label}</div>${lane.games}</div>`).join("")}
+              </div>
+            </section>
+            <section class="mobile-bracket-stage semifinal-stage">
+              <div class="mobile-stage-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
+              <div class="mobile-lane-grid">
+                ${semis.map((game) => `<div class="mobile-bracket-lane mobile-semifinal-lane">${game}</div>`).join("")}
+              </div>
+              <div class="mobile-merge-lines" aria-hidden="true"><span></span><span></span></div>
+            </section>
+            <section class="mobile-bracket-stage championship-stage">
+              <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
+              ${bkGame(final, { cls: "championship-matchup mobile-championship-card" })}
+              ${bkGame(third, { cls: "third-place-matchup mobile-third-place-card", kicker: "Third Place" })}
+            </section>
+          </div>
+        </div>`;
+    }
+
+    function bkLosersCard({ note, rounds, twoRound = false }) {
+      return `
+        <div class="card bracket-card losers-card">
+          ${bkHead("Losers Bracket", note)}
+          <div class="bracket-scroll">
+            <div class="bracket losers-bracket${twoRound ? " two-round-bracket" : ""}">
+              ${rounds.map((round, i) => bkRound(i + 1, round.title, round.week, round.games)).join("")}
+            </div>
+          </div>
+        </div>`;
     }
 
     function renderPicturePanel(week) {
@@ -5399,52 +5513,39 @@
       const stats = picture.stats;
       const final = week === REGULAR_WEEKS;
 
-      const BRACKET_TITLE = final ? "Playoff Bracket" : "Projected Bracket";
-      const bracketCard = `
-        <article class="card">
-          ${cardHead(BRACKET_TITLE, "bracket", "Weeks 15–17")}
-          <div class="bracket-rounds">
-            <div class="bracket-round">
-              <div class="round-label">Round 1<span>Week 15</span></div>
-              ${picture.sides.map((side) =>
-                projectedGame(`${side.division} side`, picture.seedLabels[side.three].chip, side.three, "#2", side.two, stats)).join("")}
-            </div>
-            <div class="bracket-round">
-              <div class="round-label">Semifinals<span>Week 16</span></div>
-              ${picture.sides.map((side) => `
-                <div class="projected-game">
-                  <div class="pg-head">${side.division} side</div>
-                  <div class="pg-side"><span class="seed">#1</span>${miniTeam(side.one)}<span class="pg-name">${teams[side.one].name}</span><span class="pg-rec">${stats[side.one].record}</span></div>
-                  <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of ${side.division} Round 1</span></div>
-                </div>`).join("")}
-            </div>
-            <div class="bracket-round">
-              <div class="round-label">Fantasy Bowl<span>Week 17</span></div>
-              <div class="projected-game">
-                <div class="pg-head">Championship</div>
-                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of ${picture.sides[0].division} semifinal</span></div>
-                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of ${picture.sides[1].division} semifinal</span></div>
-              </div>
-              <div class="projected-game">
-                <div class="pg-head">Third-place game</div>
-                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">The two semifinal losers</span></div>
-              </div>
-            </div>
-          </div>
-        </article>`;
+      const note = final ? "Final seeding" : `Projected · through Week ${week}`;
+      const [sideA, sideB] = picture.sides;
+      const opener = (side) => bkGame([bkRow(picture.seedLabels[side.three].chip.replace(/^WC/, "WC #"), side.three, stats), bkRow("#2", side.two, stats)]);
+      const semi = (side) => bkGame([bkRow("#1", side.one, stats), bkTbd(`${side.division} Round 1 winner`)]);
+      const bracketCard = bkWinnersCard({
+        note,
+        label: "Projected winner's bracket",
+        r1: [bkBye("#1", sideA.one, stats), opener(sideA), opener(sideB), bkBye("#1", sideB.one, stats)],
+        semis: [semi(sideA), semi(sideB)],
+        final: [bkTbd(`${sideA.division} semifinal winner`), bkTbd(`${sideB.division} semifinal winner`)],
+        third: [bkTbd(`${sideA.division} semifinal loser`), bkTbd(`${sideB.division} semifinal loser`)],
+        lanes: picture.sides.map((side) => ({
+          label: `${side.division} Side`,
+          games: bkMobileBye("#1", side.one, stats) + opener(side),
+        })),
+      });
 
       const toilet = picture.toiletSeeds;
-      const toiletCard = `
-        <article class="card">
-          ${cardHead("Toilet Bowl Watch", "toilet", "Seeds 7–10 · loser advances")}
-          <div class="seed-list">${toilet.map((id) => seedRow(picture, id)).join("")}</div>
-          <div class="projected-matchups">
-            ${projectedGame("Game 1 · Week 15", "#7", toilet[0], "#8", toilet[1], stats)}
-            ${projectedGame("Game 2 · Week 15", "#9", toilet[2], "#10", toilet[3], stats)}
-            <div class="projected-game"><div class="pg-head">Game 3 · Week 16</div><div class="pg-bye">Loser of Game 1 vs winner of Game 2.</div></div>
-            <div class="projected-game"><div class="pg-head">Toilet Bowl Championship · Week 17</div><div class="pg-bye">Loser of Game 3 vs loser of Game 2. Win any game before this one and you are safe.</div></div>
-          </div>
-        </article>`;
+      const toiletCard = bkLosersCard({
+        note,
+        rounds: [
+          { title: "Opening Round", week: "NFL Week 15", games: [
+            bkGame([bkRow("#7", toilet[0], stats), bkRow("#8", toilet[1], stats)], { kicker: "Game 1", path: "Loser → Game 3" }),
+            bkGame([bkRow("#9", toilet[2], stats), bkRow("#10", toilet[3], stats)], { kicker: "Game 2", path: "Winner → Game 3 · Loser → Game 4" }),
+          ] },
+          { title: "Survival Game", week: "NFL Week 16", games: [
+            bkGame([bkTbd("Loser of Game 1"), bkTbd("Winner of Game 2")], { kicker: "Game 3", path: "Loser → Game 4" }),
+          ] },
+          { title: "Last-Place Game", week: "NFL Week 17", games: [
+            bkGame([bkTbd("Loser of Game 3"), bkTbd("Loser of Game 2")], { cls: "last-place-matchup", kicker: "Game 4", path: "Loser = last place in the league" }),
+          ] },
+        ],
+      });
 
       const flipNote = picture.flips.length
         ? `<div class="tag-row" style="padding:0">${picture.flips.map(([a, b]) =>
@@ -5603,7 +5704,7 @@
           const shown = [...matchup.querySelectorAll(".matchup-row .score")]
             .map((el) => parseFloat(el.textContent.replace(/,/g, "")));
           if (shown.length !== 2 || shown.some(Number.isNaN)) return;
-          const entry = (postseason[ids[0]] || []).find((g) =>
+          const entry = matchup.dataset.week ? { week: Number(matchup.dataset.week) } : (postseason[ids[0]] || []).find((g) =>
             g.opponent === ids[1] &&
             Math.abs(g.teamScore - shown[0]) < 0.005 &&
             Math.abs(g.oppScore - shown[1]) < 0.005);
