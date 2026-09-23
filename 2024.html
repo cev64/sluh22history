@@ -3601,6 +3601,7 @@
     <section id="panel-standings" class="view-panel" role="tabpanel"></section>
     <section id="panel-picture" class="view-panel" role="tabpanel"></section>
     <section id="panel-summary" class="view-panel" role="tabpanel"></section>
+    <section id="panel-playoffs" class="view-panel" role="tabpanel"></section>
   </main>
 
   <div class="bx-backdrop" id="bxBackdrop"></div>
@@ -4538,7 +4539,14 @@
 
     const state = { week: 0, view: "regular" };
 
-    const viewsFor = (week) => (week === 0 ? SEASON_VIEWS : WEEK_VIEWS);
+    // Weeks 15 to 17 are the playoffs: one view, the bracket through that week.
+    const PLAYOFF_WEEKS = [15, 16, 17];
+    const LAST_WEEK = PLAYOFF_WEEKS[PLAYOFF_WEEKS.length - 1];
+    const PLAYOFF_VIEWS = [
+      { id: "panel-playoffs", label: "Playoff Bracket" }
+    ];
+
+    const viewsFor = (week) => (week === 0 ? SEASON_VIEWS : week > REGULAR_WEEKS ? PLAYOFF_VIEWS : WEEK_VIEWS);
     const weekLabel = (w) => (w === 0 ? "Season" : `Week ${w}`);
 
     function miniTeam(id) {
@@ -4698,16 +4706,16 @@
 
     function renderWeekRail() {
       const weeks = [];
-      for (let w = 0; w <= REGULAR_WEEKS; w++) weeks.push(w);
+      for (let w = 0; w <= LAST_WEEK; w++) weeks.push(w);
 
       document.getElementById("weekRail").innerHTML = weeks.map((w) => {
-        const status = w === 0 ? "Full year" : "Final";
+        const status = w === 0 ? "Full year" : w > REGULAR_WEEKS ? "Playoffs" : "Final";
         return `<button type="button" class="week-pill ${w === state.week ? "active" : ""} played"
           data-week="${w}" role="tab" aria-selected="${w === state.week}">${w === 0 ? "Season" : `Wk ${w}`}<small>${status}</small></button>`;
       }).join("");
 
       document.getElementById("weekSelect").innerHTML = weeks.map((w) =>
-        `<option value="${w}" ${w === state.week ? "selected" : ""}>${w === 0 ? "Season Summary" : `Week ${w}`}</option>`).join("");
+        `<option value="${w}" ${w === state.week ? "selected" : ""}>${w === 0 ? "Season Summary" : w > REGULAR_WEEKS ? `Week ${w} · Playoffs` : `Week ${w}`}</option>`).join("");
 
       const active = document.querySelector(".week-pill.active");
       if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
@@ -4870,8 +4878,8 @@
     const bkTbd = (label) =>
       `<div class="matchup-row bk-tbd"><span class="seed">—</span><span class="bk-tbd-name">${label}</span><span></span></div>`;
 
-    function bkGame(rows, { cls = "", kicker = "", path = "" } = {}) {
-      return `<div class="matchup${cls ? ` ${cls}` : ""}">${kicker ? `<div class="matchup-kicker">${kicker}</div>` : ""}${rows.join("")}${path ? `<div class="matchup-path">${path}</div>` : ""}</div>`;
+    function bkGame(rows, { cls = "", kicker = "", path = "", week = 0 } = {}) {
+      return `<div class="matchup${cls ? ` ${cls}` : ""}"${week ? ` data-week="${week}"` : ""}>${kicker ? `<div class="matchup-kicker">${kicker}</div>` : ""}${rows.join("")}${path ? `<div class="matchup-path">${path}</div>` : ""}</div>`;
     }
 
     const bkBye = (seed, id, stats) =>
@@ -4984,6 +4992,92 @@
           ${flipNote}
           ${toiletCard}
         </div>`;
+    }
+
+    /* =================================================================
+       PLAYOFF WEEKS — Weeks 15 to 17
+
+       Each playoff week shows the Season view's bracket as it stood when
+       that week's games went final. It is cut from the season bracket's own
+       markup, so the two can never disagree: a game after the chosen week
+       loses its score, and a slot whose team was still being decided shows
+       the game that will fill it. A note can be swapped per week with a
+       `data-path-w<week>` attribute where the final one gives the result away.
+       ================================================================= */
+
+    const SEASON_BRACKET = [...document.querySelectorAll("#bracket .winners-card, #bracket .losers-card")]
+      .map((card) => card.outerHTML).join("");
+
+    // A game not yet played lists its teams by seed, so the order gives nothing away.
+    function seedRank(row) {
+      const text = row.querySelector(".seed").textContent;
+      return (/WC/.test(text) ? 100 : 0) + Number((text.match(/\d+/) || [99])[0]);
+    }
+
+    function sortUnplayedRows(matchup) {
+      const rows = [...matchup.querySelectorAll(".matchup-row")];
+      rows.sort((a, b) => seedRank(a) - seedRank(b) || a.textContent.trim().localeCompare(b.textContent.trim()));
+      const anchor = matchup.querySelector(".matchup-path");
+      rows.forEach((row) => matchup.insertBefore(row, anchor));
+    }
+
+    // A matchup's weeks, [first, last], read from its round heading.
+    function matchupWeeks(matchup) {
+      if (matchup.dataset.week) return [Number(matchup.dataset.week), Number(matchup.dataset.week)];
+      const holder = matchup.closest(".round, .mobile-bracket-stage");
+      const title = holder && holder.querySelector(".round-title span, .mobile-stage-title span");
+      const nums = ((title && title.textContent) || "").match(/\d+/g) || [];
+      return nums.length ? [Number(nums[0]), Number(nums[nums.length - 1])] : [LAST_WEEK, LAST_WEEK];
+    }
+
+    // "Loser of Game 3", or the two teams by name where the game has no number.
+    function feederLabel(pristine, id, fed) {
+      const side = fed.teamScore > fed.oppScore ? "Winner" : "Loser";
+      const game = [...pristine.querySelectorAll(".matchup")].find((m) =>
+        matchupWeeks(m)[0] === fed.week &&
+        m.querySelector(`[data-team="${id}"]`) && m.querySelector(`[data-team="${fed.opponent}"]`));
+      const kicker = game && game.querySelector(".matchup-kicker");
+      if (kicker) return `${side} of ${kicker.textContent.trim()}`;
+      const names = [teams[id].name, teams[fed.opponent].name].sort();
+      return `${side} of ${names[0]} vs ${names[1]}`;
+    }
+
+    function renderPlayoffPanel(week) {
+      const pristine = document.createElement("div");
+      pristine.innerHTML = SEASON_BRACKET;
+      const root = document.createElement("div");
+      root.innerHTML = SEASON_BRACKET;
+
+      root.querySelectorAll(".matchup").forEach((matchup) => {
+        const [first, last] = matchupWeeks(matchup);
+        const note = matchup.dataset[`pathW${week}`];
+        const path = matchup.querySelector(".matchup-path");
+        if (note && path) path.textContent = note;
+        if (last <= week) return;
+
+        matchup.querySelectorAll(".matchup-row").forEach((row) => {
+          const button = row.querySelector("[data-team]");
+          if (!button) return;
+          const id = button.dataset.team;
+          const fed = (postseason[id] || []).filter((g) => g.week < first).sort((a, b) => a.week - b.week).pop();
+          if (fed && fed.week > week) {
+            row.outerHTML = bkTbd(feederLabel(pristine, id, fed));
+            return;
+          }
+          row.classList.remove("winner", "last-place-row");
+          row.classList.add("projected");
+          const score = row.querySelector(".score, .place-note");
+          if (score) { score.className = ""; score.textContent = ""; }
+        });
+        sortUnplayedRows(matchup);
+      });
+
+      const status = week === LAST_WEEK ? "Final" : `Through Week ${week}`;
+      root.querySelectorAll(".bracket-head").forEach((head) =>
+        head.insertAdjacentHTML("beforeend", `<span class="bk-note">${status}</span>`));
+
+      document.getElementById("panel-playoffs").innerHTML = `<div class="panel-stack">${root.innerHTML}</div>`;
+      if (typeof markBracketBoxScores === "function") markBracketBoxScores();
     }
 
     /* =================================================================
@@ -5270,21 +5364,25 @@
        ================================================================= */
 
     function showActivePanel() {
-      const ids = [...SEASON_VIEWS, ...WEEK_VIEWS].map((v) => v.id);
+      const ids = [...SEASON_VIEWS, ...WEEK_VIEWS, ...PLAYOFF_VIEWS].map((v) => v.id);
       ids.forEach((id) => {
         const panel = document.getElementById(id);
         if (panel) panel.classList.toggle("active", id === state.view);
       });
-      if (state.view === "bracket") updateBracketNameAlignment();
+      if (state.view === "bracket" || state.view === "panel-playoffs") updateBracketNameAlignment();
     }
 
     function renderAll() {
       renderWeekRail();
       renderViewTabs();
-      renderResultsPanel(state.week);
-      renderStandingsPanel(state.week);
-      renderPicturePanel(state.week);
-      renderSummaryPanel(state.week);
+      if (state.week > REGULAR_WEEKS) {
+        renderPlayoffPanel(state.week);
+      } else {
+        renderResultsPanel(state.week);
+        renderStandingsPanel(state.week);
+        renderPicturePanel(state.week);
+        renderSummaryPanel(state.week);
+      }
       showActivePanel();
     }
 
@@ -5292,7 +5390,7 @@
       const match = /^#w(\d{1,2})(?:-([a-z-]+))?$/.exec(window.location.hash || "");
       if (!match) return false;
       const week = Number(match[1]);
-      if (week < 0 || week > REGULAR_WEEKS) return false;
+      if (week < 0 || week > LAST_WEEK) return false;
       const views = viewsFor(week);
       state.week = week;
       state.view = views.some((v) => v.id === match[2]) ? match[2] : views[0].id;

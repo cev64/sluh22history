@@ -3827,6 +3827,7 @@
     <section id="panel-summary" class="live-panel" role="tabpanel"></section>
     <section id="panel-sidebets" class="live-panel" role="tabpanel"></section>
     <section id="panel-sos" class="live-panel" role="tabpanel"></section>
+    <section id="panel-bracket" class="live-panel" role="tabpanel"></section>
   </main>
 
   <div class="bx-backdrop" id="bxBackdrop"></div>
@@ -3948,6 +3949,15 @@
        Example:
          1: [["first", 118.42, "game", 104.06], ...]
        ----------------------------------------------------------------- */
+    /* -----------------------------------------------------------------
+       PLAYOFF RESULTS — Weeks 15 to 17, same shape as `results`:
+       week: [[teamA, scoreA, teamB, scoreB], ...]. List every playoff and
+       Toilet Bowl game of the week; the bracket finds each game by its two
+       teams, so order does not matter. Keep these out of `results`, which
+       feeds the regular-season standings.
+       ----------------------------------------------------------------- */
+    const playoffResults = {};
+
     const results = {
       1: [["first", 117.72, "game", 156.9], ["hamilton", 119.56, "left", 128.46], ["roll", 153.76, "laporta", 132.02], ["infinity", 125.56, "jared", 104.1], ["hawaii", 128.66, "kareem", 149.16]],
       2: [["first", 119.96, "roll", 122.28], ["game", 150.88, "hawaii", 80.82], ["hamilton", 130.92, "infinity", 128], ["left", 125.48, "laporta", 127.72], ["kareem", 100.38, "jared", 121.26]],
@@ -4044,6 +4054,10 @@
       .sort((a, b) => a - b);
 
     const lastPlayedWeek = playedWeeks.length ? playedWeeks[playedWeeks.length - 1] : 0;
+
+    // The last playoff week with a posted game, or 0 before the playoffs.
+    const lastPlayoffWeek = () => Math.max(0, ...Object.keys(playoffResults)
+      .map(Number).filter((w) => (playoffResults[w] || []).length));
 
     const fmt = (n) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const fmt1 = (n) => Number(n).toFixed(1);
@@ -4957,7 +4971,13 @@
 
     // Strength of schedule is a preseason view; once games are played the
     // week tabs carry results instead.
-    const viewsFor = (week) => (week === 0 ? VIEWS : VIEWS.filter((v) => v !== "sos"));
+    // Weeks 15 to 17 are the playoffs: one view, the bracket through that week.
+    const PLAYOFF_WEEKS = [15, 16, 17];
+    const LAST_WEEK = PLAYOFF_WEEKS[PLAYOFF_WEEKS.length - 1];
+
+    const viewsFor = (week) => (week === 0 ? VIEWS
+      : week > REGULAR_WEEKS ? ["bracket"]
+      : VIEWS.filter((v) => v !== "sos"));
 
     const state = {
       week: lastPlayedWeek,
@@ -4975,6 +4995,7 @@
     const isPlayed = (w) => playedWeeks.includes(w);
 
     function viewLabels(week) {
+      if (week > REGULAR_WEEKS) return { bracket: "Playoff Bracket" };
       if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoff Picture", summary: "Preseason", sidebets: "Side Bets", sos: "Strength of Schedule" };
       if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary", sidebets: "Side Bets" };
       return { results: "Matchups", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary", sidebets: "Side Bets" };
@@ -5237,11 +5258,11 @@
     function renderWeekRail() {
       const rail = document.getElementById("weekRail");
       const weeks = [];
-      for (let w = 0; w <= REGULAR_WEEKS; w++) weeks.push(w);
+      for (let w = 0; w <= LAST_WEEK; w++) weeks.push(w);
 
       rail.innerHTML = weeks.map((w) => {
-        const played = isPlayed(w);
-        const status = w === 0 ? "Preseason" : played ? "Final" : "Upcoming";
+        const played = w > REGULAR_WEEKS ? w <= lastPlayoffWeek() : isPlayed(w);
+        const status = w === 0 ? "Preseason" : played ? "Final" : w > REGULAR_WEEKS ? "Playoffs" : "Upcoming";
         const cls = ["week-pill"];
         if (w === state.week) cls.push("active");
         if (played) cls.push("played");
@@ -5256,7 +5277,9 @@
 
       const select = document.getElementById("weekSelect");
       select.innerHTML = weeks.map((w) => {
-        const status = w === 0 ? "Preseason" : isPlayed(w) ? "Final" : "Upcoming";
+        const status = w === 0 ? "Preseason"
+          : w > REGULAR_WEEKS ? (w <= lastPlayoffWeek() ? "Playoffs · Final" : "Playoffs")
+          : isPlayed(w) ? "Final" : "Upcoming";
         const label = status === weekLabel(w) ? weekLabel(w) : `${weekLabel(w)} · ${status}`;
         return `<option value="${w}" ${w === state.week ? "selected" : ""}>${label}</option>`;
       }).join("");
@@ -5470,8 +5493,8 @@
     const bkTbd = (label) =>
       `<div class="matchup-row bk-tbd"><span class="seed">—</span><span class="bk-tbd-name">${label}</span><span></span></div>`;
 
-    function bkGame(rows, { cls = "", kicker = "", path = "" } = {}) {
-      return `<div class="matchup${cls ? ` ${cls}` : ""}">${kicker ? `<div class="matchup-kicker">${kicker}</div>` : ""}${rows.join("")}${path ? `<div class="matchup-path">${path}</div>` : ""}</div>`;
+    function bkGame(rows, { cls = "", kicker = "", path = "", week = 0 } = {}) {
+      return `<div class="matchup${cls ? ` ${cls}` : ""}"${week ? ` data-week="${week}"` : ""}>${kicker ? `<div class="matchup-kicker">${kicker}</div>` : ""}${rows.join("")}${path ? `<div class="matchup-path">${path}</div>` : ""}</div>`;
     }
 
     const bkBye = (seed, id, stats) =>
@@ -5614,6 +5637,123 @@
     }
 
     /* =================================================================
+       PLAYOFF WEEKS — Weeks 15 to 17
+
+       The bracket as it stands after each playoff week. The field comes
+       from the final standings (or, until Week 14 is in, from the latest
+       ones), and every game is looked up in `playoffResults`: once a game
+       is posted there it shows its score and its winner moves on. Nothing
+       else needs editing when a playoff week is posted.
+       ================================================================= */
+
+    function playoffGame(week, a, b) {
+      if (!a || !b) return null;
+      const game = (playoffResults[week] || []).find(([x, , y]) => (x === a && y === b) || (x === b && y === a));
+      if (!game) return null;
+      const [x, xs, y, ys] = game;
+      const score = { [x]: xs, [y]: ys };
+      const winner = score[a] >= score[b] ? a : b;
+      return { score, winner, loser: winner === a ? b : a };
+    }
+
+    function renderPlayoffPanel(week) {
+      const panel = document.getElementById("panel-bracket");
+      const asOf = asOfWeek(Math.min(week, REGULAR_WEEKS));
+      if (asOf === 0) {
+        panel.innerHTML = `<div class="panel-stack">${emptyState("The bracket fills in once games are played",
+          "Weeks 15 to 17 show the playoff bracket and the Toilet Bowl as each round is played. Until the regular season ends, the field is projected from the latest standings.")}</div>`;
+        return;
+      }
+      const picture = buildPicture(asOf);
+      const stats = picture.stats;
+
+      /* A slot is a team (with its seed) or, until the game feeding it is
+         played, a label saying which game that is. */
+      const seat = (seed, id) => ({ seed, id });
+      const fromGame = (w, a, b, pick, label) => {
+        const game = w <= week ? playoffGame(w, a.id, b.id) : null;
+        if (!game) return { label };
+        const id = game[pick];
+        return { seed: id === a.id ? a.seed : b.seed, id };
+      };
+      const row = (slot, game, opts) => {
+        if (!slot.id) return bkTbd(slot.label);
+        if (!game) return bkRow(slot.seed, slot.id, stats);
+        return `<div class="matchup-row${game.winner === slot.id ? " winner" : ""}${opts.lastPlace && game.loser === slot.id ? " last-place-row" : ""}"><span class="seed">${slot.seed}</span>${bkTeam(slot.id)}<span class="score">${fmt(game.score[slot.id])}</span></div>`;
+      };
+      const game = (w, a, b, opts = {}) => {
+        const result = w <= week && a.id && b.id ? playoffGame(w, a.id, b.id) : null;
+        const rows = [row(a, result, opts), row(b, result, opts)];
+        return { rows, result, html: (extra = {}) => bkGame(rows, { ...opts, ...extra, week: result ? w : 0 }) };
+      };
+
+      const wcSeed = (id) => picture.seedLabels[id].chip.replace(/^WC/, "WC #");
+      const [sideA, sideB] = picture.sides;
+      const opener = (side) => game(15, seat(wcSeed(side.three), side.three), seat("#2", side.two));
+      const openA = opener(sideA), openB = opener(sideB);
+      const seedOf = {};
+      picture.sides.forEach((side) => {
+        seedOf[side.one] = "#1";
+        seedOf[side.two] = "#2";
+        seedOf[side.three] = wcSeed(side.three);
+      });
+      const semiOf = (side) => {
+        const fed = fromGame(15, seat(wcSeed(side.three), side.three), seat("#2", side.two), "winner", `${side.division} Round 1 winner`);
+        return game(16, seat("#1", side.one), fed);
+      };
+      const semiA = semiOf(sideA), semiB = semiOf(sideB);
+      const semiSlot = (side, semi, pick, word) => semi.result
+        ? { id: semi.result[pick], seed: seedOf[semi.result[pick]] }
+        : { label: `${side.division} semifinal ${word}` };
+      const finalGame = game(17, semiSlot(sideA, semiA, "winner", "winner"), semiSlot(sideB, semiB, "winner", "winner"));
+      const thirdGame = game(17, semiSlot(sideA, semiA, "loser", "loser"), semiSlot(sideB, semiB, "loser", "loser"));
+
+      const status = week > lastPlayoffWeek()
+        ? (lastPlayedWeek >= REGULAR_WEEKS ? "Upcoming" : `Projected · through Week ${asOf}`)
+        : week === LAST_WEEK ? "Final" : `Through Week ${week}`;
+
+      const bracketCard = bkWinnersCard({
+        note: status,
+        label: `Week ${week} winner's bracket`,
+        r1: [bkBye("#1", sideA.one, stats), openA.html(), openB.html(), bkBye("#1", sideB.one, stats)],
+        semis: [semiA.html(), semiB.html()],
+        final: finalGame.rows,
+        third: thirdGame.rows,
+        lanes: picture.sides.map((side, i) => ({
+          label: `${side.division} Side`,
+          games: bkMobileBye("#1", side.one, stats) + [openA, openB][i].html(),
+        })),
+      });
+
+      const toilet = picture.toiletSeeds;
+      const t = (n) => seat(`#${n}`, toilet[n - 7]);
+      const g1 = game(15, t(7), t(8));
+      const g2 = game(15, t(9), t(10));
+      const g3 = game(16, fromGame(15, t(7), t(8), "loser", "Loser of Game 1"), fromGame(15, t(9), t(10), "winner", "Winner of Game 2"));
+      const g3Slot = (pick, label) => g3.result ? { id: g3.result[pick], seed: `#${toilet.indexOf(g3.result[pick]) + 7}` } : { label };
+      const g4 = game(17, g3Slot("loser", "Loser of Game 3"), fromGame(15, t(9), t(10), "loser", "Loser of Game 2"), { lastPlace: true });
+
+      const toiletCard = bkLosersCard({
+        note: status,
+        rounds: [
+          { title: "Opening Round", week: "NFL Week 15", games: [
+            g1.html({ kicker: "Game 1", path: "Loser → Game 3" }),
+            g2.html({ kicker: "Game 2", path: "Winner → Game 3 · Loser → Game 4" }),
+          ] },
+          { title: "Survival Game", week: "NFL Week 16", games: [
+            g3.html({ kicker: "Game 3", path: "Loser → Game 4" }),
+          ] },
+          { title: "Last-Place Game", week: "NFL Week 17", games: [
+            g4.html({ cls: "last-place-matchup", kicker: "Game 4", path: "Loser = last place in the league" }),
+          ] },
+        ],
+      });
+
+      panel.innerHTML = `<div class="panel-stack">${bracketCard}${toiletCard}</div>`;
+      markBracketBoxScores();
+    }
+
+    /* =================================================================
        WEEKLY SUMMARY PANEL
        ================================================================= */
 
@@ -5746,7 +5886,6 @@
        Potty and Jared's Pack Attack played both Game 2 and Game 4), so matching
        on the opponent would have pointed the last-place game at Week 15. */
     function markBracketBoxScores() {
-      if (typeof postseason === "undefined") return;
       const cells = document.querySelectorAll(".matchup");
       if (!cells.length) return;
       boxWeeks().then((weeks) => {
@@ -5757,10 +5896,12 @@
           const shown = [...matchup.querySelectorAll(".matchup-row .score")]
             .map((el) => parseFloat(el.textContent.replace(/,/g, "")));
           if (shown.length !== 2 || shown.some(Number.isNaN)) return;
-          const entry = (postseason[ids[0]] || []).find((g) =>
-            g.opponent === ids[1] &&
-            Math.abs(g.teamScore - shown[0]) < 0.005 &&
-            Math.abs(g.oppScore - shown[1]) < 0.005);
+          const entry = matchup.dataset.week
+            ? { week: Number(matchup.dataset.week) }
+            : typeof postseason === "undefined" ? null : (postseason[ids[0]] || []).find((g) =>
+              g.opponent === ids[1] &&
+              Math.abs(g.teamScore - shown[0]) < 0.005 &&
+              Math.abs(g.oppScore - shown[1]) < 0.005);
           if (!entry || !weeks.has(entry.week)) return;
           matchup.classList.add("bx-has");
           matchup.dataset.bxA = ids[0];
@@ -6164,25 +6305,32 @@
        ================================================================= */
 
     function renderAll() {
+      // Playoff weeks offer only the bracket, so a view carried over from
+      // another week falls back to the first one this week has.
+      if (!viewsFor(state.week).includes(state.view)) state.view = viewsFor(state.week)[0];
       renderWeekRail();
       renderViewTabs();
       renderHero(state.week);
-      renderResultsPanel(state.week);
-      renderStandingsPanel(state.week);
-      renderPicturePanel(state.week);
-      renderSummaryPanel(state.week);
-      renderSideBetsPanel(state.week);
-      if (state.week === 0) renderSosPanel();
+      if (state.week > REGULAR_WEEKS) {
+        renderPlayoffPanel(state.week);
+      } else {
+        renderResultsPanel(state.week);
+        renderStandingsPanel(state.week);
+        renderPicturePanel(state.week);
+        renderSummaryPanel(state.week);
+        renderSideBetsPanel(state.week);
+        if (state.week === 0) renderSosPanel();
+      }
       document.querySelectorAll(".live-panel").forEach((panel) => {
         panel.classList.toggle("active", panel.id === `panel-${state.view}`);
       });
     }
 
     function applyHash() {
-      const match = /^#w(\d{1,2})(?:-(results|standings|picture|summary|sidebets|sos))?$/.exec(window.location.hash || "");
+      const match = /^#w(\d{1,2})(?:-(results|standings|picture|summary|sidebets|sos|bracket))?$/.exec(window.location.hash || "");
       if (!match) return false;
       const week = Number(match[1]);
-      if (week < 0 || week > REGULAR_WEEKS) return false;
+      if (week < 0 || week > LAST_WEEK) return false;
       state.week = week;
       const allowed = viewsFor(week);
       state.view = allowed.includes(match[2]) ? match[2] : allowed[0];
