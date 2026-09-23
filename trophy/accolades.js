@@ -193,15 +193,38 @@ function bestRun(line, outcome, liveYear) {
   return best;
 }
 
-/* Longest run of one result by any manager. Pass "loss" for the other end of it. */
+/* Longest run of one result by any manager. Pass "loss" for the other end of
+   it. `tied` lists every manager's run of that length, the first included. */
 function longestStreak(data, outcome = "win") {
   const liveYear = data.liveSeason && data.liveSeason.year;
-  let best = null;
-  Object.values(ownerTimelines(data)).forEach((line) => {
-    const run = bestRun(line, outcome, liveYear);
-    if (run && (!best || run.run > best.run)) best = run;
-  });
-  return best;
+  const runs = Object.values(ownerTimelines(data))
+    .map((line) => bestRun(line, outcome, liveYear))
+    .filter(Boolean);
+  if (!runs.length) return null;
+  const length = Math.max(...runs.map((run) => run.run));
+  const tied = runs.filter((run) => run.run === length);
+  return { ...tied[0], tied };
+}
+
+// A streak plaque: one run and its dates, or every run that shares the mark.
+function streakPlaque(plaque, id, label, streak, verb) {
+  const { tied } = streak;
+  if (tied.length > 1) {
+    return plaque(
+      id, label, `${streak.run}`, tied.map((s) => s.team.name).join(" & "),
+      `${tied.length} managers share it`,
+      `${tied.map((s) => s.team.owner).join(" and ")} have each ${verb} ${streak.run} straight.`,
+      null, streak.team.color, streak.team.icon,
+      tied.map((s) => ({ label: s.team.owner, value: `${streakSpan(s)}${s.live ? " · still going" : ""}` })),
+      crestsOf(tied.map((s) => s.team))
+    );
+  }
+  return plaque(
+    id, label, `${streak.run}`, streak.team.name,
+    streakSpan(streak),
+    `${streak.team.owner} ${verb} ${streak.run} straight ${streakWhen(streak)}${streak.live ? ", and counting" : ""}.`,
+    streak.team.ownerId, streak.team.color, streak.team.icon
+  );
 }
 
 // "2025 · weeks 7–16", or "Week 15, 2025 – Week 2, 2026" for a run across years.
@@ -362,7 +385,7 @@ function marks(data, careers) {
 /* Builds the plaque object for one mark. `tarnished` swaps brass for pewter,
    which is how the lowlight wall tells itself apart from the record wall. */
 function plaqueMaker(careers, { prefix, tarnished = false }) {
-  return (id, label, value, holder, meta, blurb, ownerId, color, icon, stats = []) => ({
+  return (id, label, value, holder, meta, blurb, ownerId, color, icon, stats = [], holders = []) => ({
     id: `${prefix}-${id}`,
     kind: "plaque",
     tarnished,
@@ -377,14 +400,23 @@ function plaqueMaker(careers, { prefix, tarnished = false }) {
     meta,
     blurb,
     stats,
+    // A shared mark puts every holder's crest on the plaque, side by side.
+    holders: holders.length > 1 ? holders : null,
     // Some marks are held by managers who left before this record book existed,
-    // and a shared mark belongs to nobody in particular. Either way there is no
-    // single profile to send anyone to.
-    links: ownerId && careers[ownerId]
-      ? [{ label: `${holder} · Profile`, href: `alltime.html#owner=${ownerId}` }]
-      : []
+    // and have no profile to send anyone to. A shared mark links each holder's.
+    links: holders.length > 1
+      ? holders.filter((h) => careers[h.ownerId])
+        .map((h) => ({ label: `${h.name} · Profile`, href: `alltime.html#owner=${h.ownerId}` }))
+      : ownerId && careers[ownerId]
+        ? [{ label: `${holder} · Profile`, href: `alltime.html#owner=${ownerId}` }]
+        : []
   });
 }
+
+// The crest for each holder of a shared mark, from their careers or their teams.
+const crestsOf = (list) => list.map((h) => ({
+  ownerId: h.ownerId, color: h.color, icon: h.icon, name: h.name || h.owner
+}));
 
 function recordExhibits(data, careers) {
   const { games, sides, seasonTeams, veterans, top, bottom, allTied } = marks(data, careers);
@@ -401,7 +433,8 @@ function recordExhibits(data, careers) {
   const titleCount = titleHolders[0].titles.length;
   const mostTitles = titleHolders[0];
   const bestPct = top(veterans, (c) => c.pct);
-  const mostPlayoffWins = top(veterans, (c) => c.playoffWins);
+  const playoffWinHolders = allTied(veterans, (c) => c.playoffWins);
+  const mostPlayoffWins = playoffWinHolders[0];
 
   const plaque = plaqueMaker(careers, { prefix: "rec" });
 
@@ -457,11 +490,10 @@ function recordExhibits(data, careers) {
       titleHolders.length > 1
         ? `${titleHolders.map((c) => c.name).join(" and ")} are tied at ${titleCount} titles apiece.`
         : `${mostTitles.name} has taken ${titleCount} of the league's titles.`,
-      // A shared mark belongs to nobody in particular, so it takes the wing's
-      // own colouring rather than one holder's crest.
       titleHolders.length > 1 ? null : mostTitles.ownerId,
       mostTitles.color, mostTitles.icon,
-      titleHolders.map((c) => ({ label: c.name, value: `${c.titles.length} · ${c.titles.join(", ")}` }))
+      titleHolders.map((c) => ({ label: c.name, value: `${c.titles.length} · ${c.titles.join(", ")}` })),
+      crestsOf(titleHolders)
     ),
     plaque(
       "win-pct", "Best Win Rate", `${(bestPct.pct * 100).toFixed(1)}%`, bestPct.currentTeam,
@@ -470,18 +502,23 @@ function recordExhibits(data, careers) {
       bestPct.ownerId, bestPct.color, bestPct.icon,
       [{ label: "Points / Game", value: fmt(bestPct.ppg) }]
     ),
-    plaque(
-      "playoff-wins", "Most Playoff Wins", String(mostPlayoffWins.playoffWins), mostPlayoffWins.currentTeam,
-      `${mostPlayoffWins.playoffWins}–${mostPlayoffWins.playoffLosses} in the bracket`,
-      `${mostPlayoffWins.name} has won ${mostPlayoffWins.playoffWins} games once the bracket starts.`,
-      mostPlayoffWins.ownerId, mostPlayoffWins.color, mostPlayoffWins.icon
-    ),
-    ...(streak ? [plaque(
-      "streak", "Longest Win Streak", `${streak.run}`, streak.team.name,
-      streakSpan(streak),
-      `${streak.team.owner} won ${streak.run} straight ${streakWhen(streak)}${streak.live ? ", and counting" : ""}.`,
-      streak.team.ownerId, streak.team.color, streak.team.icon
-    )] : [])
+    playoffWinHolders.length > 1
+      ? plaque(
+        "playoff-wins", "Most Playoff Wins", String(mostPlayoffWins.playoffWins),
+        playoffWinHolders.map((c) => c.currentTeam).join(" & "),
+        `${playoffWinHolders.length} managers share it`,
+        `${playoffWinHolders.map((c) => c.name).join(" and ")} have each won ${mostPlayoffWins.playoffWins} games once the bracket starts.`,
+        null, mostPlayoffWins.color, mostPlayoffWins.icon,
+        playoffWinHolders.map((c) => ({ label: c.name, value: `${c.playoffWins}–${c.playoffLosses} in the bracket` })),
+        crestsOf(playoffWinHolders)
+      )
+      : plaque(
+        "playoff-wins", "Most Playoff Wins", String(mostPlayoffWins.playoffWins), mostPlayoffWins.currentTeam,
+        `${mostPlayoffWins.playoffWins}–${mostPlayoffWins.playoffLosses} in the bracket`,
+        `${mostPlayoffWins.name} has won ${mostPlayoffWins.playoffWins} games once the bracket starts.`,
+        mostPlayoffWins.ownerId, mostPlayoffWins.color, mostPlayoffWins.icon
+      ),
+    ...(streak ? [streakPlaque(plaque, "streak", "Longest Win Streak", streak, "won")] : [])
   ];
 }
 
@@ -565,12 +602,7 @@ function lowlightExhibits(data, careers) {
       worstSeasonRecord.ownerId, worstSeasonRecord.color, worstSeasonRecord.icon,
       [{ label: "Points For", value: fmt(worstSeasonRecord.pf) }]
     ),
-    ...(slump ? [plaque(
-      "slump", "Longest Losing Streak", `${slump.run}`, slump.team.name,
-      streakSpan(slump),
-      `${slump.team.owner} lost ${slump.run} straight ${streakWhen(slump)}${slump.live ? ", and counting" : ""}.`,
-      slump.team.ownerId, slump.team.color, slump.team.icon
-    )] : []),
+    ...(slump ? [streakPlaque(plaque, "slump", "Longest Losing Streak", slump, "lost")] : []),
     ...(defences.length ? [plaque(
       "defence", "Worst Title Defence", ordinal(defences[0].after.finalRank), defences[0].after.name,
       `${defences[0].year} champion, ${defences[0].after.year} finish`,
@@ -604,7 +636,8 @@ function lowlightExhibits(data, careers) {
         : `${cellarHolders[0].name} has finished last ${cellarCount} times.`,
       cellarHolders.length > 1 ? null : cellarHolders[0].ownerId,
       cellarHolders[0].color, cellarHolders[0].icon,
-      cellarHolders.map((c) => ({ label: c.name, value: c.cellars.join(", ") || "—" }))
+      cellarHolders.map((c) => ({ label: c.name, value: c.cellars.join(", ") || "—" })),
+      crestsOf(cellarHolders)
     ),
     ...(worstBracket ? [plaque(
       "playoff-rate", "Worst Playoff Record", `${worstBracket.playoffWins}–${worstBracket.playoffLosses}`,
