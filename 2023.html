@@ -3162,6 +3162,25 @@
       .bx-total b { font-size: 15px; }
       .bx-p { gap: 4px; }
     }
+
+    /* Projected brackets on a week's Playoff Picture tab: the season bracket's
+       markup, with records in the score column and placeholders for open slots. */
+    .matchup-row.projected { color: var(--ink); font-weight: 800; }
+    .matchup-row .bk-rec { color: #758191; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .matchup-row.bk-tbd { min-height: 39px; }
+    .bk-tbd-name { min-width: 0; color: #8a95a2; font-size: 11.5px; font-style: italic; font-weight: 700; }
+    .bk-note { color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
+    .panel-stack > .losers-card { margin-top: 0; }
+
+    @media (max-width: 700px) {
+      .matchup-row .bk-rec { font-size: 8.5px; }
+      .matchup-row.bk-tbd { min-height: 28px; }
+      .bk-tbd-name { font-size: 8.5px; line-height: 1.12; }
+      .bk-note { font-size: 10px; }
+      .mobile-winner-tree .matchup-row.bk-tbd { min-height: 36px; }
+      .mobile-winner-tree .bk-tbd-name { font-size: 9.5px; line-height: 1.08; }
+      .mobile-winner-tree .matchup-row .bk-rec { font-size: 9px; }
+    }
 </style>
   <script src="team-logos.js"></script>
 </head>
@@ -4362,25 +4381,82 @@
        PLAYOFF PICTURE PANEL
        ================================================================= */
 
-    function seedRow(picture, id) {
-      const label = picture.seedLabels[id];
-      const t = picture.stats[id];
-      return `<div class="seed-row">
-        <span class="seed-chip ${label.kind}">${label.chip}</span>
-        <span class="seed-body">
-          ${miniTeam(id)}
-          <span class="seed-copy">
-            <strong>${teams[id].name}</strong>
-            <span>${teams[id].owner} · ${label.note}</span>
-          </span>
-        </span>
-        <span class="seed-line"><strong>${t.record}</strong><span>${fmt(t.pf)} PF</span></span>
-      </div>`;
+    /* The projected bracket reuses the Season view's Playoff Bracket markup
+       and classes wholesale, so a week's Playoff Picture reads as the same
+       object as the finished bracket — the desktop tree and the mobile lanes
+       alike. A team's record sits where the finished bracket shows a score,
+       and slots nobody has earned yet render as placeholder rows. */
+    function bkTeam(id) {
+      const t = teams[id];
+      return `<button type="button" class="mini-team bracket-team-button" data-team="${id}" aria-label="Open ${t.name} schedule"><span class="mini-badge" style="--team-color:${t.color}">${teamMark(t)}</span><span class="bracket-team-name">${t.name}</span></button>`;
     }
 
-    function projectedGame(title, seedA, idA, seedB, idB, stats) {
-      const line = (seed, id) => `<div class="pg-side"><span class="seed">${seed}</span>${miniTeam(id)}<span class="pg-name">${teams[id].name}</span><span class="pg-rec">${stats[id].record}</span></div>`;
-      return `<div class="projected-game"><div class="pg-head">${title}</div>${line(seedA, idA)}${line(seedB, idB)}</div>`;
+    const bkRow = (seed, id, stats) =>
+      `<div class="matchup-row projected"><span class="seed">${seed}</span>${bkTeam(id)}<span class="bk-rec">${stats[id].record}</span></div>`;
+
+    const bkTbd = (label) =>
+      `<div class="matchup-row bk-tbd"><span class="seed">—</span><span class="bk-tbd-name">${label}</span><span></span></div>`;
+
+    function bkGame(rows, { cls = "", kicker = "", path = "" } = {}) {
+      return `<div class="matchup${cls ? ` ${cls}` : ""}">${kicker ? `<div class="matchup-kicker">${kicker}</div>` : ""}${rows.join("")}${path ? `<div class="matchup-path">${path}</div>` : ""}</div>`;
+    }
+
+    const bkBye = (seed, id, stats) =>
+      `<div class="matchup bye">${bkRow(seed, id, stats)}<div class="bye-label">Bye</div></div>`;
+
+    const bkMobileBye = (seed, id, stats) =>
+      `<div class="matchup mobile-bye-card"><div class="matchup-kicker">${seed} Seed · Bye</div>${bkRow(seed, id, stats)}</div>`;
+
+    const bkRound = (n, title, week, games) =>
+      `<div class="round round-${n}"><div class="round-title"><strong>${title}</strong><span>${week}</span></div><div class="round-games">${games.join("")}</div></div>`;
+
+    const bkHead = (title, note) =>
+      `<div class="bracket-head"><div><h3>${title}</h3></div>${note ? `<span class="bk-note">${note}</span>` : ""}</div>`;
+
+    /* `lanes` is the mobile Round 1: one column per half of the bracket. */
+    function bkWinnersCard({ note, label, r1, semis, final, lanes }) {
+      return `
+        <div class="card bracket-card winners-card">
+          ${bkHead("Winner's Bracket", note)}
+          <div class="bracket-scroll">
+            <div class="bracket winners-bracket">
+              ${bkRound(1, "Round 1", "NFL Week 15", r1)}
+              ${bkRound(2, "Semifinals", "NFL Week 16", semis)}
+              ${bkRound(3, "Championship", "NFL Week 17", [bkGame(final, { cls: "championship-matchup" })])}
+            </div>
+          </div>
+          <div class="mobile-winner-tree" aria-label="${label}">
+            <section class="mobile-bracket-stage opening-stage">
+              <div class="mobile-stage-title"><strong>Round 1</strong><span>NFL Week 15</span></div>
+              <div class="mobile-lane-grid">
+                ${lanes.map((lane) => `<div class="mobile-bracket-lane"><div class="mobile-lane-label">${lane.label}</div>${lane.games}</div>`).join("")}
+              </div>
+            </section>
+            <section class="mobile-bracket-stage semifinal-stage">
+              <div class="mobile-stage-title"><strong>Semifinals</strong><span>NFL Week 16</span></div>
+              <div class="mobile-lane-grid">
+                ${semis.map((game) => `<div class="mobile-bracket-lane mobile-semifinal-lane">${game}</div>`).join("")}
+              </div>
+              <div class="mobile-merge-lines" aria-hidden="true"><span></span><span></span></div>
+            </section>
+            <section class="mobile-bracket-stage championship-stage">
+              <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
+              ${bkGame(final, { cls: "championship-matchup mobile-championship-card" })}
+            </section>
+          </div>
+        </div>`;
+    }
+
+    function bkLosersCard({ note, rounds, twoRound = false }) {
+      return `
+        <div class="card bracket-card losers-card">
+          ${bkHead("Losers Bracket", note)}
+          <div class="bracket-scroll">
+            <div class="bracket losers-bracket${twoRound ? " two-round-bracket" : ""}">
+              ${rounds.map((round, i) => bkRound(i + 1, round.title, round.week, round.games)).join("")}
+            </div>
+          </div>
+        </div>`;
     }
 
     function renderPicturePanel(week) {
@@ -4389,60 +4465,38 @@
       const stats = picture.stats;
       const order = picture.order;
       const final = week === REGULAR_WEEKS;
-      const seedOf = (id) => `#${order.indexOf(id) + 1}`;
-
-      const bracketCard = `
-        <article class="card">
-          ${cardHead(final ? "Playoff Bracket" : "Projected Bracket", "bracket", "Weeks 15–17")}
-          <div class="bracket-rounds">
-            <div class="bracket-round">
-              <div class="round-label">Round 1<span>Week 15</span></div>
-              ${projectedGame("Quarterfinal", "#4", order[3], "#5", order[4], stats)}
-              ${projectedGame("Quarterfinal", "#3", order[2], "#6", order[5], stats)}
-              <div class="projected-game">
-                <div class="pg-head">Byes</div>
-                <div class="pg-side"><span class="seed">#1</span>${miniTeam(order[0])}<span class="pg-name">${teams[order[0]].name}</span><span class="pg-rec">${stats[order[0]].record}</span></div>
-                <div class="pg-side"><span class="seed">#2</span>${miniTeam(order[1])}<span class="pg-name">${teams[order[1]].name}</span><span class="pg-rec">${stats[order[1]].record}</span></div>
-              </div>
-            </div>
-            <div class="bracket-round">
-              <div class="round-label">Semifinals<span>Week 16</span></div>
-              <div class="projected-game">
-                <div class="pg-head">Top half</div>
-                <div class="pg-side"><span class="seed">#1</span>${miniTeam(order[0])}<span class="pg-name">${teams[order[0]].name}</span><span class="pg-rec">${stats[order[0]].record}</span></div>
-                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of #4 vs #5</span></div>
-              </div>
-              <div class="projected-game">
-                <div class="pg-head">Bottom half</div>
-                <div class="pg-side"><span class="seed">#2</span>${miniTeam(order[1])}<span class="pg-name">${teams[order[1]].name}</span><span class="pg-rec">${stats[order[1]].record}</span></div>
-                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of #3 vs #6</span></div>
-              </div>
-            </div>
-            <div class="bracket-round">
-              <div class="round-label">Championship<span>Week 17</span></div>
-              <div class="projected-game">
-                <div class="pg-head">Title game</div>
-                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of the top half</span></div>
-                <div class="pg-side"><span class="seed">—</span><span class="pg-name tbd">Winner of the bottom half</span></div>
-              </div>
-            </div>
-          </div>
-        </article>`;
+      const note = final ? "Final seeding" : `Projected · through Week ${week}`;
+      const row = (n) => bkRow(`#${n}`, order[n - 1], stats);
+      const opener = (lo, hi) => bkGame([row(lo), row(hi)]);
+      const bracketCard = bkWinnersCard({
+        note,
+        label: `Week ${week} projected winner's bracket`,
+        r1: [bkBye("#1", order[0], stats), opener(5, 4), opener(6, 3), bkBye("#2", order[1], stats)],
+        semis: [
+          bkGame([row(1), bkTbd("Winner of #4 vs #5")]),
+          bkGame([row(2), bkTbd("Winner of #3 vs #6")]),
+        ],
+        final: [bkTbd("Top-half winner"), bkTbd("Bottom-half winner")],
+        lanes: [
+          { label: "Top Half", games: bkMobileBye("#1", order[0], stats) + opener(5, 4) },
+          { label: "Bottom Half", games: bkMobileBye("#2", order[1], stats) + opener(6, 3) },
+        ],
+      });
 
       const toilet = picture.toiletSeeds;
-      const toiletCard = `
-        <article class="card">
-          ${cardHead("Toilet Bowl Watch", "toilet", "Seeds 7–10")}
-          <div class="seed-list">${toilet.map((id) => seedRow(picture, id)).join("")}</div>
-          <div class="projected-matchups">
-            ${projectedGame("Round 1 · Week 15", "#7", toilet[0], "#10", toilet[3], stats)}
-            ${projectedGame("Round 1 · Week 15", "#8", toilet[1], "#9", toilet[2], stats)}
-            <div class="projected-game">
-              <div class="pg-head">Last-Place Series · Weeks 16–17</div>
-              <div class="pg-bye">The two Round 1 losers play a two-week series, and the team with the lower two-week total finishes last. 2023 scored this as one cumulative matchup rather than two separate games.</div>
-            </div>
-          </div>
-        </article>`;
+      const toiletCard = bkLosersCard({
+        note,
+        twoRound: true,
+        rounds: [
+          { title: "Round 1", week: "NFL Week 15", games: [
+            bkGame([bkRow("#7", toilet[0], stats), bkRow("#10", toilet[3], stats)], { kicker: "Game 1", path: "Loser → Last-Place Series" }),
+            bkGame([bkRow("#8", toilet[1], stats), bkRow("#9", toilet[2], stats)], { kicker: "Game 2", path: "Loser → Last-Place Series" }),
+          ] },
+          { title: "Last-Place Series", week: "NFL Weeks 16–17 · Cumulative", games: [
+            bkGame([bkTbd("Loser of Game 1"), bkTbd("Loser of Game 2")], { cls: "last-place-matchup", kicker: "Two-Week Total", path: "Lower two-week total = last place" }),
+          ] },
+        ],
+      });
 
       const flipNote = picture.flips.length
         ? `<div class="tag-row" style="padding:0">${picture.flips.map(([a, b]) =>
