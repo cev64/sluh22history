@@ -662,10 +662,18 @@ export function buildPlaque(item, { mounted = false } = {}) {
     studs.add(stud);
   }
 
-  const crest = crestDisc(item, { radius: 0.165, thickness: 0.05 });
-  crest.position.set(0, 0.42, 0.062);
+  // One crest, or a row of smaller ones when the mark is shared.
+  const holders = item.holders || [item];
+  const spacing = Math.min(0.36, 0.8 / holders.length);
+  const radius = Math.min(0.165, spacing * 0.42);
+  const crests = holders.map((holder, i) => {
+    const crest = crestDisc({ ...item, ownerId: holder.ownerId, color: holder.color, icon: holder.icon },
+      { radius, thickness: 0.05 });
+    crest.position.set((i - (holders.length - 1) / 2) * spacing, 0.42, 0.062);
+    return crest;
+  });
 
-  board.add(backing, trim, face, studs, crest);
+  board.add(backing, trim, face, studs, ...crests);
 
   if (mounted) {
     // Hung on a wall rather than stood on a plinth: no foot, no lean.

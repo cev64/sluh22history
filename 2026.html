@@ -4110,17 +4110,29 @@
         t.pag = t.gp ? t.pa / t.gp : 0;
         t.diff = t.pf - t.pa;
         t.diffPerGame = t.gp ? t.diff / t.gp : 0;
-        t.streak = streakOf(t.form);
+        t.streak = streakOf(t.form, STREAK_CARRIED_IN[id]);
       });
 
       return stats;
     }
 
-    function streakOf(form) {
+    /* Each team's streak coming out of 2025, playoffs and the Toilet Bowl
+       included. A streak belongs to the manager and carries across years, so a
+       team that closed 2025 on three straight wins and opens 2026 with two has
+       won five straight. Set once, at the start of the season, from the
+       finished 2025 record; the trophy room counts streaks the same way. */
+    const STREAK_CARRIED_IN = {
+      first: "L3", game: "W3", hamilton: "L1", roll: "W3", infinity: "L1",
+      hawaii: "W1", left: "L1", kareem: "W1", laporta: "L2", jared: "W1"
+    };
+
+    function streakOf(form, carried) {
       if (!form.length) return null;
       const last = form[form.length - 1];
       let n = 0;
       for (let i = form.length - 1; i >= 0 && form[i] === last; i--) n += 1;
+      // A run unbroken since Week 1 continues last season's, if it was the same kind.
+      if (n === form.length && carried && carried[0] === last) n += Number(carried.slice(1));
       return { type: last, count: n, text: `${last}${n}` };
     }
 

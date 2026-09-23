@@ -127,6 +127,50 @@ function detectQuality() {
   };
 }
 
+/* The season being played lives on its own page, not in league-data.js, which
+   only holds finished seasons. Win and loss streaks carry across years, so a
+   run still going needs this season's results to be measured to the end: read
+   the page's `teams` and `results` blocks the way the newsletter does. If the
+   page is missing or unreadable the hall is built from the archives alone. */
+function readBlock(src, name) {
+  const decl = new RegExp(`const\\s+${name}\\s*=\\s*`).exec(src);
+  if (!decl) return null;
+  const start = decl.index + decl[0].length;
+  const open = src[start];
+  if (open !== "{" && open !== "[") return null;
+  const close = open === "{" ? "}" : "]";
+  let depth = 0;
+  let quote = null;
+  for (let i = start; i < src.length; i++) {
+    const ch = src[i];
+    if (quote) {
+      if (ch === "\\") i++;
+      else if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") quote = ch;
+    else if (ch === open) depth++;
+    else if (ch === close && --depth === 0) {
+      return new Function(`"use strict"; return (${src.slice(start, i + 1)});`)();
+    }
+  }
+  return null;
+}
+
+async function loadLiveSeason(data) {
+  const year = Math.max(...data.seasons.map((season) => season.year)) + 1;
+  try {
+    const response = await fetch(`${year}.html`);
+    if (!response.ok) return null;
+    const src = await response.text();
+    const teams = readBlock(src, "teams");
+    const results = readBlock(src, "results");
+    return teams && results ? { year, teams, results } : null;
+  } catch (error) {
+    return null;
+  }
+}
+
 async function boot() {
   cacheDom();
 
@@ -135,7 +179,8 @@ async function boot() {
     return;
   }
 
-  hall = buildHall(window.LEAGUE_DATA || LEAGUE_DATA);
+  const data = window.LEAGUE_DATA || LEAGUE_DATA;
+  hall = buildHall({ ...data, liveSeason: await loadLiveSeason(data) });
   /* Which way the gallery runs is settled here, once, because the room is built
      around it: a corridor and a shaft are different buildings, not two views of
      one. Turning the phone afterwards refolds a locker wall but leaves the hall
