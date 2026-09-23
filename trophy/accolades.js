@@ -132,37 +132,87 @@ function careerTotals(data) {
   return careers;
 }
 
-/* Longest run of one result by a single manager, counted through a season in
-   played order (regular season, then the bracket). Streaks do not carry across
-   years — a new draft is a new team. Pass "loss" for the other end of it. */
-function longestStreak(data, outcome = "win") {
-  let best = null;
-  data.seasons.forEach((season) => {
-    const byTeam = {};
-    const ordered = [
-      ...season.regularGames.map((g) => ({ ...g, order: g.week })),
-      ...season.postseasonGames.map((g) => ({ ...g, order: g.week + 0.5 }))
-    ].sort((x, y) => x.order - y.order);
-
-    ordered.forEach((game) => {
-      [[game.a, game.aScore, game.bScore], [game.b, game.bScore, game.aScore]].forEach(([key, mine, theirs]) => {
-        const team = season.teams[key];
-        if (!inTheHall(team)) return;
-        const state = byTeam[key] || (byTeam[key] = { run: 0, from: null });
-        if (outcome === "win" ? mine > theirs : mine < theirs) {
-          if (!state.run) state.from = game.week;
-          state.run += 1;
-          if (!best || state.run > best.run) {
-            best = { run: state.run, team, year: season.year, from: state.from, to: game.week };
-          }
-        } else {
-          state.run = 0;
-        }
-      });
+/* Every game each manager has played, in order: a season's regular season,
+   then its bracket (third-place game included), then the next season. Runs are
+   a manager's, not a team's, so they carry across years and renames — winning
+   the last three games of one season and the first two of the next is five
+   straight. `data.liveSeason`, when the season in progress could be read, adds
+   its games, so a run still going is measured to its latest result. */
+function ownerTimelines(data) {
+  const lines = {};
+  const add = (team, year, week, order, mine, theirs) => {
+    if (!inTheHall(team)) return;
+    (lines[team.ownerId] || (lines[team.ownerId] = [])).push({
+      team, year, week, order: year * 100 + order,
+      result: mine > theirs ? "win" : mine < theirs ? "loss" : "tie"
     });
+  };
+  const both = (teams, year, game, order) => {
+    add(teams[game.a], year, game.week, order, game.aScore, game.bScore);
+    add(teams[game.b], year, game.week, order, game.bScore, game.aScore);
+  };
+
+  data.seasons.forEach((season) => {
+    season.regularGames.forEach((g) => both(season.teams, season.year, g, g.week));
+    season.postseasonGames.forEach((g) => both(season.teams, season.year, g, g.week + 0.5));
+    (data.thirdPlaceGames || []).filter((g) => g.year === season.year).forEach((g) => {
+      add(season.teams[g.winner], season.year, g.week, g.week + 0.5, 1, 0);
+      add(season.teams[g.loser], season.year, g.week, g.week + 0.5, 0, 1);
+    });
+  });
+
+  const live = data.liveSeason;
+  if (live) {
+    Object.entries(live.results).forEach(([week, games]) => {
+      games.forEach(([a, aScore, b, bScore]) =>
+        both(live.teams, live.year, { week: Number(week), a, aScore, b, bScore }, Number(week)));
+    });
+  }
+
+  Object.values(lines).forEach((line) => line.sort((x, y) => x.order - y.order));
+  return lines;
+}
+
+/* The longest run of one result in a manager's timeline. `team` is the side
+   that ended it, and `live` marks a run that is still going. */
+function bestRun(line, outcome, liveYear) {
+  let best = null;
+  let start = 0;
+  line.forEach((game, i) => {
+    if (game.result !== outcome) { start = i + 1; return; }
+    const run = i - start + 1;
+    if (!best || run > best.run) {
+      best = {
+        run, team: game.team,
+        from: { year: line[start].year, week: line[start].week },
+        to: { year: game.year, week: game.week },
+        live: i === line.length - 1 && game.year === liveYear
+      };
+    }
   });
   return best;
 }
+
+/* Longest run of one result by any manager. Pass "loss" for the other end of it. */
+function longestStreak(data, outcome = "win") {
+  const liveYear = data.liveSeason && data.liveSeason.year;
+  let best = null;
+  Object.values(ownerTimelines(data)).forEach((line) => {
+    const run = bestRun(line, outcome, liveYear);
+    if (run && (!best || run.run > best.run)) best = run;
+  });
+  return best;
+}
+
+// "2025 · weeks 7–16", or "Week 15, 2025 – Week 2, 2026" for a run across years.
+const streakSpan = (s) => (s.from.year === s.to.year
+  ? `${s.to.year} · weeks ${s.from.week}–${s.to.week}`
+  : `Week ${s.from.week}, ${s.from.year} – Week ${s.to.week}, ${s.to.year}`);
+
+// "in 2025, from week 7 to week 16", or "from week 15 of 2025 to week 2 of 2026".
+const streakWhen = (s) => (s.from.year === s.to.year
+  ? `in ${s.to.year}, from week ${s.from.week} to week ${s.to.week}`
+  : `from week ${s.from.week} of ${s.from.year} to week ${s.to.week} of ${s.to.year}`);
 
 function championExhibits(data, careers) {
   // Newest first: you walk in on the reigning champion and travel back through
@@ -428,8 +478,8 @@ function recordExhibits(data, careers) {
     ),
     ...(streak ? [plaque(
       "streak", "Longest Win Streak", `${streak.run}`, streak.team.name,
-      `${streak.year} · weeks ${streak.from}–${streak.to}`,
-      `${streak.team.owner} won ${streak.run} straight in ${streak.year}, from week ${streak.from} to week ${streak.to}.`,
+      streakSpan(streak),
+      `${streak.team.owner} won ${streak.run} straight ${streakWhen(streak)}${streak.live ? ", and counting" : ""}.`,
       streak.team.ownerId, streak.team.color, streak.team.icon
     )] : [])
   ];
@@ -517,8 +567,8 @@ function lowlightExhibits(data, careers) {
     ),
     ...(slump ? [plaque(
       "slump", "Longest Losing Streak", `${slump.run}`, slump.team.name,
-      `${slump.year} · weeks ${slump.from}–${slump.to}`,
-      `${slump.team.owner} lost ${slump.run} straight in ${slump.year}, from week ${slump.from} to week ${slump.to}.`,
+      streakSpan(slump),
+      `${slump.team.owner} lost ${slump.run} straight ${streakWhen(slump)}${slump.live ? ", and counting" : ""}.`,
       slump.team.ownerId, slump.team.color, slump.team.icon
     )] : []),
     ...(defences.length ? [plaque(
@@ -801,32 +851,8 @@ function biggestWin(data, ownerId) {
 }
 
 function ownStreak(data, ownerId) {
-  let best = null;
-  data.seasons.forEach((season) => {
-    const ordered = [
-      ...season.regularGames.map((g) => ({ ...g, order: g.week })),
-      ...season.postseasonGames.map((g) => ({ ...g, order: g.week + 0.5 }))
-    ].sort((x, y) => x.order - y.order);
-
-    const runs = {};
-    ordered.forEach((game) => {
-      [[game.a, game.aScore, game.bScore], [game.b, game.bScore, game.aScore]].forEach(([key, mine, theirs]) => {
-        const team = season.teams[key];
-        if (!inTheHall(team) || team.ownerId !== ownerId) return;
-        const state = runs[key] || (runs[key] = { run: 0, from: null });
-        if (mine > theirs) {
-          if (!state.run) state.from = game.week;
-          state.run += 1;
-          if (!best || state.run > best.run) {
-            best = { run: state.run, year: season.year, from: state.from, to: game.week, team };
-          }
-        } else {
-          state.run = 0;
-        }
-      });
-    });
-  });
-  return best;
+  const line = ownerTimelines(data)[ownerId];
+  return line ? bestRun(line, "win", data.liveSeason && data.liveSeason.year) : null;
 }
 
 export function buildLockers(data, careers) {
@@ -899,8 +925,8 @@ export function buildLockers(data, careers) {
         id: "streak",
         title: "Longest Win Streak",
         bigValue: String(streak.run),
-        meta: `${streak.year} · weeks ${streak.from}–${streak.to}`,
-        blurb: `${streak.run} straight wins in ${streak.year}, from week ${streak.from} to week ${streak.to}.`,
+        meta: streakSpan(streak),
+        blurb: `${streak.run} straight wins ${streakWhen(streak)}${streak.live ? ", and counting" : ""}.`,
         stats: []
       }] : []),
       ...(career.playoffWins ? [{

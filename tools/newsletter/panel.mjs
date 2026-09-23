@@ -75,37 +75,22 @@ export function talkShow(ctx) {
   /* Longest runs anyone has put together, the archives and this season alike.
      Reading the record off the archives only would let a team be told nobody
      has ever done better while another team did better in week 4 of the very
-     season being written up. */
-  const streakTable = (() => {
-    const per = new Map();                                    // "owner|year" -> {w, l}
-    const byKey = new Map();
-    for (const r of allRows) {
-      if (r.postseason) continue;
-      const k = `${r.owner}|${r.year}`;
-      if (!byKey.has(k)) byKey.set(k, []);
-      byKey.get(k).push(r);
-    }
-    for (const [k, rows] of byKey) {
-      rows.sort((x, y) => x.week - y.week);
-      let w = 0, l = 0, bw = 0, bl = 0;
-      for (const r of rows) {
-        if (r.won) { w += 1; l = 0; } else { l += 1; w = 0; }
-        bw = Math.max(bw, w); bl = Math.max(bl, l);
-      }
-      const [owner, year] = k.split('|');
-      per.set(k, { owner, year: Number(year), w: bw, l: bl });
-    }
-    return per;
-  })();
+     season being written up. Runs belong to the owner and carry across seasons
+     and through the playoffs (history.mjs, streakRuns), the same way the site
+     counts a team's current streak. */
+  const streakTable = H.streakRuns([...H.streakRows, ...live]);
 
-  /* The best run by anyone other than this team in this season — the honest
-     bar to measure a live streak against. */
+  /* The best run by anyone else, or by this owner before the run now going —
+     the honest bar to measure a live streak against. */
   const streakRecord = (kind, exceptOwner) => {
     let best = null;
-    for (const [k, v] of streakTable) {
-      if (v.owner === exceptOwner && v.year === season) continue;
-      const n = kind === 'W' ? v.w : v.l;
-      if (!best || n > best.n) best = { n, owner: v.owner, year: v.year };
+    for (const run of streakTable) {
+      if (run.kind !== kind || (run.owner === exceptOwner && run.current)) continue;
+      if (!best || run.n > best.n) {
+        const { from, to } = run;
+        best = { n: run.n, owner: run.owner,
+                 year: from.year === to.year ? `${to.year}` : `${from.year}–${String(to.year).slice(-2)}` };
+      }
     }
     return best;
   };
