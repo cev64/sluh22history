@@ -3330,6 +3330,43 @@
       .mobile-winner-tree .bk-tbd-name { font-size: 9.5px; line-height: 1.08; }
       .mobile-winner-tree .matchup-row .bk-rec { font-size: 9px; }
     }
+
+    /* Third-place game: a quiet card tucked under the title game. It sits at
+       the foot of the Championship column so the gold card keeps the centre. */
+    .winners-bracket .round-3 .round-games { position: relative; }
+    .third-place-matchup {
+      border-color: #dde3ea;
+      background: #fbfcfd;
+      box-shadow: none;
+      padding: 6px 10px;
+    }
+    .winners-bracket .third-place-matchup {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .third-place-matchup .matchup-row { padding: 5px 2px; font-size: 11px; }
+    .third-place-matchup .matchup-row .score { font-size: 12px; }
+    .third-place-matchup .mini-badge { width: 19px; height: 19px; border-radius: 6px; font-size: 10px; }
+    .third-place-matchup .matchup-row.bk-tbd { min-height: 31px; }
+    .third-place-matchup .bk-tbd-name { font-size: 10.5px; }
+    .third-place-matchup .place-note { color: #8a95a2; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+
+    @media (max-width: 700px) {
+      .mobile-third-place-card {
+        width: min(100%, 330px);
+        margin: 12px auto 0;
+      }
+      .mobile-winner-tree .third-place-matchup { padding: 4px 7px; box-shadow: none; }
+      .mobile-winner-tree .third-place-matchup .matchup-row { min-height: 28px; padding: 4px 0; }
+      .mobile-winner-tree .third-place-matchup .mini-badge { width: 20px; height: 20px; font-size: 10px; }
+      .mobile-winner-tree .third-place-matchup .mini-team > span:last-child { font-size: 8.5px; }
+      .mobile-winner-tree .third-place-matchup .matchup-row .score { font-size: 9px; }
+      .mobile-winner-tree .third-place-matchup .matchup-row.bk-tbd { min-height: 28px; }
+      .mobile-winner-tree .third-place-matchup .bk-tbd-name { font-size: 8.5px; }
+      .third-place-matchup .place-note { font-size: 8px; }
+    }
 </style>
   <script src="team-logos.js"></script>
 </head>
@@ -3482,7 +3519,7 @@
             <div class="round round-3">
               <div class="round-title"><strong>Championship</strong><span>NFL Week 17</span></div>
               <div class="round-games">
-                <div class="matchup championship-matchup"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div>
+                <div class="matchup championship-matchup"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div><div class="matchup third-place-matchup" data-week="17"><div class="matchup-kicker">Third Place</div><div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">129.94</span></div><div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">\ud83c\udfce\ufe0f</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">82.46</span></div></div>
               </div>
             </div>
           </div>
@@ -3518,7 +3555,7 @@
           </section>
           <section class="mobile-bracket-stage championship-stage">
             <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
-            <div class="matchup championship-matchup mobile-championship-card"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div>
+            <div class="matchup championship-matchup mobile-championship-card"><div class="matchup-row"><span class="seed">#6</span><button type="button" class="mini-team bracket-team-button" data-team="kareem" aria-label="Open Team Kareem Pie 🍑 schedule"><span class="mini-badge" style="--team-color:#719b70" data-owner-logo="matthew_kluba">\ud83c\udfc8</span><span class="bracket-team-name">Team Kareem Pie 🍑</span></button><span class="score">152.74</span></div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="hamilton" aria-label="Open Hamilton Administration schedule"><span class="mini-badge" style="--team-color:#304f91" data-owner-logo="niko_nadreau">\ud83c\udfad</span><span class="bracket-team-name">Hamilton Administration</span></button><span class="score">166.60</span></div></div><div class="matchup third-place-matchup mobile-third-place-card" data-week="17"><div class="matchup-kicker">Third Place</div><div class="matchup-row winner"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">\ud83d\udee1\ufe0f</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">129.94</span></div><div class="matchup-row"><span class="seed">#4</span><button type="button" class="mini-team bracket-team-button" data-team="hotrod" aria-label="Open Hot Rod Fan Club schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">\ud83c\udfce\ufe0f</span><span class="bracket-team-name">Hot Rod Fan Club</span></button><span class="score">82.46</span></div></div>
           </section>
         </div>
       </div>
@@ -4578,7 +4615,7 @@
       `<div class="bracket-head"><div><h3>${title}</h3></div>${note ? `<span class="bk-note">${note}</span>` : ""}</div>`;
 
     /* `lanes` is the mobile Round 1: one column per half of the bracket. */
-    function bkWinnersCard({ note, label, r1, semis, final, lanes }) {
+    function bkWinnersCard({ note, label, r1, semis, final, third, lanes }) {
       return `
         <div class="card bracket-card winners-card">
           ${bkHead("Winner's Bracket", note)}
@@ -4586,7 +4623,7 @@
             <div class="bracket winners-bracket">
               ${bkRound(1, "Round 1", "NFL Week 15", r1)}
               ${bkRound(2, "Semifinals", "NFL Week 16", semis)}
-              ${bkRound(3, "Championship", "NFL Week 17", [bkGame(final, { cls: "championship-matchup" })])}
+              ${bkRound(3, "Championship", "NFL Week 17", [bkGame(final, { cls: "championship-matchup" }), bkGame(third, { cls: "third-place-matchup", kicker: "Third Place" })])}
             </div>
           </div>
           <div class="mobile-winner-tree" aria-label="${label}">
@@ -4606,6 +4643,7 @@
             <section class="mobile-bracket-stage championship-stage">
               <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
               ${bkGame(final, { cls: "championship-matchup mobile-championship-card" })}
+              ${bkGame(third, { cls: "third-place-matchup mobile-third-place-card", kicker: "Third Place" })}
             </section>
           </div>
         </div>`;
@@ -4642,6 +4680,7 @@
           bkGame([bkTbd("Winner of #3 vs #6"), bkTbd("Winner of #2 vs #7")]),
         ],
         final: [bkTbd("Top-half winner"), bkTbd("Bottom-half winner")],
+        third: [bkTbd("Top-half loser"), bkTbd("Bottom-half loser")],
         lanes: [
           { label: "Top Half", games: `<div class="mobile-quarterfinal-stack">${openers[0]}${openers[1]}</div>` },
           { label: "Bottom Half", games: `<div class="mobile-quarterfinal-stack">${openers[2]}${openers[3]}</div>` },
@@ -5007,7 +5046,7 @@
           const shown = [...matchup.querySelectorAll(".matchup-row .score")]
             .map((el) => parseFloat(el.textContent.replace(/,/g, "")));
           if (shown.length !== 2 || shown.some(Number.isNaN)) return;
-          const entry = (postseason[ids[0]] || []).find((g) =>
+          const entry = matchup.dataset.week ? { week: Number(matchup.dataset.week) } : (postseason[ids[0]] || []).find((g) =>
             g.opponent === ids[1] &&
             Math.abs(g.teamScore - shown[0]) < 0.005 &&
             Math.abs(g.oppScore - shown[1]) < 0.005);

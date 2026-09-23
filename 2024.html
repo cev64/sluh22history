@@ -3166,6 +3166,43 @@
       .mobile-winner-tree .bk-tbd-name { font-size: 9.5px; line-height: 1.08; }
       .mobile-winner-tree .matchup-row .bk-rec { font-size: 9px; }
     }
+
+    /* Third-place game: a quiet card tucked under the title game. It sits at
+       the foot of the Championship column so the gold card keeps the centre. */
+    .winners-bracket .round-3 .round-games { position: relative; }
+    .third-place-matchup {
+      border-color: #dde3ea;
+      background: #fbfcfd;
+      box-shadow: none;
+      padding: 6px 10px;
+    }
+    .winners-bracket .third-place-matchup {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .third-place-matchup .matchup-row { padding: 5px 2px; font-size: 11px; }
+    .third-place-matchup .matchup-row .score { font-size: 12px; }
+    .third-place-matchup .mini-badge { width: 19px; height: 19px; border-radius: 6px; font-size: 10px; }
+    .third-place-matchup .matchup-row.bk-tbd { min-height: 31px; }
+    .third-place-matchup .bk-tbd-name { font-size: 10.5px; }
+    .third-place-matchup .place-note { color: #8a95a2; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+
+    @media (max-width: 700px) {
+      .mobile-third-place-card {
+        width: min(100%, 330px);
+        margin: 12px auto 0;
+      }
+      .mobile-winner-tree .third-place-matchup { padding: 4px 7px; box-shadow: none; }
+      .mobile-winner-tree .third-place-matchup .matchup-row { min-height: 28px; padding: 4px 0; }
+      .mobile-winner-tree .third-place-matchup .mini-badge { width: 20px; height: 20px; font-size: 10px; }
+      .mobile-winner-tree .third-place-matchup .mini-team > span:last-child { font-size: 8.5px; }
+      .mobile-winner-tree .third-place-matchup .matchup-row .score { font-size: 9px; }
+      .mobile-winner-tree .third-place-matchup .matchup-row.bk-tbd { min-height: 28px; }
+      .mobile-winner-tree .third-place-matchup .bk-tbd-name { font-size: 8.5px; }
+      .third-place-matchup .place-note { font-size: 8px; }
+    }
 </style>
   <script src="team-logos.js"></script>
 </head>
@@ -3364,7 +3401,7 @@
                 <div class="matchup championship-matchup">
                   <div class="matchup-row"><span class="seed">#3</span><button type="button" class="mini-team bracket-team-button" data-team="first" aria-label="Open First and Ted schedule"><span class="mini-badge" style="--team-color:#7c3945" data-owner-logo="ted_williams">🏇</span><span class="bracket-team-name">First and Ted</span></button><span class="score">128.58</span></div>
                   <div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button><span class="score">150.58</span></div>
-                </div>
+                </div><div class="matchup third-place-matchup" data-week="17"><div class="matchup-kicker">Third Place</div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="game" aria-label="Open Game of Throws schedule"><span class="mini-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">🏰</span><span class="bracket-team-name">Game of Throws</span></button><span class="score">160.32</span></div><div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="amon" aria-label="Open Amon a Mission schedule"><span class="mini-badge" style="--team-color:#536fa8" data-owner-logo="grant_thornberry">🤖</span><span class="bracket-team-name">Amon a Mission</span></button><span class="score">101.90</span></div></div>
               </div>
             </div>
           </div>
@@ -3494,7 +3531,7 @@
                   <button type="button" class="mini-team bracket-team-button" data-team="left" aria-label="Open The Left Tacklers schedule"><span class="mini-badge" style="--team-color:#166a83" data-owner-logo="nathan_rich">🛡️</span><span class="bracket-team-name">The Left Tacklers</span></button>
                   <span class="score">150.58</span>
                 </div>
-              </div>
+              </div><div class="matchup third-place-matchup mobile-third-place-card" data-week="17"><div class="matchup-kicker">Third Place</div><div class="matchup-row winner"><span class="seed">#1</span><button type="button" class="mini-team bracket-team-button" data-team="game" aria-label="Open Game of Throws schedule"><span class="mini-badge" style="--team-color:#c05b2a" data-owner-logo="charlie_vonderheid">🏰</span><span class="bracket-team-name">Game of Throws</span></button><span class="score">160.32</span></div><div class="matchup-row"><span class="seed">#2</span><button type="button" class="mini-team bracket-team-button" data-team="amon" aria-label="Open Amon a Mission schedule"><span class="mini-badge" style="--team-color:#536fa8" data-owner-logo="grant_thornberry">🤖</span><span class="bracket-team-name">Amon a Mission</span></button><span class="score">101.90</span></div></div>
             </section>
           </div>
 </div>
@@ -4847,7 +4884,7 @@
       `<div class="bracket-head"><div><h3>${title}</h3></div>${note ? `<span class="bk-note">${note}</span>` : ""}</div>`;
 
     /* `lanes` is the mobile Round 1: one column per half of the bracket. */
-    function bkWinnersCard({ note, label, r1, semis, final, lanes }) {
+    function bkWinnersCard({ note, label, r1, semis, final, third, lanes }) {
       return `
         <div class="card bracket-card winners-card">
           ${bkHead("Winner's Bracket", note)}
@@ -4855,7 +4892,7 @@
             <div class="bracket winners-bracket">
               ${bkRound(1, "Round 1", "NFL Week 15", r1)}
               ${bkRound(2, "Semifinals", "NFL Week 16", semis)}
-              ${bkRound(3, "Championship", "NFL Week 17", [bkGame(final, { cls: "championship-matchup" })])}
+              ${bkRound(3, "Championship", "NFL Week 17", [bkGame(final, { cls: "championship-matchup" }), bkGame(third, { cls: "third-place-matchup", kicker: "Third Place" })])}
             </div>
           </div>
           <div class="mobile-winner-tree" aria-label="${label}">
@@ -4875,6 +4912,7 @@
             <section class="mobile-bracket-stage championship-stage">
               <div class="mobile-stage-title"><strong>Championship</strong><span>NFL Week 17</span></div>
               ${bkGame(final, { cls: "championship-matchup mobile-championship-card" })}
+              ${bkGame(third, { cls: "third-place-matchup mobile-third-place-card", kicker: "Third Place" })}
             </section>
           </div>
         </div>`;
@@ -4908,6 +4946,7 @@
         r1: [bkBye("#1", sideA.one, stats), opener(sideA), opener(sideB), bkBye("#1", sideB.one, stats)],
         semis: [semi(sideA), semi(sideB)],
         final: [bkTbd(`${sideA.division} semifinal winner`), bkTbd(`${sideB.division} semifinal winner`)],
+        third: [bkTbd(`${sideA.division} semifinal loser`), bkTbd(`${sideB.division} semifinal loser`)],
         lanes: picture.sides.map((side) => ({
           label: `${side.division} Side`,
           games: bkMobileBye("#1", side.one, stats) + opener(side),
@@ -5126,7 +5165,7 @@
           const shown = [...matchup.querySelectorAll(".matchup-row .score")]
             .map((el) => parseFloat(el.textContent.replace(/,/g, "")));
           if (shown.length !== 2 || shown.some(Number.isNaN)) return;
-          const entry = (postseason[ids[0]] || []).find((g) =>
+          const entry = matchup.dataset.week ? { week: Number(matchup.dataset.week) } : (postseason[ids[0]] || []).find((g) =>
             g.opponent === ids[1] &&
             Math.abs(g.teamScore - shown[0]) < 0.005 &&
             Math.abs(g.oppScore - shown[1]) < 0.005);
