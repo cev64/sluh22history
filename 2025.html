@@ -5387,7 +5387,8 @@
       return "seed-toilet";
     }
 
-    function renderStandingsPanel(week) {
+    // Playoff weeks show these standings without the odds card: the field is set.
+    function renderStandingsPanel(week, { odds = true } = {}) {
       if (week === 0) return;
       const picture = buildPicture(week);
       const stats = picture.stats;
@@ -5433,7 +5434,7 @@
         <div class="panel-stack">
           <div class="division-grid">${divisionCards}</div>
           ${standingsLegend(picture)}
-          ${oddsCard(week)}
+          ${odds ? oddsCard(week) : ""}
         </div>`;
     }
 
@@ -5998,7 +5999,7 @@
       renderViewTabs();
       if (state.week > REGULAR_WEEKS) {
         renderPlayoffPanel(state.week);
-        renderStandingsPanel(REGULAR_WEEKS);
+        renderStandingsPanel(REGULAR_WEEKS, { odds: false });
       } else {
         renderResultsPanel(state.week);
         renderStandingsPanel(state.week);
