@@ -5115,11 +5115,13 @@
 
     const state = { week: 0, view: "regular" };
 
-    // Weeks 15 to 17 are the playoffs: one view, the bracket through that week.
+    // Weeks 15 to 17 are the playoffs: the bracket through that week, and the
+    // final regular-season standings the field was seeded from.
     const PLAYOFF_WEEKS = [15, 16, 17];
     const LAST_WEEK = PLAYOFF_WEEKS[PLAYOFF_WEEKS.length - 1];
     const PLAYOFF_VIEWS = [
-      { id: "panel-playoffs", label: "Playoff Bracket" }
+      { id: "panel-playoffs", label: "Playoff Bracket" },
+      { id: "panel-standings", label: "Standings" }
     ];
 
     const viewsFor = (week) => (week === 0 ? SEASON_VIEWS : week > REGULAR_WEEKS ? PLAYOFF_VIEWS : WEEK_VIEWS);
@@ -5996,6 +5998,7 @@
       renderViewTabs();
       if (state.week > REGULAR_WEEKS) {
         renderPlayoffPanel(state.week);
+        renderStandingsPanel(REGULAR_WEEKS);
       } else {
         renderResultsPanel(state.week);
         renderStandingsPanel(state.week);

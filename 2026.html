@@ -4971,12 +4971,13 @@
 
     // Strength of schedule is a preseason view; once games are played the
     // week tabs carry results instead.
-    // Weeks 15 to 17 are the playoffs: one view, the bracket through that week.
+    // Weeks 15 to 17 are the playoffs: the bracket through that week, and the
+    // regular-season standings the field is seeded from.
     const PLAYOFF_WEEKS = [15, 16, 17];
     const LAST_WEEK = PLAYOFF_WEEKS[PLAYOFF_WEEKS.length - 1];
 
     const viewsFor = (week) => (week === 0 ? VIEWS
-      : week > REGULAR_WEEKS ? ["bracket"]
+      : week > REGULAR_WEEKS ? ["bracket", "standings"]
       : VIEWS.filter((v) => v !== "sos"));
 
     const state = {
@@ -4995,7 +4996,7 @@
     const isPlayed = (w) => playedWeeks.includes(w);
 
     function viewLabels(week) {
-      if (week > REGULAR_WEEKS) return { bracket: "Playoff Bracket" };
+      if (week > REGULAR_WEEKS) return { bracket: "Playoff Bracket", standings: "Standings" };
       if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoff Picture", summary: "Preseason", sidebets: "Side Bets", sos: "Strength of Schedule" };
       if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary", sidebets: "Side Bets" };
       return { results: "Matchups", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary", sidebets: "Side Bets" };
@@ -6313,6 +6314,7 @@
       renderHero(state.week);
       if (state.week > REGULAR_WEEKS) {
         renderPlayoffPanel(state.week);
+        renderStandingsPanel(REGULAR_WEEKS);
       } else {
         renderResultsPanel(state.week);
         renderStandingsPanel(state.week);
