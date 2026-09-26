@@ -4294,7 +4294,7 @@
         [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(-22px)" }],
         { duration: still ? 1 : 150, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" }));
       out[0].onfinish = () => {
-        drawer.dataset.team = teamId;
+        drawer.dataset.current = teamId;
         openTeam(teamId);
         parts.forEach((el) => {
           el.getAnimations().forEach((a) => a.cancel());
@@ -4305,11 +4305,11 @@
     }
 
     function openTeam(teamId) {
-      if (drawer.classList.contains("open") && drawer.dataset.team && drawer.dataset.team !== teamId) {
+      if (drawer.classList.contains("open") && drawer.dataset.current && drawer.dataset.current !== teamId) {
         swapTeam(teamId);
         return;
       }
-      drawer.dataset.team = teamId;
+      drawer.dataset.current = teamId;
       const t = teams[teamId];
       document.getElementById("drawerHero").style.setProperty("--drawer-color", t.color);
       drawer.style.setProperty("--drawer-color", t.color);
@@ -4352,7 +4352,7 @@
     }
 
     function closeTeam() {
-      delete drawer.dataset.team;
+      delete drawer.dataset.current;
       drawer.classList.remove("open");
       backdrop.classList.remove("open");
       drawer.setAttribute("aria-hidden", "true");
