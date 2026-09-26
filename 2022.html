@@ -3324,6 +3324,124 @@
 
     /* On mobile the bye teams first appear in the Semifinals; Round 1 shows only the games played. */
     .mobile-winner-tree .mobile-bye-card { display: none; }
+
+    /* Team drawer: every player the team started ---------------------- */
+
+    .roster-list {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .roster-row {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr) var(--strip) 34px 48px;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 12px;
+      border-top: 1px solid #edf0f3;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .roster-row:first-child { border-top: 0; }
+
+    .roster-row.header {
+      padding-top: 8px;
+      padding-bottom: 8px;
+      background: #f6f8fa;
+      color: #788696;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .roster-row .bx-nfl-logo { width: 28px; height: 20px; }
+    .roster-row .bx-nfl { min-width: 28px; }
+
+    .roster-name { min-width: 0; }
+    .roster-name strong {
+      display: block;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .roster-name small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .03em; }
+
+    /* One cell per week: filled in the team's colour when he started (deeper
+       for a bigger score), outlined when he sat on the bench, blank when he
+       was not on the team. The playoff weeks stand a little apart. */
+    .roster-strip {
+      display: grid;
+      grid-template-columns: repeat(var(--weeks), 1fr);
+      gap: 2px;
+    }
+
+    .roster-wk {
+      height: 16px;
+      border-radius: 3px;
+      background: #f1f4f7;
+    }
+
+    .roster-wk.start { background: color-mix(in srgb, var(--team-color) calc(var(--fill) * 100%), #fff); }
+    .roster-wk.bench { background: #fff; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--team-color) 45%, #fff); }
+    .roster-wk.none { background: transparent; }
+    .roster-wk.po { margin-left: 4px; }
+
+    .roster-row.header .roster-wk {
+      height: auto;
+      background: none;
+      box-shadow: none;
+      font-size: 7.5px;
+      text-align: center;
+      letter-spacing: 0;
+    }
+
+    .roster-num { text-align: right; }
+    .roster-num strong { display: block; color: var(--ink); font-size: 12.5px; }
+    .roster-num small { color: var(--muted); font-size: 8px; }
+
+    .roster-title { display: flex; align-items: center; gap: 7px; }
+
+    /* The (i) beside the heading opens this; it explains the week strip. */
+    .roster-help {
+      margin: 0 2px 10px;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      font-size: 11.5px;
+      line-height: 1.45;
+    }
+    .roster-help[hidden] { display: none; }
+    .roster-help p { margin: 0 0 6px; font-weight: 700; }
+    .roster-help .roster-help-foot { margin: 8px 0 0; color: var(--muted); font-weight: 600; }
+    .roster-help ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+    .roster-help li { display: flex; align-items: flex-start; gap: 8px; }
+    .roster-help .roster-wk { flex: 0 0 auto; display: inline-block; width: 14px; height: 14px; margin-top: 1px; }
+    .roster-help .roster-wk.none { border: 1.5px dashed #c9d2dc; box-sizing: border-box; }
+
+    @media (max-width: 560px) {
+      .roster-row {
+        grid-template-columns: 22px minmax(0, 1fr) var(--strip-sm) 24px;
+        gap: 5px;
+        padding: 7px 8px;
+      }
+      .roster-row .bx-nfl-logo { width: 22px; height: 16px; }
+      .roster-row .bx-nfl { min-width: 22px; font-size: 7px; padding: 1.5px 2px; }
+      .roster-row > :nth-child(5) { display: none; }
+      .roster-name strong { font-size: 11px; }
+      .roster-name small { font-size: 8px; }
+      .roster-strip { gap: 1px; }
+      .roster-wk { height: 14px; border-radius: 2px; }
+      .roster-wk.po { margin-left: 2px; }
+      .roster-row.header .roster-wk { font-size: 6px; }
+      .roster-row.header .roster-wk:nth-child(even) { visibility: hidden; }
+    }
 </style>
   <script src="team-logos.js"></script>
 </head>
@@ -3942,6 +4060,95 @@
     const drawer = document.getElementById("teamDrawer");
     const backdrop = document.getElementById("drawerBackdrop");
 
+    /* Everyone the team started this season, under its schedule in the
+       drawer. boxscores/<season>/roster.json is built by
+       tools/boxscores/starters.mjs from the week files; it is fetched the
+       first time a drawer opens. */
+    let rosterPromise = null;
+
+    function loadRoster() {
+      if (!rosterPromise) {
+        rosterPromise = fetch(`boxscores/${BOX_SEASON}/roster.json`)
+          .then((res) => (res.ok ? res.json() : null))
+          .catch(() => null);
+      }
+      return rosterPromise;
+    }
+
+    function renderRoster(teamId) {
+      const body = document.getElementById("drawerBody");
+      const holder = document.createElement("section");
+      holder.className = "schedule-section";
+      holder.id = "rosterSection";
+      body.appendChild(holder);
+
+      loadRoster().then((data) => {
+        const team = data && data[teamId];
+        // The drawer may have moved on to another team while this loaded.
+        if (!team || !team.players.length || !holder.isConnected) { holder.remove(); return; }
+
+        const last = Math.max(...team.weeks);
+        const weeks = Array.from({ length: last }, (_, i) => i + 1);
+        const played = new Set(team.weeks);
+        const best = Math.max(...team.players.flatMap((p) => Object.values(p.weeks).filter((w) => w[1]).map((w) => w[0])), 1);
+        const cols = `--weeks:${weeks.length};--strip:${weeks.length * 16}px;--strip-sm:${weeks.length * 9}px;--team-color:${teams[teamId].color}`;
+        const po = (w) => (w === REGULAR_WEEKS + 1 ? " po" : "");
+
+        const cell = (p, w) => {
+          const wk = p.weeks[w];
+          if (!played.has(w)) return `<span class="roster-wk none${po(w)}" title="Week ${w}: no game"></span>`;
+          if (!wk) return `<span class="roster-wk${po(w)}" title="Week ${w}: not on the team"></span>`;
+          const [pts, started, club] = wk;
+          if (!started) return `<span class="roster-wk bench${po(w)}" title="Week ${w}: bench · ${fmt(pts)} (${club})"></span>`;
+          const fill = .25 + .75 * Math.max(0, pts) / best;
+          return `<span class="roster-wk start${po(w)}" style="--fill:${fill.toFixed(2)}" title="Week ${w}: started · ${fmt(pts)} (${club})"></span>`;
+        };
+
+        holder.innerHTML = `
+          <div class="schedule-heading">
+            <div class="roster-title">
+              <h3>Starters</h3>
+              <button type="button" class="why-btn roster-info" aria-expanded="false" aria-controls="rosterHelp" aria-label="What the week cells mean">i</button>
+            </div>
+            <span>${team.players.length} players</span>
+          </div>
+          <div class="roster-help" id="rosterHelp" style="--team-color:${teams[teamId].color}" hidden>
+            <p>A strip with one cell per week:</p>
+            <ul>
+              <li><i class="roster-wk start" style="--fill:.8"></i><span>Filled in the team's color: he started, and a darker cell means he scored more.</span></li>
+              <li><i class="roster-wk bench"></i><span>Outlined: he was on the bench.</span></li>
+              <li><i class="roster-wk"></i><span>Empty grey: he wasn't on the team.</span></li>
+              <li><i class="roster-wk none"></i><span>Playoff weeks sit slightly apart. A week the team had no game, like a playoff bye, is left blank.</span></li>
+            </ul>
+            <p class="roster-help-foot">GS is games started; Pts is his points as a starter. Hover a cell for that week's points and club.</p>
+          </div>
+          <div class="roster-list" style="${cols}">
+            <div class="roster-row header">
+              <span></span><span>Player</span>
+              <span class="roster-strip">${weeks.map((w) => `<span class="roster-wk${po(w)}">${w}</span>`).join("")}</span>
+              <span class="roster-num">GS</span><span class="roster-num">Pts</span>
+            </div>
+            ${team.players.map((p) => `
+              <div class="roster-row">
+                ${bxClub(p.clubs[0])}
+                <span class="roster-name"><strong title="${p.name}">${p.name}</strong><small>${p.pos} · ${p.clubs.join(" → ")}</small></span>
+                <span class="roster-strip">${weeks.map((w) => cell(p, w)).join("")}</span>
+                <span class="roster-num"><strong>${p.starts}</strong></span>
+                <span class="roster-num"><strong>${fmt(p.pts)}</strong><small>started</small></span>
+              </div>`).join("")}
+          </div>
+          `;
+        // Hovering a cell still gives the week, the points and the club; the
+        // (i) says what the cells mean.
+        const info = holder.querySelector(".roster-info");
+        const help = holder.querySelector(".roster-help");
+        info.addEventListener("click", () => {
+          help.hidden = !help.hidden;
+          info.setAttribute("aria-expanded", String(!help.hidden));
+        });
+      });
+    }
+
     function openTeam(teamId) {
       const t = teams[teamId];
       document.getElementById("drawerHero").style.setProperty("--drawer-color", t.color);
@@ -3967,6 +4174,8 @@
           <div class="schedule-list">${scheduleRows(regular)}</div>
         </section>
         ${post.length ? `<section class="schedule-section"><div class="schedule-heading"><h3>${postTitle}</h3><span>Postseason</span></div><div class="schedule-list">${scheduleRows(post, true)}</div></section>` : ""}`;
+
+      renderRoster(teamId);
 
       drawer.classList.add("open");
       backdrop.classList.add("open");

@@ -20,8 +20,11 @@ score a reader can open on the site.
 
 One file is derived from all of them: `boxscores/starters.json`, each manager's
 ten most-started players with their starts per season, which the profile panel
-on the all-time page reads. `tools/boxscores/starters.mjs` builds it, and
-`import.mjs` reruns it after every import, so it cannot fall behind. Run it on
+on the all-time page reads. The same pass writes `boxscores/<season>/roster.json`,
+every player each team started that season with his points week by week, which
+the team drawer on the season page lists under the schedule.
+`tools/boxscores/starters.mjs` builds both, and `import.mjs` reruns it after
+every import, so they cannot fall behind. Run it on
 its own after editing a week by hand.
 
 ## The weekly export
