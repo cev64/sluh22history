@@ -234,7 +234,7 @@
      {
       "name": "DeAndre Hopkins",
       "pos": "WR",
-      "nfl": "BAL",
+      "nfl": "KC",
       "slot": "FLEX",
       "pts": 8.6,
       "proj": 10.9,
@@ -244,7 +244,7 @@
      {
       "name": "Nick Westbrook-Ikhine",
       "pos": "WR",
-      "nfl": "MIA",
+      "nfl": "TEN",
       "slot": "FLEX",
       "pts": 2.9,
       "proj": 9.88,
@@ -294,7 +294,7 @@
      {
       "name": "Gus Edwards",
       "pos": "RB",
-      "nfl": "FA",
+      "nfl": "LAC",
       "slot": "BE",
       "pts": 2.3,
       "proj": 10.1,
@@ -454,7 +454,7 @@
      {
       "name": "Kenneth Gainwell",
       "pos": "RB",
-      "nfl": "PIT",
+      "nfl": "PHI",
       "slot": "BE",
       "pts": 9,
       "proj": 3.43,
@@ -506,7 +506,7 @@
      {
       "name": "Sam Darnold",
       "pos": "QB",
-      "nfl": "SEA",
+      "nfl": "MIN",
       "slot": "QB",
       "pts": 11.24,
       "proj": 20.64,
@@ -546,7 +546,7 @@
      {
       "name": "DK Metcalf",
       "pos": "WR",
-      "nfl": "PIT",
+      "nfl": "SEA",
       "slot": "WR",
       "pts": 5.8,
       "proj": 14.19,
@@ -696,7 +696,7 @@
      {
       "name": "Davante Adams",
       "pos": "WR",
-      "nfl": "LAR",
+      "nfl": "NYJ",
       "slot": "WR",
       "pts": 42.8,
       "proj": 16.93,
@@ -796,7 +796,7 @@
      {
       "name": "Tyler Lockett",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "SEA",
       "slot": "BE",
       "pts": 3.2,
       "proj": 6.4,
@@ -848,7 +848,7 @@
      {
       "name": "Najee Harris",
       "pos": "RB",
-      "nfl": "LAC",
+      "nfl": "PIT",
       "slot": "RB",
       "pts": 3.1,
       "proj": 11.49,
@@ -898,7 +898,7 @@
      {
       "name": "Rico Dowdle",
       "pos": "RB",
-      "nfl": "CAR",
+      "nfl": "DAL",
       "slot": "FLEX",
       "pts": 14.9,
       "proj": 14.58,
@@ -1118,7 +1118,7 @@
      {
       "name": "Evan Engram",
       "pos": "TE",
-      "nfl": "DEN",
+      "nfl": "JAX",
       "slot": "BE",
       "pts": 0,
       "proj": 0,

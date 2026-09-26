@@ -546,7 +546,7 @@
      {
       "name": "Henry Ruggs III",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "LV",
       "slot": "WR",
       "pts": 18.7,
       "proj": 10.79,
@@ -766,7 +766,7 @@
      {
       "name": "Antonio Brown",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "TB",
       "slot": "BE",
       "pts": 24.3,
       "proj": 14.01,
@@ -1068,7 +1068,7 @@
      {
       "name": "Zach Ertz",
       "pos": "TE",
-      "nfl": "ARI",
+      "nfl": "PHI",
       "slot": "TE",
       "pts": 12.9,
       "proj": 10.54,
@@ -1672,7 +1672,7 @@
      {
       "name": "Phillip Lindsay",
       "pos": "RB",
-      "nfl": "MIA",
+      "nfl": "HOU",
       "slot": "BE",
       "pts": 7.4,
       "proj": 3.98,
@@ -1792,7 +1792,7 @@
      {
       "name": "Odell Beckham Jr.",
       "pos": "WR",
-      "nfl": "LAR",
+      "nfl": "CLE",
       "slot": "BE",
       "pts": 12.9,
       "proj": 12.54,

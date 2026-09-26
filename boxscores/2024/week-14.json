@@ -42,7 +42,7 @@
      {
       "name": "Davante Adams",
       "pos": "WR",
-      "nfl": "LAR",
+      "nfl": "NYJ",
       "slot": "WR",
       "pts": 25.9,
       "proj": 15.01,
@@ -142,7 +142,7 @@
      {
       "name": "Tyler Lockett",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "SEA",
       "slot": "BE",
       "pts": 0,
       "proj": 7.56,
@@ -204,7 +204,7 @@
      {
       "name": "Cooper Kupp",
       "pos": "WR",
-      "nfl": "SEA",
+      "nfl": "LAR",
       "slot": "WR",
       "pts": 20.2,
       "proj": 16.84,
@@ -404,7 +404,7 @@
      {
       "name": "DeAndre Hopkins",
       "pos": "WR",
-      "nfl": "BAL",
+      "nfl": "KC",
       "slot": "FLEX",
       "pts": 13.2,
       "proj": 10.29,
@@ -414,7 +414,7 @@
      {
       "name": "Nick Westbrook-Ikhine",
       "pos": "WR",
-      "nfl": "MIA",
+      "nfl": "TEN",
       "slot": "FLEX",
       "pts": 2.9,
       "proj": 11.14,
@@ -454,7 +454,7 @@
      {
       "name": "Gus Edwards",
       "pos": "RB",
-      "nfl": "FA",
+      "nfl": "LAC",
       "slot": "BE",
       "pts": 9.6,
       "proj": 10.17,
@@ -746,7 +746,7 @@
      {
       "name": "Evan Engram",
       "pos": "TE",
-      "nfl": "DEN",
+      "nfl": "JAX",
       "slot": "FLEX",
       "pts": 7.3,
       "proj": 12.02,
@@ -928,7 +928,7 @@
      {
       "name": "Geno Smith",
       "pos": "QB",
-      "nfl": "LV",
+      "nfl": "SEA",
       "slot": "BE",
       "pts": 13.32,
       "proj": 15.7,
@@ -948,7 +948,7 @@
      {
       "name": "Deebo Samuel Sr.",
       "pos": "WR",
-      "nfl": "WSH",
+      "nfl": "SF",
       "slot": "BE",
       "pts": 5.5,
       "proj": 13.27,
@@ -1220,7 +1220,7 @@
      {
       "name": "DK Metcalf",
       "pos": "WR",
-      "nfl": "PIT",
+      "nfl": "SEA",
       "slot": "FLEX",
       "pts": 8.9,
       "proj": 14.9,
@@ -1240,7 +1240,7 @@
      {
       "name": "Sam Darnold",
       "pos": "QB",
-      "nfl": "SEA",
+      "nfl": "MIN",
       "slot": "BE",
       "pts": 34.58,
       "proj": 17.82,
@@ -1420,7 +1420,7 @@
      {
       "name": "Marquez Valdes-Scantling",
       "pos": "WR",
-      "nfl": "SEA",
+      "nfl": "NO",
       "slot": "BE",
       "pts": 9.1,
       "proj": 8.4,
@@ -1492,7 +1492,7 @@
      {
       "name": "Rico Dowdle",
       "pos": "RB",
-      "nfl": "CAR",
+      "nfl": "DAL",
       "slot": "RB",
       "pts": 15.1,
       "proj": 12.62,
@@ -1502,7 +1502,7 @@
      {
       "name": "Najee Harris",
       "pos": "RB",
-      "nfl": "LAC",
+      "nfl": "PIT",
       "slot": "RB",
       "pts": 11.3,
       "proj": 14.91,

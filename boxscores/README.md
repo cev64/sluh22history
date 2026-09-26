@@ -142,6 +142,21 @@ nothing anywhere keys off a name.
 the bench on purpose — an IR player could not have been started, so counting him
 as a bench call would invent a manager's mistake that was never available.
 
+## NFL clubs
+
+`nfl` is the club the player was on **that week**, not the one ESPN reports.
+ESPN carries one club per player per season — wherever he was when the season
+was pulled — so an archived season comes back with the next spring's rosters:
+2023 had Saquon Barkley an Eagle, 2024 had Davante Adams a Ram all year.
+`tools/boxscores/clubs.mjs` rewrites the field from nflverse's weekly rosters,
+which follow every trade week by week; its header has the download link and
+the matching rules. All of 2021 and 2023–2025 has been through it.
+
+Once a week is on disk, `import.mjs` keeps each player's club when it rewrites
+that week, so a stat-correction re-import cannot put ESPN's club back. A
+week's first import carries ESPN's club as of the pull, which a few days after
+the games is the right one.
+
 ## One known gap
 
 2023 week 14 carries two lineups whose starters do not add up to the score

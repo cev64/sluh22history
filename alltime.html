@@ -808,21 +808,29 @@
       text-align: center;
     }
 
-    /* A lit cell is a season he started for this team; the number is how
-       many games. Opacity climbs with the count so a full season reads darker
-       than a spot start. */
+    /* A lit cell is a season he started for this team: the club he played
+       for that year over the number of games. The tint deepens with the count
+       so a full season reads darker than a spot start, but stays light enough
+       for every club's logo to sit on it. */
     .starters-year {
-      height: 22px;
-      display: grid;
-      place-items: center;
-      border-radius: 5px;
+      height: 38px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      border-radius: 6px;
       font-size: 9.5px;
       font-weight: 900;
+      line-height: 1;
     }
+
+    .starters-year img { width: 26px; height: 17px; object-fit: contain; }
+    .starters-year .starters-chip { width: 26px; padding: 2px 0; font-size: 7px; }
 
     .starters-year.on {
       background: color-mix(in srgb, var(--team-color) calc(var(--fill) * 100%), #fff);
-      color: var(--year-ink);
+      color: var(--ink);
     }
 
     .starters-year.off { background: #f1f4f7; color: #c3ccd5; }
@@ -1265,7 +1273,10 @@
       .starters-name strong { font-size: 10.5px; }
       .starters-name small { font-size: 7.5px; }
       .starters-years { gap: 2px; }
-      .starters-year { height: 19px; font-size: 8.5px; border-radius: 4px; }
+      .starters-year { height: 32px; font-size: 8px; border-radius: 4px; gap: 1px; }
+      .starters-year img, .starters-year .starters-chip { width: 20px; }
+      .starters-year img { height: 14px; }
+      .starters-year .starters-chip { font-size: 6px; }
       .starters-total strong { font-size: 13px; }
       .starters-total small { display: none; }
       .starters-foot { padding: 8px 9px; font-size: 7.5px; }
@@ -2223,12 +2234,6 @@
       return startersPromise;
     }
 
-    function readableInk(hex) {
-      const n = parseInt(hex.slice(1), 16);
-      const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
-      return lum > 0.62 ? "#0b1726" : "#ffffff";
-    }
-
     function nflMark(abbr) {
       if (NFL_LOGOS.has(abbr)) {
         return `<img class="starters-logo" src="nfl-logos/${abbr}.png" alt="${abbr}" title="${abbr}" loading="lazy" decoding="async">`;
@@ -2247,9 +2252,8 @@
         }
 
         const years = entry.seasons;
-        const most = Math.max(...entry.players.flatMap((p) => Object.values(p.years)));
-        const ink = readableInk(profiles[ownerId].color);
-        const cols = `--year-count:${years.length};--year-cols:${years.length * 38}px;--year-cols-sm:${years.length * 24}px`;
+        const most = Math.max(...entry.players.flatMap((p) => Object.values(p.years).map((y) => y[0])));
+        const cols = `--year-count:${years.length};--year-cols:${years.length * 42}px;--year-cols-sm:${years.length * 25}px`;
 
         body.innerHTML = `
           <div class="starters-row header" style="${cols}">
@@ -2261,17 +2265,18 @@
             <div class="starters-row" style="${cols}">
               <span class="starters-rank">${i + 1}</span>
               ${nflMark(p.nfl)}
-              <span class="starters-name"><strong title="${p.name}">${p.name}</strong><small>${p.pos} · ${p.nfl || "FA"}</small></span>
+              <span class="starters-name"><strong title="${p.name}">${p.name}</strong><small>${p.pos}</small></span>
               <span class="starters-years">${years.map((y) => {
-                const n = p.years[y];
-                if (!n) return `<span class="starters-year off" title="${y}: no starts">·</span>`;
-                const fill = .25 + .75 * (n / most);
-                const cellInk = fill > .6 ? ink : "var(--ink)";
-                return `<span class="starters-year on" style="--fill:${fill.toFixed(2)};--year-ink:${cellInk}" title="${y}: ${n} start${n === 1 ? "" : "s"}">${n}</span>`;
+                if (!p.years[y]) return `<span class="starters-year off" title="${y}: no starts">·</span>`;
+                // [starts, club, ...]: every club he started for that season,
+                // most starts first; the cell shows the first.
+                const [n, ...clubs] = p.years[y];
+                const fill = .1 + .3 * (n / most);
+                return `<span class="starters-year on" style="--fill:${fill.toFixed(2)}" title="${y}: ${n} start${n === 1 ? "" : "s"} · ${clubs.join(" / ")}">${nflMark(clubs[0])}${n}</span>`;
               }).join("")}</span>
               <span class="starters-total"><strong>${p.starts}</strong><small>starts</small></span>
             </div>`).join("")}
-          <div class="starters-foot">Games in the starting lineup, playoffs included; each cell is one season. 2022 lineups are not in the box scores yet.</div>
+          <div class="starters-foot">Games in the starting lineup, playoffs included; each cell is one season, with the club he played for that year. 2022 lineups are not in the box scores yet.</div>
         `;
       });
     }

@@ -736,7 +736,7 @@
      {
       "name": "David Montgomery",
       "pos": "RB",
-      "nfl": "HOU",
+      "nfl": "DET",
       "slot": "FLEX",
       "pts": 8.1,
       "proj": 12.79,
@@ -868,7 +868,7 @@
      {
       "name": "Jakobi Meyers",
       "pos": "WR",
-      "nfl": "JAX",
+      "nfl": "LV",
       "slot": "WR",
       "pts": 7.9,
       "proj": 13.19,
@@ -1360,7 +1360,7 @@
      {
       "name": "Rashid Shaheed",
       "pos": "WR",
-      "nfl": "SEA",
+      "nfl": "NO",
       "slot": "WR",
       "pts": 6.8,
       "proj": 10.03,

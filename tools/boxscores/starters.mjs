@@ -15,7 +15,9 @@
 
    A start is any game the player was in the starting lineup, playoffs and the
    losers' bracket included — it is still a week he was trusted with a slot.
-   Players are matched by name, which is all the export carries. */
+   Players are matched by name, which is all the export carries. The club
+   shown for a season is the one in the box scores, which clubs.mjs has set to
+   where he actually played each week. */
 import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
@@ -71,7 +73,9 @@ export async function buildStarters(root) {
             if (!p.starter) continue;
             const t = (players[p.name] ||= { name: p.name, pos: p.pos, nfl: p.nfl, starts: 0, years: {} });
             t.starts++;
-            t.years[season] = (t.years[season] || 0) + 1;
+            const y = (t.years[season] ||= { n: 0, clubs: {} });
+            y.n++;
+            y.clubs[p.nfl] = (y.clubs[p.nfl] || 0) + 1;
             // Seasons and weeks run in order, so the last start seen sets the
             // club and position shown — a traded player shows where he ended up.
             t.nfl = p.nfl;
@@ -89,7 +93,11 @@ export async function buildStarters(root) {
       seasons: [...ownerSeasons[owner]].sort((a, b) => a - b),
       players: Object.values(players)
         .sort((a, b) => b.starts - a.starts || lastYear(b) - lastYear(a) || a.name.localeCompare(b.name))
-        .slice(0, TOP),
+        .slice(0, TOP)
+        // Each season as [starts, club, ...]: the clubs he started for that
+        // year, most starts first, so a player traded mid-season lists both.
+        .map((p) => ({ ...p, years: Object.fromEntries(Object.entries(p.years).map(([yr, y]) =>
+          [yr, [y.n, ...Object.entries(y.clubs).sort((a, b) => b[1] - a[1]).map(([c]) => c)]])) })),
     };
   }
 

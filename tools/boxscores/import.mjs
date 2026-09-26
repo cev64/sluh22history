@@ -215,7 +215,29 @@ if (problems.length) {
   throw new Error(`${problems.length} validation problem(s) — nothing was written`);
 }
 
+/* A week already on disk keeps the NFL club each player was given there.
+   ESPN reports one club per player — wherever he is on the day of the pull —
+   so re-importing a finished week would move a player traded since onto his
+   new team for games he played for the old one. The first import of a week
+   happens days after it, when ESPN's club is still right, and
+   tools/boxscores/clubs.mjs corrects older weeks from nflverse; either way,
+   what is on disk is the better record. */
+function keepClubs(week, games) {
+  const file = path.join(outDir, `week-${week}.json`);
+  if (!fs.existsSync(file)) return;
+  const clubs = new Map();
+  for (const g of JSON.parse(fs.readFileSync(file, 'utf8')).games) {
+    for (const lineup of Object.values(g.lineups)) for (const p of lineup) clubs.set(p.name, p.nfl);
+  }
+  for (const g of games) {
+    for (const lineup of Object.values(g.lineups)) {
+      for (const p of lineup) if (clubs.has(p.name)) p.nfl = clubs.get(p.name);
+    }
+  }
+}
+
 for (const { week, games } of pending) {
+  keepClubs(week, games);
   fs.writeFileSync(path.join(outDir, `week-${week}.json`),
     JSON.stringify({ season: SEASON, week, games }, null, 1) + '\n');
   written.push(week);

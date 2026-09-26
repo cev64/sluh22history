@@ -1480,7 +1480,7 @@
      {
       "name": "Adrian Peterson",
       "pos": "RB",
-      "nfl": "FA",
+      "nfl": "TEN",
       "slot": "BE",
       "pts": 3,
       "proj": 9.68,
@@ -1500,7 +1500,7 @@
      {
       "name": "Antonio Brown",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "TB",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -1682,7 +1682,7 @@
      {
       "name": "Phillip Lindsay",
       "pos": "RB",
-      "nfl": "MIA",
+      "nfl": "HOU",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
