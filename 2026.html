@@ -5538,7 +5538,7 @@
       const active = rail.querySelector(".week-pill.active");
       // Centre the chosen week in the rail by scrolling the rail alone, never
       // the page: scrollIntoView could also move the whole page up or down.
-      const rail = document.getElementById("weekRail");
+      // (This page already holds the rail in \`rail\`, above.)
       if (active && rail && rail.offsetParent) {
         rail.scrollTo({ left: active.offsetLeft - (rail.clientWidth - active.offsetWidth) / 2, behavior: "smooth" });
       }
