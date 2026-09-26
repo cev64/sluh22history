@@ -24,6 +24,7 @@ import path from 'path';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
 import { loadSeason } from '../newsletter/season.mjs';
+import { buildPlayers } from './players.mjs';
 
 const TOP = 10;
 
@@ -139,6 +140,9 @@ export async function buildStarters(root) {
 
   const out = { seasons, owners };
   fs.writeFileSync(path.join(dir, 'starters.json'), JSON.stringify(out) + '\n');
+  // The player card's data comes from the same week files, so it is rebuilt
+  // on the same pass.
+  await buildPlayers(root, seasons);
   return out;
 }
 

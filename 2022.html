@@ -15,6 +15,7 @@
   <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <script src="pwa.js" defer></script>
+  <script src="player-card.js" defer></script>
   <style>
     :root {
       --ink: #0b1726;
@@ -4137,7 +4138,7 @@
             ${team.players.map((p) => `
               <div class="roster-row">
                 ${bxClub(p.clubs[0])}
-                <span class="roster-name"><strong title="${p.name}">${p.name}</strong><small>${p.pos} · ${p.clubs.join(" → ")}</small></span>
+                <span class="roster-name" data-player="${encodeURIComponent(p.name)}" tabindex="0" role="button"><strong title="${p.name}">${p.name}</strong><small>${p.pos} · ${p.clubs.join(" → ")}</small></span>
                 <span class="roster-strip">${weeks.map((w) => cell(p, w)).join("")}</span>
                 <span class="roster-num"><strong>${p.starts}</strong></span>
                 <span class="roster-num"><strong>${fmt(p.pts)}</strong></span>
@@ -5251,7 +5252,7 @@
       const club = bxClub(player.nfl);
       return `<div class="bx-p bx-${side}">
         ${side === "l" ? club : ""}
-        <span class="bx-name">${bxShortName(player.name)}</span>
+        <span class="bx-name" data-player="${encodeURIComponent(player.name)}" tabindex="0" role="button" title="${player.name}">${bxShortName(player.name)}</span>
         ${side === "r" ? club : ""}
         ${player.injury ? `<span class="bx-inj" title="${player.injury}">${player.injury.charAt(0)}</span>` : ""}
       </div>`;
