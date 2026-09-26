@@ -17,6 +17,10 @@
   <script src="pwa.js" defer></script>
   <script src="player-card.js" defer></script>
   <style>
+    /* Moving between pages (a season from the menu, a Season History link)
+       crossfades where the browser supports it, instead of flashing white. */
+    @view-transition { navigation: auto; }
+
     :root {
       --ink: #0b1726;
       --muted: #637083;
@@ -847,7 +851,7 @@
     .schedule-opponent strong {
       text-decoration: underline dotted rgba(23, 105, 224, .55) 1.5px; text-underline-offset: 3px;
     }
-    .schedule-opponent:hover strong { color: var(--blue); text-decoration-style: solid; text-decoration-color: var(--blue); }
+    @media (hover: hover) { .schedule-opponent:hover strong { color: var(--blue); text-decoration-style: solid; text-decoration-color: var(--blue); } }
     .schedule-opponent strong { display: block; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .schedule-opponent span { color: var(--muted); font-size: 10px; }
     .schedule-score { text-align: right; font-size: 12px; }
@@ -2553,7 +2557,7 @@
       font-weight: 700;
       line-height: 1;
     }
-    .game-side:hover { background: rgba(23, 105, 224, .05); }
+    @media (hover: hover) { .game-side:hover { background: rgba(23, 105, 224, .05); } }
     .game-side:has(.game-team:focus-visible) { outline: 2px solid var(--blue); outline-offset: -2px; }
     .game-side .game-team:focus-visible { outline: none; }
 
@@ -2591,7 +2595,7 @@
     }
 
     .game-side.winner { background: rgba(22, 131, 74, .06); }
-    .game-side.winner:hover { background: rgba(22, 131, 74, .11); }
+    @media (hover: hover) { .game-side.winner:hover { background: rgba(22, 131, 74, .11); } }
     .game-side.winner .game-score { color: var(--ink); }
     .game-side.winner .game-team strong { color: var(--ink); }
 
@@ -2836,7 +2840,7 @@
     }
     .bx-open svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; }
     .bx-open i { font-style: normal; font-size: 16px; line-height: 1; }
-    .bx-open:hover { background: rgba(23, 105, 224, .12); }
+    @media (hover: hover) { .bx-open:hover { background: rgba(23, 105, 224, .12); } }
     .bx-open:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
 
     /* Its smaller twin under a bracket matchup. */
@@ -2860,7 +2864,7 @@
     }
     .bx-cue-row svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.7; }
     .bx-cue-row i { font-style: normal; font-size: 12px; line-height: 1; }
-    .bx-cue-row:hover { background: rgba(23, 105, 224, .12); }
+    @media (hover: hover) { .bx-cue-row:hover { background: rgba(23, 105, 224, .12); } }
 
     .bx-backdrop {
       position: fixed;
@@ -5532,7 +5536,12 @@
       }).join("");
 
       const active = rail.querySelector(".week-pill.active");
-      if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
+      // Centre the chosen week in the rail by scrolling the rail alone, never
+      // the page: scrollIntoView could also move the whole page up or down.
+      const rail = document.getElementById("weekRail");
+      if (active && rail && rail.offsetParent) {
+        rail.scrollTo({ left: active.offsetLeft - (rail.clientWidth - active.offsetWidth) / 2, behavior: "smooth" });
+      }
     }
 
     function renderViewTabs() {
@@ -6633,17 +6642,18 @@
        schedule, say) slides the current team out to the left and the new one
        in from the right, so it is plain the page has changed. */
     function swapTeam(teamId) {
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const parts = [document.getElementById("drawerHero"), document.getElementById("drawerBody")];
       const out = parts.map((el) => el.animate(
         [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(-22px)" }],
-        { duration: 150, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" }));
+        { duration: still ? 1 : 150, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" }));
       out[0].onfinish = () => {
         drawer.dataset.team = teamId;
         openTeam(teamId);
         parts.forEach((el) => {
           el.getAnimations().forEach((a) => a.cancel());
           el.animate([{ opacity: 0, transform: "translateX(22px)" }, { opacity: 1, transform: "none" }],
-            { duration: 280, easing: "cubic-bezier(.2, .8, .2, 1)" });
+            { duration: still ? 1 : 280, easing: "cubic-bezier(.2, .8, .2, 1)" });
         });
       };
     }
@@ -6713,20 +6723,35 @@
       renderWeekRail();
       renderViewTabs();
       renderHero(state.week);
-      if (state.week > REGULAR_WEEKS) {
-        renderPlayoffPanel(state.week);
-        renderStandingsPanel(REGULAR_WEEKS, { odds: false });
-      } else {
-        renderResultsPanel(state.week);
-        renderStandingsPanel(state.week);
-        renderPicturePanel(state.week);
-        renderSummaryPanel(state.week);
-        renderSideBetsPanel(state.week);
-        if (state.week === 0) renderSosPanel();
-      }
+      const week = state.week;
+      pendingPanels = week > REGULAR_WEEKS ? {
+        bracket: () => renderPlayoffPanel(week),
+        standings: () => renderStandingsPanel(REGULAR_WEEKS, { odds: false }),
+      } : {
+        results: () => renderResultsPanel(week),
+        standings: () => renderStandingsPanel(week),
+        picture: () => renderPicturePanel(week),
+        summary: () => renderSummaryPanel(week),
+        sidebets: () => renderSideBetsPanel(week),
+        ...(week === 0 ? { sos: () => renderSosPanel() } : {}),
+      };
+      showLivePanel();
+    }
+
+    /* Only the tab on screen is built when the week changes; the others are
+       built the moment they are opened, so a new week does not run the
+       playoff-odds simulation unless its Standings are actually looked at. */
+    let pendingPanels = {};
+
+    function showLivePanel() {
+      const job = pendingPanels[state.view];
+      if (job) { delete pendingPanels[state.view]; job(); }
       document.querySelectorAll(".live-panel").forEach((panel) => {
         panel.classList.toggle("active", panel.id === `panel-${state.view}`);
       });
+      // Ease the panel in whenever it is shown or its week changes.
+      const shown = document.getElementById(`panel-${state.view}`);
+      if (shown) { shown.classList.remove("panel-in"); void shown.offsetWidth; shown.classList.add("panel-in"); }
     }
 
     function applyHash() {
@@ -6764,18 +6789,14 @@
       if (!tab) return;
       state.view = tab.dataset.view;
       renderViewTabs();
-      document.querySelectorAll(".live-panel").forEach((panel) => {
-        panel.classList.toggle("active", panel.id === `panel-${state.view}`);
-      });
+      showLivePanel();
       writeHash();
     });
 
     document.getElementById("viewSelect").addEventListener("change", (event) => {
       state.view = event.target.value;
       renderViewTabs();
-      document.querySelectorAll(".live-panel").forEach((panel) => {
-        panel.classList.toggle("active", panel.id === `panel-${state.view}`);
-      });
+      showLivePanel();
       writeHash();
     });
 
