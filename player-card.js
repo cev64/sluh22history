@@ -68,6 +68,7 @@
     padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.16);
     font-size: 10.5px; font-weight: 800; letter-spacing: .03em;
   }
+  .pc-tag-gold { background: linear-gradient(135deg, #fbe08a, #e0a82e); color: #2a2112; }
   .pc-close {
     position: absolute; z-index: 2; top: 14px; right: 14px; width: 34px; height: 34px;
     border: 1px solid rgba(255,255,255,.3); border-radius: 10px; background: rgba(255,255,255,.12);
@@ -179,15 +180,21 @@
   .pc-help li { display: flex; align-items: center; gap: 8px; }
   .pc-help .pc-pts { min-width: 44px; padding: 2px 6px; font-size: 10px; }
 
-  .pc-log { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .pc-log th {
-    padding: 6px 14px; background: #f6f8fa; color: #788696; text-align: left;
+  /* The log is rows of a grid, not a <table>: the season pages give every
+     table a phone min-width, which would push the points off the card. */
+  .pc-log { font-variant-numeric: tabular-nums; }
+  .pc-log-row {
+    display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+    padding: 5px 14px; border-top: 1px solid #eef1f4; font-size: 11.5px;
+  }
+  .pc-log-row.head {
+    padding-top: 6px; padding-bottom: 6px; border-top: 0; background: #f6f8fa; color: #788696;
     font-size: 8.5px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
   }
-  .pc-log td { padding: 5px 14px; border-top: 1px solid #eef1f4; font-size: 11.5px; }
-  .pc-log .wk { width: 1%; white-space: nowrap; color: var(--pc-muted); font-weight: 800; }
+  .pc-log.all .pc-log-row { grid-template-columns: 78px minmax(0, 1fr) auto; }
+  .pc-log .wk { white-space: nowrap; color: var(--pc-muted); font-weight: 800; }
   .pc-log .wk sup { color: #b8733f; font-size: 8px; margin-left: 1px; }
-  .pc-log .num { width: 1%; text-align: right; }
+  .pc-log .num { text-align: right; }
   .pc-team { display: flex; align-items: center; gap: 8px; min-width: 0; }
   .pc-team .pc-mark { width: 20px; height: 20px; border-radius: 6px; font-size: 8px; }
   .pc-team span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
@@ -201,8 +208,27 @@
   .pc-chip { display: inline-block; padding: 1px 4px; border-radius: 4px; background: #e7ebef; color: #4b5866; font-size: 8px; font-weight: 900; }
   .pc-empty { padding: 36px; text-align: center; color: var(--pc-muted); }
 
-  [data-player] { cursor: pointer; }
-  .bx-name[data-player]:hover, .roster-name[data-player]:hover strong, .starters-name[data-player]:hover strong { text-decoration: underline; text-underline-offset: 2px; }
+  /* Player names that open the card read as links everywhere: a dotted
+     underline at rest (the only cue a phone gets), blue with a solid line on
+     hover, and a tint while tapped. */
+  [data-player] { cursor: pointer; -webkit-tap-highlight-color: rgba(23, 105, 224, .12); }
+  .bx-name[data-player], .roster-name[data-player] strong, .starters-name[data-player] strong {
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: rgba(23, 105, 224, .55);
+    text-underline-offset: 3px;
+    transition: color .12s ease, text-decoration-color .12s ease;
+  }
+  .bx-name[data-player]:hover, .roster-name[data-player]:hover strong, .starters-name[data-player]:hover strong,
+  .bx-name[data-player]:active, .roster-name[data-player]:active strong, .starters-name[data-player]:active strong {
+    color: #1769e0;
+    text-decoration-style: solid;
+    text-decoration-color: #1769e0;
+  }
+  .bx-name[data-player]:focus-visible, .roster-name[data-player]:focus-visible, .starters-name[data-player]:focus-visible {
+    outline: 2px solid #1769e0; outline-offset: 2px; border-radius: 3px;
+  }
 
   /* Phones: a bottom sheet, sized to match the rest of the site's compact
      mobile type rather than the desktop card scaled down. */
@@ -255,12 +281,19 @@
     .pc-tabs { display: none; }
     .pc-year { display: block; }
     .pc-help { padding: 8px 10px; font-size: 10px; }
-    .pc-log th { padding: 5px 10px; font-size: 7.5px; }
-    .pc-log td { padding: 4px 10px; font-size: 10.5px; }
+    .pc-log-row { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; padding: 4px 10px; font-size: 10.5px; }
+    .pc-log.all .pc-log-row { grid-template-columns: 52px minmax(0, 1fr) auto; }
+    .pc-log-row.head { font-size: 7.5px; padding-top: 5px; padding-bottom: 5px; }
     .pc-team { gap: 6px; }
     .pc-team .pc-mark { width: 18px; height: 18px; border-radius: 5px; }
     .pc-pts { min-width: 50px; font-size: 10.5px; padding: 2px 7px; }
   }`;
+
+  // Added at load, not on first open: the link styling on player names has to
+  // be there before anyone has opened a card, or nothing looks clickable.
+  const style = document.createElement("style");
+  style.textContent = CSS;
+  document.head.appendChild(style);
 
   let data = null;
   let loading = null;
@@ -306,9 +339,6 @@
 
   function ensureShell() {
     if (els) return els;
-    const style = document.createElement("style");
-    style.textContent = CSS;
-    document.head.appendChild(style);
     const backdrop = document.createElement("div");
     backdrop.className = "pc-backdrop";
     const card = document.createElement("div");
@@ -344,6 +374,9 @@
     const total = starts.reduce((t, r) => t + r.pts, 0);
     const best = starts.slice().sort((a, b) => b.pts - a.pts);
     const wins = starts.filter((r) => r.result === "W").length;
+    // A title counts only if he was in the winning team's starting lineup
+    // for the championship game itself.
+    const titles = starts.filter((r) => r.result === "W" && r.game && r.game[3] === "Championship");
     const losses = starts.filter((r) => r.result === "L").length;
 
     // Managers, most starts first; a manager keeps his history through renames.
@@ -360,7 +393,7 @@
     const managers = [...mgrs.values()].sort((a, b) => b.starts - a.starts || b.weeks - a.weeks);
     const seasons = [...new Set(rows.map((r) => r.season))];
     const lastClub = rows[rows.length - 1].club;
-    return { rows, starts, total, best, wins, losses, managers, seasons, lastClub };
+    return { rows, starts, total, best, wins, losses, titles, managers, seasons, lastClub };
   }
 
   function render(name) {
@@ -419,7 +452,7 @@
     const managers = s.managers.map((m) => `
       <div class="pc-mgr" style="--c:${m.color}">
         ${mark(m)}
-        <span class="pc-mgr-name"><strong>${esc(m.owner)}</strong><span>${[...m.names].map(esc).join(" · ")} · ${[...m.seasons].join(", ")}</span></span>
+        <span class="pc-mgr-name" title="${[...m.names].map(esc).join(" · ")} · ${[...m.seasons].join(", ")}"><strong>${esc(m.owner)}</strong></span>
         <span class="pc-mgr-nums">
           <span><b>${m.starts}</b><small>GS</small></span>
           <span><b>${fmt1(m.pts)}</b><small>Pts</small></span>
@@ -453,6 +486,7 @@
             <div class="pc-tags">
               <span class="pc-tag">${p.p}</span>
               <span class="pc-tag">${s.managers.length} manager${s.managers.length === 1 ? "" : "s"}</span>
+              <span class="pc-tag${s.titles.length ? " pc-tag-gold" : ""}" title="Championship games won in the starting lineup">🏆 ${s.titles.length} title${s.titles.length === 1 ? "" : "s"}${s.titles.length ? ` · ${s.titles.map((r) => r.season).join(", ")}` : ""}</span>
             </div>
           </div>
           <button type="button" class="pc-close" aria-label="Close player card">&times;</button>
@@ -527,16 +561,16 @@
     const showLog = (season) => {
       const all = season === "all";
       const list = s.rows.filter((r) => all || r.season === Number(season)).slice().reverse();
-      logWrap.innerHTML = `<table class="pc-log"><thead><tr><th>Wk</th><th>Team</th><th class="num">Pts</th></tr></thead>
-        <tbody>${list.map((r) => {
+      logWrap.innerHTML = `<div class="pc-log${all ? " all" : ""}"><div class="pc-log-row head"><span>Wk</span><span>Team</span><span class="num">Pts</span></div>
+        ${list.map((r) => {
           const fill = r.started ? .22 + .78 * Math.max(0, r.pts) / bestPts : 0;
           const tip = `${r.season} week ${r.week}${r.playoff && r.game && r.game[3] ? ` (${r.game[3]})` : ""} · ${r.started ? r.slot : r.slot === "IR" ? "IR" : "bench"} · projected ${fmt(r.proj)}${r.result && r.started ? ` · ${r.result === "W" ? "won" : r.result === "L" ? "lost" : "tied"}` : ""}`;
-          return `<tr title="${esc(tip)}">
-            <td class="wk">${all ? `${r.season} · ` : ""}${r.week}${r.playoff ? "<sup>P</sup>" : ""}</td>
-            <td><span class="pc-team">${mark(r.team)}<span>${esc(r.team.name)}</span></span></td>
-            <td class="num"><span class="pc-pts ${r.started ? "start" : "bench"}" style="--c:${r.team.color};--fill:${fill.toFixed(2)};--pi:${inkOn(r.team.color, fill)}">${fmt(r.pts)}</span></td>
-          </tr>`;
-        }).join("")}</tbody></table>`;
+          return `<div class="pc-log-row" title="${esc(tip)}">
+            <span class="wk">${all ? `’${String(r.season).slice(2)} · ` : ""}${r.week}${r.playoff ? "<sup>P</sup>" : ""}</span>
+            <span class="pc-team">${mark(r.team)}<span>${esc(r.team.name)}</span></span>
+            <span class="num"><span class="pc-pts ${r.started ? "start" : "bench"}" style="--c:${r.team.color};--fill:${fill.toFixed(2)};--pi:${inkOn(r.team.color, fill)}">${fmt(r.pts)}</span></span>
+          </div>`;
+        }).join("")}</div>`;
       card.querySelectorAll(".pc-tabs button").forEach((b) => b.classList.toggle("active", b.dataset.season === String(season)));
       select.value = String(season);
     };
