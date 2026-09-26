@@ -3458,16 +3458,26 @@
     .roster-num strong { display: block; color: var(--ink); font-size: 12.5px; }
     .roster-num small { color: var(--muted); font-size: 8px; }
 
-    .roster-key {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 14px;
-      margin: 8px 2px 0;
-      color: var(--muted);
-      font-size: 10px;
+    .roster-title { display: flex; align-items: center; gap: 7px; }
+
+    /* The (i) beside the heading opens this; it explains the week strip. */
+    .roster-help {
+      margin: 0 2px 10px;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      font-size: 11.5px;
+      line-height: 1.45;
     }
-    .roster-key span { display: inline-flex; align-items: center; gap: 5px; }
-    .roster-key .roster-wk { display: inline-block; width: 12px; height: 12px; }
+    .roster-help[hidden] { display: none; }
+    .roster-help p { margin: 0 0 6px; font-weight: 700; }
+    .roster-help .roster-help-foot { margin: 8px 0 0; color: var(--muted); font-weight: 600; }
+    .roster-help ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+    .roster-help li { display: flex; align-items: flex-start; gap: 8px; }
+    .roster-help .roster-wk { flex: 0 0 auto; display: inline-block; width: 14px; height: 14px; margin-top: 1px; }
+    .roster-help .roster-wk.none { border: 1.5px dashed #c9d2dc; box-sizing: border-box; }
 
     @media (max-width: 560px) {
       .roster-row {
@@ -4131,7 +4141,23 @@
         };
 
         holder.innerHTML = `
-          <div class="schedule-heading"><h3>Starters</h3><span>${team.players.length} players</span></div>
+          <div class="schedule-heading">
+            <div class="roster-title">
+              <h3>Starters</h3>
+              <button type="button" class="why-btn roster-info" aria-expanded="false" aria-controls="rosterHelp" aria-label="What the week cells mean">i</button>
+            </div>
+            <span>${team.players.length} players</span>
+          </div>
+          <div class="roster-help" id="rosterHelp" style="--team-color:${teams[teamId].color}" hidden>
+            <p>A strip with one cell per week:</p>
+            <ul>
+              <li><i class="roster-wk start" style="--fill:.8"></i><span>Filled in the team's color: he started, and a darker cell means he scored more.</span></li>
+              <li><i class="roster-wk bench"></i><span>Outlined: he was on the bench.</span></li>
+              <li><i class="roster-wk"></i><span>Empty grey: he wasn't on the team.</span></li>
+              <li><i class="roster-wk none"></i><span>Playoff weeks sit slightly apart. A week the team had no game, like a playoff bye, is left blank.</span></li>
+            </ul>
+            <p class="roster-help-foot">GS is games started; Pts is his points as a starter. Hover a cell for that week's points and club.</p>
+          </div>
           <div class="roster-list" style="${cols}">
             <div class="roster-row header">
               <span></span><span>Player</span>
@@ -4147,12 +4173,15 @@
                 <span class="roster-num"><strong>${fmt(p.pts)}</strong><small>started</small></span>
               </div>`).join("")}
           </div>
-          <div class="roster-key" style="--team-color:${teams[teamId].color}">
-            <span><i class="roster-wk start" style="--fill:.8"></i>Started</span>
-            <span><i class="roster-wk bench"></i>Bench</span>
-            <span><i class="roster-wk"></i>Not on the team</span>
-            <span>Weeks ${REGULAR_WEEKS + 1}+ are the playoffs · GS is games started</span>
-          </div>`;
+          `;
+        // Hovering a cell still gives the week, the points and the club; the
+        // (i) says what the cells mean.
+        const info = holder.querySelector(".roster-info");
+        const help = holder.querySelector(".roster-help");
+        info.addEventListener("click", () => {
+          help.hidden = !help.hidden;
+          info.setAttribute("aria-expanded", String(!help.hidden));
+        });
       });
     }
 
