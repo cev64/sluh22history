@@ -817,6 +817,11 @@
       border-bottom: 1px solid #edf0f3;
     }
     .schedule-row:last-child { border-bottom: 0; }
+    /* A playoff label ("Losers Bracket · Last-Place Game") is far longer than
+       "Week 3", so on playoff rows it takes a line of its own above the game
+       instead of wrapping inside the narrow week column. */
+    .schedule-row.post { grid-template-columns: 34px 1fr auto; row-gap: 6px; }
+    .schedule-row.post .schedule-week { grid-column: 1 / -1; }
     .schedule-week { color: var(--muted); font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
     .result-pill {
       width: 27px; height: 27px; border-radius: 8px; display: grid; place-items: center;
@@ -1760,6 +1765,7 @@
         gap: 5px;
         padding: 7px;
       }
+      .schedule-row.post { grid-template-columns: 23px minmax(0, 1fr) auto; row-gap: 5px; }
       .schedule-week { font-size: 8px; }
       .result-pill { width: 21px; height: 21px; font-size: 8px; }
       .schedule-opponent strong { font-size: 10px; }
@@ -3936,7 +3942,7 @@
       return items.map(g => {
         const opponent = teams[g.opponent];
         const result = g.result || (g.teamScore > g.oppScore ? "W" : "L");
-        return `<div class="schedule-row">
+        return `<div class="schedule-row${postseasonMode ? " post" : ""}">
           <span class="schedule-week">${postseasonMode ? g.label : `Week ${g.week}`}</span>
           <span class="result-pill ${result === "W" ? "win" : "loss"}">${result}</span>
           <span class="schedule-opponent"><strong>${g.site} ${opponent.name}</strong><span>${opponent.owner}</span></span>
