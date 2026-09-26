@@ -208,8 +208,27 @@
   .pc-chip { display: inline-block; padding: 1px 4px; border-radius: 4px; background: #e7ebef; color: #4b5866; font-size: 8px; font-weight: 900; }
   .pc-empty { padding: 36px; text-align: center; color: var(--pc-muted); }
 
-  [data-player] { cursor: pointer; }
-  .bx-name[data-player]:hover, .roster-name[data-player]:hover strong, .starters-name[data-player]:hover strong { text-decoration: underline; text-underline-offset: 2px; }
+  /* Player names that open the card read as links everywhere: a dotted
+     underline at rest (the only cue a phone gets), blue with a solid line on
+     hover, and a tint while tapped. */
+  [data-player] { cursor: pointer; -webkit-tap-highlight-color: rgba(23, 105, 224, .12); }
+  .bx-name[data-player], .roster-name[data-player] strong, .starters-name[data-player] strong {
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: rgba(23, 105, 224, .55);
+    text-underline-offset: 3px;
+    transition: color .12s ease, text-decoration-color .12s ease;
+  }
+  .bx-name[data-player]:hover, .roster-name[data-player]:hover strong, .starters-name[data-player]:hover strong,
+  .bx-name[data-player]:active, .roster-name[data-player]:active strong, .starters-name[data-player]:active strong {
+    color: #1769e0;
+    text-decoration-style: solid;
+    text-decoration-color: #1769e0;
+  }
+  .bx-name[data-player]:focus-visible, .roster-name[data-player]:focus-visible, .starters-name[data-player]:focus-visible {
+    outline: 2px solid #1769e0; outline-offset: 2px; border-radius: 3px;
+  }
 
   /* Phones: a bottom sheet, sized to match the rest of the site's compact
      mobile type rather than the desktop card scaled down. */
@@ -270,6 +289,12 @@
     .pc-pts { min-width: 50px; font-size: 10.5px; padding: 2px 7px; }
   }`;
 
+  // Added at load, not on first open: the link styling on player names has to
+  // be there before anyone has opened a card, or nothing looks clickable.
+  const style = document.createElement("style");
+  style.textContent = CSS;
+  document.head.appendChild(style);
+
   let data = null;
   let loading = null;
   let els = null;
@@ -314,9 +339,6 @@
 
   function ensureShell() {
     if (els) return els;
-    const style = document.createElement("style");
-    style.textContent = CSS;
-    document.head.appendChild(style);
     const backdrop = document.createElement("div");
     backdrop.className = "pc-backdrop";
     const card = document.createElement("div");
