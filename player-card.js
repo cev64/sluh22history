@@ -51,8 +51,11 @@
   .pc *, .pc *::before, .pc *::after { box-sizing: border-box; }
   .pc-scroll { overflow: auto; overscroll-behavior: contain; }
 
+  /* The header stays pinned while the card scrolls, shrinking to a slim bar
+     (photo, name, close) so the player is always named on screen. */
   .pc-hero {
-    position: relative; overflow: hidden;
+    position: sticky; top: 0; z-index: 5; overflow: hidden;
+    transition: padding .2s ease;
     display: flex; align-items: center; gap: 16px;
     padding: 20px 60px 20px 22px;
     background: linear-gradient(120deg, var(--pc-color) 0%, color-mix(in srgb, var(--pc-color) 55%, #071827) 100%);
@@ -88,6 +91,29 @@
     color: #fff; font-size: 21px; line-height: 1; cursor: pointer;
   }
   .pc-close:hover { background: rgba(255,255,255,.24); }
+  .pc-photo, .pc-id h2 { transition: width .2s ease, height .2s ease, font-size .2s ease; }
+  .pc.compact .pc-hero { padding-top: 8px; padding-bottom: 8px; }
+  .pc.compact .pc-photo { width: 40px; height: 40px; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+  .pc.compact .pc-photo .pc-club, .pc.compact .pc-tags { display: none; }
+  .pc.compact .pc-id h2 { font-size: 18px; }
+  .pc.compact .pc-close { top: 50%; transform: translateY(-50%); }
+
+  /* Desktop: opened from a team panel or a box score, the card docks on the
+     right beside it instead of covering it. */
+  .pc.docked {
+    left: auto; right: 16px; top: 16px; bottom: 16px; max-height: none;
+    transform: translateX(-56px); opacity: 0;
+    transition: opacity .3s ease, transform .45s cubic-bezier(.2,.8,.2,1);
+  }
+  .pc.docked.from-panel { transform: translateX(calc(-1 * var(--pc-slide, 420px))); }
+  .pc.docked.open { transform: none; opacity: 1; }
+  .pc-backdrop.docked { display: none; }
+  .bx-modal {
+    transition: opacity .18s ease, transform .18s ease,
+      left .45s cubic-bezier(.2,.8,.2,1), width .45s cubic-bezier(.2,.8,.2,1);
+  }
+  .bx-modal.bx-docked { left: calc(16px + var(--bx-dw) / 2); width: var(--bx-dw); }
+  #teamDrawer, #profilePanel { transition: transform .27s cubic-bezier(.2,.8,.2,1), width .45s cubic-bezier(.2,.8,.2,1); }
 
   .pc-body { padding: 14px; display: grid; gap: 12px; }
 
@@ -270,6 +296,8 @@
     .pc-tags { margin-top: 6px; gap: 4px; }
     .pc-tag { font-size: 9px; padding: 2px 7px; }
     .pc-close { top: 10px; right: 10px; width: 30px; height: 30px; font-size: 18px; border-radius: 8px; }
+    .pc.compact .pc-photo { width: 34px; height: 34px; }
+    .pc.compact .pc-id h2 { font-size: 16px; }
     .pc-body { padding: 8px; gap: 8px; }
     .pc-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
     .pc-tile { padding: 8px 10px; border-radius: 10px; }
@@ -383,7 +411,69 @@
     els.card.classList.remove("open");
     els.backdrop.classList.remove("open");
     els.card.setAttribute("aria-hidden", "true");
+    undock();
     if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  /* Docking (desktop only). Opened from inside a team panel, the card slides
+     out from behind the panel and settles on the right; opened from a box
+     score, the box score narrows and moves left and the card opens beside
+     it. Anywhere else (the search, say) it opens in the middle as before.
+     The window it docks beside gives up width to make room, and gets it
+     back when the card closes. */
+  const DOCK_MIN = 1024;
+  let docked = null;   // { host, kind }
+
+  function dockFor(from) {
+    if (!from || !from.closest || window.innerWidth < DOCK_MIN) return null;
+    const box = from.closest("#bxModal");
+    if (box) return { host: box, kind: "box" };
+    const panel = from.closest("#teamDrawer, #profilePanel");
+    if (panel) return { host: panel, kind: "panel" };
+    return null;
+  }
+
+  function dock(target) {
+    const { card, backdrop } = els;
+    const vw = window.innerWidth;
+    const cardW = Math.min(780, Math.round(vw * 0.5));
+    if (target.kind === "box") {
+      const boxW = Math.min(880, vw - cardW - 48);
+      target.host.style.setProperty("--bx-dw", `${boxW}px`);
+      target.host.classList.add("bx-docked");
+      card.style.zIndex = "62";
+      card.classList.remove("from-panel");
+    } else {
+      if (!target.host.dataset.pcWidth) target.host.dataset.pcWidth = target.host.getBoundingClientRect().width;
+      const panelW = Math.min(Number(target.host.dataset.pcWidth), vw - cardW - 32);
+      target.host.style.width = `${panelW}px`;
+      // Just under the panel, just over its backdrop, so it slides out from
+      // behind the panel's edge.
+      card.style.zIndex = String((parseInt(getComputedStyle(target.host).zIndex, 10) || 80) - 1);
+      card.style.setProperty("--pc-slide", `${cardW}px`);
+      card.classList.add("from-panel");
+    }
+    card.style.width = `${cardW}px`;
+    card.classList.add("docked");
+    backdrop.classList.add("docked");
+    docked = target;
+  }
+
+  function undock() {
+    const { card, backdrop } = els;
+    if (docked) {
+      if (docked.kind === "box") docked.host.classList.remove("bx-docked");
+      else { docked.host.style.width = ""; delete docked.host.dataset.pcWidth; }
+    }
+    docked = null;
+    // Leave the docked classes until the card has faded, so it leaves the way
+    // it came in rather than jumping to the middle first.
+    setTimeout(() => {
+      if (card.classList.contains("open")) return;
+      card.classList.remove("docked", "from-panel");
+      card.style.width = card.style.zIndex = "";
+      backdrop.classList.remove("docked");
+    }, 320);
   }
 
   function build(p) {
@@ -657,9 +747,18 @@
     card.querySelector(".pc-close").addEventListener("click", close);
   }
 
-  function open(name) {
+  function open(name, from) {
     const { card, backdrop } = ensureShell();
     lastFocus = document.activeElement;
+    const target = dockFor(from);
+    const wasOpen = card.classList.contains("open");
+    if (!wasOpen) {
+      card.classList.remove("docked", "from-panel", "compact");
+      card.style.width = card.style.zIndex = "";
+      backdrop.classList.remove("docked");
+      if (target) dock(target);
+      void card.offsetWidth;   // start the slide from the docked start position
+    }
     card.innerHTML = `<div class="pc-empty">Loading…</div>`;
     card.classList.add("open");
     backdrop.classList.add("open");
@@ -667,9 +766,19 @@
     load().then(() => {
       render(name);
       const btn = card.querySelector(".pc-close");
-      if (btn) btn.focus();
+      if (btn) btn.focus({ preventScroll: true });
+      card.classList.remove("compact");
       const scroller = card.querySelector(".pc-scroll");
-      if (scroller) scroller.scrollTop = 0;
+      if (scroller) {
+        scroller.scrollTop = 0;
+        // Compact past 60px, full again under 10px: the gap keeps the header
+        // from flickering as its own height change moves the content.
+        scroller.addEventListener("scroll", () => {
+          const y = scroller.scrollTop;
+          if (y > 60) card.classList.add("compact");
+          else if (y < 10) card.classList.remove("compact");
+        }, { passive: true });
+      }
     });
   }
 
@@ -699,7 +808,13 @@
     if (!el) return;
     event.preventDefault();
     event.stopPropagation();
-    open(decodeURIComponent(el.dataset.player));
+    open(decodeURIComponent(el.dataset.player), el);
+  }, true);
+
+  // Closing the window the card is docked beside closes the card with it.
+  document.addEventListener("click", (event) => {
+    if (!docked || !els || !els.card.classList.contains("open")) return;
+    if (event.target.closest && event.target.closest("#bxClose, #bxBackdrop, #drawerClose, #drawerBackdrop, #closeProfile, #profileBackdrop")) close();
   }, true);
 
   document.addEventListener("keydown", (event) => {
@@ -708,7 +823,7 @@
       if (el && (event.key === "Enter" || event.key === " ")) {
         event.preventDefault();
         event.stopPropagation();
-        open(decodeURIComponent(el.dataset.player));
+        open(decodeURIComponent(el.dataset.player), el);
       }
       return;
     }
