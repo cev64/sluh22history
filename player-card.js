@@ -50,6 +50,7 @@
   .pc.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
   .pc *, .pc *::before, .pc *::after { box-sizing: border-box; }
   .pc-scroll { overflow: auto; overscroll-behavior: contain; }
+  #bxCols, #drawerBody, #profilePanel { overscroll-behavior: contain; }
 
   /* The header stays pinned while the card scrolls, shrinking to a slim bar
      (photo, name, close) so the player is always named on screen. */
@@ -403,6 +404,7 @@
     document.body.append(backdrop, card);
     backdrop.addEventListener("click", close);
     els = { backdrop, card };
+    swipeToClose(card, { scroller: () => card.querySelector(".pc-scroll"), backdrop, close });
     return els;
   }
 
@@ -756,8 +758,13 @@
       card.classList.remove("docked", "from-panel", "compact");
       card.style.width = card.style.zIndex = "";
       backdrop.classList.remove("docked");
+      // Jump, untransitioned, to the docked start position (off to the left,
+      // at its final height), so the slide in is a straight horizontal move
+      // rather than a diagonal from where the centred card would sit.
+      card.style.transition = "none";
       if (target) dock(target);
-      void card.offsetWidth;   // start the slide from the docked start position
+      void card.offsetWidth;
+      card.style.transition = "";
     }
     card.innerHTML = `<div class="pc-empty">Loading…</div>`;
     card.classList.add("open");
@@ -834,6 +841,133 @@
       close();
     }
   }, true);
+
+  /* Swipe down to close, for every bottom sheet on a phone: this card, the
+     box score, the team drawer and the all-time team profile.
+
+     A drag starts anywhere on the sheet once its content is scrolled to the
+     top (or the moment a scroll reaches the top mid-gesture), and the sheet
+     follows the finger 1:1 while the backdrop fades with it. On release the
+     velocity decides: a flick, or a drag past a third of the sheet, carries
+     on down at the finger's own speed; anything less springs back with a
+     little overshoot. Sideways gestures are left alone. */
+  const SHEET_MAX = 760;
+
+  function swipeToClose(sheet, { scroller, backdrop, close: dismiss }) {
+    if (!sheet || sheet.dataset.swipe) return;
+    sheet.dataset.swipe = "1";
+    let active = false, decided = false, dragging = false;
+    let startX = 0, startY = 0, baseY = 0, lastY = 0, lastT = 0, v = 0, off = 0;
+    const bd = () => (typeof backdrop === "function" ? backdrop() : backdrop);
+
+    const setOffset = (y) => {
+      off = y;
+      sheet.style.transform = `translate3d(0, ${y}px, 0)`;
+      const b = bd();
+      if (b) b.style.opacity = String(Math.max(0, 1 - y / (sheet.offsetHeight * 1.1)));
+    };
+    const clear = () => {
+      sheet.style.transition = sheet.style.transform = "";
+      const b = bd();
+      if (b) b.style.transition = b.style.opacity = "";
+    };
+
+    sheet.addEventListener("touchstart", (e) => {
+      // Only while it is laid out as a phone sheet: full width, on a narrow screen.
+      if (window.innerWidth > SHEET_MAX || sheet.getBoundingClientRect().width < window.innerWidth - 2 ||
+          !sheet.classList.contains("open") || e.touches.length > 1) { active = false; return; }
+      const t = e.touches[0];
+      active = true; decided = false; dragging = false;
+      startX = t.clientX; startY = lastY = t.clientY; lastT = e.timeStamp; v = 0;
+    }, { passive: true });
+
+    sheet.addEventListener("touchmove", (e) => {
+      if (!active) return;
+      const t = e.touches[0];
+      if (!decided) {
+        const dx = t.clientX - startX, dy = t.clientY - startY;
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        decided = true;
+        if (Math.abs(dx) > Math.abs(dy)) { active = false; return; }
+      }
+      const sc = scroller();
+      if (!dragging && t.clientY > lastY && (!sc || sc.scrollTop <= 0)) {
+        dragging = true;
+        baseY = lastY;           // from the previous point, so this move already counts
+        sheet.style.transition = "none";
+        const b = bd(); if (b) b.style.transition = "none";
+      }
+      if (dragging) {
+        e.preventDefault();
+        const y = t.clientY - baseY;
+        if (y <= 0) {            // pushed back up past the start: hand back to scrolling
+          dragging = false;
+          clear();
+        } else {
+          setOffset(y);
+          const dt = e.timeStamp - lastT;
+          if (dt > 0) v = 0.75 * ((t.clientY - lastY) / dt) + 0.25 * v;
+        }
+      }
+      lastY = t.clientY; lastT = e.timeStamp;
+    }, { passive: false });
+
+    const end = () => {
+      if (!active) return;
+      active = false;
+      if (!dragging) return;
+      dragging = false;
+      const h = sheet.offsetHeight;
+      const b = bd();
+      if (off > h * 0.33 || v > 0.5) {
+        // Carry on at the finger's speed, never slower than a brisk exit.
+        const dist = h + 24 - off;
+        const dur = Math.round(Math.min(340, Math.max(170, dist / Math.max(v, 1.3))));
+        sheet.style.transition = `transform ${dur}ms cubic-bezier(.2, .75, .35, 1)`;
+        sheet.style.transform = `translate3d(0, ${h + 24}px, 0)`;
+        if (b) { b.style.transition = `opacity ${dur}ms linear`; b.style.opacity = "0"; }
+        setTimeout(() => {
+          dismiss();
+          // Put the sheet back to its own closed state without animating.
+          sheet.style.transition = "none";
+          sheet.style.transform = "";
+          if (b) { b.style.transition = "none"; b.style.opacity = ""; }
+          void sheet.offsetWidth;
+          clear();
+        }, dur);
+      } else {
+        // Spring home, overshooting a touch, as a sheet does on iOS.
+        sheet.style.transition = "transform 460ms cubic-bezier(.2, 1.25, .35, 1)";
+        sheet.style.transform = "translate3d(0, 0, 0)";
+        if (b) { b.style.transition = "opacity 300ms ease"; b.style.opacity = ""; }
+        setTimeout(() => { if (!dragging) clear(); }, 470);
+      }
+      v = 0;
+    };
+    sheet.addEventListener("touchend", end);
+    sheet.addEventListener("touchcancel", end);
+  }
+
+  function wireSheets() {
+    const click = (sel) => () => { const b = document.querySelector(sel); if (b) b.click(); };
+    swipeToClose(document.getElementById("bxModal"), {
+      scroller: () => document.getElementById("bxCols"),
+      backdrop: () => document.getElementById("bxBackdrop"),
+      close: click("#bxClose"),
+    });
+    swipeToClose(document.getElementById("teamDrawer"), {
+      scroller: () => document.getElementById("drawerBody"),
+      backdrop: () => document.getElementById("drawerBackdrop"),
+      close: click("#drawerClose"),
+    });
+    swipeToClose(document.getElementById("profilePanel"), {
+      scroller: () => document.getElementById("profilePanel"),
+      backdrop: () => document.getElementById("profileBackdrop"),
+      close: click("#closeProfile"),
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wireSheets);
+  else wireSheets();
 
   window.PlayerCard = { open, close, search, nflLogo: nfl };
 })();

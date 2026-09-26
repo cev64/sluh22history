@@ -778,6 +778,11 @@
     .drawer-team .team-badge { width: 58px; height: 58px; font-size: 28px; }
     .drawer-team h2 { margin: 0 0 4px; font-size: 25px; letter-spacing: -.04em; }
     .drawer-team p { margin: 0; color: rgba(255,255,255,.72); font-size: 13px; }
+    .drawer-year {
+      display: inline-block; margin-bottom: 6px; padding: 2px 8px; border-radius: 999px;
+      background: rgba(255,255,255,.16); color: #fff;
+      font-size: 10px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+    }
 
     .drawer-stats {
       display: grid;
@@ -1765,6 +1770,28 @@
       .schedule-score { font-size: 9px; }
       .schedule-score strong { font-size: 10px; }
       .drawer-hero, .drawer-body { padding-left: 10px; padding-right: 10px; }
+
+      /* Phones: the team drawer is a bottom sheet like the box score and the
+         player card, and its header slims down once the schedule scrolls. */
+      .team-drawer {
+        top: auto; bottom: 0; left: 0; right: 0; width: 100%;
+        height: auto; max-height: 92dvh;
+        border-radius: 16px 16px 0 0; overflow: hidden;
+        transform: translateY(104%);
+      }
+      .team-drawer.open { transform: none; }
+      .drawer-body { flex: 1 1 auto; min-height: 0; }
+      .drawer-hero { flex: 0 0 auto; padding-top: 14px; padding-bottom: 14px; transition: padding .2s ease; }
+      .drawer-close { top: 10px; right: 10px; width: 30px; height: 30px; font-size: 18px; border-radius: 8px; }
+      .drawer-team .team-badge, .drawer-team h2 { transition: width .2s ease, height .2s ease, font-size .2s ease; }
+      .drawer-team .team-badge { width: 48px; height: 48px; }
+      .drawer-team h2 { font-size: 21px; }
+      .team-drawer.compact .drawer-hero { padding-top: 8px; padding-bottom: 8px; }
+      .team-drawer.compact .drawer-stats,
+      .team-drawer.compact .drawer-team p,
+      .team-drawer.compact .drawer-year { display: none; }
+      .team-drawer.compact .drawer-team .team-badge { width: 34px; height: 34px; }
+      .team-drawer.compact .drawer-team h2 { font-size: 16px; margin: 0; }
     }
 
   
@@ -2805,7 +2832,8 @@
       flex: 0 0 auto;
     }
 
-    .bx-head h3 { margin: 0; font-size: 14px; letter-spacing: -.02em; }
+    .bx-head h3 { margin: 0; font-size: 21px; letter-spacing: -.02em; line-height: 1.1; }
+    .bx-head .bx-sub:empty { display: none; }
     .bx-head .bx-sub { display: block; font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.62); margin-top: 3px; }
 
     .bx-close {
@@ -2941,7 +2969,7 @@
       }
       .bx-modal.open { transform: none; }
       .bx-head { padding: 10px 12px; }
-      .bx-head h3 { font-size: 12.5px; }
+      .bx-head h3 { font-size: 18px; }
       .bx-row { grid-template-columns: minmax(0, 1fr) 42px 40px 42px minmax(0, 1fr); }
       .bx-sb { grid-template-columns: minmax(0, 1fr) 52px 20px 52px minmax(0, 1fr); }
       .bx-sb, .bx-row { padding-left: 8px; padding-right: 8px; }
@@ -3991,6 +4019,7 @@
       <div class="drawer-team">
         <span class="team-badge" id="drawerBadge"></span>
         <div>
+          <span class="drawer-year" id="drawerYear"></span>
           <h2 id="drawerName"></h2>
           <p id="drawerOwner"></p>
         </div>
@@ -4291,6 +4320,15 @@
     window.addEventListener("resize", updateBracketNameAlignment);
 
     const drawer = document.getElementById("teamDrawer");
+
+    /* On a phone the drawer's header shrinks to a slim bar once the schedule
+       scrolls, as the player card's does; 60px in, back under 10px, so its
+       own change of height cannot make it flicker. */
+    document.getElementById("drawerBody").addEventListener("scroll", (event) => {
+      const y = event.target.scrollTop;
+      if (y > 60) drawer.classList.add("compact");
+      else if (y < 10) drawer.classList.remove("compact");
+    }, { passive: true });
     const backdrop = document.getElementById("drawerBackdrop");
 
     /* Everyone the team started this season, under its schedule in the
@@ -4396,7 +4434,10 @@
       const badge = document.getElementById("drawerBadge");
       badge.style.setProperty("--team-color", t.color);
       badge.innerHTML = teamMark(t);
+      document.getElementById("drawerYear").textContent = `${BOX_SEASON} season`;
       document.getElementById("drawerName").textContent = t.name;
+      drawer.classList.remove("compact");
+      document.getElementById("drawerBody").scrollTop = 0;
       document.getElementById("drawerOwner").textContent = `${t.owner} · ${t.division} Division`;
       document.getElementById("drawerStats").innerHTML = `
         <div class="drawer-stat"><small>Record</small><strong>${t.record}</strong></div>
@@ -6150,9 +6191,13 @@
         const a = { id: idA, score: scoreOf(idA) };
         const b = { id: idB, score: scoreOf(idB) };
 
-        document.getElementById("bxTitle").textContent =
-          `${teams[idA].name} ${fmt(a.score)} — ${fmt(b.score)} ${teams[idB].name}`;
-        document.getElementById("bxSub").textContent = `${BOX_SEASON} · Week ${week}`;
+        // The header is just the season and week; the teams and the score are
+        // the first row underneath. A playoff game adds its round.
+        const round = typeof postseason !== "undefined" && postseason
+          ? ((postseason[idA] || []).find((g) => g.week === week && g.opponent === idB) || {}).label
+          : null;
+        document.getElementById("bxTitle").textContent = `${BOX_SEASON} · Week ${week}`;
+        document.getElementById("bxSub").textContent = round || "";
 
         const lu = (id, test) => (game.lineups[id] || []).filter(test);
         const starters = (p) => p.starter;
