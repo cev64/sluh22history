@@ -71,7 +71,8 @@
     background: rgba(255,255,255,.95); box-shadow: 0 0 0 4px rgba(255,255,255,.25);
     display: grid; place-items: center;
   }
-  .pc-photo > img.pc-face { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: top; }
+  .pc-photo > img.pc-face { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: top; opacity: 0; transition: opacity .3s ease; }
+  .pc-photo > img.pc-face.loaded { opacity: 1; }
   .pc-photo > img.pc-club-big { width: 70%; height: 70%; object-fit: contain; }
   .pc-photo .pc-club {
     position: absolute; right: -5px; bottom: -2px; width: 34px; height: 34px; border-radius: 50%;
@@ -268,7 +269,50 @@
   /* Player names that open the card read as links everywhere: a dotted
      underline at rest (the only cue a phone gets), blue with a solid line on
      hover, and a tint while tapped. */
-  [data-player] { cursor: pointer; -webkit-tap-highlight-color: rgba(23, 105, 224, .12); }
+  [data-player] { cursor: pointer; }
+  html.pc-lock, html.pc-lock body { overflow: hidden; }
+
+  /* ---- App feel, shared by every page (this script is on all of them) ----
+     No grey tap flash or double-tap zoom delay; instead a quick press-down
+     on whatever was tapped, as a native app gives. */
+  html { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  :where(button, a, select, .week-pill, .view-tab, .game-side, .bx-open, .bx-cue-row,
+    .schedule-opponent, .player-result, .season-link, .team-button, [data-player], [data-owner]) {
+    transition-property: transform, opacity, background-color, color, border-color, box-shadow;
+    transition-duration: .16s; transition-timing-function: ease;
+  }
+  @media (hover: none) {
+    /* Named controls only, never every button: a button stretched over its
+       row (a results card's team row) must not change size while pressed,
+       or the tap lands outside it and is lost. */
+    :where(.week-pill, .view-tab, .bx-open, .bx-cue-row, .player-result, .pc-tabs button,
+      .pc-close, .bx-close, .drawer-close, .close-profile, .nl-download, .trophy-room-link):active {
+      transform: scale(.97); transition-duration: .06s;
+    }
+    :where(.game-side, .season-link, .schedule-opponent):active { background-color: rgba(23, 105, 224, .07); transition-duration: .06s; }
+  }
+
+  /* Every sheet on a phone rises and settles on the same iOS curve. (The
+     'html' prefix outranks each page's own rule without !important, which
+     would also outrank the swipe gesture's inline styles.) */
+  @media (max-width: 760px) {
+    html .pc, html .bx-modal, html .team-drawer, html .profile-panel {
+      transition: transform .42s cubic-bezier(.32, .72, 0, 1), opacity .22s ease;
+    }
+    html .pc:not(.open), html .bx-modal:not(.open) { transform: translateY(100%); }
+  }
+
+  /* A panel whose content just changed (a new week or tab) eases in. */
+  @keyframes pcPanelIn { from { opacity: .35; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .panel-in { animation: pcPanelIn .24s cubic-bezier(.2, .8, .2, 1); }
+
+  /* Reduce motion, if the phone or computer asks for it. */
+  @media (prefers-reduced-motion: reduce) {
+    .pc, .pc-backdrop, .bx-modal, .bx-backdrop, .team-drawer, .drawer-backdrop, .profile-panel, .profile-backdrop,
+    .pc-hero, .pc-photo, .pc-tags, .drawer-hero, .profile-hero, .panel-in {
+      transition-duration: .01ms !important; animation-duration: .01ms !important;
+    }
+  }
   .bx-name[data-player], .roster-name[data-player] strong, .starters-name[data-player] strong {
     text-decoration-line: underline;
     text-decoration-style: dotted;
@@ -277,11 +321,13 @@
     text-underline-offset: 3px;
     transition: color .12s ease, text-decoration-color .12s ease;
   }
-  .bx-name[data-player]:hover, .roster-name[data-player]:hover strong, .starters-name[data-player]:hover strong,
+  @media (hover: hover) {
+    .bx-name[data-player]:hover, .roster-name[data-player]:hover strong, .starters-name[data-player]:hover strong {
+      color: #1769e0; text-decoration-style: solid; text-decoration-color: #1769e0;
+    }
+  }
   .bx-name[data-player]:active, .roster-name[data-player]:active strong, .starters-name[data-player]:active strong {
-    color: #1769e0;
-    text-decoration-style: solid;
-    text-decoration-color: #1769e0;
+    color: #1769e0; text-decoration-style: solid; text-decoration-color: #1769e0;
   }
   .bx-name[data-player]:focus-visible, .roster-name[data-player]:focus-visible, .starters-name[data-player]:focus-visible {
     outline: 2px solid #1769e0; outline-offset: 2px; border-radius: 3px;
@@ -356,6 +402,24 @@
   style.textContent = CSS;
   document.head.appendChild(style);
 
+  // Open the connection to Sleeper's photo server early, so the first photo
+  // is not also paying for the handshake.
+  const pre = document.createElement("link");
+  pre.rel = "preconnect";
+  pre.href = "https://sleepercdn.com";
+  document.head.appendChild(pre);
+
+  /* Once the page is idle, fetch what the first tap would otherwise wait
+     for: the player data behind every card and the search, and on a season
+     page its box score index and the team drawers' starters. All of it is
+     cached by the service worker, so this costs a request only once. */
+  const whenIdle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1500));
+  whenIdle(() => {
+    load();
+    if (typeof loadRoster === "function") loadRoster();
+    if (typeof boxWeeks === "function") boxWeeks();
+  }, { timeout: 5000 });
+
   let data = null;
   let loading = null;
   let els = null;
@@ -420,6 +484,7 @@
     els.card.classList.remove("open");
     els.backdrop.classList.remove("open");
     els.card.setAttribute("aria-hidden", "true");
+    document.documentElement.classList.remove("pc-lock");
     undock();
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
@@ -689,6 +754,11 @@
 
     // A photo Sleeper no longer serves falls back to his club's logo.
     const face = card.querySelector(".pc-face");
+    if (face) {
+      // Fade the photo in when it arrives instead of letting it pop.
+      const shown = () => face.classList.add("loaded");
+      if (face.complete && face.naturalWidth) shown(); else face.addEventListener("load", shown);
+    }
     if (face) face.addEventListener("error", () => {
       face.outerHTML = NFL_LOGOS.has(s.lastClub) ? `<img class="pc-club-big" src="nfl-logos/${s.lastClub}.png" alt="">` : "";
     });
@@ -779,11 +849,12 @@
       void card.offsetWidth;
       card.style.transition = "";
     }
-    card.innerHTML = `<div class="pc-empty">Loading…</div>`;
-    card.classList.add("open");
-    backdrop.classList.add("open");
+    // Hold the page still behind a card that covers it; a docked card sits
+    // beside a window that already does.
+    if (!card.classList.contains("docked")) document.documentElement.classList.add("pc-lock");
     card.setAttribute("aria-hidden", "false");
-    load().then(() => {
+
+    const fill = () => {
       render(name);
       const btn = card.querySelector(".pc-close");
       if (btn) btn.focus({ preventScroll: true });
@@ -799,7 +870,20 @@
           else if (y < 10) card.classList.remove("compact");
         }, { passive: true });
       }
-    });
+    };
+    const show = () => { card.classList.add("open"); backdrop.classList.add("open"); };
+
+    if (data) {
+      // The data is already here (the usual case, since it is fetched while
+      // the page is idle): build the card first and start the slide on the
+      // next frame, so the animation never waits on building it.
+      fill();
+      if (wasOpen) show(); else requestAnimationFrame(show);
+    } else {
+      card.innerHTML = `<div class="pc-empty">Loading…</div>`;
+      show();
+      load().then(fill);
+    }
   }
 
   /* Search: names containing every word typed, in any order, accents and

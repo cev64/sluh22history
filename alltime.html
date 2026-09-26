@@ -19,6 +19,10 @@
   <script src="pwa.js" defer></script>
   <script src="player-card.js" defer></script>
   <style>
+    /* Moving between pages (a season from the menu, a Season History link)
+       crossfades where the browser supports it, instead of flashing white. */
+    @view-transition { navigation: auto; }
+
     :root {
       --navy: #071827;
       --navy-2: #102b43;
@@ -554,11 +558,11 @@
 
     /* A season in Season History links to that team's page for the year. */
     .season-history-row.season-link { color: inherit; text-decoration: none; cursor: pointer; transition: background .15s ease; }
-    .season-history-row.season-link:hover { background: #f5f8fc; }
+    @media (hover: hover) { .season-history-row.season-link:hover { background: #f5f8fc; } }
     .season-history-row.season-link strong:nth-child(2) {
       text-decoration: underline dotted rgba(23, 105, 224, .55) 1.5px; text-underline-offset: 3px;
     }
-    .season-history-row.season-link:hover strong:nth-child(2) { color: var(--blue); text-decoration-style: solid; }
+    @media (hover: hover) { .season-history-row.season-link:hover strong:nth-child(2) { color: var(--blue); text-decoration-style: solid; } }
 
     @media (min-width: 701px) {
       .profile-panel { inset: 0 auto 0 0; transform: translateX(-102%); box-shadow: 24px 0 60px rgba(7, 20, 34, .26); }
@@ -816,7 +820,8 @@
       color: var(--ink);
       cursor: pointer;
     }
-    .player-result:hover, .player-result:focus-visible { border-color: var(--blue); background: #f7faff; outline: none; }
+    @media (hover: hover) { .player-result:hover { border-color: var(--blue); background: #f7faff; } }
+    .player-result:focus-visible { border-color: var(--blue); background: #f7faff; outline: none; }
     .player-result .pr-photo {
       position: relative; width: 40px; height: 40px; border-radius: 50%;
       background: #eef1f4; display: grid; place-items: center; overflow: hidden;
@@ -2720,7 +2725,7 @@
       const phone = window.innerWidth <= 700;
       const exit = panel.animate(
         [{ opacity: 1, transform: "none" }, { opacity: 0, transform: phone ? "translateY(60px)" : "translateX(-40px)" }],
-        { duration: 220, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
+        { duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : 220, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
       document.getElementById("profileBackdrop").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: "forwards" });
       exit.onfinish = () => { window.location.href = link.href; };
     });
