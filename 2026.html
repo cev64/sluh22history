@@ -5853,10 +5853,10 @@
       return `${parts[0].charAt(0)}. ${parts.slice(1).join(" ")}`;
     }
 
-    /* Clubs with artwork in nfl-logos/ show the logo; the Rams (no file yet)
-       and free agents keep the coloured abbreviation chip. */
+    /* Clubs with artwork in nfl-logos/ show the logo; free agents keep the
+       coloured abbreviation chip. */
     const NFL_LOGOS = new Set(["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET",
-      "GB", "HOU", "IND", "JAX", "KC", "LAC", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT",
+      "GB", "HOU", "IND", "JAX", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT",
       "SEA", "SF", "TB", "TEN", "WSH"]);
 
     function bxClub(abbr) {
