@@ -31,6 +31,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadSeason } from '../newsletter/season.mjs';
 import { readRaw, espnTeams } from './raw.mjs';
+import { buildStarters } from './starters.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const SEASON = Number(arg('--season', 2025));
@@ -225,6 +226,10 @@ const have = fs.readdirSync(outDir)
   .map((f) => /^week-(\d+)\.json$/.exec(f))
   .filter(Boolean).map((m) => Number(m[1])).sort((a, b) => a - b);
 fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify(have) + '\n');
+
+// The all-time page's most-started players are summed from every season's
+// box scores, so any import can move them.
+await buildStarters(ROOT);
 
 if (sumGaps.length) {
   console.error(`  accepted ${sumGaps.length} starter-sum gap(s) under --allow-sum-gap:`);

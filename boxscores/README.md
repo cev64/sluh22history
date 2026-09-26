@@ -18,6 +18,12 @@ Two things read these files and nothing else does:
 Because both read the same file, a newsletter can never disagree with the box
 score a reader can open on the site.
 
+One file is derived from all of them: `boxscores/starters.json`, each manager's
+ten most-started players with their starts per season, which the profile panel
+on the all-time page reads. `tools/boxscores/starters.mjs` builds it, and
+`import.mjs` reruns it after every import, so it cannot fall behind. Run it on
+its own after editing a week by hand.
+
 ## The weekly export
 
 The league export is one ESPN-shaped file for the whole season, and it is the
