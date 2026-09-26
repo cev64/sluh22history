@@ -195,6 +195,10 @@
   .pc-log .wk { white-space: nowrap; color: var(--pc-muted); font-weight: 800; }
   .pc-log .wk sup { color: #b8733f; font-size: 8px; margin-left: 1px; }
   .pc-log .num { text-align: right; }
+  .pc-log-row.gap .pc-team span { color: var(--pc-muted); font-weight: 600; font-style: italic; }
+  .pc-log-row.gap .pc-mark { opacity: .45; }
+  .pc-mark-off { background: transparent; box-shadow: inset 0 0 0 1.5px #d3dae2; border: 0; }
+  .pc-pts.off { background: #f1f4f7; color: #9aa6b2; font-weight: 700; text-align: center; }
   .pc-team { display: flex; align-items: center; gap: 8px; min-width: 0; }
   .pc-team .pc-mark { width: 20px; height: 20px; border-radius: 6px; font-size: 8px; }
   .pc-team span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
@@ -535,6 +539,7 @@
                 <li><span class="pc-pts start" style="--fill:.85;--pi:#fff">24.00</span>Started: filled in his team's colour, darker for a bigger score.</li>
                 <li><span class="pc-pts start" style="--fill:.3;--pi:#0b1726">6.00</span>A lighter fill is a quieter game.</li>
                 <li><span class="pc-pts bench">12.00</span>Outlined: on the bench or IR, so the points did not count.</li>
+                <li><span class="pc-pts off">—</span>Not on a roster that week, or his team had no game (a bye or knocked out).</li>
                 <li><span class="pc-pts" style="min-width:0;padding:0;color:#b8733f;font-size:10px">15<sup>P</sup></span>A P marks a playoff week.</li>
               </ul>
             </div>
@@ -560,9 +565,38 @@
     const select = card.querySelector(".pc-year");
     const showLog = (season) => {
       const all = season === "all";
-      const list = s.rows.filter((r) => all || r.season === Number(season)).slice().reverse();
+      // Every week of each season shown, not just the weeks he was rostered:
+      // a gap is a week off every roster, or a week his team had no game.
+      const list = [];
+      for (const yr of s.seasons) {
+        if (!all && yr !== Number(season)) continue;
+        const inSeason = s.rows.filter((r) => r.season === yr);
+        const byWeek = new Map(inSeason.map((r) => [r.week, r]));
+        const last = Math.max(lastOf(yr), ...inSeason.map((r) => r.week));
+        for (let w = 1; w <= last; w++) {
+          if (byWeek.has(w)) { list.push(byWeek.get(w)); continue; }
+          const before = inSeason.filter((x) => x.week < w).pop();
+          const idle = before && !((data.games[yr] || {})[w] || {})[before.team.id];
+          list.push({ gap: true, season: yr, week: w, playoff: w > (data.regularWeeks[yr] || 14), idle: idle ? before.team : null });
+        }
+      }
+      list.reverse();
       logWrap.innerHTML = `<div class="pc-log${all ? " all" : ""}"><div class="pc-log-row head"><span>Wk</span><span>Team</span><span class="num">Pts</span></div>
         ${list.map((r) => {
+          if (r.gap) {
+            const wk = `${all ? `’${String(r.season).slice(2)} · ` : ""}${r.week}${r.playoff ? "<sup>P</sup>" : ""}`;
+            return r.idle
+              ? `<div class="pc-log-row gap" title="${r.season} week ${r.week}: ${esc(r.idle.name)} had no game">
+                  <span class="wk">${wk}</span>
+                  <span class="pc-team">${mark(r.idle)}<span>${esc(r.idle.name)} · no game</span></span>
+                  <span class="num"><span class="pc-pts off">—</span></span>
+                </div>`
+              : `<div class="pc-log-row gap" title="${r.season} week ${r.week}: not on a roster">
+                  <span class="wk">${wk}</span>
+                  <span class="pc-team"><span class="pc-mark pc-mark-off"></span><span>Not on a roster</span></span>
+                  <span class="num"><span class="pc-pts off">—</span></span>
+                </div>`;
+          }
           const fill = r.started ? .22 + .78 * Math.max(0, r.pts) / bestPts : 0;
           const tip = `${r.season} week ${r.week}${r.playoff && r.game && r.game[3] ? ` (${r.game[3]})` : ""} · ${r.started ? r.slot : r.slot === "IR" ? "IR" : "bench"} · projected ${fmt(r.proj)}${r.result && r.started ? ` · ${r.result === "W" ? "won" : r.result === "L" ? "lost" : "tied"}` : ""}`;
           return `<div class="pc-log-row" title="${esc(tip)}">
