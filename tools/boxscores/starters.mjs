@@ -1,4 +1,5 @@
-/* Most-started players per manager, for the all-time page's profile panel.
+/* Most-started players per manager, for the all-time page's profile panel,
+   and each season's full list of starters per team for that season's page.
 
    The box scores are 2.4 MB across every week of every season — far too much
    for one profile card to fetch — so this adds them up once into
@@ -46,6 +47,26 @@ async function ownersFor(season, data, nameToId, root) {
   }));
 }
 
+/* boxscores/<season>/roster.json, read by the team drawer on that season's
+   page: every player a team started at least once, most starts first. Each
+   week he was on the roster is [points, started (1/0), club]; a week missing
+   from `weeks` is one he was not on the team. `clubs` are the clubs he started
+   for, most starts first. */
+function writeRoster(file, roster) {
+  const out = {};
+  for (const [teamId, team] of Object.entries(roster)) {
+    out[teamId] = {
+      weeks: team.weeks.sort((a, b) => a - b),
+      players: Object.values(team.players)
+        .filter((p) => p.starts)
+        .sort((a, b) => b.starts - a.starts || b.pts - a.pts)
+        .map((p) => ({ name: p.name, pos: p.pos, starts: p.starts, pts: Math.round(p.pts * 100) / 100,
+          clubs: Object.entries(p.clubs).sort((a, b) => b[1] - a[1]).map(([c]) => c), weeks: p.weeks })),
+    };
+  }
+  fs.writeFileSync(file, JSON.stringify(out) + '\n');
+}
+
 export async function buildStarters(root) {
   const data = leagueData(root);
   const nameToId = {};
@@ -60,6 +81,8 @@ export async function buildStarters(root) {
   const ownerSeasons = {};
   for (const season of seasons) {
     const owners = await ownersFor(season, data, nameToId, root);
+    // Per season, per team: every player the team started, week by week.
+    const roster = {};
     const weeks = JSON.parse(fs.readFileSync(path.join(dir, String(season), 'index.json'), 'utf8'));
     for (const week of weeks) {
       const box = JSON.parse(fs.readFileSync(path.join(dir, String(season), `week-${week}.json`), 'utf8'));
@@ -69,6 +92,18 @@ export async function buildStarters(root) {
           if (!owner) throw new Error(`${season} week ${week}: team ${teamId} has no owner`);
           (ownerSeasons[owner] ||= new Set()).add(season);
           const players = (tally[owner] ||= {});
+          const team = (roster[teamId] ||= { weeks: [], players: {} });
+          team.weeks.push(week);
+          for (const p of lineup) {
+            const r = (team.players[p.name] ||= { name: p.name, pos: p.pos, starts: 0, pts: 0, clubs: {}, weeks: {} });
+            r.weeks[week] = [p.pts, p.starter ? 1 : 0, p.nfl];
+            if (p.starter) {
+              r.starts++;
+              r.pts += p.pts;
+              r.clubs[p.nfl] = (r.clubs[p.nfl] || 0) + 1;
+              r.pos = p.pos;
+            }
+          }
           for (const p of lineup) {
             if (!p.starter) continue;
             const t = (players[p.name] ||= { name: p.name, pos: p.pos, nfl: p.nfl, starts: 0, years: {} });
@@ -84,6 +119,7 @@ export async function buildStarters(root) {
         }
       }
     }
+    writeRoster(path.join(dir, String(season), 'roster.json'), roster);
   }
 
   const owners = {};
