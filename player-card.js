@@ -12,6 +12,19 @@
   const NFL_LOGOS = new Set(["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET",
     "GB", "HOU", "IND", "JAX", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT",
     "SEA", "SF", "TB", "TEN", "WSH"]);
+  /* Each club's primary colour for the card's header, which carries white
+     text: the same table the box scores use, except Pittsburgh's gold, too
+     light for white on it, gives way to its black. */
+  const NFL_COLORS = {
+    ARI: "#97233F", ATL: "#A71930", BAL: "#241773", BUF: "#00338D",
+    CAR: "#0085CA", CHI: "#0B162A", CIN: "#FB4F14", CLE: "#311D00",
+    DAL: "#041E42", DEN: "#FB4F14", DET: "#0076B6", GB: "#203731",
+    HOU: "#03202F", IND: "#002C5F", JAX: "#101820", KC: "#E31837",
+    LAC: "#0080C6", LAR: "#003594", LV: "#111111", MIA: "#008E97",
+    MIN: "#4F2683", NE: "#002244", NO: "#A08A5B", NYG: "#0B2265",
+    NYJ: "#125740", PHI: "#004C54", PIT: "#101820", SEA: "#002244",
+    SF: "#AA0000", TB: "#D50A0A", TEN: "#0C2340", WSH: "#5A1414",
+  };
   const SLOT_ORDER = ["QB", "RB", "WR", "TE", "FLEX", "K", "D/ST", "BE", "IR"];
 
   const CSS = `
@@ -425,7 +438,7 @@
     // progress stays short instead of stretching two weeks across the card.
     const lastOf = (season) => Math.max(...Object.keys(data.games[season] || {}).map(Number));
     const columns = Math.max(...s.seasons.map(lastOf));
-    const timeline = s.seasons.map((season) => {
+    const timeline = s.seasons.slice().reverse().map((season) => {   // newest on top
       const inSeason = s.rows.filter((r) => r.season === season);
       const lastWeek = Math.max(lastOf(season), ...inSeason.map((r) => r.week));
       const reg = data.regularWeeks[season] || 14;
@@ -480,7 +493,9 @@
     }).join("");
 
     const latest = s.seasons[s.seasons.length - 1];
-    card.style.setProperty("--pc-color", lead ? lead.color : "#304f91");
+    // The header wears his current NFL club's colour; a free agent keeps the
+    // site's navy.
+    card.style.setProperty("--pc-color", NFL_COLORS[s.lastClub] || "#304f91");
     card.innerHTML = `
       <div class="pc-scroll">
         <header class="pc-hero">
