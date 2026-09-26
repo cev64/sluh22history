@@ -25,89 +25,91 @@
   .pc {
     --pc-ink: #0b1726; --pc-muted: #637083; --pc-line: #e3e8ee; --pc-soft: #f5f7fa;
     position: fixed; z-index: 201; left: 50%; top: 50%;
-    width: min(940px, calc(100vw - 32px)); max-height: 92vh;
+    width: min(900px, calc(100vw - 32px)); max-height: 92vh;
     transform: translate(-50%, -48%) scale(.98); opacity: 0; pointer-events: none;
     transition: opacity .18s ease, transform .18s ease;
     display: flex; flex-direction: column;
     background: var(--pc-soft); border-radius: 18px; overflow: hidden;
     box-shadow: 0 30px 80px rgba(7, 18, 30, .35);
     color: var(--pc-ink); font-size: 12px; line-height: 1.35;
+    -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
   }
   .pc.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+  .pc *, .pc *::before, .pc *::after { box-sizing: border-box; }
   .pc-scroll { overflow: auto; overscroll-behavior: contain; }
 
   .pc-hero {
     position: relative; overflow: hidden;
-    display: flex; align-items: center; gap: 18px;
-    padding: 22px 64px 22px 24px;
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 60px 20px 22px;
     background: linear-gradient(120deg, var(--pc-color) 0%, color-mix(in srgb, var(--pc-color) 55%, #071827) 100%);
     color: #fff;
   }
   .pc-hero::after {
-    content: ""; position: absolute; right: -60px; top: -80px; width: 260px; height: 260px;
+    content: ""; position: absolute; right: -60px; top: -80px; width: 240px; height: 240px;
     border-radius: 50%; background: rgba(255,255,255,.07);
   }
   .pc-photo {
-    position: relative; flex: 0 0 auto; width: 96px; height: 96px; border-radius: 50%;
+    position: relative; flex: 0 0 auto; width: 84px; height: 84px; border-radius: 50%;
     background: rgba(255,255,255,.95); box-shadow: 0 0 0 4px rgba(255,255,255,.25);
-    display: grid; place-items: center; overflow: visible;
+    display: grid; place-items: center;
   }
   .pc-photo > img.pc-face { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: top; }
   .pc-photo > img.pc-club-big { width: 70%; height: 70%; object-fit: contain; }
   .pc-photo .pc-club {
-    position: absolute; right: -6px; bottom: -2px; width: 38px; height: 38px; border-radius: 50%;
+    position: absolute; right: -5px; bottom: -2px; width: 34px; height: 34px; border-radius: 50%;
     background: #fff; display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0,0,0,.25);
   }
-  .pc-photo .pc-club img { width: 28px; height: 22px; object-fit: contain; }
+  .pc-photo .pc-club img { width: 25px; height: 19px; object-fit: contain; }
   .pc-id { position: relative; z-index: 1; min-width: 0; }
-  .pc-id h2 { margin: 0; font-size: 28px; line-height: 1.05; letter-spacing: -.02em; }
-  .pc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .pc-id h2 { margin: 0; font-size: 26px; line-height: 1.05; letter-spacing: -.02em; }
+  .pc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .pc-tag {
     padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.16);
     font-size: 10.5px; font-weight: 800; letter-spacing: .03em;
   }
   .pc-close {
-    position: absolute; z-index: 2; top: 16px; right: 16px; width: 36px; height: 36px;
+    position: absolute; z-index: 2; top: 14px; right: 14px; width: 34px; height: 34px;
     border: 1px solid rgba(255,255,255,.3); border-radius: 10px; background: rgba(255,255,255,.12);
-    color: #fff; font-size: 22px; line-height: 1; cursor: pointer;
+    color: #fff; font-size: 21px; line-height: 1; cursor: pointer;
   }
   .pc-close:hover { background: rgba(255,255,255,.24); }
 
-  .pc-body { padding: 16px; display: grid; gap: 14px; }
+  .pc-body { padding: 14px; display: grid; gap: 12px; }
 
   .pc-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-  .pc-tile { background: #fff; border: 1px solid var(--pc-line); border-radius: 12px; padding: 10px 12px; }
+  .pc-tile { background: #fff; border: 1px solid var(--pc-line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
   .pc-tile small { display: block; color: var(--pc-muted); font-size: 8.5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-  .pc-tile strong { display: block; margin-top: 4px; font-size: 20px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-  .pc-tile span { display: block; margin-top: 2px; color: var(--pc-muted); font-size: 10px; }
+  .pc-tile strong { display: block; margin-top: 4px; font-size: 21px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .pc-tile span { display: block; margin-top: 2px; color: var(--pc-muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .pc-card { background: #fff; border: 1px solid var(--pc-line); border-radius: 14px; overflow: hidden; }
   .pc-card-head {
-    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
-    padding: 11px 14px; border-bottom: 1px solid var(--pc-line);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid var(--pc-line);
   }
-  .pc-card-head h3 { margin: 0; font-size: 13.5px; }
-  .pc-card-head span { color: var(--pc-muted); font-size: 10px; }
+  .pc-card-head h3 { margin: 0; font-size: 13.5px; display: flex; align-items: center; gap: 7px; }
+  .pc-card-head > span { color: var(--pc-muted); font-size: 10px; }
 
-  .pc-cols { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 14px; align-items: start; }
+  .pc-cols { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 12px; align-items: start; }
 
   /* Ownership timeline: a strip per season, a cell per week, in the colour of
-     whichever team had him that week. */
+     whichever team had him that week, and that team's logo at the end. */
   .pc-tl-row {
-    display: grid; grid-template-columns: 42px minmax(0, 1fr) 90px; gap: 10px; align-items: center;
-    padding: 8px 14px; border-top: 1px solid #eef1f4;
+    display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+    padding: 7px 14px; border-top: 1px solid #eef1f4;
   }
   .pc-tl-row:first-child { border-top: 0; }
   .pc-tl-year { font-weight: 900; font-size: 12px; }
   .pc-tl-strip { display: grid; grid-template-columns: repeat(var(--weeks), 1fr); gap: 2px; }
-  .pc-wk { height: 18px; border-radius: 3px; background: #f1f4f7; }
+  .pc-wk { height: 16px; border-radius: 3px; background: #f1f4f7; }
   .pc-wk.start { background: var(--c); }
   .pc-wk.bench { background: #fff; box-shadow: inset 0 0 0 1.5px var(--c); }
   .pc-wk.none { background: transparent; }
   .pc-wk.po { margin-left: 4px; }
-  .pc-tl-who { display: flex; justify-content: flex-end; gap: 3px; }
-  .pc-tl-who .pc-mark { width: 22px; height: 22px; }
-  .pc-tl-key { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 9px 14px; border-top: 1px solid #eef1f4; color: var(--pc-muted); font-size: 10px; }
+  .pc-tl-who { display: flex; justify-content: flex-end; gap: 3px; min-width: 22px; }
+  .pc-tl-who .pc-mark { width: 22px; height: 22px; border-radius: 6px; }
+  .pc-tl-key { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 8px 14px; border-top: 1px solid #eef1f4; color: var(--pc-muted); font-size: 10px; }
   .pc-tl-key i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
 
   .pc-mark {
@@ -122,6 +124,7 @@
     padding: 9px 14px; border-top: 1px solid #eef1f4;
   }
   .pc-mgr:first-child { border-top: 0; }
+  .pc-mgr-name { min-width: 0; }
   .pc-mgr-name strong { display: block; font-size: 12.5px; }
   .pc-mgr-name span { display: block; color: var(--pc-muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pc-mgr-nums { display: flex; gap: 14px; text-align: right; font-variant-numeric: tabular-nums; }
@@ -130,81 +133,133 @@
   .pc-bar { grid-column: 2 / -1; height: 4px; border-radius: 2px; background: #eef1f4; overflow: hidden; margin-top: -4px; }
   .pc-bar i { display: block; height: 100%; background: var(--c); }
 
-  /* The best game leads across the full width, the next four in a 2×2. */
-  .pc-top { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 12px; }
-  .pc-top .pc-game:first-child { grid-column: 1 / -1; }
-  .pc-top .pc-game:first-child b { font-size: 30px; }
-  .pc-game {
-    position: relative; border-radius: 12px; padding: 10px; color: #fff; overflow: hidden;
-    background: linear-gradient(150deg, var(--c), color-mix(in srgb, var(--c) 60%, #071827));
+  /* Top three, as medals. */
+  .pc-top { display: grid; gap: 8px; padding: 12px; }
+  .pc-medal {
+    display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+    padding: 10px 12px; border-radius: 12px; color: #2a2112;
+    background: linear-gradient(135deg, var(--m1), var(--m2));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 2px rgba(0,0,0,.08);
   }
-  .pc-game .pc-rank { position: absolute; right: 8px; top: 6px; font-size: 22px; font-weight: 900; opacity: .25; }
-  .pc-game b { display: block; font-size: 22px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-  .pc-game small { display: block; font-size: 9.5px; opacity: .85; }
-  .pc-game span { display: block; margin-top: 6px; font-size: 10px; font-weight: 700; line-height: 1.3; }
+  .pc-medal.gold { --m1: #fbe08a; --m2: #e0a82e; }
+  .pc-medal.silver { --m1: #f1f3f5; --m2: #b5bec8; color: #1f2933; }
+  .pc-medal.bronze { --m1: #f2c29b; --m2: #b8733f; color: #2b1809; }
+  .pc-medal-rank {
+    width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 2px rgba(0,0,0,.08);
+    font-size: 15px; font-weight: 900;
+  }
+  .pc-medal-info { min-width: 0; }
+  .pc-medal-info strong { display: block; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pc-medal-info span { display: block; font-size: 10px; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pc-medal b { font-size: 22px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 
-  .pc-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 10px 14px; border-bottom: 1px solid var(--pc-line); scrollbar-width: none; }
+  /* Game log */
+  .pc-log-tools { display: flex; align-items: center; gap: 8px; }
+  .pc-tabs { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
   .pc-tabs button {
-    flex: 0 0 auto; border: 1px solid var(--pc-line); background: #fff; color: var(--pc-ink);
-    border-radius: 999px; padding: 5px 11px; font: inherit; font-size: 11px; font-weight: 800; cursor: pointer;
+    border: 1px solid var(--pc-line); background: #fff; color: var(--pc-ink);
+    border-radius: 999px; padding: 3px 9px; font: inherit; font-size: 10.5px; font-weight: 800; cursor: pointer;
   }
   .pc-tabs button.active { background: var(--pc-ink); border-color: var(--pc-ink); color: #fff; }
+  .pc-year {
+    display: none; border: 1px solid var(--pc-line); border-radius: 8px; background: #fff; color: var(--pc-ink);
+    font: inherit; font-size: 12px; font-weight: 800; padding: 4px 6px;
+  }
+
+  .pc-info {
+    width: 17px; height: 17px; border-radius: 50%; padding: 0;
+    border: 1px solid var(--pc-line); background: var(--pc-soft); color: var(--pc-muted);
+    font: italic 900 10px/1 Georgia, serif; display: inline-grid; place-items: center; cursor: pointer;
+  }
+  .pc-info:hover, .pc-info[aria-expanded="true"] { background: #1769e0; border-color: #1769e0; color: #fff; }
+  .pc-help { padding: 10px 14px; border-bottom: 1px solid var(--pc-line); background: #fafbfc; font-size: 11px; }
+  .pc-help[hidden] { display: none; }
+  .pc-help ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .pc-help li { display: flex; align-items: center; gap: 8px; }
+  .pc-help .pc-pts { min-width: 44px; padding: 2px 6px; font-size: 10px; }
 
   .pc-log { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   .pc-log th {
-    padding: 7px 8px; background: #f6f8fa; color: #788696; text-align: left;
+    padding: 6px 14px; background: #f6f8fa; color: #788696; text-align: left;
     font-size: 8.5px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
   }
-  .pc-log td { padding: 7px 8px; border-top: 1px solid #eef1f4; font-size: 11.5px; white-space: nowrap; }
-  .pc-log .num { text-align: right; }
-  .pc-log tr.bench td { color: var(--pc-muted); }
-  .pc-log tr.bench td.pts b { font-weight: 600; }
-  .pc-log .pc-team { display: flex; align-items: center; gap: 7px; min-width: 0; }
-  .pc-log .pc-team .pc-mark { width: 20px; height: 20px; border-radius: 6px; font-size: 8px; }
-  .pc-log .pc-team span { overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
-  .pc-slot { display: inline-block; min-width: 34px; padding: 2px 5px; border-radius: 5px; background: #eef1f4; font-size: 9px; font-weight: 900; text-align: center; color: #4b5866; }
-  .pc-res { display: inline-block; width: 18px; height: 18px; border-radius: 5px; color: #fff; font-size: 9.5px; font-weight: 900; text-align: center; line-height: 18px; }
-  .pc-res.w { background: #16834a; } .pc-res.l { background: #c73535; } .pc-res.t { background: #8693a1; }
-  .pc-diff.up { color: #16834a; } .pc-diff.down { color: #c73535; }
-  .pc-log img.pc-nfl { width: 22px; height: 16px; object-fit: contain; vertical-align: middle; }
+  .pc-log td { padding: 5px 14px; border-top: 1px solid #eef1f4; font-size: 11.5px; }
+  .pc-log .wk { width: 1%; white-space: nowrap; color: var(--pc-muted); font-weight: 800; }
+  .pc-log .wk sup { color: #b8733f; font-size: 8px; margin-left: 1px; }
+  .pc-log .num { width: 1%; text-align: right; }
+  .pc-team { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .pc-team .pc-mark { width: 20px; height: 20px; border-radius: 6px; font-size: 8px; }
+  .pc-team span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+  .pc-pts {
+    display: inline-block; min-width: 58px; padding: 3px 8px; border-radius: 6px;
+    text-align: right; font-weight: 900; font-size: 11.5px;
+  }
+  .pc-pts.start { background: color-mix(in srgb, var(--c) calc(var(--fill) * 100%), #fff); color: var(--pi); }
+  .pc-pts.bench { background: #fff; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, #fff); color: var(--pc-muted); font-weight: 700; }
+
   .pc-chip { display: inline-block; padding: 1px 4px; border-radius: 4px; background: #e7ebef; color: #4b5866; font-size: 8px; font-weight: 900; }
-  .pc-note { padding: 9px 14px; color: var(--pc-muted); font-size: 10px; border-top: 1px solid var(--pc-line); background: #fafbfc; }
-  .pc-empty { padding: 40px; text-align: center; color: var(--pc-muted); }
+  .pc-empty { padding: 36px; text-align: center; color: var(--pc-muted); }
 
   [data-player] { cursor: pointer; }
   .bx-name[data-player]:hover, .roster-name[data-player]:hover strong, .starters-name[data-player]:hover strong { text-decoration: underline; text-underline-offset: 2px; }
 
+  /* Phones: a bottom sheet, sized to match the rest of the site's compact
+     mobile type rather than the desktop card scaled down. */
   @media (max-width: 760px) {
     .pc {
-      left: 0; top: auto; bottom: 0; width: 100%; max-height: 94dvh;
-      border-radius: 18px 18px 0 0; transform: translateY(24px);
+      left: 0; top: auto; bottom: 0; width: 100%; max-height: 92dvh;
+      border-radius: 16px 16px 0 0; transform: translateY(24px); font-size: 11px;
     }
     .pc.open { transform: none; }
-    .pc-hero { padding: 18px 56px 18px 16px; gap: 14px; }
-    .pc-photo { width: 72px; height: 72px; }
-    .pc-photo .pc-club { width: 30px; height: 30px; }
-    .pc-photo .pc-club img { width: 22px; height: 17px; }
-    .pc-id h2 { font-size: 21px; }
-    .pc-tag { font-size: 9.5px; }
-    .pc-body { padding: 10px; gap: 10px; }
+    .pc-hero { padding: 14px 50px 14px 12px; gap: 12px; }
+    .pc-photo { width: 56px; height: 56px; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+    .pc-photo .pc-club { width: 24px; height: 24px; right: -4px; }
+    .pc-photo .pc-club img { width: 18px; height: 14px; }
+    .pc-id h2 { font-size: 18px; }
+    .pc-tags { margin-top: 6px; gap: 4px; }
+    .pc-tag { font-size: 9px; padding: 2px 7px; }
+    .pc-close { top: 10px; right: 10px; width: 30px; height: 30px; font-size: 18px; border-radius: 8px; }
+    .pc-body { padding: 8px; gap: 8px; }
     .pc-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-    .pc-tile strong { font-size: 17px; }
-    .pc-cols { grid-template-columns: 1fr; gap: 10px; }
-    .pc-tl-row { grid-template-columns: 34px minmax(0, 1fr); padding: 8px 10px; row-gap: 5px; }
-    .pc-tl-who { grid-column: 2; justify-content: flex-start; }
-    .pc-tl-who .pc-mark { width: 18px; height: 18px; border-radius: 5px; }
-    .pc-wk { height: 15px; border-radius: 2px; }
+    .pc-tile { padding: 8px 10px; border-radius: 10px; }
+    .pc-tile small { font-size: 7.5px; }
+    .pc-tile strong { font-size: 17px; margin-top: 2px; }
+    .pc-tile span { font-size: 9px; }
+    .pc-card { border-radius: 12px; }
+    .pc-card-head { padding: 8px 10px; }
+    .pc-card-head h3 { font-size: 12px; }
+    .pc-card-head > span { font-size: 9px; }
+    .pc-cols { grid-template-columns: 1fr; gap: 8px; }
+    .pc-tl-row { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 6px; padding: 6px 10px; }
+    .pc-tl-year { font-size: 10.5px; }
+    .pc-tl-who { gap: 2px; min-width: 16px; }
+    .pc-tl-who .pc-mark { width: 16px; height: 16px; border-radius: 4px; }
+    .pc-wk { height: 13px; border-radius: 2px; }
     .pc-tl-strip { gap: 1px; }
     .pc-wk.po { margin-left: 2px; }
-    .pc-top { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 44%; overflow-x: auto; padding: 10px; scroll-snap-type: x mandatory; }
-    .pc-top .pc-game:first-child { grid-column: auto; }
-    .pc-top .pc-game:first-child b { font-size: 22px; }
-    .pc-game { scroll-snap-align: start; }
-    .pc-mgr { padding: 9px 10px; }
-    .pc-mgr-nums { gap: 10px; }
-    .pc-log .hide-sm { display: none; }
-    .pc-log td, .pc-log th { padding: 7px 5px; }
-    .pc-log .pc-team span { max-width: 88px; }
+    .pc-tl-key { padding: 7px 10px; font-size: 9px; gap: 3px 10px; }
+    .pc-mgr { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; padding: 7px 10px; }
+    .pc-mark { width: 24px; height: 24px; border-radius: 6px; }
+    .pc-mgr-name strong { font-size: 11.5px; }
+    .pc-mgr-name span { font-size: 9px; }
+    .pc-mgr-nums { gap: 9px; }
+    .pc-mgr-nums b { font-size: 12px; }
+    .pc-mgr-nums small { font-size: 7.5px; }
+    .pc-top { padding: 8px; gap: 6px; }
+    .pc-medal { grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px; padding: 8px 10px; border-radius: 10px; }
+    .pc-medal-rank { width: 28px; height: 28px; font-size: 13px; }
+    .pc-medal-info strong { font-size: 10.5px; }
+    .pc-medal-info span { font-size: 9px; }
+    .pc-medal b { font-size: 18px; }
+    .pc-tabs { display: none; }
+    .pc-year { display: block; }
+    .pc-help { padding: 8px 10px; font-size: 10px; }
+    .pc-log th { padding: 5px 10px; font-size: 7.5px; }
+    .pc-log td { padding: 4px 10px; font-size: 10.5px; }
+    .pc-team { gap: 6px; }
+    .pc-team .pc-mark { width: 18px; height: 18px; border-radius: 5px; }
+    .pc-pts { min-width: 50px; font-size: 10.5px; padding: 2px 7px; }
   }`;
 
   let data = null;
@@ -286,11 +341,8 @@
         playoff: week > (data.regularWeeks[season] || 14) };
     });
     const starts = rows.filter((r) => r.started);
-    const bench = rows.filter((r) => r.slot === "BE");
     const total = starts.reduce((t, r) => t + r.pts, 0);
     const best = starts.slice().sort((a, b) => b.pts - a.pts);
-    const beat = starts.filter((r) => r.proj > 0 && r.pts >= r.proj).length;
-    const withProj = starts.filter((r) => r.proj > 0).length;
     const wins = starts.filter((r) => r.result === "W").length;
     const losses = starts.filter((r) => r.result === "L").length;
 
@@ -308,7 +360,7 @@
     const managers = [...mgrs.values()].sort((a, b) => b.starts - a.starts || b.weeks - a.weeks);
     const seasons = [...new Set(rows.map((r) => r.season))];
     const lastClub = rows[rows.length - 1].club;
-    return { rows, starts, bench, total, best, beat, withProj, wins, losses, managers, seasons, lastClub };
+    return { rows, starts, total, best, wins, losses, managers, seasons, lastClub };
   }
 
   function render(name) {
@@ -324,12 +376,12 @@
     const s = build(p);
     const lead = s.managers[0];
     const isDst = p.p === "DST";
-    const span = s.seasons.length > 1 ? `${s.seasons[0]}–${s.seasons[s.seasons.length - 1]}` : `${s.seasons[0]}`;
     const photo = !isDst && p.h
       ? `<img class="pc-face" src="https://sleepercdn.com/content/nfl/players/thumb/${p.h}.jpg" alt="">`
       : NFL_LOGOS.has(s.lastClub) ? `<img class="pc-club-big" src="nfl-logos/${s.lastClub}.png" alt="">` : "";
-    const avg = s.starts.length ? s.total / s.starts.length : 0;
+    const perStart = s.starts.length ? s.total / s.starts.length : 0;
     const top = s.best[0];
+    const bestPts = Math.max(1, ...s.starts.map((r) => r.pts));
 
     // Timeline: every week of every season he was on a roster. Every row
     // shares one grid, as wide as the longest season, so a season still in
@@ -376,16 +428,21 @@
         <span class="pc-bar"><i style="width:${(100 * m.starts / mostStarts).toFixed(1)}%"></i></span>
       </div>`).join("");
 
-    const topGames = s.best.slice(0, 5).map((r, i) => {
+    const medals = ["gold", "silver", "bronze"];
+    const topGames = s.best.slice(0, 3).map((r, i) => {
       const opp = r.game ? teamOf(r.season, r.game[0]) : null;
-      return `<div class="pc-game" style="--c:${r.team.color}">
-        <span class="pc-rank">${i + 1}</span>
+      const round = r.playoff && r.game && r.game[3] ? ` · ${esc(r.game[3])}` : "";
+      return `<div class="pc-medal ${medals[i]}">
+        <span class="pc-medal-rank">${i + 1}</span>
+        <span class="pc-medal-info">
+          <strong>${esc(r.team.name)}${opp ? ` vs ${esc(opp.name)}` : ""}</strong>
+          <span>${r.season} · Week ${r.week}${round}${r.result ? ` · ${r.result === "W" ? "Won" : r.result === "L" ? "Lost" : "Tied"}` : ""}</span>
+        </span>
         <b>${fmt(r.pts)}</b>
-        <small>${r.season} · Week ${r.week}${r.playoff && r.game && r.game[3] ? ` · ${esc(r.game[3])}` : ""}</small>
-        <span>${esc(r.team.name)}${opp ? ` vs ${esc(opp.name)}` : ""}${r.result ? ` · ${r.result}` : ""}</span>
       </div>`;
     }).join("");
 
+    const latest = s.seasons[s.seasons.length - 1];
     card.style.setProperty("--pc-color", lead ? lead.color : "#304f91");
     card.innerHTML = `
       <div class="pc-scroll">
@@ -395,23 +452,17 @@
             <h2 id="pcName">${esc(p.n)}</h2>
             <div class="pc-tags">
               <span class="pc-tag">${p.p}</span>
-              <span class="pc-tag">${span}</span>
               <span class="pc-tag">${s.managers.length} manager${s.managers.length === 1 ? "" : "s"}</span>
-              <span class="pc-tag">${s.rows.length} week${s.rows.length === 1 ? "" : "s"} rostered</span>
             </div>
           </div>
           <button type="button" class="pc-close" aria-label="Close player card">&times;</button>
         </header>
         <div class="pc-body">
           <section class="pc-tiles">
-            <div class="pc-tile"><small>Starts</small><strong>${s.starts.length}</strong><span>${s.bench.length} on the bench</span></div>
-            <div class="pc-tile"><small>Points as a starter</small><strong>${fmt1(s.total)}</strong><span>${fmt(avg)} a start</span></div>
+            <div class="pc-tile"><small>Starts</small><strong>${s.starts.length}</strong></div>
+            <div class="pc-tile"><small>Points per start</small><strong>${fmt(perStart)}</strong></div>
             <div class="pc-tile"><small>Best game</small><strong>${top ? fmt(top.pts) : "—"}</strong><span>${top ? `${top.season} wk ${top.week} · ${esc(top.team.name)}` : "Never started"}</span></div>
-            <div class="pc-tile"><small>Record when started</small><strong>${s.wins}–${s.losses}</strong><span>his fantasy team's result</span></div>
-            <div class="pc-tile"><small>Beat projection</small><strong>${s.withProj ? Math.round(100 * s.beat / s.withProj) + "%" : "—"}</strong><span>${s.beat} of ${s.withProj} starts</span></div>
-            <div class="pc-tile"><small>Left on the bench</small><strong>${fmt1(s.bench.reduce((t, r) => t + r.pts, 0))}</strong><span>points while benched</span></div>
-            <div class="pc-tile"><small>Seasons</small><strong>${s.seasons.length}</strong><span>${s.seasons.join(", ")}</span></div>
-            <div class="pc-tile"><small>Fantasy teams</small><strong>${new Set(s.rows.map((r) => r.season + r.team.id)).size}</strong><span>${s.managers.length} different manager${s.managers.length === 1 ? "" : "s"}</span></div>
+            <div class="pc-tile"><small>Record when started</small><strong>${s.wins}–${s.losses}</strong></div>
           </section>
 
           <section class="pc-card">
@@ -421,7 +472,6 @@
               <span><i style="background:${lead ? lead.color : "#304f91"}"></i>Started, in that team's colour</span>
               <span><i style="box-shadow: inset 0 0 0 1.5px ${lead ? lead.color : "#304f91"}"></i>Bench</span>
               <span><i style="background:#f1f4f7"></i>Not on a roster</span>
-              <span>Playoff weeks sit apart; a gap is a week his team had no game</span>
             </div>
           </section>
 
@@ -437,12 +487,24 @@
           </div>
 
           <section class="pc-card">
-            <div class="pc-card-head"><h3>Game log</h3><span>Every week on a roster</span></div>
-            <div class="pc-tabs" role="tablist">${s.seasons.map((y, i) =>
-              `<button type="button" role="tab" data-season="${y}" class="${i === s.seasons.length - 1 ? "active" : ""}">${y}</button>`).join("")}
-              <button type="button" role="tab" data-season="all">All</button></div>
+            <div class="pc-card-head">
+              <h3>Game log <button type="button" class="pc-info" aria-expanded="false" aria-label="What the points shading means">i</button></h3>
+              <div class="pc-log-tools">
+                <div class="pc-tabs" role="tablist">${s.seasons.map((y) =>
+                  `<button type="button" role="tab" data-season="${y}">${y}</button>`).join("")}<button type="button" role="tab" data-season="all">All</button></div>
+                <select class="pc-year" aria-label="Season">${s.seasons.slice().reverse().map((y) =>
+                  `<option value="${y}">${y}</option>`).join("")}<option value="all">All seasons</option></select>
+              </div>
+            </div>
+            <div class="pc-help" hidden style="--c:${lead ? lead.color : "#304f91"}">
+              <ul>
+                <li><span class="pc-pts start" style="--fill:.85;--pi:#fff">24.00</span>Started: filled in his team's colour, darker for a bigger score.</li>
+                <li><span class="pc-pts start" style="--fill:.3;--pi:#0b1726">6.00</span>A lighter fill is a quieter game.</li>
+                <li><span class="pc-pts bench">12.00</span>Outlined: on the bench or IR, so the points did not count.</li>
+                <li><span class="pc-pts" style="min-width:0;padding:0;color:#b8733f;font-size:10px">15<sup>P</sup></span>A P marks a playoff week.</li>
+              </ul>
+            </div>
             <div class="pc-log-wrap"></div>
-            <div class="pc-note">Result is his fantasy team's. Bench and IR weeks are greyed; their points did not count.</div>
           </section>
         </div>
       </div>`;
@@ -453,35 +515,42 @@
       face.outerHTML = NFL_LOGOS.has(s.lastClub) ? `<img class="pc-club-big" src="nfl-logos/${s.lastClub}.png" alt="">` : "";
     });
 
+    // The shading is on the player's own scale: his best start is the darkest.
+    const inkOn = (hex, fill) => {
+      const n = parseInt(hex.slice(1), 16);
+      const mix = (c) => fill * c + (1 - fill) * 255;
+      const lum = (0.299 * mix((n >> 16) & 255) + 0.587 * mix((n >> 8) & 255) + 0.114 * mix(n & 255)) / 255;
+      return lum < 0.6 ? "#fff" : "#0b1726";
+    };
     const logWrap = card.querySelector(".pc-log-wrap");
+    const select = card.querySelector(".pc-year");
     const showLog = (season) => {
-      const list = s.rows.filter((r) => season === "all" || r.season === Number(season)).slice().reverse();
-      logWrap.innerHTML = `<table class="pc-log"><thead><tr>
-          ${season === "all" ? "<th>Yr</th>" : ""}<th>Wk</th><th>Team</th><th class="hide-sm">Opponent</th><th>Slot</th>
-          <th class="num">Pts</th><th class="num hide-sm">Proj</th><th class="num hide-sm">+/-</th><th class="hide-sm">NFL</th><th>Res</th>
-        </tr></thead><tbody>${list.map((r) => {
-          const opp = r.game ? teamOf(r.season, r.game[0]) : null;
-          const diff = r.pts - r.proj;
-          const label = r.playoff && r.game && r.game[3] ? ` title="${esc(r.game[3])}"` : "";
-          return `<tr class="${r.started ? "" : "bench"}">
-            ${season === "all" ? `<td>${r.season}</td>` : ""}
-            <td${label}>${r.week}${r.playoff ? "<sup>P</sup>" : ""}</td>
+      const all = season === "all";
+      const list = s.rows.filter((r) => all || r.season === Number(season)).slice().reverse();
+      logWrap.innerHTML = `<table class="pc-log"><thead><tr><th>Wk</th><th>Team</th><th class="num">Pts</th></tr></thead>
+        <tbody>${list.map((r) => {
+          const fill = r.started ? .22 + .78 * Math.max(0, r.pts) / bestPts : 0;
+          const tip = `${r.season} week ${r.week}${r.playoff && r.game && r.game[3] ? ` (${r.game[3]})` : ""} · ${r.started ? r.slot : r.slot === "IR" ? "IR" : "bench"} · projected ${fmt(r.proj)}${r.result && r.started ? ` · ${r.result === "W" ? "won" : r.result === "L" ? "lost" : "tied"}` : ""}`;
+          return `<tr title="${esc(tip)}">
+            <td class="wk">${all ? `${r.season} · ` : ""}${r.week}${r.playoff ? "<sup>P</sup>" : ""}</td>
             <td><span class="pc-team">${mark(r.team)}<span>${esc(r.team.name)}</span></span></td>
-            <td class="hide-sm">${opp ? esc(opp.name) : "—"}</td>
-            <td><span class="pc-slot">${r.slot}</span></td>
-            <td class="num pts"><b>${fmt(r.pts)}</b></td>
-            <td class="num hide-sm">${fmt(r.proj)}</td>
-            <td class="num hide-sm"><span class="pc-diff ${r.started ? (diff >= 0 ? "up" : "down") : ""}">${diff >= 0 ? "+" : ""}${fmt(diff)}</span></td>
-            <td class="hide-sm">${nfl(r.club)}</td>
-            <td>${r.result && r.started ? `<span class="pc-res ${r.result.toLowerCase()}">${r.result}</span>` : ""}</td>
+            <td class="num"><span class="pc-pts ${r.started ? "start" : "bench"}" style="--c:${r.team.color};--fill:${fill.toFixed(2)};--pi:${inkOn(r.team.color, fill)}">${fmt(r.pts)}</span></td>
           </tr>`;
         }).join("")}</tbody></table>`;
       card.querySelectorAll(".pc-tabs button").forEach((b) => b.classList.toggle("active", b.dataset.season === String(season)));
+      select.value = String(season);
     };
-    showLog(s.seasons[s.seasons.length - 1]);
+    showLog(latest);
     card.querySelector(".pc-tabs").addEventListener("click", (e) => {
       const b = e.target.closest("button[data-season]");
       if (b) showLog(b.dataset.season);
+    });
+    select.addEventListener("change", () => showLog(select.value));
+    const info = card.querySelector(".pc-info");
+    const help = card.querySelector(".pc-help");
+    info.addEventListener("click", () => {
+      help.hidden = !help.hidden;
+      info.setAttribute("aria-expanded", String(!help.hidden));
     });
     card.querySelector(".pc-close").addEventListener("click", close);
   }
