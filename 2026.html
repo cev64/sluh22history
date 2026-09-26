@@ -2481,12 +2481,31 @@
     .game-card-head .game-margin { color: var(--ink); letter-spacing: .04em; }
 
     .game-side {
+      position: relative;
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 11px 13px;
       min-width: 0;
+      cursor: pointer;
+      transition: background .15s ease;
     }
+
+    /* The team button covers its whole row, so tapping the logo, the name or
+       the score opens that team's season; the chevron says a row goes somewhere. */
+    .game-side .game-team::before { content: ""; position: absolute; inset: 0; }
+    .game-side::after {
+      content: "\203A";
+      flex: 0 0 auto;
+      margin-left: -2px;
+      color: #9aa6b2;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .game-side:hover { background: rgba(23, 105, 224, .05); }
+    .game-side:has(.game-team:focus-visible) { outline: 2px solid var(--blue); outline-offset: -2px; }
+    .game-side .game-team:focus-visible { outline: none; }
 
     .game-side + .game-side { border-top: 1px solid var(--line); }
 
@@ -2522,6 +2541,7 @@
     }
 
     .game-side.winner { background: rgba(22, 131, 74, .06); }
+    .game-side.winner:hover { background: rgba(22, 131, 74, .11); }
     .game-side.winner .game-score { color: var(--ink); }
     .game-side.winner .game-team strong { color: var(--ink); }
 
@@ -2745,26 +2765,52 @@
 
     .bx-cue::after { content: "\203A"; font-size: 13px; line-height: 1; }
 
-    .game-card.bx-has { cursor: pointer; transition: border-color .15s ease, transform .15s ease; }
-    .game-card.bx-has:hover { border-color: var(--blue); transform: translateY(-1px); }
-    .game-card.bx-has:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    /* The box score button at the foot of a results card. */
+    .bx-open {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 13px;
+      border: 0;
+      border-top: 1px solid var(--line);
+      background: rgba(23, 105, 224, .06);
+      color: var(--blue);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .bx-open svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+    .bx-open i { font-style: normal; font-size: 16px; line-height: 1; }
+    .bx-open:hover { background: rgba(23, 105, 224, .12); }
+    .bx-open:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
 
-    .matchup.bx-has { cursor: pointer; }
-    .matchup.bx-has:hover { border-color: var(--blue); }
-    .matchup.bx-has:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-
+    /* Its smaller twin under a bracket matchup. */
     .bx-cue-row {
-      display: block;
-      padding: 3px 8px 5px;
-      text-align: center;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 4px 8px 5px;
+      border: 0;
+      border-top: 1px solid var(--line);
+      background: rgba(23, 105, 224, .05);
+      font: inherit;
       font-size: 9px;
       font-weight: 900;
       letter-spacing: .07em;
       text-transform: uppercase;
       color: var(--blue);
+      cursor: pointer;
     }
-
-    .bx-cue-row::after { content: " \203A"; }
+    .bx-cue-row svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+    .bx-cue-row i { font-style: normal; font-size: 12px; line-height: 1; }
+    .bx-cue-row:hover { background: rgba(23, 105, 224, .12); }
 
     .bx-backdrop {
       position: fixed;
@@ -5454,7 +5500,7 @@
         <div class="game-side ${won ? "winner" : ""}">
           <span class="win-flag"></span>
           ${miniTeam(id)}
-          <button type="button" class="game-team" data-team="${id}" aria-label="Open ${teams[id].name} schedule">
+          <button type="button" class="game-team" data-team="${id}" aria-label="${teams[id].name}: season and schedule">
             <strong>${teams[id].name}</strong><span>${teams[id].owner}</span>
           </button>
           <span class="game-score">${fmt(score)}</span>
@@ -5939,9 +5985,19 @@
       return boxWeekCache[week];
     }
 
-    /* Turn this week's game cards into buttons, but only once the index says
-       the week actually has lineups. A card that cannot open anything must
-       not look like it can. */
+    /* One visible, labelled button per game opens its box score, rather than
+       the whole card: the team rows in the same card open the team's season,
+       and a card that did both depending on where it was tapped left no way
+       to tell which was which. The button is added only once the index says
+       the week has lineups, so nothing offers a box score that is not there. */
+    function bxButton(week, a, b, cls) {
+      return `<button type="button" class="${cls}" data-bx-week="${week}" data-bx-a="${a}" data-bx-b="${b}"
+        aria-label="Box score: ${teams[a].name} versus ${teams[b].name}">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="2"/><path d="M2.5 6.2h11M6.2 6.2v7.3"/></svg>
+        <span>Box score</span><i aria-hidden="true">›</i>
+      </button>`;
+    }
+
     function markBoxScores(week) {
       const panel = document.getElementById("panel-results");
       if (!panel) return;
@@ -5952,14 +6008,7 @@
           const ids = [...card.querySelectorAll("[data-team]")].map((el) => el.dataset.team);
           if (ids.length !== 2) return;
           card.classList.add("bx-has");
-          card.dataset.bxA = ids[0];
-          card.dataset.bxB = ids[1];
-          card.dataset.bxWeek = String(week);
-          card.tabIndex = 0;
-          card.setAttribute("role", "button");
-          card.setAttribute("aria-label", `Box score: ${teams[ids[0]].name} versus ${teams[ids[1]].name}`);
-          const head = card.querySelector(".game-card-head");
-          if (head) head.insertAdjacentHTML("beforeend", `<span class="bx-cue">Box score</span>`);
+          card.insertAdjacentHTML("beforeend", bxButton(week, ids[0], ids[1], "bx-open"));
         });
       });
     }
@@ -6058,14 +6107,7 @@
               Math.abs(g.oppScore - shown[1]) < 0.005);
           if (!entry || !weeks.has(entry.week)) return;
           matchup.classList.add("bx-has");
-          matchup.dataset.bxA = ids[0];
-          matchup.dataset.bxB = ids[1];
-          matchup.dataset.bxWeek = String(entry.week);
-          matchup.tabIndex = 0;
-          matchup.setAttribute("role", "button");
-          matchup.setAttribute("aria-label",
-            `Box score: ${teams[ids[0]].name} versus ${teams[ids[1]].name}`);
-          matchup.insertAdjacentHTML("beforeend", `<div class="bx-cue-row">Box score</div>`);
+          matchup.insertAdjacentHTML("beforeend", bxButton(entry.week, ids[0], ids[1], "bx-cue-row"));
         });
       });
     }
