@@ -68,6 +68,7 @@
     padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.16);
     font-size: 10.5px; font-weight: 800; letter-spacing: .03em;
   }
+  .pc-tag-gold { background: linear-gradient(135deg, #fbe08a, #e0a82e); color: #2a2112; }
   .pc-close {
     position: absolute; z-index: 2; top: 14px; right: 14px; width: 34px; height: 34px;
     border: 1px solid rgba(255,255,255,.3); border-radius: 10px; background: rgba(255,255,255,.12);
@@ -351,6 +352,9 @@
     const total = starts.reduce((t, r) => t + r.pts, 0);
     const best = starts.slice().sort((a, b) => b.pts - a.pts);
     const wins = starts.filter((r) => r.result === "W").length;
+    // A title counts only if he was in the winning team's starting lineup
+    // for the championship game itself.
+    const titles = starts.filter((r) => r.result === "W" && r.game && r.game[3] === "Championship");
     const losses = starts.filter((r) => r.result === "L").length;
 
     // Managers, most starts first; a manager keeps his history through renames.
@@ -367,7 +371,7 @@
     const managers = [...mgrs.values()].sort((a, b) => b.starts - a.starts || b.weeks - a.weeks);
     const seasons = [...new Set(rows.map((r) => r.season))];
     const lastClub = rows[rows.length - 1].club;
-    return { rows, starts, total, best, wins, losses, managers, seasons, lastClub };
+    return { rows, starts, total, best, wins, losses, titles, managers, seasons, lastClub };
   }
 
   function render(name) {
@@ -426,7 +430,7 @@
     const managers = s.managers.map((m) => `
       <div class="pc-mgr" style="--c:${m.color}">
         ${mark(m)}
-        <span class="pc-mgr-name"><strong>${esc(m.owner)}</strong><span>${[...m.names].map(esc).join(" · ")} · ${[...m.seasons].join(", ")}</span></span>
+        <span class="pc-mgr-name" title="${[...m.names].map(esc).join(" · ")} · ${[...m.seasons].join(", ")}"><strong>${esc(m.owner)}</strong></span>
         <span class="pc-mgr-nums">
           <span><b>${m.starts}</b><small>GS</small></span>
           <span><b>${fmt1(m.pts)}</b><small>Pts</small></span>
@@ -460,6 +464,7 @@
             <div class="pc-tags">
               <span class="pc-tag">${p.p}</span>
               <span class="pc-tag">${s.managers.length} manager${s.managers.length === 1 ? "" : "s"}</span>
+              <span class="pc-tag${s.titles.length ? " pc-tag-gold" : ""}" title="Championship games won in the starting lineup">🏆 ${s.titles.length} title${s.titles.length === 1 ? "" : "s"}${s.titles.length ? ` · ${s.titles.map((r) => r.season).join(", ")}` : ""}</span>
             </div>
           </div>
           <button type="button" class="pc-close" aria-label="Close player card">&times;</button>
