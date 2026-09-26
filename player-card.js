@@ -49,7 +49,12 @@
   }
   .pc.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
   .pc *, .pc *::before, .pc *::after { box-sizing: border-box; }
-  .pc-scroll { overflow: auto; overscroll-behavior: contain; }
+  /* No scroll anchoring: it would pull scrollTop back as the header shrinks. */
+  .pc-scroll { overflow: auto; overscroll-behavior: contain; overflow-anchor: none; }
+  /* While compact, the body grows by exactly what the header lost, so the
+     scroll height never shrinks and scrollTop is never clamped back under
+     the threshold (which toggled the header on and off: the jitter). */
+  .pc.compact .pc-body { padding-bottom: calc(14px + var(--pc-shrink, 0px)); }
   #bxCols, #drawerBody, #profilePanel { overscroll-behavior: contain; }
 
   /* The header stays pinned while the card scrolls, shrinking to a slim bar
@@ -86,7 +91,18 @@
     padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.16);
     font-size: 10.5px; font-weight: 800; letter-spacing: .03em;
   }
-  .pc-tag-gold { background: linear-gradient(135deg, #fbe08a, #e0a82e); color: #2a2112; }
+  /* A champion's name sits on gold, with the winning years above it. */
+  .pc-id h2.pc-gold {
+    display: inline-block; max-width: 100%; padding: 2px 10px 3px; border-radius: 10px;
+    background: linear-gradient(135deg, #fbe08a, #e0a82e); color: #2a2112;
+    box-shadow: 0 2px 10px rgba(224, 168, 46, .35), inset 0 0 0 1px rgba(255,255,255,.35);
+  }
+  .pc-champ {
+    margin-bottom: 5px; color: #fbe08a; font-size: 10.5px; font-weight: 900;
+    letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-height: 20px; transition: max-height .28s ease, opacity .2s ease, margin .28s ease;
+  }
+  .pc.compact .pc-champ { max-height: 0; opacity: 0; margin-bottom: 0; }
   .pc-close {
     position: absolute; z-index: 2; top: 14px; right: 14px; width: 34px; height: 34px;
     border: 1px solid rgba(255,255,255,.3); border-radius: 10px; background: rgba(255,255,255,.12);
@@ -95,6 +111,7 @@
   .pc-close:hover { background: rgba(255,255,255,.24); }
   .pc-photo, .pc-id h2 { transition: width .28s ease, height .28s ease, font-size .28s ease; }
   .pc.compact .pc-hero { padding-top: 8px; padding-bottom: 8px; }
+  .pc.pc-measure, .pc.pc-measure * { transition: none !important; }
   .pc.compact .pc-photo { width: 40px; height: 40px; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
   /* Tags and the club badge fold away smoothly rather than vanishing. */
   .pc-tags { max-height: 60px; overflow: hidden; transition: max-height .28s ease, opacity .2s ease, margin .28s ease; }
@@ -182,8 +199,14 @@
   .pc-mgr-name strong { display: block; font-size: 12.5px; }
   .pc-mgr-name span { display: block; color: var(--pc-muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* Fixed-width columns, so GS, points and record line up down the list. */
-  .pc-mgr-nums { display: grid; grid-template-columns: 30px 50px 44px; gap: 8px; text-align: right; font-variant-numeric: tabular-nums; }
-  .pc-mgr-nums b { display: block; font-size: 13px; }
+  /* Each column is as wide as its longest value (--gs/--pts/--rec, in
+     characters), so a long record like 13–10 still fits on a phone. */
+  .pc-mgr-nums {
+    display: grid; gap: 8px; text-align: right; font-variant-numeric: tabular-nums;
+    font-size: 13px; font-weight: 700;
+    grid-template-columns: max(30px, calc(var(--gs, 2) * 1ch + 2px)) max(50px, calc(var(--pts, 5) * 1ch + 2px)) max(44px, calc(var(--rec, 4) * 1ch + 2px));
+  }
+  .pc-mgr-nums b { display: block; font-size: inherit; white-space: nowrap; }
   .pc-mgr-nums small { display: block; color: var(--pc-muted); font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
   .pc-bar { grid-column: 2 / -1; height: 4px; border-radius: 2px; background: #eef1f4; overflow: hidden; margin-top: -4px; }
   .pc-bar i { display: block; height: 100%; background: var(--c); }
@@ -348,10 +371,13 @@
     .pc-id h2 { font-size: 18px; }
     .pc-tags { margin-top: 6px; gap: 4px; }
     .pc-tag { font-size: 9px; padding: 2px 7px; }
+    .pc-champ { font-size: 9px; margin-bottom: 4px; }
+    .pc-id h2.pc-gold { padding: 1px 8px 2px; border-radius: 8px; }
     .pc-close { top: 10px; right: 10px; width: 30px; height: 30px; font-size: 18px; border-radius: 8px; }
     .pc.compact .pc-photo { width: 34px; height: 34px; }
     .pc.compact .pc-id h2 { font-size: 16px; }
     .pc-body { padding: 8px; gap: 8px; }
+    .pc.compact .pc-body { padding-bottom: calc(8px + var(--pc-shrink, 0px)); }
     .pc-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
     .pc-tile { padding: 8px 10px; border-radius: 10px; }
     .pc-tile small { font-size: 7.5px; }
@@ -376,8 +402,10 @@
     .pc-mark { width: 24px; height: 24px; border-radius: 6px; }
     .pc-mgr-name strong { font-size: 11.5px; }
     .pc-mgr-name span { font-size: 9px; }
-    .pc-mgr-nums { grid-template-columns: 24px 44px 38px; gap: 6px; }
-    .pc-mgr-nums b { font-size: 12px; }
+    .pc-mgr-nums {
+      gap: 6px; font-size: 12px;
+      grid-template-columns: max(22px, calc(var(--gs, 2) * 1ch + 2px)) max(40px, calc(var(--pts, 5) * 1ch + 2px)) max(34px, calc(var(--rec, 4) * 1ch + 2px));
+    }
     .pc-mgr-nums small { font-size: 7.5px; }
     .pc-top { padding: 8px; gap: 6px; }
     .pc-medal { grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px; padding: 8px 10px; border-radius: 10px; }
@@ -666,6 +694,9 @@
         <span class="pc-bar"><i style="width:${(100 * m.starts / mostStarts).toFixed(1)}%"></i></span>
       </div>`).join("");
 
+    const widest = (f) => Math.max(0, ...s.managers.map((m) => String(f(m)).length));
+    const numWidths = `--gs:${widest((m) => m.starts)};--pts:${widest((m) => fmt1(m.pts))};--rec:${widest((m) => `${m.w}–${m.l}`)}`;
+
     const medals = ["gold", "silver", "bronze"];
     const topGames = s.best.slice(0, 3).map((r, i) => {
       const opp = r.game ? teamOf(r.season, r.game[0]) : null;
@@ -689,11 +720,11 @@
         <header class="pc-hero">
           <div class="pc-photo">${photo}${!isDst ? `<span class="pc-club">${nfl(s.lastClub)}</span>` : ""}</div>
           <div class="pc-id">
-            <h2 id="pcName">${esc(p.n)}</h2>
+            ${s.titles.length ? `<div class="pc-champ" title="Championship games won in the starting lineup">🏆 ${[...new Set(s.titles.map((r) => r.season))].join(" · ")} Champion</div>` : ""}
+            <h2 id="pcName"${s.titles.length ? ` class="pc-gold"` : ""}>${esc(p.n)}</h2>
             <div class="pc-tags">
               <span class="pc-tag">${p.p}</span>
               <span class="pc-tag">${s.managers.length} manager${s.managers.length === 1 ? "" : "s"}</span>
-              <span class="pc-tag${s.titles.length ? " pc-tag-gold" : ""}" title="Championship games won in the starting lineup">🏆 ${s.titles.length} title${s.titles.length === 1 ? "" : "s"}${s.titles.length ? ` · ${s.titles.map((r) => r.season).join(", ")}` : ""}</span>
             </div>
           </div>
           <button type="button" class="pc-close" aria-label="Close player card">&times;</button>
@@ -720,7 +751,9 @@
           <div class="pc-cols">
             <section class="pc-card">
               <div class="pc-card-head"><h3>By manager</h3></div>
+              <div style="${numWidths}">
               ${managers}
+              </div>
             </section>
             <section class="pc-card">
               <div class="pc-card-head"><h3>Top performances</h3><span>As a starter</span></div>
@@ -862,6 +895,16 @@
       const scroller = card.querySelector(".pc-scroll");
       if (scroller) {
         scroller.scrollTop = 0;
+        // Measure how much the header shrinks when compact, without animating.
+        const hero = card.querySelector(".pc-hero");
+        if (hero) {
+          const full = hero.offsetHeight;
+          card.classList.add("compact", "pc-measure");
+          const small = hero.offsetHeight;
+          card.classList.remove("compact", "pc-measure");
+          void hero.offsetHeight;
+          card.style.setProperty("--pc-shrink", `${Math.max(0, full - small)}px`);
+        }
         // Compact past 60px, full again under 10px: the gap keeps the header
         // from flickering as its own height change moves the content.
         scroller.addEventListener("scroll", () => {
