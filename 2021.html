@@ -5103,9 +5103,13 @@
 
     function bxPlayer(player, side) {
       if (!player) return `<div class="bx-p bx-${side}"></div>`;
+      // The club sits on the outside edge: before the name on the left team,
+      // after it on the right.
+      const club = bxClub(player.nfl);
       return `<div class="bx-p bx-${side}">
+        ${side === "l" ? club : ""}
         <span class="bx-name">${bxShortName(player.name)}</span>
-        ${bxClub(player.nfl)}
+        ${side === "r" ? club : ""}
         ${player.injury ? `<span class="bx-inj" title="${player.injury}">${player.injury.charAt(0)}</span>` : ""}
       </div>`;
     }
