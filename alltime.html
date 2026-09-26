@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Fantasy football league history record book, all-time standings, champions, and owner profiles." />
-  <title>League History · Record Book</title>
+  <title>League History · All-Time</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#071827" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -19,79 +19,75 @@
   <script src="pwa.js" defer></script>
   <script src="player-card.js" defer></script>
   <style>
-    /* Moving between pages (a season from the menu, a Season History link)
-       crossfades where the browser supports it, instead of flashing white. */
+    /* Moving between pages crossfades where the browser supports it. */
     @view-transition { navigation: auto; }
 
     :root {
-      --navy: #071827;
-      --navy-2: #102b43;
       --ink: #0b1726;
       --muted: #637083;
       --line: #dce3eb;
-      --panel: #ffffff;
-      --surface: #f5f7fa;
+      --surface: #ffffff;
+      --surface-2: #f5f7fa;
+      --page: #eef2f6;
+      --navy: #071827;
+      --navy-2: #102b43;
       --blue: #1769e0;
       --blue-2: #0f56bd;
-      --gold: #f6b73c;
-      --gold-soft: #fff2cf;
       --red: #d71920;
+      --gold: #f6b73c;
       --green: #16834a;
-      --shadow: 0 16px 40px rgba(10, 22, 38, .12);
-      --shadow-lg: 0 28px 64px rgba(10, 22, 38, .18);
+      --shadow: 0 12px 30px rgba(7, 24, 39, 0.10);
+      --radius: 18px;
     }
-
-    * { box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
+    * {
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
     body {
       margin: 0;
-      background: var(--surface);
       color: var(--ink);
+      background:
+        var(--page);
       font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
     }
-
-    button, select { font: inherit; }
-
-    button { -webkit-tap-highlight-color: transparent; }
-
+    button,
+    select {
+      font: inherit;
+    }
+    button {
+      cursor: pointer;
+    }
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 50;
-      background: rgba(255, 255, 255, .94);
-      border-bottom: 1px solid rgba(17, 36, 58, .10);
+      z-index: 40;
+      background: rgba(7, 24, 39, .96);
       backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: #fff;
     }
-
-    .topbar-inner,
-    .hero-inner,
-    main {
+    .topbar-inner {
       width: min(1220px, calc(100% - 32px));
       margin: 0 auto;
-    }
-
-    .topbar-inner {
       min-height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 18px;
     }
-
     .brand {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 11px;
+      gap: 12px;
       min-width: 0;
+    }
+    .brand {
       color: inherit;
       text-decoration: none;
     }
-
-    /* The league crest. It is a diamond with its own white outline, so it
-       needs no plate behind it and no shape cut around it. */
     .brand-mark {
       width: 46px;
       height: 46px;
@@ -99,241 +95,181 @@
       place-items: center;
       flex: 0 0 auto;
     }
-
     .brand-mark img {
       display: block;
       width: 100%;
       height: 100%;
       object-fit: contain;
     }
-
-    .brand-copy { display: grid; line-height: 1.05; }
+    .brand-copy {
+      min-width: 0;
+    }
     .brand-kicker {
-      color: #738194;
+      display: block;
       font-size: 10px;
-      font-weight: 800;
-      letter-spacing: .16em;
+      letter-spacing: .22em;
       text-transform: uppercase;
+      color: #9eb0c1;
+      font-weight: 800;
+      margin-bottom: 2px;
     }
     .brand-title {
-      margin-top: 4px;
-      color: var(--ink);
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       font-size: 19px;
       font-weight: 800;
       letter-spacing: -.02em;
     }
-
-    .season-control {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: #6d7b8c;
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .season-control select {
-      border: 1px solid #ccd5df;
-      border-radius: 10px;
-      background: #fff;
-      color: var(--ink);
-      padding: 9px 33px 9px 11px;
-      font-size: 12px;
-      font-weight: 850;
-      cursor: pointer;
-    }
-
-    .hero {
-      overflow: hidden;
-      background:
-        #152941;
-      color: #fff;
-    }
-
-    .hero-inner {
-      display: grid;
-      gap: 18px;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-      align-items: stretch;
-      padding: 26px 20px 30px;
-      max-width: 1180px;
-      margin: 0 auto;
-    }
-
-    .eyebrow {
-      color: #a8c9ed;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-    }
-
-    .hero h1 {
-      max-width: 760px;
-      margin: 8px 0 13px;
-      font-size: clamp(28px, 5vw, 44px);
-      line-height: 1.04;
-      letter-spacing: -.02em;
-    }
-
-    .hero p {
-      max-width: 720px;
-      margin: 0;
-      color: #c8d7e6;
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .hero-metrics {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-    }
-
-    .hero-metric {
-      min-height: 92px;
-      padding: 15px;
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 15px;
-      background: rgba(255,255,255,.075);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-    }
-
-    .hero-metric small {
-      display: block;
-      color: #a9bed3;
-      font-size: 8px;
-      font-weight: 950;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-    }
-
-    .hero-metric strong {
-      display: block;
-      margin-top: 7px;
-      color: #fff;
-      font-size: 29px;
-      line-height: 1;
-      letter-spacing: -.04em;
-    }
-
-    .hero-metric span {
-      display: block;
-      margin-top: 6px;
-      color: #b8c9da;
-      font-size: 9px;
-    }
-
-    main { padding: 25px 0 50px; }
-
-    .section {
-      margin-top: 18px;
-    }
-
-    .section:first-child { margin-top: 0; }
-
-    .section-heading {
+    .year-control {
       display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 16px;
+      align-items: center;
+      gap: 10px;
+      color: #c9d5df;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .year-control select {
+      appearance: none;
+      color: #fff;
+      background: #16324a;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 10px;
+      padding: 10px 38px 10px 14px;
+      font-weight: 800;
+      outline: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #fff 50%),
+        linear-gradient(135deg, #fff 50%, transparent 50%);
+      background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+    .hero {
+      color: #fff;
+      border-bottom: 4px solid var(--red);
+    }
+    .hero-inner {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(330px, 430px);
+      gap: 32px;
+      align-items: center;
+    }
+    .eyebrow {
+      color: #9fc4ff;
+      text-transform: uppercase;
+      letter-spacing: .19em;
+      font-size: 11px;
+      font-weight: 900;
       margin-bottom: 10px;
     }
-
-    .section-heading h2 {
+    .hero h1 {
+      font-size: clamp(54px, 8vw, 92px);
+      line-height: .9;
+      letter-spacing: -.06em;
       margin: 0;
-      font-size: 25px;
-      letter-spacing: -.035em;
+      max-width: 760px;
     }
-
-    .section-heading p {
-      max-width: 680px;
-      margin: 4px 0 0;
+    main {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 30px 0 70px;
+    }
+    .page-toolbar {
+      margin: 28px 0 18px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .page-title h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -.04em;
+    }
+    .page-title p {
+      margin: 6px 0 0;
       color: var(--muted);
-      font-size: 11px;
-      line-height: 1.45;
+      font-size: 14px;
     }
-
+    .view-tabs {
+      display: inline-flex;
+      gap: 4px;
+      background: #e4e9ef;
+      padding: 4px;
+      border-radius: 12px;
+      flex-wrap: wrap;
+    }
+    .view-tab {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      color: #536174;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 800;
+      transition: .18s ease;
+    }
+    .view-tab:hover {
+      color: var(--ink);
+    }
+    .view-tab.active {
+      color: #fff;
+      background: var(--navy-2);
+      box-shadow: 0 5px 14px rgba(7,24,39,.18);
+    }
+    .view-panel {
+      display: none;
+    }
+    .view-panel.active {
+      display: block;
+      animation: panelIn .2s ease;
+    }
+    @keyframes panelIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
     .card {
-      overflow: hidden;
-      border: 1px solid #dbe2e9;
-      border-radius: 18px;
-      background: var(--panel);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
+      overflow: hidden;
     }
-
     .card-head {
-      min-height: 66px;
-      padding: 19px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
+      padding: 19px 20px;
+      background: #fbfcfd;
       border-bottom: 1px solid var(--line);
-      background: #fcfdfe;
     }
-
-
-    .leaderboard-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 18px;
-      align-items: start;
-    }
-
-    .leaderboard-card .card-head h3 {
-      gap: 9px;
-    }
-
-    .champions-card .card-head {
-      background: #fffae8;
-      border-bottom-color: #eddc9e;
-    }
-
-    .losers-card .card-head {
-      background: #fff8f8;
-      border-bottom-color: #efc7c2;
-    }
-
-    .losers-card .head-icon {
-      background: #f5ddd9;
-    }
-
     .card-head h3 {
+      margin: 0;
       display: flex;
       align-items: center;
       gap: 9px;
-      margin: 0;
       font-size: 18px;
-      letter-spacing: -.02em;
+      letter-spacing: -.025em;
     }
-
-    .head-icon {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      border-radius: 9px;
-      background: var(--gold-soft);
-      font-size: 15px;
-    }
-
-    /* The neutral card icons match the chips on the season pages: a blue tile
-       carrying a drawn mark, sitting alongside the gold and red emoji tiles
-       the champion and loser cards already wear. */
-    .head-icon.mark {
-      background: var(--blue);
+    .division-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 8px;
+      background: var(--navy);
       color: #fff;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.22),
-        0 6px 14px -5px rgba(23,105,224,.6);
+      font-size: 11px;
+      font-weight: 900;
     }
-
-    .head-icon .chip-icon {
-      width: 17px;
-      height: 17px;
+    .chip-icon {
+      width: 16px;
+      height: 16px;
       display: block;
       fill: none;
       stroke: currentColor;
@@ -341,729 +277,451 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-
+    .division-chip:has(.chip-icon) {
+      padding: 0;
+      width: 28px;
+    }
     .card-head > span {
       color: var(--muted);
-      font-size: 9px;
-      font-weight: 850;
-      letter-spacing: .07em;
-      text-transform: uppercase;
+      font-size: 12px;
     }
-
     .table-wrap {
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 555px;
     }
-
     th {
-      padding: 12px 14px;
-      background: #f5f7f9;
       color: #6b7788;
       font-size: 10px;
-      font-weight: 900;
       letter-spacing: .09em;
-      text-align: left;
       text-transform: uppercase;
+      font-weight: 900;
+      padding: 12px 14px;
+      text-align: right;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
       white-space: nowrap;
     }
-
+    th:first-child,
+    th:nth-child(2) {
+      text-align: left;
+    }
     td {
       padding: 13px 14px;
-      border-top: 1px solid #edf0f3;
-      color: #2b3d50;
+      border-bottom: 1px solid #edf0f3;
       font-size: 13px;
-      font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-    }
-
-    tbody tr:first-child td { border-top: 0; }
-
-    tbody tr:hover { background: #fafcff; }
-
-    .rank {
-      width: 48px;
-      color: #768495;
-      font-weight: 900;
-      text-align: center;
-    }
-
-    .team-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      min-width: 0;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      color: inherit;
-      cursor: pointer;
-      text-align: left;
-    }
-
-    .team-button:hover .team-name,
-    .team-button:focus-visible .team-name {
-      color: var(--blue-2);
-      text-decoration: underline;
-    }
-
-    .team-button:focus-visible {
-      outline: 2px solid var(--blue);
-      outline-offset: 4px;
-      border-radius: 7px;
-    }
-
-    .team-badge {
-      --team-color: #667;
-      width: 34px;
-      height: 34px;
-      flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      border-radius: 9px;
-      background: var(--team-color);
-      color: #fff;
-      font-size: 16px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.19);
-    }
-
-    .team-meta {
-      min-width: 0;
-      display: grid;
-      line-height: 1.12;
-    }
-
-    .team-name {
-      max-width: 260px;
-      overflow: hidden;
-      color: var(--ink);
-      font-size: 11px;
-      font-weight: 900;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .owner-name {
-      margin-top: 3px;
-      color: #7b8998;
-      font-size: 8.5px;
-      font-weight: 700;
-    }
-
-    .record { color: var(--ink); font-weight: 900; }
-    .positive { color: var(--green); font-weight: 900; }
-    .negative { color: var(--red); font-weight: 900; }
-
-    .title-count {
-      color: #7e5a00;
-      font-size: 14px;
-      font-weight: 1000;
-    }
-
-    .title-years {
-      color: #67501a;
-      font-weight: 850;
-    }
-
-    .sort-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      width: 100%;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      color: inherit;
-      font: inherit;
-      letter-spacing: inherit;
-      text-align: left;
-      text-transform: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .sort-button:hover,
-    .sort-button.active { color: var(--blue-2); }
-
-    .sort-arrow {
-      min-width: 9px;
-      color: var(--red);
-      font-size: 10px;
-    }
-
-    .mobile-sort { display: none; }
-
-    .mobile-stat-strip { display: none; }
-
-    .profile-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 80;
-      background: rgba(6, 16, 27, .56);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .22s ease;
-    }
-
-    .profile-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .profile-panel {
-      position: fixed;
-      inset: 0 0 0 auto;
-      z-index: 81;
-      width: min(980px, 94vw);
-      overflow-y: auto;
-      background: #f3f6f9;
-      box-shadow: -24px 0 60px rgba(7, 20, 34, .26);
-      transform: translateX(102%);
-      transition: transform .27s ease;
-    }
-
-    .profile-panel.open { transform: translateX(0); }
-
-    /* Desktop: the team profile opens on the left, leaving the right of the
-       screen for a player card opened from it. */
-    /* One header for the team profile at every size, matching the season
-       pages' team drawer: the close button sits on the team header, which
-       pins to the top and slims down smoothly as the profile scrolls. */
-    .profile-panel { container-type: inline-size; }
-    .profile-panel .profile-topbar {
-      height: 0; min-height: 0; padding: 0; border: 0;
-      background: none; backdrop-filter: none; -webkit-backdrop-filter: none; z-index: 8;
-    }
-    .profile-panel .profile-topbar strong { display: none; }
-    .profile-panel .profile-topbar .close-profile {
-      position: absolute; top: 16px; right: 16px; z-index: 9; width: 38px; height: 38px;
-      border: 1px solid rgba(255,255,255,.24); border-radius: 10px;
-      background: rgba(255,255,255,.12); color: #fff; font-size: 20px;
-    }
-    .profile-panel .profile-topbar .close-profile:hover { background: rgba(255,255,255,.22); }
-    .profile-panel .profile-hero { position: sticky; top: 0; z-index: 7; padding-right: 66px; transition: padding .28s ease; }
-    .profile-logo, .profile-identity h2 { transition: width .28s ease, height .28s ease, font-size .28s ease, border-radius .28s ease; }
-    .profile-owner { max-height: 30px; overflow: hidden; transition: max-height .28s ease, opacity .2s ease, margin .28s ease; }
-    .profile-panel.compact .profile-hero { padding-top: 10px; padding-bottom: 10px; }
-    .profile-panel.compact .profile-logo { width: 40px; height: 40px; border-radius: 11px; }
-    .profile-panel.compact .profile-identity h2 { font-size: 22px; }
-    .profile-panel.compact .profile-owner { max-height: 0; opacity: 0; margin-top: 0; }
-    /* When the profile is narrowed (a player card docked beside it), stack
-       the wins chart and season history instead of squeezing them. */
-    @container (max-width: 820px) { .profile-panel .profile-grid { grid-template-columns: 1fr; } }
-
-    /* A season in Season History links to that team's page for the year. */
-    .season-history-row.season-link { color: inherit; text-decoration: none; cursor: pointer; transition: background .15s ease; }
-    @media (hover: hover) { .season-history-row.season-link:hover { background: #f5f8fc; } }
-    .season-history-row.season-link strong:nth-child(2) {
-      text-decoration: underline dotted rgba(23, 105, 224, .55) 1.5px; text-underline-offset: 3px;
-    }
-    @media (hover: hover) { .season-history-row.season-link:hover strong:nth-child(2) { color: var(--blue); text-decoration-style: solid; } }
-
-    @media (min-width: 701px) {
-      .profile-panel { inset: 0 auto 0 0; transform: translateX(-102%); box-shadow: 24px 0 60px rgba(7, 20, 34, .26); }
-      .profile-panel.open { transform: translateX(0); }
-    }
-
-    body.profile-open { overflow: hidden; }
-
-    .profile-topbar {
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      min-height: 58px;
-      padding: 9px 13px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid rgba(17,36,58,.10);
-      background: rgba(255,255,255,.94);
-      backdrop-filter: blur(14px);
-    }
-
-    .profile-topbar strong {
-      color: var(--ink);
-      font-size: 12px;
-      font-weight: 950;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-
-    .close-profile {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      border: 1px solid #d5dde5;
-      border-radius: 10px;
-      background: #fff;
-      color: var(--ink);
-      font-size: 17px;
-      font-weight: 900;
-      cursor: pointer;
-    }
-
-    .profile-hero {
-      --team-color: #1b5d8d;
-      position: relative;
-      overflow: hidden;
-      padding: 29px 26px 25px;
-      background:
-        color-mix(in srgb, var(--team-color) 22%, #152941);
-      color: #fff;
-    }
-
-    .profile-identity {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .profile-logo {
-      width: 66px;
-      height: 66px;
-      flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      border: 2px solid rgba(255,255,255,.2);
-      border-radius: 18px;
-      background: var(--team-color);
-      box-shadow: 0 10px 24px rgba(0,0,0,.22);
-      font-size: 31px;
-    }
-
-    .profile-identity h2 {
-      margin: 0;
-      font-size: clamp(26px, 4vw, 42px);
-      line-height: .98;
-      letter-spacing: -.045em;
-    }
-
-    .profile-owner {
-      margin-top: 7px;
-      color: #c5d5e5;
-      font-size: 12px;
-      font-weight: 750;
-    }
-
-
-    .profile-content { padding: 15px; }
-
-    .achievement-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 9px;
-    }
-
-    .achievement-card {
-      min-height: 132px;
-      padding: 14px;
-      border: 1px solid #dde4eb;
-      border-radius: 14px;
-      background: #fff;
-      box-shadow: 0 6px 18px rgba(12, 31, 50, .06);
-    }
-
-    .achievement-card.gold {
-      background: #fffae6;
-      border-color: #ead99a;
-    }
-
-    .achievement-card.red {
-      background: #fff7f7;
-      border-color: #efc2be;
-    }
-
-    .achievement-label {
-      color: #778596;
-      font-size: 8px;
-      font-weight: 950;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-
-    .achievement-value {
-      margin-top: 9px;
-      color: var(--ink);
-      font-size: 23px;
-      font-weight: 1000;
-      line-height: 1.02;
-      letter-spacing: -.035em;
-    }
-
-    .achievement-detail {
-      margin-top: 7px;
-      color: #667688;
-      font-size: 9px;
-      line-height: 1.4;
-    }
-
-    .profile-grid {
-      display: grid;
-      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .profile-card {
-      overflow: hidden;
-      border: 1px solid #dce3ea;
-      border-radius: 14px;
-      background: #fff;
-      box-shadow: 0 6px 18px rgba(12,31,50,.05);
-    }
-
-    .profile-card-head {
-      min-height: 52px;
-      padding: 12px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid #e7ebef;
-    }
-
-    .profile-card-head h3 {
-      margin: 0;
-      color: var(--ink);
-      font-size: 14px;
-      letter-spacing: -.02em;
-    }
-
-    .profile-card-head span {
-      color: #7a8795;
-      font-size: 8px;
-      font-weight: 850;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-    }
-
-    .chart-wrap {
-      padding: 10px 10px 5px;
-    }
-
-    .wins-chart {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .season-history {
-      padding: 0;
-    }
-
-    .season-history-row {
-      display: grid;
-      grid-template-columns: 50px minmax(0, 1fr) 58px 70px 70px 52px;
-      gap: 7px;
-      align-items: center;
-      padding: 10px 13px;
-      border-top: 1px solid #edf0f3;
-      font-size: 9px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .season-history-row:first-child { border-top: 0; }
-
-    .season-history-row.header {
-      background: #f6f8fa;
-      color: #788696;
-      font-size: 7px;
-      font-weight: 950;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-    }
-
-    .season-history-row strong {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .h2h-card { margin-top: 10px; }
-
-    /* Player search ---------------------------------------------------- */
-
-    .player-search-sub { color: var(--muted); font-size: 10px; }
-    .player-search { padding: 12px 14px 14px; }
-    .player-search input {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--surface);
-      color: var(--ink);
-      font: inherit;
-      font-size: 14px;
-      outline: none;
-    }
-    .player-search input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(23,105,224,.12); }
-    .player-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-    .player-results:not(:empty) { margin-top: 10px; }
-    .player-result {
-      display: grid;
-      grid-template-columns: 40px minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      padding: 8px 10px;
-      border: 1px solid #e7ebef;
-      border-radius: 12px;
-      background: #fff;
-      text-align: left;
-      font: inherit;
-      color: var(--ink);
-      cursor: pointer;
-    }
-    @media (hover: hover) { .player-result:hover { border-color: var(--blue); background: #f7faff; } }
-    .player-result:focus-visible { border-color: var(--blue); background: #f7faff; outline: none; }
-    .player-result .pr-photo {
-      position: relative; width: 40px; height: 40px; border-radius: 50%;
-      background: #eef1f4; display: grid; place-items: center; overflow: hidden;
-    }
-    .player-result .pr-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
-    .player-result .pr-photo img.pr-logo { width: 72%; height: 72%; object-fit: contain; }
-    .player-result strong { display: block; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .player-result small { display: block; color: var(--muted); font-size: 9.5px; font-weight: 700; }
-    .player-result .pr-nums { text-align: right; font-variant-numeric: tabular-nums; }
-    .player-result .pr-nums b { display: block; font-size: 13px; }
-    .player-result .pr-nums small { font-size: 8px; text-transform: uppercase; letter-spacing: .05em; }
-    .player-empty { grid-column: 1 / -1; padding: 10px 2px 0; color: var(--muted); font-size: 11px; }
-
-    /* Most-started players ------------------------------------------ */
-
-    .starters-card { margin-top: 10px; }
-
-    .starters-row {
-      display: grid;
-      grid-template-columns: 22px 30px minmax(0, 1fr) var(--year-cols) 58px;
-      gap: 8px;
-      align-items: center;
-      padding: 8px 14px;
-      border-top: 1px solid #edf0f3;
-      font-size: 11px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .starters-row:first-child { border-top: 0; }
-
-    .starters-row.header {
-      padding-top: 9px;
-      padding-bottom: 9px;
-      background: #f6f8fa;
-      color: #788696;
-      font-size: 7px;
-      font-weight: 950;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-    }
-
-    .starters-rank { color: var(--muted); font-weight: 850; text-align: center; }
-
-    .starters-logo {
-      width: 30px;
-      height: 22px;
-      object-fit: contain;
-    }
-
-    .starters-chip {
-      display: inline-block;
-      width: 30px;
-      padding: 3px 0;
-      border-radius: 4px;
-      background: #e7ebef;
-      color: #4b5866;
-      font-size: 8px;
-      font-weight: 900;
-      text-align: center;
-    }
-
-    .starters-name { min-width: 0; }
-    .starters-name strong {
-      display: block;
-      overflow: hidden;
-      color: var(--ink);
-      font-size: 12px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .starters-name small { color: var(--muted); font-size: 8.5px; font-weight: 800; letter-spacing: .05em; }
-
-    .starters-years {
-      display: grid;
-      grid-template-columns: repeat(var(--year-count), 1fr);
-      gap: 4px;
-      text-align: center;
-    }
-
-    /* A lit cell is a season he started for this team: the club he played
-       for that year over the number of games. The tint deepens with the count
-       so a full season reads darker than a spot start, but stays light enough
-       for every club's logo to sit on it. */
-    .starters-year {
-      height: 38px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      border-radius: 6px;
-      font-size: 9.5px;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    .starters-year img { width: 26px; height: 17px; object-fit: contain; }
-    .starters-year .starters-chip { width: 26px; padding: 2px 0; font-size: 7px; }
-
-    .starters-year.on {
-      background: color-mix(in srgb, var(--team-color) calc(var(--fill) * 100%), #fff);
-      color: var(--ink);
-    }
-
-    .starters-year.off { background: #f1f4f7; color: #c3ccd5; }
-
-    .starters-total { text-align: right; }
-    .starters-total strong { display: block; color: var(--ink); font-size: 15px; line-height: 1; }
-    .starters-total small { color: var(--muted); font-size: 7.5px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
-
-    .starters-foot {
-      padding: 9px 14px;
-      border-top: 1px solid #e7ebef;
-      background: #f6f8fa;
-      color: var(--muted);
-      font-size: 9px;
-    }
-
-    .h2h-mobile-sort { display: none; }
-
-    .empty-state {
-      padding: 28px;
-      color: var(--muted);
-      font-size: 11px;
-      text-align: center;
-    }
-
-
-    /* Compact all-time home header */
-    .home-hero .hero-inner {
-      min-height: 0;
-      padding: 26px 20px 30px;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-    }
-
-    .home-hero h1 {
-      margin: 5px 0 0;
-      font-size: clamp(28px, 5vw, 44px);
-      line-height: 1.04;
-    }
-
-    /* The way into the 3D hall. It sits under the hero title rather than in the
-       top bar so it reads as a place to go, not another page control. */
-    .trophy-room-link {
-      margin-top: 16px;
-      display: inline-flex;
-      align-items: center;
-      gap: 11px;
-      padding: 10px 16px 10px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(246, 183, 60, .45);
-      background: rgba(246, 183, 60, .14);
-      color: #fff;
-      text-decoration: none;
-      box-shadow: 0 14px 34px -20px rgba(0, 0, 0, .8);
-      transition: transform .22s ease, border-color .22s ease, background .22s ease;
-    }
-    .trophy-room-link:hover {
-      transform: translateY(-2px);
-      border-color: rgba(246, 183, 60, .85);
-      background: rgba(246, 183, 60, .23);
-    }
-    .trophy-room-link:active { transform: translateY(0); }
-
-    .trophy-room-icon {
-      width: 32px;
-      height: 32px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: rgba(9, 22, 38, .55);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14);
-      font-size: 15px;
-    }
-    .trophy-room-title { font-size: 14px; font-weight: 900; letter-spacing: -.01em; }
-    .trophy-room-arrow { color: var(--gold); font-size: 14px; font-weight: 900; }
-
-    .home-year-count {
-      min-width: 190px;
-      padding: 14px 18px;
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 14px;
-      background: rgba(255,255,255,.075);
-      text-align: center;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-    }
-
-    .home-year-count strong {
-      display: block;
-      font-size: 32px;
-      line-height: 1;
-    }
-
-    .home-year-count span {
-      display: block;
-      margin-top: 5px;
-      color: #bccddd;
-      font-size: 9px;
-      font-weight: 850;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    /* The cards themselves now act as the section titles. */
-    main > .section {
-      margin-top: 14px;
-    }
-
-    main > .section:first-child {
-      margin-top: 0;
-    }
-
-    /* Compact owner-history metrics */
-    .achievement-card {
-      min-height: 0;
-      padding: 10px 12px;
-    }
-
-    .achievement-line {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 8px;
-      margin-top: 6px;
-    }
-
-    .achievement-value {
-      margin-top: 0;
-      font-size: 20px;
-      white-space: nowrap;
-    }
-
-    .achievement-meta {
-      color: #657587;
-      font-size: 8px;
-      font-weight: 850;
-      line-height: 1.15;
       text-align: right;
       white-space: nowrap;
     }
-
+    tr:last-child td {
+      border-bottom: 0;
+    }
+    tbody tr {
+      transition: background .15s ease;
+    }
+    tbody tr:hover {
+      background: #f5f8fb;
+    }
+    td:first-child,
+    td:nth-child(2) {
+      text-align: left;
+    }
+    .rank {
+      color: #7a8796;
+      font-weight: 900;
+      width: 36px;
+    }
+    .team-cell {
+      min-width: 250px;
+      white-space: normal;
+    }
+    .team-cell .team-button {
+      min-width: 0;
+    }
+    .team-cell .team-meta {
+      min-width: 0;
+    }
+    .team-cell .team-name {
+      overflow-wrap: anywhere;
+    }
+    .team-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--blue-2);
+      font-weight: 800;
+      text-align: left;
+    }
+    .team-button:hover .team-name {
+      text-decoration: underline;
+    }
+    .team-badge {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 10px;
+      font-size: 17px;
+      color: #fff;
+      background: var(--team-color, var(--navy-2));
+      border: 2px solid rgba(255,255,255,.5);
+      box-shadow: 0 0 0 1px rgba(7,24,39,.12), inset 0 -8px 14px rgba(0,0,0,.13);
+      flex: 0 0 auto;
+    }
+    .team-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .team-name {
+      color: var(--blue-2);
+      font-size: 13px;
+    }
+    .owner {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .record {
+      font-weight: 900;
+    }
+    .positive {
+      color: var(--green);
+    }
+    .negative {
+      color: #c92929;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    .sort-button {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 5px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-transform: inherit;
+      letter-spacing: inherit;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .sort-button:hover,
+    .sort-button.active {
+      color: var(--blue-2);
+    }
+    .sort-indicator {
+      min-width: 10px;
+      font-size: 11px;
+      line-height: 1;
+      color: var(--red);
+    }
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(4, 14, 23, .64);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+      backdrop-filter: blur(3px);
+    }
+    .drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .team-drawer {
+      position: fixed;
+      z-index: 80;
+      top: 0;
+      right: 0;
+      width: min(680px, 100%);
+      height: 100dvh;
+      background: #f6f8fa;
+      box-shadow: -25px 0 65px rgba(0,0,0,.25);
+      transform: translateX(104%);
+      transition: transform .26s cubic-bezier(.2,.8,.2,1);
+      display: flex;
+      flex-direction: column;
+    }
+    .team-drawer.open {
+      transform: translateX(0);
+    }
+    @media (min-width: 761px) {
+      .team-drawer {
+        left: 0;
+        right: auto;
+        transform: translateX(-104%);
+        box-shadow: 25px 0 65px rgba(0,0,0,.25);
+      }
+      .team-drawer.open {
+        transform: translateX(0);
+      }
+    }
+    .drawer-hero {
+      padding: 22px;
+      color: #fff;
+      background: var(--drawer-color, var(--navy-2));
+      position: relative;
+      overflow: hidden;
+    }
+    .drawer-hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -120px;
+      top: -110px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+    }
+    .drawer-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 2;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      border-radius: 10px;
+      font-size: 22px;
+      line-height: 1;
+    }
+    .drawer-team {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding-right: 46px;
+    }
+    .drawer-team .team-badge {
+      width: 58px;
+      height: 58px;
+      font-size: 28px;
+    }
+    .drawer-team h2 {
+      margin: 0 0 4px;
+      font-size: 25px;
+      letter-spacing: -.04em;
+    }
+    .drawer-team p {
+      margin: 0;
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+    }
+    .drawer-year {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.16);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .drawer-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .drawer-stat {
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .drawer-stat small {
+      display: block;
+      color: rgba(255,255,255,.63);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+    .drawer-stat strong {
+      font-size: 14px;
+    }
+    .drawer-stats-body {
+      display: none;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow: auto;
+      padding: 18px;
+    }
+    .schedule-section {
+      margin-bottom: 20px;
+    }
+    .schedule-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 2px 10px;
+    }
+    .schedule-heading h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+    .schedule-heading span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .schedule-list {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .schedule-row {
+      display: grid;
+      grid-template-columns: 54px 34px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px;
+      border-bottom: 1px solid #edf0f3;
+    }
+    .schedule-row:last-child {
+      border-bottom: 0;
+    }
+    .schedule-week {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .result-pill {
+      width: 27px;
+      height: 27px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 1000;
+      color: #fff;
+    }
+    .result-pill.win {
+      background: var(--green);
+    }
+    .result-pill.loss {
+      background: #c73535;
+    }
+    .result-pill.bye {
+      background: #8693a1;
+    }
+    .schedule-opponent {
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .schedule-opponent strong {
+      text-decoration: underline dotted rgba(23, 105, 224, .55) 1.5px;
+      text-underline-offset: 3px;
+    }
+    @media (hover: hover) {
+      .schedule-opponent:hover strong {
+        color: var(--blue);
+        text-decoration-style: solid;
+        text-decoration-color: var(--blue);
+      }
+    }
+    .schedule-opponent strong {
+      display: block;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .schedule-opponent span {
+      color: var(--muted);
+      font-size: 10px;
+    }
+    .schedule-score {
+      text-align: right;
+      font-size: 12px;
+    }
+    .schedule-score strong {
+      display: block;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+    .schedule-score span {
+      color: var(--muted);
+      font-size: 10px;
+    }
+    .mobile-stat-strip,
+    .mobile-sort-control {
+      display: none;
+    }
+    .mobile-stat-strip {
+      margin-top: 5px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 3px;
+    }
+    .mobile-stat {
+      min-width: 0;
+      padding: 3px 2px;
+      border-radius: 5px;
+      background: #f3f6f9;
+      text-align: center;
+    }
+    .mobile-stat small {
+      display: block;
+      color: #7a8796;
+      font-size: 7px;
+      font-weight: 900;
+      letter-spacing: .05em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .mobile-stat strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 9px;
+      line-height: 1.05;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .mobile-sort-control {
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .mobile-sort-control select {
+      min-width: 112px;
+      border: 1px solid #ccd5df;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 28px 7px 8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
     .mobile-sort-direction {
       width: 30px;
       height: 30px;
@@ -1078,582 +736,340 @@
       font-weight: 1000;
       cursor: pointer;
     }
-
     .mobile-sort-direction:hover,
     .mobile-sort-direction:focus-visible {
       border-color: var(--blue);
       color: var(--blue-2);
     }
-
-    /* A short run of yard ticks closes the page out. */
-    .footer::before {
-      content: "";
-      display: block;
-      width: min(360px, 52%);
-      height: 7px;
-      margin: 0 auto 15px;
-      background: repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 15px);
-      opacity: .45;
-    }
-
-    .footer {
-      padding: 26px 16px 34px;
-      color: #718092;
-      font-size: 11px;
-      text-align: center;
-    }
-
     @media (max-width: 900px) {
-      .hero-inner { grid-template-columns: 1fr; }
-      .hero-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .hero-metric { min-height: 78px; }
-      .profile-grid { grid-template-columns: 1fr; }
-      .leaderboard-grid { grid-template-columns: 1fr; }
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+      .page-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .view-tabs {
+        align-self: stretch;
+      }
+      .view-tab {
+        flex: 1;
+      }
     }
-
     @media (max-width: 700px) {
       .topbar-inner,
       .hero-inner,
-      main { width: min(100% - 12px, 1220px); }
-
-      .topbar-inner { min-height: 56px; }
-      .brand-kicker { display: none; }
-      .brand-title { font-size: 15px; }
-      .brand-mark { width: 36px; height: 36px; }
-      .season-control > span { display: none; }
-      .season-control select { padding: 7px 27px 7px 9px; font-size: 11px; }
-
-      .hero-inner {
-        padding: 28px 0 23px;
-        gap: 17px;
+      main {
+        width: min(100% - 12px, 1220px);
       }
-
-      .hero h1 { font-size: 43px; }
-      .hero p { font-size: 12px; }
-
-      .hero-metrics { gap: 5px; }
-      .hero-metric { min-height: 67px; padding: 9px; border-radius: 10px; }
-      .hero-metric small { font-size: 6.5px; }
-      .hero-metric strong { margin-top: 5px; font-size: 20px; }
-      .hero-metric span { margin-top: 3px; font-size: 7px; }
-
-      main { padding-top: 14px; }
-
-      .section { margin-top: 13px; }
-      .section-heading { margin-bottom: 7px; }
-      .section-heading h2 { font-size: 20px; }
-      .section-heading p { font-size: 9px; }
-
-      .card { border-radius: 12px; box-shadow: 0 6px 18px rgba(15,34,55,.07); }
-      .card-head { min-height: 50px; padding: 10px 11px; }
-      .card-head h3 { font-size: 14px; }
-      .head-icon { width: 25px; height: 25px; border-radius: 7px; font-size: 12px; }
-      .card-head > span { display: none; }
-
-      .leaderboard-grid {
-        grid-template-columns: 1fr;
+      .topbar-inner {
+        min-height: 56px;
+      }
+      .brand-kicker {
+        display: none;
+      }
+      .brand-title {
+        font-size: 15px;
+      }
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+      }
+      .year-control > span {
+        display: none;
+      }
+      .year-control select {
+        padding: 7px 27px 7px 9px;
+        font-size: 12px;
+      }
+      .hero-inner {
+        padding: 20px 0 18px;
         gap: 12px;
       }
-
-      .leaderboard-card th,
-      .leaderboard-card td { padding: 8px 7px; }
-      .leaderboard-card th:nth-child(1),
-      .leaderboard-card td:nth-child(1) { display: none; }
-      .leaderboard-card .team-badge { width: 27px; height: 27px; font-size: 13px; }
-      .leaderboard-card .team-name { max-width: 145px; font-size: 9.5px; }
-      .leaderboard-card .owner-name { font-size: 7.5px; }
-      .leaderboard-card td { font-size: 9px; }
-      .title-count { font-size: 12px; }
-
-      .all-time-card .table-wrap { overflow: visible; }
-      .all-time-card table,
-      .all-time-card tbody { display: block; width: 100%; }
-      .all-time-card thead { display: none; }
-
-      .all-time-card tbody tr {
-        display: grid;
-        grid-template-columns: 25px minmax(0, 1fr);
-        align-items: center;
-        padding: 7px 8px;
-        border-top: 1px solid #edf0f3;
+      .hero h1 {
+        font-size: 38px;
       }
-
-      .all-time-card tbody tr:first-child { border-top: 0; }
-
-      .all-time-card td {
-        padding: 0;
-        border: 0;
-        white-space: normal;
+      .page-toolbar {
+        margin: 15px 0 9px;
+        gap: 8px;
       }
-
-      .all-time-card td.rank { grid-column: 1; width: auto; font-size: 10px; }
-      .all-time-card td.team-cell { grid-column: 2; min-width: 0; }
-      .all-time-card td:not(.rank):not(.team-cell) { display: none; }
-
-      .all-time-card .team-button { width: 100%; gap: 6px; }
-      .all-time-card .team-badge { width: 28px; height: 28px; font-size: 13px; }
-      .all-time-card .team-name { max-width: 100%; font-size: 10px; }
-      .all-time-card .owner-name { font-size: 8px; }
-
-      .mobile-stat-strip {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 3px;
-        margin-top: 5px;
+      .page-title h2 {
+        font-size: 21px;
       }
-
-      .mobile-stat {
-        min-width: 0;
-        padding: 3px 2px;
-        border-radius: 5px;
-        background: #f3f6f9;
-        text-align: center;
+      .page-title p {
+        margin-top: 3px;
+        font-size: 10px;
       }
-
-      .mobile-stat small {
-        display: block;
-        color: #7a8796;
-        font-size: 7px;
-        font-weight: 900;
-        letter-spacing: .05em;
-        line-height: 1;
-        text-transform: uppercase;
+      .card {
+        border-radius: 12px;
+        box-shadow: 0 5px 16px rgba(7,24,39,.07);
       }
-
-      .mobile-stat strong {
-        display: block;
-        margin-top: 2px;
-        overflow: hidden;
-        color: var(--ink);
+      .card-head {
+        padding: 11px 12px;
+      }
+      .card-head h3 {
+        font-size: 15px;
+      }
+      .card-head > span {
         font-size: 9px;
-        line-height: 1.05;
-        font-variant-numeric: tabular-nums;
+      }
+      .division-chip {
+        min-width: 23px;
+        height: 23px;
+        border-radius: 6px;
+        font-size: 9px;
+      }
+      td.team-cell .team-button {
+        flex: 0 1 auto;
+        width: auto;
+        max-width: 100%;
+        min-width: 0;
+      }
+      td.team-cell .team-button .team-meta {
+        min-width: 0;
+      }
+      td.team-cell .team-button .team-name {
+        overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-
-      .mobile-sort {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        color: #758292;
-        font-size: 8px;
-        font-weight: 900;
-        text-transform: uppercase;
+      td.team-cell .mobile-stat-strip {
+        flex: 1 0 100%;
       }
-
-      .mobile-sort select,
-      .h2h-mobile-sort select {
-        max-width: 125px;
-        border: 1px solid #ccd5df;
-        border-radius: 8px;
-        background: #fff;
-        color: var(--ink);
-        padding: 6px 25px 6px 7px;
-        font-size: 9px;
-        font-weight: 850;
-      }
-
-
-      .home-hero .hero-inner {
-        grid-template-columns: minmax(0, 1fr) auto;
-        padding: 18px 0;
-        gap: 10px;
-      }
-
-      .home-hero h1 {
-        margin-top: 4px;
-        font-size: 30px;
-      }
-
-      .trophy-room-link {
-        margin-top: 11px;
-        gap: 8px;
-        padding: 7px 12px 7px 8px;
-      }
-      .trophy-room-icon { width: 26px; height: 26px; font-size: 12px; }
-      .trophy-room-title { font-size: 12px; }
-
-      .home-year-count {
-        min-width: 112px;
-        padding: 10px;
-        border-radius: 10px;
-      }
-
-      .home-year-count strong { font-size: 24px; }
-      .home-year-count span { margin-top: 3px; font-size: 6.5px; }
-
-      .achievement-card {
-        min-height: 0;
-        padding: 8px 9px;
-      }
-
-      .achievement-label { font-size: 6.5px; }
-      .achievement-line { margin-top: 5px; gap: 5px; }
-      .achievement-value { font-size: 16px; }
-      .achievement-meta { font-size: 6.5px; }
-
-      .profile-card-head {
-        min-height: 38px;
-        padding: 7px 9px;
-      }
-
-      .mobile-sort,
-      .h2h-mobile-sort {
-        gap: 4px;
-      }
-
-      .mobile-sort-direction {
-        width: 27px;
-        height: 27px;
-        font-size: 12px;
-      }
-
-      .profile-panel { width: 100%; }
-
-      /* Phones: a bottom sheet like the box score and the player card. The
-         top bar folds away to just its close button, floating over the team
-         header, which pins and slims down as the page scrolls. */
-      .profile-panel {
-        inset: auto 0 0 0; height: auto; max-height: 92dvh;
-        border-radius: 16px 16px 0 0;
-        transform: translateY(102%);
-      }
-      .profile-panel.open { transform: none; }
-      .profile-panel .profile-topbar .close-profile { top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 8px; font-size: 18px; }
-      .profile-panel .profile-hero { padding: 14px 50px 14px 12px; }
-      .profile-panel.compact .profile-hero { padding-top: 8px; padding-bottom: 8px; }
-      .profile-panel.compact .profile-logo { width: 34px; height: 34px; border-radius: 9px; }
-      .profile-panel.compact .profile-identity h2 { font-size: 17px; }
-
-      .profile-topbar { min-height: 52px; padding: 7px 9px; }
-      .close-profile { width: 34px; height: 34px; }
-
-      .profile-hero { padding: 19px 12px 16px; }
-      .profile-identity { gap: 10px; }
-      .profile-logo { width: 49px; height: 49px; border-radius: 13px; font-size: 23px; }
-      .profile-identity h2 { font-size: 26px; }
-      .profile-owner { margin-top: 4px; font-size: 10px; }
-      .name-history { margin-top: 12px; gap: 4px; }
-      .name-chip { padding: 5px 6px; font-size: 7px; }
-
-      .profile-content { padding: 8px; }
-
-      .achievement-grid {
-        grid-template-columns: repeat(2, minmax(0,1fr));
+      .team-button {
+        width: 100%;
         gap: 6px;
       }
-
-      .achievement-card {
-        min-height: 104px;
-        padding: 10px;
-        border-radius: 10px;
+      .team-badge {
+        width: 27px;
+        height: 27px;
+        border-radius: 7px;
+        font-size: 13px;
       }
-
-      .achievement-label { font-size: 7px; }
-      .achievement-value { margin-top: 7px; font-size: 18px; }
-      .achievement-detail { margin-top: 5px; font-size: 7.5px; }
-
-      .profile-grid { gap: 7px; margin-top: 7px; }
-      .profile-card { border-radius: 10px; }
-      .profile-card-head { min-height: 45px; padding: 9px 10px; }
-      .profile-card-head h3 { font-size: 12px; }
-      .profile-card-head span { font-size: 7px; }
-
-      .season-history-row {
-        grid-template-columns: 39px minmax(0,1fr) 43px 50px;
-        gap: 5px;
-        padding: 8px 9px;
-        font-size: 7.5px;
+      .team-meta {
+        min-width: 0;
+        gap: 0;
       }
-
-      .season-history-row > :nth-child(4),
-      .season-history-row > :nth-child(5) { display: none; }
-
-      .player-results { grid-template-columns: 1fr; }
-      .player-search { padding: 10px; }
-      .player-search-sub { display: none; }
-      .player-search input { font-size: 16px; }
-
-      .starters-card { margin-top: 7px; }
-      .starters-row {
-        grid-template-columns: 14px 24px minmax(0, 1fr) var(--year-cols-sm) 30px;
-        gap: 5px;
-        padding: 7px 9px;
-      }
-      .starters-logo, .starters-chip { width: 24px; }
-      .starters-logo { height: 18px; }
-      .starters-name strong { font-size: 10.5px; }
-      .starters-name small { font-size: 7.5px; }
-      .starters-years { gap: 2px; }
-      .starters-year { height: 32px; font-size: 8px; border-radius: 4px; gap: 1px; }
-      .starters-year img, .starters-year .starters-chip { width: 20px; }
-      .starters-year img { height: 14px; }
-      .starters-year .starters-chip { font-size: 6px; }
-      .starters-total strong { font-size: 13px; }
-      .starters-total small { display: none; }
-      .starters-foot { padding: 8px 9px; font-size: 7.5px; }
-
-      .h2h-card .table-wrap { overflow: visible; }
-      .h2h-card table,
-      .h2h-card tbody { display: block; width: 100%; }
-      .h2h-card thead { display: none; }
-
-      .h2h-card tbody tr {
+      .team-name {
         display: block;
-        padding: 8px 9px;
-        border-top: 1px solid #edf0f3;
+        max-width: 100%;
+        overflow: hidden;
+        color: var(--blue-2);
+        font-size: 10.5px;
+        line-height: 1.1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
-
-      .h2h-card tbody tr:first-child { border-top: 0; }
-      .h2h-card td { display: none; padding: 0; border: 0; }
-      .h2h-card td.opponent-cell { display: block; }
-      .h2h-card .team-button { width: 100%; }
-      .h2h-card .team-badge { width: 27px; height: 27px; font-size: 12px; }
-      .h2h-card .team-name { font-size: 9.5px; }
-      .h2h-card .owner-name { font-size: 7.5px; }
-
-      .h2h-mobile-sort {
+      .owner {
+        font-size: 8.5px;
+        line-height: 1.15;
+      }
+      .mobile-stat-strip {
+        display: grid;
+      }
+      .mobile-sort-control {
         display: inline-flex;
-        align-items: center;
+        margin-left: auto;
+      }
+      .drawer-stats {
+        grid-template-columns: repeat(4, 1fr);
         gap: 4px;
-        color: #758292;
+      }
+      .drawer-stat {
+        padding: 7px 4px;
+      }
+      .drawer-stat small {
         font-size: 7px;
-        font-weight: 900;
-        text-transform: uppercase;
       }
-    }
-
-    @media (max-width: 430px) {
-      .hero-metrics { grid-template-columns: 1fr 1fr; }
-      .achievement-grid { grid-template-columns: 1fr 1fr; }
-    }
-  
-    @media (max-width: 700px) {
-      .achievement-card {
-        min-height: 0;
-        padding: 8px 9px;
-        border-radius: 9px;
+      .drawer-stat strong {
+        font-size: 11px;
       }
-
-      .achievement-label {
-        font-size: 6.5px;
-      }
-
-      .achievement-line {
-        margin-top: 5px;
+      .schedule-row {
+        grid-template-columns: 42px 23px minmax(0, 1fr) auto;
         gap: 5px;
+        padding: 7px;
       }
-
-      .achievement-value {
-        margin-top: 0;
+      .schedule-week {
+        font-size: 8px;
+      }
+      .result-pill {
+        width: 21px;
+        height: 21px;
+        font-size: 8px;
+      }
+      .schedule-opponent strong {
+        font-size: 10px;
+      }
+      .schedule-opponent span {
+        font-size: 8px;
+      }
+      .schedule-score {
+        font-size: 9px;
+      }
+      .schedule-score strong {
+        font-size: 10px;
+      }
+      .drawer-hero,
+      .drawer-body {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .team-drawer {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: auto;
+        max-height: 92dvh;
+        border-radius: 16px 16px 0 0;
+        overflow: hidden;
+        transform: translateY(104%);
+      }
+      .team-drawer.open {
+        transform: none;
+      }
+      .drawer-body {
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      .drawer-hero {
+        flex: 0 0 auto;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        transition: padding .2s ease;
+      }
+      .drawer-close {
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+        border-radius: 8px;
+      }
+      .drawer-team .team-badge,
+      .drawer-team h2 {
+        transition: width .2s ease, height .2s ease, font-size .2s ease;
+      }
+      .drawer-team .team-badge {
+        width: 48px;
+        height: 48px;
+      }
+      .drawer-team h2 {
+        font-size: 21px;
+      }
+      .drawer-hero .drawer-stats {
+        display: none;
+      }
+      .drawer-stats-body {
+        display: grid;
+        margin: 0 0 14px;
+      }
+      .drawer-stats-body .drawer-stat {
+        background: var(--drawer-color, var(--navy-2));
+        border-color: transparent;
+        color: #fff;
+      }
+      .drawer-year,
+      .drawer-team p {
+        max-height: 34px;
+        overflow: hidden;
+        transition: max-height .28s ease, opacity .2s ease, margin .28s ease, padding .28s ease;
+      }
+      .team-drawer.compact .drawer-hero {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+      .team-drawer.compact .drawer-team p,
+      .team-drawer.compact .drawer-year {
+        max-height: 0;
+        opacity: 0;
+        margin: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      .team-drawer.compact .drawer-team .team-badge {
+        width: 34px;
+        height: 34px;
+      }
+      .team-drawer.compact .drawer-team h2 {
         font-size: 16px;
-      }
-
-      .achievement-meta {
-        font-size: 6.5px;
-      }
-
-      .profile-card-head {
-        min-height: 38px;
-        padding: 7px 9px;
+        margin: 0;
       }
     }
-
-
-    /* --- v2 visual refresh: refined elevation, motion, and accents --- */
-    ::selection { background: rgba(23, 105, 224, .22); color: var(--ink); }
-
-    .table-wrap, .profile-panel {
-      scrollbar-width: thin;
-      scrollbar-color: #b7c2d1 transparent;
+    .hero + main .page-toolbar {
+      margin-top: 0;
     }
-    .table-wrap::-webkit-scrollbar, .profile-panel::-webkit-scrollbar { height: 8px; width: 8px; }
-    .table-wrap::-webkit-scrollbar-thumb, .profile-panel::-webkit-scrollbar-thumb {
-      background: #c2cbd8; border-radius: 999px;
-    }
-    .table-wrap::-webkit-scrollbar-track, .profile-panel::-webkit-scrollbar-track { background: transparent; }
-
-    .card, .achievement-card, .hero-metric, .home-year-count, .profile-card {
-      transition: box-shadow .22s cubic-bezier(.2,.8,.2,1), border-color .22s ease;
-    }
-    .team-badge, .profile-logo {
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .card:hover { box-shadow: var(--shadow-lg, var(--shadow)); }
-      .achievement-card:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(15,34,55,.10); }
-      tbody tr:hover .team-badge { transform: scale(1.06); }
-    }
-
-    .achievement-card {
-      transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s cubic-bezier(.2,.8,.2,1);
-    }
-
-    .team-button:focus-visible,
-    .sort-button:focus-visible,
-    .close-profile:focus-visible {
-      outline: 2px solid var(--blue);
-      outline-offset: 3px;
-      border-radius: 6px;
-    }
-
-    @media (prefers-reduced-motion: no-preference) {
-      .card, .achievement-card { animation: v2FadeUp .5s cubic-bezier(.2,.8,.2,1) both; }
-    }
-    @keyframes v2FadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* --- v3 visual overhaul: display type, richer hero, premium accents --- */
-    .hero h1,
-    .section-heading h2,
-    .card-head h3,
-    .brand-title,
-    .achievement-value,
-    .home-year-count strong,
-    .hero-metric strong,
-    .profile-identity h2,
-    .title-count {
-      letter-spacing: -.02em;
-    }
-
-    .hero h1 { font-weight: 700; }
-    .brand-title { font-weight: 800; letter-spacing: -.02em; }
-
-    /* Richer hero backdrop with layered glow (vignette folded into the
-       background stack itself so it stays behind the hero-inner content). */
-    .hero {
-      position: relative;
-      border-bottom: 4px solid var(--red);
-    }
-
-    .home-hero h1 { color: #fff; }
-
-
-    /* Soft pulsing glow on the trophy tile */
-    @media (prefers-reduced-motion: no-preference) {
-      .champions-card .head-icon {
-        animation: v3Glow 2.6s ease-in-out infinite;
+    @media (max-width: 700px) {
+      .hero + main .page-toolbar {
+        margin-top: 0;
       }
     }
-    @keyframes v3Glow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(246,183,60,0); }
-      50% { box-shadow: 0 0 0 6px rgba(246,183,60,.18); }
-    }
-  
-    /* --- v4 modern overhaul: depth, glass, gradient accents, motion
-       (purely visual — all-time tables, champions and copy are unchanged) --- */
-
-    /* Layered light mesh gives the page real depth instead of a flat wash */
-    /* The field carries onto the page itself, at a sixth the strength it has
-       on the hero — enough to give the white space a grain, not a pattern. */
     body {
       background:
         repeating-linear-gradient(90deg, transparent 0 149px, rgba(11,23,38,.045) 149px 150px),
         repeating-linear-gradient(90deg, transparent 0 29px, rgba(11,23,38,.018) 29px 30px),
         #f0f4f9;
     }
-
-    /* Premium card depth: crisp top highlight, soft contact + ambient shadow */
     .card {
       border-color: rgba(15,34,55,.09);
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.9),
+        inset 0 1px 0 rgba(255,255,255,.85),
         0 1px 2px rgba(10,22,38,.05),
         0 22px 46px -26px rgba(10,22,38,.42);
     }
-
-    /* Faint tri-color rule bleeding along the base of every card header */
     .card-head {
       position: relative;
+      background: #fafcfe;
     }
     .card-head::after {
       content: "";
       position: absolute;
-      left: 0; right: 0; bottom: -1px;
+      left: 0;
+      right: 0;
+      bottom: -1px;
       height: 2px;
       background: rgba(23,105,224,.35);
-      opacity: .7;
+      opacity: .75;
     }
-    /* Champions header leans gold, losers header leans red */
-    .champions-card .card-head::after {
-      background: rgba(246,183,60,.55);
-      opacity: .85;
-    }
-    .losers-card .card-head::after {
-      background: rgba(215,25,32,.45);
-    }
-
-    /* Head icons feel like embossed tokens */
-    .head-icon {
+    .division-chip {
+      background: var(--blue);
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.5),
-        0 6px 14px -6px rgba(7,24,39,.4);
+        inset 0 1px 0 rgba(255,255,255,.22),
+        0 6px 14px -5px rgba(23,105,224,.6);
     }
-
-    /* Table: brighter header, gradient row hover with a leading accent bar */
     th {
       background: #f6f9fc;
     }
-    tbody tr { transition: background .18s ease, box-shadow .18s ease; }
+    tbody tr {
+      transition: background .18s ease, box-shadow .18s ease;
+    }
     tbody tr:hover {
       background: rgba(23,105,224,.05);
       box-shadow: inset 3px 0 0 rgba(23,105,224,.6);
     }
-    /* In the champions leaderboard the accent bar reads gold */
-    .champions-card tbody tr:hover {
-      background: rgba(246,183,60,.08);
-      box-shadow: inset 3px 0 0 var(--gold);
+    .team-badge {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.35),
+        0 6px 14px -6px rgba(7,24,39,.55);
     }
-
-    /* Glassy KPI card in the hero with a slow diagonal sheen sweep */
-    .home-year-count {
-      position: relative;
-      overflow: hidden;
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,255,255,.22);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 18px 40px -22px rgba(0,0,0,.6);
+    .view-tabs {
+      background: rgba(12,28,45,.06);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 2px rgba(7,24,39,.08);
     }
-    @media (prefers-reduced-motion: no-preference) {
-      .home-year-count::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-size: 220% 100%;
-        background-position: -120% 0;
-        animation: v4Sheen 6.5s ease-in-out infinite;
-        pointer-events: none;
-      }
-      .home-year-count strong,
-      .home-year-count span { position: relative; z-index: 1; }
+    .view-tab {
+      border-radius: 999px;
+      transition: color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .view-tab.active {
+      background: var(--navy-2);
+      box-shadow: 0 8px 18px -7px rgba(7,24,39,.7), inset 0 1px 0 rgba(255,255,255,.12);
     }
     @keyframes v4Sheen {
       0%, 15% { background-position: -120% 0; }
       55%, 100% { background-position: 140% 0; }
     }
-
-    /* Gold sheen sweep across the League Champions card — echoes the season
-       champion cards so the trophy tables shimmer here too */
-    .champions-card { position: relative; }
-    @media (prefers-reduced-motion: no-preference) {
-      .champions-card::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-size: 240% 100%;
-        background-position: -130% 0;
-        animation: v4Sheen 8s ease-in-out infinite;
-        pointer-events: none;
-        z-index: 3;
-      }
-    }
-
-    /* The hero is the field: yard lines every thirty pixels, a heavier one
-       every fifth, and two rows of hash marks across the middle. All of it
-       sits at an alpha you notice only once you look for it. */
     .hero {
       position: relative;
       overflow: hidden;
@@ -1664,8 +1080,6 @@
         repeating-linear-gradient(90deg, transparent 0 29px, rgba(255,255,255,.022) 29px 30px),
         rgba(7, 24, 39, .98);
     }
-
-    /* A ball resting off the right edge of the field, mostly out of frame. */
     .hero::before {
       content: "🏈";
       position: absolute;
@@ -1678,74 +1092,509 @@
       pointer-events: none;
       z-index: 0;
     }
-
-    /* A hero holding the champion and last-place cards already has a trophy
-       and a turd behind their scores. The cards are translucent, so the ball
-       showed through and tangled with both - at phone width it sat right on
-       top of them. One watermark per card is plenty. */
-    .hero:has(.outcome-grid)::before { content: none; }
-
-    .hero-inner { position: relative; z-index: 1; }
-
-    /* Small cards lift on hover for a tactile, modern feel */
-    .achievement-card {
-      transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease;
+    .hero-inner {
+      position: relative;
+      z-index: 1;
     }
-    .achievement-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 24px 44px -24px rgba(10,22,38,.5);
+    .team-button {
+      transition: transform .15s ease;
     }
-
-  
-    /* --- v5: adopt the season pages' dark banner + shield crest on home --- */
-    .topbar {
-      background: rgba(7, 24, 39, .96);
-      border-bottom: 1px solid rgba(255,255,255,.08);
+    .team-name {
+      transition: color .15s ease;
+    }
+    .page-title h2 {
+      position: relative;
+      padding-left: 15px;
+    }
+    .page-title h2::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .12em;
+      bottom: .12em;
+      width: 5px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+    .live-hero .hero-inner {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: stretch;
+      padding: 26px 20px 30px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .live-status {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+    }
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      padding: 5px 12px 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .12);
+      border: 1px solid rgba(255, 255, 255, .22);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 0 rgba(215, 25, 32, .7);
+      animation: livePulse 2.2s infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .live-dot {
+        animation: none;
+      }
+    }
+    .live-status h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.04;
+      letter-spacing: -.02em;
+    }
+    .live-status p {
+      margin: 0;
+      max-width: 40ch;
+      color: rgba(255, 255, 255, .72);
+      font-size: 14.5px;
+      line-height: 1.45;
+    }
+    .hero-brief {
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 16px;
+      padding: 17px 19px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      min-width: 0;
+    }
+    .brief-label {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .55);
+    }
+    .brief-narrative {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, .86);
+    }
+    .brief-narrative strong {
       color: #fff;
-    }
-    .brand-kicker { color: #9eb0c1; letter-spacing: .22em; }
-    .brand-title { color: #fff; margin-top: 2px; }
-
-    /* Season switcher restyled for the dark banner */
-    .season-control { color: #c9d5df; }
-    .season-control select {
-      appearance: none;
-      color: #fff;
-      background: #16324a;
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 10px;
-      padding: 10px 38px 10px 14px;
-      font-size: 13px;
       font-weight: 800;
-      outline: none;
-      background-image:
-        linear-gradient(45deg, transparent 50%, #fff 50%),
-        linear-gradient(135deg, #fff 50%, transparent 50%);
-      background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px;
-      background-size: 5px 5px, 5px 5px;
-      background-repeat: no-repeat;
     }
-
-      /* A logo is the team's identity on its own, so the chip stops shouting the
-       team colour underneath it — a teal shield on a teal chip loses its edge.
-       The colour stays as a hairline ring, which keeps the row scannable. An
-       emoji badge is unchanged: it needs the colour to read at all. */
-    .team-badge:has(.team-logo),
-    .mini-badge:has(.team-logo),
-    .profile-logo:has(.team-logo) {
+    .brief-headlines {
+      list-style: none;
+      margin: 0;
+      padding: 13px 0 0;
+      border-top: 1px solid rgba(255, 255, 255, .13);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .brief-headlines li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.42;
+      color: rgba(255, 255, 255, .8);
+    }
+    .brief-headlines li::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 5px;
+      height: 5px;
+      margin-top: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .brief-headlines li > span {
+      min-width: 0;
+    }
+    .brief-headlines strong {
+      color: #fff;
+      font-weight: 800;
+    }
+    .week-rail-wrap {
+      width: min(1220px, calc(100% - 32px));
+      margin: 22px auto 0;
+    }
+    .week-rail-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .week-rail-head strong {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .week-rail-head span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .week-rail {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      scrollbar-width: thin;
+    }
+    .view-select-wrap {
+      display: none;
+    }
+    @media (max-width: 700px) {
+      .week-rail {
+        display: none;
+      }
+      .view-tabs {
+        display: none;
+      }
+      .view-select-wrap {
+        display: block;
+        position: relative;
+        width: 100%;
+      }
+      .view-select-wrap::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        width: 9px;
+        height: 9px;
+        margin-top: -6px;
+        border-right: 2.5px solid rgba(255, 255, 255, .8);
+        border-bottom: 2.5px solid rgba(255, 255, 255, .8);
+        transform: rotate(45deg);
+        pointer-events: none;
+      }
+      #viewSelect {
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        background: var(--navy);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, .14);
+        border-radius: 14px;
+        padding: 13px 42px 13px 16px;
+        font-size: 15px;
+        font-weight: 800;
+        box-shadow: var(--shadow);
+      }
+      #viewSelect:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 2px;
+      }
+    }
+    @media (max-width: 900px) {
+      .live-hero .hero-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .hero-brief {
+        order: 2;
+      }
+    }
+    @media (max-width: 560px) {
+      .live-hero .hero-inner {
+        padding: 20px 14px 24px;
+        gap: 14px;
+      }
+      .hero-brief {
+        padding: 14px 15px;
+        gap: 11px;
+      }
+      .brief-narrative {
+        font-size: 13.5px;
+      }
+      .brief-headlines li {
+        font-size: 12.5px;
+      }
+    }
+    .team-badge:has(.team-logo) {
       background: #fff;
       box-shadow: inset 0 0 0 1.5px var(--team-color, #667);
     }
-    .team-badge .team-logo,
-    .mini-badge .team-logo,
-    .profile-logo .team-logo {
+    .team-badge .team-logo {
       width: 82%;
       height: 82%;
       object-fit: contain;
       display: block;
       margin: auto;
     }
-</style>
+
+    /* ================================================================
+       All-time page. Everything above is the season pages' own styling
+       (taken from 2026.html), so the header, hero, tabs, cards, tables
+       and team panel look and size exactly as they do on a season page.
+       What follows is only what this page has and they do not.
+       ================================================================ */
+
+    .home-hero h1 { margin: 0; }
+    .home-hero .brief-headlines { border-top: 0; padding-top: 4px; }
+    .trophy-room-link {
+      align-self: flex-start;
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 14px 9px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .trophy-room-link:hover { background: rgba(255,255,255,.14); border-color: rgba(246,183,60,.55); }
+    .trophy-room-link .arrow { color: var(--gold); }
+
+    /* The player search sits where a season page has its week rail. */
+    .search-rail {
+      position: relative;
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+    .search-rail input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: var(--surface-2);
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+    }
+    .search-rail input::placeholder { color: #8391a1; font-weight: 500; }
+    .search-rail input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(23,105,224,.12); }
+    .player-results {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .player-results:not(:empty) { padding: 6px 0 0; }
+    .player-result {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid #edf0f3;
+      border-radius: 10px;
+      background: #fff;
+      text-align: left;
+      color: var(--ink);
+    }
+    @media (hover: hover) { .player-result:hover { border-color: var(--blue); background: #f7faff; } }
+    .player-result:focus-visible { border-color: var(--blue); background: #f7faff; outline: none; }
+    .pr-photo {
+      width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+      display: grid; place-items: center; background: #eef1f4;
+    }
+    .pr-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .pr-photo img.pr-logo { width: 72%; height: 72%; object-fit: contain; }
+    .player-result strong { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .player-result small { display: block; color: var(--muted); font-size: 11px; font-weight: 600; }
+    .pr-nums { text-align: right; font-variant-numeric: tabular-nums; }
+    .pr-nums b { display: block; font-size: 13px; }
+    .pr-nums small { font-size: 10px !important; letter-spacing: .09em; text-transform: uppercase; font-weight: 900 !important; }
+    .player-empty { grid-column: 1 / -1; padding: 6px 8px 4px; color: var(--muted); font-size: 12px; }
+
+    .division-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+    /* Titles and last places wear the same tints as the season pages'
+       winners and losers brackets. */
+    .champions-card .card-head { background: #fffae9; border-bottom-color: #ead58b; }
+    .losers-card .card-head { background: #fffbfb; border-bottom-color: #efc9c6; }
+    .champions-card .division-chip { background: #b8860b; }
+    .losers-card .division-chip { background: #a62f2b; }
+    .titles-table { min-width: 0; }
+    .title-count { font-weight: 900; }
+    .title-years { color: var(--muted); }
+
+    /* ---- Team history panel: the season pages' team drawer ---- */
+    .drawer-body .schedule-list + .schedule-list { margin-top: 10px; }
+    .schedule-list > .table-wrap table { min-width: 520px; }
+    .schedule-list th, .schedule-list td { padding-left: 12px; padding-right: 12px; }
+    .schedule-list td { font-size: 12px; padding-top: 10px; padding-bottom: 10px; }
+    .schedule-list .team-badge { width: 28px; height: 28px; border-radius: 8px; }
+    .schedule-list .team-name { font-size: 12px; }
+    .schedule-list .owner { font-size: 10px; }
+
+    /* Highlights: one line each, label on the left, the figure on the right. */
+    .h2h-card th:nth-child(2), .h2h-card td:nth-child(2) { text-align: right; }
+    .h2h-card th:nth-child(2) .sort-button { justify-content: flex-end; }
+
+    .hl-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px;
+      border-bottom: 1px solid #edf0f3;
+    }
+    .hl-row:last-child { border-bottom: 0; }
+    .hl-row > span { color: var(--muted); font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+    .hl-row > div { text-align: right; font-size: 12px; }
+    .hl-row strong { display: block; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .hl-row small { color: var(--muted); font-size: 10px; }
+
+    /* Season history rows: the schedule row, with the finish in the pill. */
+    .season-row { color: inherit; text-decoration: none; transition: background .15s ease; }
+    @media (hover: hover) {
+      .season-row:hover { background: #f5f8fb; }
+      .season-row:hover .schedule-opponent strong { color: var(--blue); text-decoration-style: solid; text-decoration-color: var(--blue); }
+    }
+    .result-pill.place-1 { background: #c99a1c; }
+    .result-pill.place-2 { background: #8a97a6; }
+    .result-pill.place-3 { background: #b0703a; }
+    .result-pill.place-last { background: #c73535; }
+    .result-pill.place-mid { background: #d5dce4; color: #4b5866; }
+
+    .chart-wrap { padding: 10px 10px 4px; }
+    .wins-chart { display: block; width: 100%; height: auto; }
+
+    /* Most-started players: the drawer's roster rows, one cell per season. */
+    .starters-row {
+      display: grid;
+      grid-template-columns: 22px 28px minmax(0, 1fr) var(--year-cols) 50px;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 12px;
+      border-top: 1px solid #edf0f3;
+      font-variant-numeric: tabular-nums;
+    }
+    .starters-row:first-child { border-top: 0; }
+    .starters-row.header {
+      padding-top: 8px; padding-bottom: 8px;
+      background: #f6f8fa; color: #788696;
+      font-size: 8px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .starters-rank { color: var(--muted); font-size: 11px; font-weight: 900; text-align: center; }
+    .starters-logo { width: 28px; height: 20px; object-fit: contain; }
+    .starters-chip {
+      display: inline-block; width: 28px; padding: 3px 0; border-radius: 4px;
+      background: #e7ebef; color: #4b5866; font-size: 8px; font-weight: 900; text-align: center;
+    }
+    .starters-name { min-width: 0; }
+    .starters-name strong { display: block; overflow: hidden; color: var(--ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .starters-name small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .03em; }
+    .starters-years { display: grid; grid-template-columns: repeat(var(--year-count), 1fr); gap: 4px; text-align: center; }
+    .starters-year {
+      height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      border-radius: 6px; font-size: 9.5px; font-weight: 900; line-height: 1;
+    }
+    .starters-year img { width: 24px; height: 16px; object-fit: contain; }
+    .starters-year .starters-chip { width: 24px; padding: 2px 0; font-size: 7px; }
+    .starters-year.on { background: color-mix(in srgb, var(--team-color) calc(var(--fill) * 100%), #fff); color: var(--ink); }
+    .starters-year.off { background: #f1f4f7; color: #c3ccd5; }
+    .starters-total { text-align: right; }
+    .starters-total strong { display: block; color: var(--ink); font-size: 12.5px; }
+    .starters-total small { color: var(--muted); font-size: 8px; }
+    .empty-state { padding: 24px; color: var(--muted); font-size: 12px; text-align: center; }
+
+    @media (max-width: 700px) {
+      .trophy-room-link { margin-top: 12px; padding: 7px 12px 7px 9px; font-size: 12px; border-radius: 10px; }
+      .search-rail { padding: 5px; border-radius: 12px; }
+      .search-rail input { padding: 10px 12px; font-size: 16px; }
+      .player-results { grid-template-columns: 1fr; gap: 4px; }
+      .player-result { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; padding: 6px 8px; }
+      .pr-photo { width: 34px; height: 34px; }
+      .player-result strong { font-size: 12px; }
+      .player-result small { font-size: 9.5px; }
+      .division-grid { grid-template-columns: 1fr; gap: 9px; }
+      .titles-table th, .titles-table td { padding-left: 8px; padding-right: 8px; }
+      .titles-table td { font-size: 11px; }
+      .titles-table .team-button { width: auto; }
+      .titles-table .team-cell { min-width: 0; width: 100%; }
+      .titles-table .team-name { max-width: 150px; }
+
+      /* Standings rows collapse as the season pages' do: rank and team, with
+         every figure in a strip underneath. */
+      .compact-table .table-wrap { overflow: visible; }
+      .compact-table table, .compact-table tbody { display: block; width: 100%; min-width: 0; }
+      .compact-table thead { display: none; }
+      .compact-table tbody tr {
+        display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: center;
+        padding: 7px 8px; border-bottom: 1px solid #edf0f3;
+      }
+      .compact-table tbody tr:last-child { border-bottom: 0; }
+      .compact-table td { padding: 0; border: 0; text-align: left; white-space: normal; }
+      .compact-table td.rank { grid-column: 1; color: #738090; font-size: 11px; text-align: center; }
+      .compact-table td.team-cell { grid-column: 2; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; }
+      .compact-table td:not(.rank):not(.team-cell) { display: none; }
+
+      .hl-row { padding: 7px; gap: 6px; }
+      .hl-row > span { font-size: 8px; }
+      .hl-row strong { font-size: 10px; }
+      .hl-row small { font-size: 8px; }
+      .schedule-list > .table-wrap { overflow: visible; }
+      .schedule-list > .table-wrap table,
+      .schedule-list > .table-wrap tbody { display: block; width: 100%; min-width: 0; }
+      .schedule-list > .table-wrap thead { display: none; }
+      .schedule-list > .table-wrap tbody tr { display: block; padding: 7px; border-bottom: 1px solid #edf0f3; }
+      .schedule-list > .table-wrap tbody tr:last-child { border-bottom: 0; }
+      .schedule-list > .table-wrap td { display: none; padding: 0; border: 0; white-space: normal; }
+      .schedule-list > .table-wrap td.team-cell { display: block; }
+      .schedule-list .team-badge { width: 23px; height: 23px; border-radius: 6px; }
+      .schedule-list .team-name { font-size: 10px; }
+      .schedule-list .owner { font-size: 8px; }
+      .starters-row {
+        grid-template-columns: 16px 20px minmax(0, 1fr) var(--year-cols-sm) 30px;
+        gap: 5px; padding: 6px 7px;
+      }
+      .starters-row.header { font-size: 7px; }
+      .starters-rank { font-size: 9px; }
+      .starters-logo { width: 20px; height: 15px; }
+      .starters-name strong { font-size: 10px; }
+      .starters-name small { font-size: 8px; }
+      .starters-years { gap: 2px; }
+      .starters-year { height: 28px; border-radius: 4px; font-size: 8px; }
+      .starters-year img { width: 17px; height: 12px; }
+      .starters-total strong { font-size: 10px; }
+      .starters-total small { font-size: 7px; }
+    }
+  
+    /* Sortable headers line up with their column: numbers sit right, so
+       their headers do too. */
+    th .sort-button { justify-content: flex-end; }
+    th:first-child .sort-button, th:nth-child(2) .sort-button { justify-content: flex-start; }
+    th .sort-indicator:empty { display: none; }
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -1758,10 +1607,10 @@
         </div>
       </a>
 
-      <label class="season-control">
-        <span>View</span>
-        <select id="pageSelect" aria-label="Open a season">
-          <option value="home" selected>All-Time Home</option>
+      <label class="year-control">
+        <span>Season</span>
+        <select id="pageSelect" aria-label="Choose season">
+          <option value="home" selected>All-Time</option>
           <option value="2026">2026</option>
           <option value="2025">2025</option>
           <option value="2024">2024</option>
@@ -1773,111 +1622,67 @@
     </div>
   </header>
 
-  <section class="hero home-hero">
+  <section class="hero live-hero home-hero">
     <div class="hero-inner">
-      <div class="home-heading">
-        <div class="eyebrow">League History</div>
-        <h1>Home</h1>
-        <a class="trophy-room-link" href="trophy.html">
-          <span class="trophy-room-icon" aria-hidden="true">🏆</span>
-          <span class="trophy-room-title">Trophy Room</span>
-          <span class="trophy-room-arrow" aria-hidden="true">→</span>
-        </a>
+      <div class="live-status">
+        <span class="live-badge" id="heroBadge"></span>
+        <h1>All-Time</h1>
+        <a class="trophy-room-link" href="trophy.html"><span aria-hidden="true">🏆</span>Trophy Room<span class="arrow" aria-hidden="true">→</span></a>
       </div>
-      <div class="home-year-count" aria-label="Audited league history">
-        <strong id="homeSeasonCount">4</strong>
-        <span>Years of League History</span>
-      </div>
+      <aside class="hero-brief" id="heroBrief" aria-label="League leaders"></aside>
     </div>
   </section>
 
+  <div class="week-rail-wrap">
+    <div class="week-rail-head"><strong>Players</strong></div>
+    <div class="search-rail">
+      <input id="playerSearch" type="search" autocomplete="off" spellcheck="false"
+        placeholder="Search any player" aria-label="Search players" aria-controls="playerResults" />
+      <div class="player-results" id="playerResults" role="listbox" aria-label="Players"></div>
+    </div>
+  </div>
+
   <main>
-    <section class="section">
-      <div class="card player-search-card">
-        <div class="card-head">
-          <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2 13.4 13.4"/></svg></span>Player Search</h3>
-          <span class="player-search-sub">Every player to suit up in this league, 2021 on</span>
-        </div>
-        <div class="player-search">
-          <input id="playerSearch" type="search" autocomplete="off" spellcheck="false"
-            placeholder="Search a player — try Kelce, Chase or Bijan" aria-label="Search players" aria-controls="playerResults" />
-          <div class="player-results" id="playerResults" role="listbox" aria-label="Players"></div>
-        </div>
+    <div class="page-toolbar">
+      <div class="page-title">
+        <h2 id="pageTitle">All-Time</h2>
       </div>
-    </section>
-
-    <section class="section leaderboard-grid">
-      <div class="card champions-card leaderboard-card">
-        <div class="card-head">
-          <h3><span class="head-icon">🏆</span> League Champions</h3>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Current Team</th>
-                <th>Championships</th>
-                <th>Title Years</th>
-              </tr>
-            </thead>
-            <tbody id="championBody"></tbody>
-          </table>
-        </div>
+      <div class="view-tabs" id="viewTabs" role="tablist" aria-label="All-time views"></div>
+      <div class="view-select-wrap">
+        <select id="viewSelect" aria-label="All-time views"></select>
       </div>
+    </div>
 
-      <div class="card losers-card leaderboard-card">
+    <section id="standings" class="view-panel active" role="tabpanel">
+      <div class="card compact-table">
         <div class="card-head">
-          <h3><span class="head-icon">💩</span> League Losers</h3>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Current Team</th>
-                <th>Last Places</th>
-                <th>Years</th>
-              </tr>
-            </thead>
-            <tbody id="loserBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="section"><div class="card all-time-card">
-        <div class="card-head">
-          <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/></svg></span>All Time Standings</h3>
-          <div class="mobile-sort">
+          <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/></svg></span>Standings</h3>
+          <div class="mobile-sort-control">
             <label for="allTimeMobileSort">Sort</label>
             <select id="allTimeMobileSort" aria-label="Sort all-time standings">
-              <option value="wins">Wins</option>
-              <option value="losses">Losses</option>
+              <option value="wins">Record</option>
               <option value="pct">Win Percentage</option>
               <option value="pf">Points For</option>
               <option value="pa">Points Against</option>
+              <option value="pfg">PF per Game</option>
               <option value="diff">Point Differential</option>
               <option value="team">Team</option>
             </select>
             <button type="button" class="mobile-sort-direction" id="allTimeMobileDirection" data-mobile-direction="allTime" aria-label="Sort descending">↓</button>
           </div>
         </div>
-
         <div class="table-wrap">
-          <table>
+          <table class="standings-table">
             <thead>
               <tr>
-                <th>Rank</th>
-                <th><button class="sort-button" data-table="allTime" data-sort="team">Team <span class="sort-arrow"></span></button></th>
-                <th>Seasons</th>
-                <th><button class="sort-button active" data-table="allTime" data-sort="wins">W <span class="sort-arrow">↓</span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="losses">L <span class="sort-arrow"></span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="pct">PCT <span class="sort-arrow"></span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="pf">PF <span class="sort-arrow"></span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="pa">PA <span class="sort-arrow"></span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="diff">Diff <span class="sort-arrow"></span></button></th>
-                <th>PF/G</th>
+                <th>Rk</th>
+                <th><button class="sort-button" data-table="allTime" data-sort="team">Team <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button active" data-table="allTime" data-sort="wins">Record <span class="sort-indicator">↓</span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="pct">PCT <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="pf">PF <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="pa">PA <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="pfg">PF/G <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="diff">Diff <span class="sort-indicator"></span></button></th>
               </tr>
             </thead>
             <tbody id="allTimeBody"></tbody>
@@ -1885,18 +1690,51 @@
         </div>
       </div>
     </section>
+
+    <section id="titles" class="view-panel" role="tabpanel">
+      <div class="division-grid">
+        <div class="card champions-card">
+          <div class="card-head">
+            <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2.8h6v3.4a3 3 0 0 1-6 0zM5 4H2.8v.9A2.2 2.2 0 0 0 5 7.1M11 4h2.2v.9A2.2 2.2 0 0 1 11 7.1M8 9.2v2.4M5.6 13.2h4.8"/></svg></span>Champions</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="titles-table">
+              <thead><tr><th>Rk</th><th>Team</th><th>Titles</th><th>Years</th></tr></thead>
+              <tbody id="championBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card losers-card">
+          <div class="card-head">
+            <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4v7.2M5.1 6.7 8 9.6l2.9-2.9M3.2 13.2h9.6"/></svg></span>Last Places</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="titles-table">
+              <thead><tr><th>Rk</th><th>Team</th><th>Last</th><th>Years</th></tr></thead>
+              <tbody id="loserBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <div class="profile-backdrop" id="profileBackdrop"></div>
-  <aside class="profile-panel" id="profilePanel" aria-hidden="true" aria-label="Team history profile">
-    <div class="profile-topbar">
-      <strong>Team History</strong>
-      <button class="close-profile" id="closeProfile" aria-label="Close team history">×</button>
+  <div class="drawer-backdrop profile-backdrop" id="profileBackdrop"></div>
+  <aside class="team-drawer profile-panel" id="profilePanel" aria-hidden="true" aria-label="Team history">
+    <div class="drawer-hero" id="profileHero">
+      <button class="drawer-close" id="closeProfile" aria-label="Close team history">×</button>
+      <div class="drawer-team">
+        <span class="team-badge" id="profileBadge"></span>
+        <div>
+          <span class="drawer-year">All-time</span>
+          <h2 id="profileName"></h2>
+          <p id="profileOwner"></p>
+        </div>
+      </div>
+      <div class="drawer-stats" id="profileStats"></div>
     </div>
-    <div id="profileRoot"></div>
+    <div class="drawer-body" id="profileBody"></div>
   </aside>
-
-  <footer class="footer">All totals are based on the manually audited 2021–2025 league archives.</footer>
 
   <script>
     // LEAGUE_DATA comes from league-data.js, loaded in <head>.
@@ -2083,76 +1921,62 @@
 
     const profileList = Object.values(profiles);
 
-    document.getElementById("homeSeasonCount").textContent = LEAGUE_DATA.seasons.length;
 
-    function teamButton(profile, extraClass = "") {
+    const seasonYears = LEAGUE_DATA.seasons.map((season) => season.year).sort((a, b) => a - b);
+    const signed = (value) => `${value >= 0 ? "+" : ""}${fmt(value)}`;
+
+    function teamButton(profile) {
       return `
-        <button class="team-button ${extraClass}" data-owner="${profile.ownerId}" aria-label="Open ${profile.currentTeam} history">
+        <button class="team-button" data-owner="${profile.ownerId}" aria-label="Open ${profile.currentTeam} history">
           <span class="team-badge" style="--team-color:${profile.color}">${teamMark(profile)}</span>
-          <span class="team-meta">
-            <span class="team-name">${profile.currentTeam}</span>
-            <span class="owner-name">${profile.name}</span>
-          </span>
-        </button>
-      `;
+          <span class="team-meta"><span class="team-name">${profile.currentTeam}</span><span class="owner">${profile.name}</span></span>
+        </button>`;
     }
 
-    function renderChampions() {
-      const rows = profileList
-        .filter((profile) => profile.championshipYears.length)
-        .sort((a, b) =>
-          b.championshipYears.length - a.championshipYears.length ||
-          Math.max(...b.championshipYears) - Math.max(...a.championshipYears)
-        );
+    /* Hero: how many seasons, and who leads the league across them. */
+    function renderHero() {
+      document.getElementById("heroBadge").textContent =
+        `${seasonYears.length} seasons · ${seasonYears[0]}–${seasonYears[seasonYears.length - 1]}`;
+      document.getElementById("pageTitle").textContent = `${seasonYears[0]}–${seasonYears[seasonYears.length - 1]}`;
 
-      document.getElementById("championBody").innerHTML = rows.map((profile, index) => `
+      const top = (value) => {
+        const best = Math.max(...profileList.map(value));
+        return profileList.filter((p) => value(p) === best);
+      };
+      const names = (list) => list.map((p) => `<strong>${p.currentTeam}</strong>`).join(" and ");
+      const titled = top((p) => p.championshipYears.length);
+      const wins = top((p) => p.wins);
+      const points = top((p) => p.pfg);
+      const titles = titled[0].championshipYears.length;
+
+      document.getElementById("heroBrief").innerHTML = `
+        <span class="brief-label">League leaders</span>
+        <ul class="brief-headlines">
+          <li><span>${names(titled)} ${titled.length > 1 ? "share" : "has"} the most titles, with ${titles}${titled.length > 1 ? " each" : ""}.</span></li>
+          <li><span>${names(wins)} ${wins.length > 1 ? "have" : "has"} the most wins: ${wins[0].wins}–${wins[0].losses}.</span></li>
+          <li><span>${names(points)} ${points.length > 1 ? "score" : "scores"} the most, at ${points[0].pfg.toFixed(1)} a week.</span></li>
+        </ul>`;
+    }
+
+    function renderTitleTable(bodyId, yearsOf, mark) {
+      const rows = profileList
+        .filter((profile) => yearsOf(profile).length)
+        .sort((a, b) => yearsOf(b).length - yearsOf(a).length || Math.max(...yearsOf(b)) - Math.max(...yearsOf(a)));
+      document.getElementById(bodyId).innerHTML = rows.map((profile, index) => `
         <tr>
           <td class="rank">${index + 1}</td>
-          <td>${teamButton(profile)}</td>
-          <td><span class="title-count">${"🏆".repeat(profile.championshipYears.length)} ${profile.championshipYears.length}</span></td>
-          <td class="title-years">${profile.championshipYears.join(", ")}</td>
-        </tr>
-      `).join("");
+          <td class="team-cell">${teamButton(profile)}</td>
+          <td class="title-count">${mark.repeat(yearsOf(profile).length)} ${yearsOf(profile).length}</td>
+          <td class="title-years">${yearsOf(profile).join(", ")}</td>
+        </tr>`).join("");
     }
 
-    function renderLosers() {
-      const rows = profileList
-        .filter((profile) => profile.lastPlaceYears.length)
-        .sort((a, b) =>
-          b.lastPlaceYears.length - a.lastPlaceYears.length ||
-          Math.max(...b.lastPlaceYears) - Math.max(...a.lastPlaceYears)
-        );
-
-      document.getElementById("loserBody").innerHTML = rows.map((profile, index) => `
-        <tr>
-          <td class="rank">${index + 1}</td>
-          <td>${teamButton(profile)}</td>
-          <td><span class="title-count">${"💩".repeat(profile.lastPlaceYears.length)} ${profile.lastPlaceYears.length}</span></td>
-          <td class="title-years">${profile.lastPlaceYears.join(", ")}</td>
-        </tr>
-      `).join("");
-    }
-
-
-    const allTimeDefaults = {
-      team: "asc",
-      seasons: "desc",
-      wins: "desc",
-      losses: "asc",
-      pct: "desc",
-      pf: "desc",
-      pa: "asc",
-      diff: "desc",
-      pfg: "desc",
-      titles: "desc"
-    };
-
+    /* ---- All-time standings ---- */
+    const allTimeDefaults = { team: "asc", wins: "desc", pct: "desc", pf: "desc", pa: "asc", diff: "desc", pfg: "desc" };
     let allTimeSort = { key: "wins", direction: "desc" };
 
     function allTimeValue(profile, key) {
       if (key === "team") return profile.currentTeam.toLowerCase();
-      if (key === "seasons") return profile.seasons.length;
-      if (key === "titles") return profile.championshipYears.length;
       return profile[key];
     }
 
@@ -2160,21 +1984,29 @@
       return [...rows].sort((a, b) => {
         const aValue = valueFn(a, state.key);
         const bValue = valueFn(b, state.key);
-        let comparison = typeof aValue === "string"
-          ? aValue.localeCompare(bValue)
-          : aValue - bValue;
-
-        if (comparison !== 0) {
-          return state.direction === "asc" ? comparison : -comparison;
-        }
-
+        const comparison = typeof aValue === "string" ? aValue.localeCompare(bValue) : aValue - bValue;
+        if (comparison !== 0) return state.direction === "asc" ? comparison : -comparison;
         return b.wins - a.wins || b.pf - a.pf;
       });
     }
 
+    function markSort(table, state, selectId, directionId) {
+      document.querySelectorAll(`[data-table="${table}"]`).forEach((button) => {
+        const active = button.dataset.sort === state.key;
+        button.classList.toggle("active", active);
+        button.querySelector(".sort-indicator").textContent = active ? (state.direction === "asc" ? "↑" : "↓") : "";
+      });
+      const select = document.getElementById(selectId);
+      if (select) select.value = state.key;
+      const direction = document.getElementById(directionId);
+      if (direction) {
+        direction.textContent = state.direction === "asc" ? "↑" : "↓";
+        direction.setAttribute("aria-label", state.direction === "asc" ? "Sort ascending" : "Sort descending");
+      }
+    }
+
     function renderAllTime() {
       const rows = sortRows(profileList, allTimeSort, allTimeValue);
-
       document.getElementById("allTimeBody").innerHTML = rows.map((profile, index) => `
         <tr>
           <td class="rank">${index + 1}</td>
@@ -2185,46 +2017,43 @@
               <span class="mobile-stat"><small>PCT</small><strong>${pct(profile.wins, profile.losses)}</strong></span>
               <span class="mobile-stat"><small>PF</small><strong>${fmt(profile.pf)}</strong></span>
               <span class="mobile-stat"><small>PA</small><strong>${fmt(profile.pa)}</strong></span>
-              <span class="mobile-stat"><small>Diff</small><strong class="${profile.diff >= 0 ? "positive" : "negative"}">${profile.diff >= 0 ? "+" : ""}${fmt(profile.diff)}</strong></span>
+              <span class="mobile-stat"><small>Diff</small><strong class="${profile.diff >= 0 ? "positive" : "negative"}">${signed(profile.diff)}</strong></span>
             </div>
           </td>
-          <td>${profile.seasons.length}</td>
-          <td class="record">${profile.wins}</td>
-          <td>${profile.losses}</td>
+          <td class="record">${profile.wins}–${profile.losses}</td>
           <td>${pct(profile.wins, profile.losses)}</td>
           <td>${fmt(profile.pf)}</td>
           <td>${fmt(profile.pa)}</td>
-          <td class="${profile.diff >= 0 ? "positive" : "negative"}">${profile.diff >= 0 ? "+" : ""}${fmt(profile.diff)}</td>
           <td>${profile.pfg.toFixed(1)}</td>
-        </tr>
-      `).join("");
-
-      document.querySelectorAll('[data-table="allTime"]').forEach((button) => {
-        const active = button.dataset.sort === allTimeSort.key;
-        button.classList.toggle("active", active);
-        button.querySelector(".sort-arrow").textContent = active
-          ? (allTimeSort.direction === "asc" ? "↑" : "↓")
-          : "";
-      });
-
-      document.getElementById("allTimeMobileSort").value = allTimeSort.key;
-      const directionButton = document.getElementById("allTimeMobileDirection");
-      directionButton.textContent = allTimeSort.direction === "asc" ? "↑" : "↓";
-      directionButton.setAttribute("aria-label", allTimeSort.direction === "asc" ? "Sort ascending" : "Sort descending");
+          <td class="${profile.diff >= 0 ? "positive" : "negative"}">${signed(profile.diff)}</td>
+        </tr>`).join("");
+      markSort("allTime", allTimeSort, "allTimeMobileSort", "allTimeMobileDirection");
     }
 
-    function setAllTimeSort(key) {
-      if (allTimeSort.key === key) {
-        allTimeSort.direction = allTimeSort.direction === "asc" ? "desc" : "asc";
-      } else {
-        allTimeSort = { key, direction: allTimeDefaults[key] };
-      }
-      renderAllTime();
+    /* ---- Views: the same tabs (a dropdown on a phone) as a season page ---- */
+    const VIEWS = [{ id: "standings", label: "Standings" }, { id: "titles", label: "Titles" }];
+    let view = "standings";
+
+    function renderViews() {
+      document.getElementById("viewTabs").innerHTML = VIEWS.map((v) => `
+        <button type="button" class="view-tab ${v.id === view ? "active" : ""}" data-view="${v.id}"
+          role="tab" aria-selected="${v.id === view}">${v.label}</button>`).join("");
+      document.getElementById("viewSelect").innerHTML = VIEWS.map((v) =>
+        `<option value="${v.id}" ${v.id === view ? "selected" : ""}>${v.label}</option>`).join("");
+      VIEWS.forEach((v) => document.getElementById(v.id).classList.toggle("active", v.id === view));
     }
 
-    function yearsAtFinish(profile, rank) {
-      return profile.seasons.filter((season) => season.finalRank === rank).map((season) => season.year);
+    function setView(next) {
+      if (next === view || !VIEWS.some((v) => v.id === next)) return;
+      view = next;
+      renderViews();
     }
+
+    document.getElementById("viewTabs").addEventListener("click", (event) => {
+      const tab = event.target.closest(".view-tab");
+      if (tab) setView(tab.dataset.view);
+    });
+    document.getElementById("viewSelect").addEventListener("change", (event) => setView(event.target.value));
 
     function renderWinsChart(profile) {
       const seasons = profile.seasons;
@@ -2256,89 +2085,6 @@
             <text x="${x(index)}" y="${bottom + 28}" text-anchor="middle" fill="#68788a" font-size="12" font-weight="800">${season.year}</text>
           `).join("")}
         </svg>
-      `;
-    }
-
-    let activeOwnerId = null;
-    let h2hSort = { key: "pct", direction: "desc" };
-
-    const h2hDefaults = {
-      team: "asc",
-      games: "desc",
-      wins: "desc",
-      losses: "asc",
-      pct: "desc",
-      pf: "desc",
-      pa: "asc",
-      diff: "desc"
-    };
-
-    function h2hValue(row, key) {
-      if (key === "team") return profiles[row.opponentId].currentTeam.toLowerCase();
-      return row[key];
-    }
-
-    function achievementCards(profile) {
-      const championshipMeta = profile.championshipYears.length
-        ? profile.championshipYears.join(", ")
-        : yearsAtFinish(profile, profile.bestFinish).join(", ");
-
-      const lastPlaceMeta = profile.lastPlaceYears.length
-        ? profile.lastPlaceYears.join(", ")
-        : yearsAtFinish(profile, profile.worstFinish).join(", ");
-
-      const highWeek = profile.highestWeek;
-
-      return `
-        <div class="achievement-card gold">
-          <div class="achievement-label">${profile.championshipYears.length ? "Championships" : "Best Finish"}</div>
-          <div class="achievement-line">
-            <div class="achievement-value">${profile.championshipYears.length
-              ? `${"🏆".repeat(profile.championshipYears.length)} ${profile.championshipYears.length}`
-              : ordinal(profile.bestFinish)}</div>
-            <div class="achievement-meta">${championshipMeta}</div>
-          </div>
-        </div>
-
-        <div class="achievement-card red">
-          <div class="achievement-label">${profile.lastPlaceYears.length ? "Last-Place Finishes" : "Lowest Finish"}</div>
-          <div class="achievement-line">
-            <div class="achievement-value">${profile.lastPlaceYears.length
-              ? `${"💩".repeat(profile.lastPlaceYears.length)} ${profile.lastPlaceYears.length}`
-              : ordinal(profile.worstFinish)}</div>
-            <div class="achievement-meta">${lastPlaceMeta}</div>
-          </div>
-        </div>
-
-        <div class="achievement-card">
-          <div class="achievement-label">Highest-Scoring Week</div>
-          <div class="achievement-line">
-            <div class="achievement-value">${fmt(highWeek.points)}</div>
-            <div class="achievement-meta">Week ${highWeek.week} · ${highWeek.year}</div>
-          </div>
-        </div>
-
-        <div class="achievement-card">
-          <div class="achievement-label">Best Scoring Season</div>
-          <div class="achievement-line">
-            <div class="achievement-value">${fmt(profile.bestSeason.points)}</div>
-            <div class="achievement-meta">${profile.bestSeason.year}</div>
-          </div>
-        </div>
-
-        <div class="achievement-card">
-          <div class="achievement-label">Playoff Record</div>
-          <div class="achievement-line">
-            <div class="achievement-value">${profile.playoffWins}–${profile.playoffLosses}</div>
-          </div>
-        </div>
-
-        <div class="achievement-card">
-          <div class="achievement-label">All-Time Regular Season</div>
-          <div class="achievement-line">
-            <div class="achievement-value">${profile.wins}–${profile.losses}</div>
-          </div>
-        </div>
       `;
     }
 
@@ -2438,198 +2184,183 @@
               }).join("")}</span>
               <span class="starters-total"><strong>${p.starts}</strong><small>starts</small></span>
             </div>`).join("")}
-          <div class="starters-foot">Games in the starting lineup, playoffs included; each cell is one season, with the club he played for that year.</div>
         `;
       });
     }
 
-    function renderSeasonHistory(profile) {
-      return `
-        <div class="season-history-row header">
-          <span>Year</span><span>Team Name</span><span>Record</span><span>PF</span><span>PA</span><span>Finish</span>
-        </div>
-        ${[...profile.seasons].reverse().map((season) => `
-          <a class="season-history-row season-link" href="${season.year}.html?team=${season.teamId}"
-            aria-label="${season.teamName}, ${season.year}: open that season">
-            <strong>${season.year}</strong>
-            <strong title="${season.teamName}">${season.teamName}</strong>
-            <span>${season.wins}–${season.losses}</span>
-            <span>${fmt(season.pf)}</span>
-            <span>${fmt(season.pa)}</span>
-            <strong>${ordinal(season.finalRank)}</strong>
-          </a>
-        `).join("")}
-      `;
+
+    /* =================================================================
+       TEAM HISTORY: the season pages' team drawer, across every season.
+       ================================================================= */
+
+    const panel = document.getElementById("profilePanel");
+    const panelBody = document.getElementById("profileBody");
+    const panelBackdrop = document.getElementById("profileBackdrop");
+    let activeOwnerId = null;
+    let h2hSort = { key: "pct", direction: "desc" };
+    const h2hDefaults = { team: "asc", wins: "desc", pct: "desc", pf: "desc", pa: "asc", diff: "desc" };
+
+    function h2hValue(row, key) {
+      if (key === "team") return profiles[row.opponentId].currentTeam.toLowerCase();
+      return row[key];
     }
 
-    function h2hMobileStats(row) {
-      return `
-        <div class="mobile-stat-strip">
-          <span class="mobile-stat"><small>Record</small><strong>${row.wins}–${row.losses}</strong></span>
-          <span class="mobile-stat"><small>PCT</small><strong>${pct(row.wins, row.losses)}</strong></span>
-          <span class="mobile-stat"><small>PF</small><strong>${fmt(row.pf)}</strong></span>
-          <span class="mobile-stat"><small>PA</small><strong>${fmt(row.pa)}</strong></span>
-          <span class="mobile-stat"><small>Diff</small><strong class="${row.diff >= 0 ? "positive" : "negative"}">${row.diff >= 0 ? "+" : ""}${fmt(row.diff)}</strong></span>
-        </div>
-      `;
+    const yearsAtFinish = (profile, rank) =>
+      profile.seasons.filter((season) => season.finalRank === rank).map((season) => season.year);
+
+    function highlightRows(profile) {
+      const row = (label, value, meta) =>
+        `<div class="hl-row"><span>${label}</span><div><strong>${value}</strong>${meta ? `<small>${meta}</small>` : ""}</div></div>`;
+      const titles = profile.championshipYears.length
+        ? row("Championships", profile.championshipYears.join(", "))
+        : row("Best finish", ordinal(profile.bestFinish), yearsAtFinish(profile, profile.bestFinish).join(", "));
+      const lasts = profile.lastPlaceYears.length
+        ? row("Last-place finishes", profile.lastPlaceYears.join(", "))
+        : row("Lowest finish", ordinal(profile.worstFinish), yearsAtFinish(profile, profile.worstFinish).join(", "));
+      const week = profile.highestWeek;
+      return titles + lasts
+        + row("Highest-scoring week", fmt(week.points), `Week ${week.week} · ${week.year}`)
+        + row("Best scoring season", fmt(profile.bestSeason.points), profile.bestSeason.year);
+    }
+
+    function seasonRows(profile) {
+      return [...profile.seasons].reverse().map((season) => {
+        const size = Object.keys(LEAGUE_DATA.seasons.find((s) => s.year === season.year).teams).length;
+        const place = season.finalRank <= 3 ? `place-${season.finalRank}`
+          : season.finalRank === size ? "place-last" : "place-mid";
+        return `<a class="schedule-row season-row season-link" href="${season.year}.html?team=${season.teamId}"
+            aria-label="${season.teamName}, ${season.year}: open that season">
+          <span class="schedule-week">${season.year}</span>
+          <span class="result-pill ${place}">${season.finalRank}</span>
+          <span class="schedule-opponent"><strong>${season.teamName}</strong><span>${season.wins}–${season.losses}</span></span>
+          <span class="schedule-score"><strong>${fmt(season.pf)}–${fmt(season.pa)}</strong></span>
+        </a>`;
+      }).join("");
     }
 
     function renderH2H(profile) {
-      const rows = sortRows(
-        Object.values(profile.h2h),
-        h2hSort,
-        h2hValue
-      );
-
-      const body = document.getElementById("h2hBody");
-      body.innerHTML = rows.map((row) => {
+      const rows = sortRows(Object.values(profile.h2h), h2hSort, h2hValue);
+      document.getElementById("h2hBody").innerHTML = rows.map((row) => {
         const opponent = profiles[row.opponentId];
         return `
           <tr>
-            <td class="opponent-cell">
+            <td class="team-cell">
               ${teamButton(opponent)}
-              ${h2hMobileStats(row)}
+              <div class="mobile-stat-strip">
+                <span class="mobile-stat"><small>W–L</small><strong>${row.wins}–${row.losses}</strong></span>
+                <span class="mobile-stat"><small>PCT</small><strong>${pct(row.wins, row.losses)}</strong></span>
+                <span class="mobile-stat"><small>PF</small><strong>${fmt(row.pf)}</strong></span>
+                <span class="mobile-stat"><small>PA</small><strong>${fmt(row.pa)}</strong></span>
+                <span class="mobile-stat"><small>Diff</small><strong class="${row.diff >= 0 ? "positive" : "negative"}">${signed(row.diff)}</strong></span>
+              </div>
             </td>
             <td class="record">${row.wins}–${row.losses}</td>
             <td>${pct(row.wins, row.losses)}</td>
             <td>${fmt(row.pf)}</td>
             <td>${fmt(row.pa)}</td>
-            <td class="${row.diff >= 0 ? "positive" : "negative"}">${row.diff >= 0 ? "+" : ""}${fmt(row.diff)}</td>
-          </tr>
-        `;
+            <td class="${row.diff >= 0 ? "positive" : "negative"}">${signed(row.diff)}</td>
+          </tr>`;
       }).join("");
-
-      document.querySelectorAll('[data-table="h2h"]').forEach((button) => {
-        const active = button.dataset.sort === h2hSort.key;
-        button.classList.toggle("active", active);
-        button.querySelector(".sort-arrow").textContent = active
-          ? (h2hSort.direction === "asc" ? "↑" : "↓")
-          : "";
-      });
-
-      document.getElementById("h2hMobileSort").value = h2hSort.key;
-      const directionButton = document.getElementById("h2hMobileDirection");
-      if (directionButton) {
-        directionButton.textContent = h2hSort.direction === "asc" ? "↑" : "↓";
-        directionButton.setAttribute("aria-label", h2hSort.direction === "asc" ? "Sort ascending" : "Sort descending");
-      }
+      markSort("h2h", h2hSort, "h2hMobileSort", "h2hMobileDirection");
     }
 
     function openProfile(ownerId, options = {}) {
       const profile = profiles[ownerId];
       if (!profile) return;
-
       activeOwnerId = ownerId;
       h2hSort = { key: "pct", direction: "desc" };
 
-      document.getElementById("profileRoot").innerHTML = `
-        <section class="profile-hero" style="--team-color:${profile.color}">
-          <div class="profile-identity">
-            <div class="profile-logo">${teamMark(profile)}</div>
-            <div>
-              <h2>${profile.currentTeam}</h2>
-              <div class="profile-owner">${profile.name}</div>
+      document.getElementById("profileHero").style.setProperty("--drawer-color", profile.color);
+      panel.style.setProperty("--drawer-color", profile.color);
+      const badge = document.getElementById("profileBadge");
+      badge.style.setProperty("--team-color", profile.color);
+      badge.innerHTML = teamMark(profile);
+      document.getElementById("profileName").textContent = profile.currentTeam;
+      document.getElementById("profileOwner").textContent =
+        `${profile.name} · ${profile.seasons.length} season${profile.seasons.length === 1 ? "" : "s"}`;
+      document.getElementById("profileStats").innerHTML = `
+        <div class="drawer-stat"><small>Record</small><strong>${profile.wins}–${profile.losses}</strong></div>
+        <div class="drawer-stat"><small>Playoffs</small><strong>${profile.playoffWins}–${profile.playoffLosses}</strong></div>
+        <div class="drawer-stat"><small>Titles</small><strong>${profile.championshipYears.length}</strong></div>
+        <div class="drawer-stat"><small>Last Places</small><strong>${profile.lastPlaceYears.length}</strong></div>`;
+
+      panelBody.innerHTML = `
+        <div class="drawer-stats drawer-stats-body">${document.getElementById("profileStats").innerHTML}</div>
+        <section class="schedule-section">
+          <div class="schedule-heading"><h3>Highlights</h3></div>
+          <div class="schedule-list">${highlightRows(profile)}</div>
+        </section>
+        <section class="schedule-section">
+          <div class="schedule-heading"><h3>Season History</h3></div>
+          <div class="schedule-list">${seasonRows(profile)}</div>
+        </section>
+        <section class="schedule-section">
+          <div class="schedule-heading"><h3>Regular-Season Wins</h3></div>
+          <div class="schedule-list chart-wrap">${renderWinsChart(profile)}</div>
+        </section>
+        <section class="schedule-section" style="--team-color:${profile.color}">
+          <div class="schedule-heading"><h3>Most-Started Players</h3></div>
+          <div class="schedule-list" id="startersBody"><div class="empty-state">Loading lineups…</div></div>
+        </section>
+        <section class="schedule-section h2h-card">
+          <div class="schedule-heading">
+            <h3>Head-to-Head</h3>
+            <div class="mobile-sort-control">
+              <label for="h2hMobileSort">Sort</label>
+              <select id="h2hMobileSort" aria-label="Sort head-to-head records">
+                <option value="wins">Record</option>
+                <option value="pct">Win Percentage</option>
+                <option value="pf">Points For</option>
+                <option value="pa">Points Against</option>
+                <option value="diff">Point Differential</option>
+                <option value="team">Opponent</option>
+              </select>
+              <button type="button" class="mobile-sort-direction" id="h2hMobileDirection" data-mobile-direction="h2h" aria-label="Sort descending">↓</button>
             </div>
           </div>
-        </section>
-
-        <div class="profile-content">
-          <section class="achievement-grid">
-            ${achievementCards(profile)}
-          </section>
-
-          <section class="profile-grid">
-            <div class="profile-card">
-              <div class="profile-card-head">
-                <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.2 13.2V8.4M8 13.2V3.2M12.8 13.2V6.6"/></svg></span>Regular-Season Wins</h3>
-              </div>
-              <div class="chart-wrap">${renderWinsChart(profile)}</div>
-            </div>
-
-            <div class="profile-card">
-              <div class="profile-card-head">
-                <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.6" y="3.4" width="10.8" height="10" rx="1.6"/><path d="M2.6 6.6h10.8M5.6 2.1v2.6M10.4 2.1v2.6"/></svg></span>Season History</h3>
-              </div>
-              <div class="season-history">${renderSeasonHistory(profile)}</div>
-            </div>
-          </section>
-
-          <section class="profile-card starters-card" style="--team-color:${profile.color}">
-            <div class="profile-card-head">
-              <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4l1.7 3.5 3.8.5-2.8 2.7.7 3.8L8 11.1l-3.4 1.8.7-3.8-2.8-2.7 3.8-.5z"/></svg></span>Most-Started Players</h3>
-            </div>
-            <div id="startersBody"><div class="empty-state">Loading lineups…</div></div>
-          </section>
-
-          <section class="profile-card h2h-card">
-            <div class="profile-card-head">
-              <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 4.6 5.5 8l-2.9 3.4M13.4 4.6 10.5 8l2.9 3.4M8 2.9v10.2"/></svg></span>Head-to-Head Records</h3>
-              <div class="h2h-mobile-sort">
-                <label for="h2hMobileSort">Sort</label>
-                <select id="h2hMobileSort" aria-label="Sort head-to-head records">
-                  <option value="wins">Wins</option>
-                  <option value="losses">Losses</option>
-                  <option value="pct">Win Percentage</option>
-                  <option value="pf">Points For</option>
-                  <option value="pa">Points Against</option>
-                  <option value="diff">Point Differential</option>
-                  <option value="team">Opponent</option>
-                </select>
-                <button type="button" class="mobile-sort-direction" id="h2hMobileDirection" data-mobile-direction="h2h" aria-label="Sort descending">↓</button>
-              </div>
-            </div>
-
+          <div class="schedule-list">
             <div class="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th><button class="sort-button" data-table="h2h" data-sort="team">Opponent <span class="sort-arrow"></span></button></th>
-                    <th><button class="sort-button active" data-table="h2h" data-sort="wins">Record <span class="sort-arrow">↓</span></button></th>
-                    <th><button class="sort-button" data-table="h2h" data-sort="pct">PCT <span class="sort-arrow"></span></button></th>
-                    <th><button class="sort-button" data-table="h2h" data-sort="pf">PF <span class="sort-arrow"></span></button></th>
-                    <th><button class="sort-button" data-table="h2h" data-sort="pa">PA <span class="sort-arrow"></span></button></th>
-                    <th><button class="sort-button" data-table="h2h" data-sort="diff">Diff <span class="sort-arrow"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="team">Opponent <span class="sort-indicator"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="wins">Record <span class="sort-indicator"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="pct">PCT <span class="sort-indicator"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="pf">PF <span class="sort-indicator"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="pa">PA <span class="sort-indicator"></span></button></th>
+                    <th><button class="sort-button" data-table="h2h" data-sort="diff">Diff <span class="sort-indicator"></span></button></th>
                   </tr>
                 </thead>
                 <tbody id="h2hBody"></tbody>
               </table>
             </div>
-          </section>
-        </div>
-      `;
+          </div>
+        </section>`;
 
       renderH2H(profile);
       renderStarters(ownerId);
 
-      const profilePanel = document.getElementById("profilePanel");
-      profilePanel.classList.remove("compact");
-      profilePanel.classList.add("open");
-      document.getElementById("profileBackdrop").classList.add("open");
-      profilePanel.setAttribute("aria-hidden", "false");
-      document.body.classList.add("profile-open");
-
-      if (options.scrollToTop) {
-        requestAnimationFrame(() => {
-          profilePanel.scrollTo({ top: 0, behavior: "smooth" });
-        });
-      }
-
-      document.getElementById("closeProfile").focus();
+      panel.classList.remove("compact");
+      if (options.scrollToTop || !panel.classList.contains("open")) panelBody.scrollTop = 0;
+      panel.classList.add("open");
+      panelBackdrop.classList.add("open");
+      panel.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      document.getElementById("closeProfile").focus({ preventScroll: true });
     }
 
     function closeProfile() {
-      document.getElementById("profilePanel").classList.remove("open");
-      document.getElementById("profileBackdrop").classList.remove("open");
-      document.getElementById("profilePanel").setAttribute("aria-hidden", "true");
-      document.body.classList.remove("profile-open");
+      panel.classList.remove("open");
+      panelBackdrop.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
       activeOwnerId = null;
     }
 
     document.addEventListener("click", (event) => {
       const team = event.target.closest("[data-owner]");
       if (team) {
-        const fromHeadToHead = Boolean(team.closest(".h2h-card"));
-        openProfile(team.dataset.owner, { scrollToTop: fromHeadToHead });
+        openProfile(team.dataset.owner, { scrollToTop: Boolean(team.closest(".h2h-card")) });
         return;
       }
 
@@ -2638,7 +2369,7 @@
         if (directionButton.dataset.mobileDirection === "allTime") {
           allTimeSort.direction = allTimeSort.direction === "asc" ? "desc" : "asc";
           renderAllTime();
-        } else if (directionButton.dataset.mobileDirection === "h2h" && activeOwnerId) {
+        } else if (activeOwnerId) {
           h2hSort.direction = h2hSort.direction === "asc" ? "desc" : "asc";
           renderH2H(profiles[activeOwnerId]);
         }
@@ -2647,101 +2378,84 @@
 
       const sortButton = event.target.closest(".sort-button");
       if (!sortButton) return;
-
       const key = sortButton.dataset.sort;
       if (sortButton.dataset.table === "allTime") {
-        setAllTimeSort(key);
+        allTimeSort = allTimeSort.key === key
+          ? { key, direction: allTimeSort.direction === "asc" ? "desc" : "asc" }
+          : { key, direction: allTimeDefaults[key] };
+        renderAllTime();
       } else if (sortButton.dataset.table === "h2h" && activeOwnerId) {
-        if (h2hSort.key === key) {
-          h2hSort.direction = h2hSort.direction === "asc" ? "desc" : "asc";
-        } else {
-          h2hSort = { key, direction: h2hDefaults[key] };
-        }
+        h2hSort = h2hSort.key === key
+          ? { key, direction: h2hSort.direction === "asc" ? "desc" : "asc" }
+          : { key, direction: h2hDefaults[key] };
         renderH2H(profiles[activeOwnerId]);
       }
     });
 
-    document.getElementById("allTimeMobileSort").addEventListener("change", (event) => {
-      allTimeSort = {
-        key: event.target.value,
-        direction: allTimeDefaults[event.target.value]
-      };
-      renderAllTime();
-    });
-
     document.addEventListener("change", (event) => {
-      if (event.target.id === "h2hMobileSort" && activeOwnerId) {
-        h2hSort = {
-          key: event.target.value,
-          direction: h2hDefaults[event.target.value]
-        };
+      if (event.target.id === "allTimeMobileSort") {
+        allTimeSort = { key: event.target.value, direction: allTimeDefaults[event.target.value] };
+        renderAllTime();
+      } else if (event.target.id === "h2hMobileSort" && activeOwnerId) {
+        h2hSort = { key: event.target.value, direction: h2hDefaults[event.target.value] };
         renderH2H(profiles[activeOwnerId]);
       }
     });
 
     document.getElementById("closeProfile").addEventListener("click", closeProfile);
-    document.getElementById("profileBackdrop").addEventListener("click", closeProfile);
+    panelBackdrop.addEventListener("click", closeProfile);
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeProfile();
     });
 
     document.getElementById("pageSelect").addEventListener("change", (event) => {
-      const pages = {
-        home: "alltime.html",
-        2026: "2026.html",
-        2025: "2025.html",
-        2024: "2024.html",
-        2023: "2023.html",
-        2022: "2022.html",
-        2021: "2021.html"
-      };
-      window.location.href = pages[event.target.value];
+      window.location.href = event.target.value === "home" ? "alltime.html" : `${event.target.value}.html`;
     });
 
-    /* alltime.html#owner=<id> opens straight into that manager's profile. The
-       trophy room links back this way, and it makes any profile shareable. */
+    /* alltime.html#owner=<id> opens straight into that manager's history. The
+       trophy room links back this way, and it makes any history shareable. */
     function openFromHash() {
       const match = location.hash.match(/^#owner=(.+)$/);
       if (!match) return;
       const ownerId = decodeURIComponent(match[1]);
       if (profiles[ownerId]) openProfile(ownerId, { scrollToTop: true });
     }
-
     window.addEventListener("hashchange", openFromHash);
 
-    renderChampions();
-    renderLosers();
-    renderAllTime();
-    setupPlayerSearch();
-
-    /* Leaving for a season's team page: the profile slides away (left on a
+    /* Leaving for a season's team page: the panel slides away (left on a
        desktop, down on a phone) before the page changes, and the team drawer
        slides in on arrival, so the jump reads as a move, not a reload. */
     document.addEventListener("click", (event) => {
       const link = event.target.closest && event.target.closest(".season-link");
       if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
       event.preventDefault();
-      const panel = document.getElementById("profilePanel");
       const phone = window.innerWidth <= 700;
       const exit = panel.animate(
         [{ opacity: 1, transform: "none" }, { opacity: 0, transform: phone ? "translateY(60px)" : "translateX(-40px)" }],
         { duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : 220, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
-      document.getElementById("profileBackdrop").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: "forwards" });
+      panelBackdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: "forwards" });
       exit.onfinish = () => { window.location.href = link.href; };
     });
     // Coming back (the browser may restore this page as it was left), undo the exit.
     window.addEventListener("pageshow", () => {
-      ["profilePanel", "profileBackdrop"].forEach((id) =>
-        document.getElementById(id).getAnimations().forEach((a) => a.cancel()));
+      [panel, panelBackdrop].forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
     });
 
-    // The profile's header slims down once it scrolls on a phone (see the
-    // phone styles); 60px in, back under 10px, so it cannot flicker.
-    document.getElementById("profilePanel").addEventListener("scroll", (event) => {
-      const y = event.target.scrollTop;
-      if (y > 60) event.target.classList.add("compact");
-      else if (y < 10) event.target.classList.remove("compact");
+    /* On a phone the header shrinks to a slim bar once the body scrolls, as on
+       a season page. Only when there is room to scroll well past the switch:
+       otherwise the taller body would pull the scroll back and toggle it. */
+    panelBody.addEventListener("scroll", () => {
+      const y = panelBody.scrollTop;
+      if (y > 60 && panelBody.scrollHeight - panelBody.clientHeight > 160) panel.classList.add("compact");
+      else if (y < 10) panel.classList.remove("compact");
     }, { passive: true });
+
+    renderHero();
+    renderViews();
+    renderTitleTable("championBody", (p) => p.championshipYears, "🏆");
+    renderTitleTable("loserBody", (p) => p.lastPlaceYears, "💩");
+    renderAllTime();
+    setupPlayerSearch();
     openFromHash();
   </script>
 </body>
