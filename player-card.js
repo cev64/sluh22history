@@ -452,7 +452,7 @@
     const managers = s.managers.map((m) => `
       <div class="pc-mgr" style="--c:${m.color}">
         ${mark(m)}
-        <span class="pc-mgr-name" title="${[...m.names].map(esc).join(" · ")} · ${[...m.seasons].join(", ")}"><strong>${esc(m.owner)}</strong></span>
+        <span class="pc-mgr-name" title="${[...m.names].map(esc).join(" · ")}"><strong>${esc(m.owner)}</strong><span>${[...m.seasons].join(", ")}</span></span>
         <span class="pc-mgr-nums">
           <span><b>${m.starts}</b><small>GS</small></span>
           <span><b>${fmt1(m.pts)}</b><small>Pts</small></span>
