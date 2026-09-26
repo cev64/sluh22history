@@ -75,7 +75,6 @@ function parseCsv(text) {
 const norm = (name) => name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
   .replace(/[.'’]/g, '').replace(/[,-]/g, ' ').replace(/\b(jr|sr|ii|iii|iv|v)\b/g, ' ').replace(/\s+/g, ' ').trim();
 
-// One entry per player (gsis id): his position and club week by week.
 /* ESPN names nflverse spells differently and no rule can derive. Add to this
    when the report lists a player it could not find. */
 const ALIAS = {
@@ -83,12 +82,28 @@ const ALIAS = {
   'Tank Dell': 'Nathaniel Dell',
   'Joshua Palmer': 'Josh Palmer',
   'Jeff Wilson Jr.': 'Jeffery Wilson',
+  'Jeff Wilson': 'Jeffery Wilson',
+  'Nyheim Miller-Hines': 'Nyheim Hines',
 };
 
+/* Players the feed cannot place at all, by season. Michael Thomas spent 2022
+   hurt in New Orleans and appears only as a week-18 reserve row; Odell Beckham
+   sat the whole of 2022 out unsigned. */
+const FIXED = {
+  2022: { 'Michael Thomas': 'NO', 'Odell Beckham': 'FA' },
+};
+
+// One entry per player: his position and club week by week. The feed leaves
+// gsis_id blank on some rows; those join the player of that name and position
+// who has one, so one player is never split into two and his name made
+// ambiguous.
+const rosterRows = parseCsv(fs.readFileSync(ROSTERS, 'utf8'))
+  .filter((r) => Number(r.season) === SEASON && r.game_type === 'REG');
+const idOf = new Map();
+for (const r of rosterRows) if (r.gsis_id) idOf.set(`${r.full_name}|${r.position}`, r.gsis_id);
 const players = new Map();
-for (const r of parseCsv(fs.readFileSync(ROSTERS, 'utf8'))) {
-  if (Number(r.season) !== SEASON || r.game_type !== 'REG') continue;
-  const id = r.gsis_id || `${r.full_name}|${r.birth_date}`;
+for (const r of rosterRows) {
+  const id = r.gsis_id || idOf.get(`${r.full_name}|${r.position}`) || `${r.full_name}|${r.position}`;
   if (!players.has(id)) {
     players.set(id, { id, name: r.full_name, pos: r.position, weeks: {},
       keys: new Set([r.full_name, `${r.football_name} ${r.last_name}`, `${r.first_name} ${r.last_name}`].map(norm)) });
@@ -132,9 +147,10 @@ for (const week of weeks) {
       for (const pl of lineup) {
         if (pl.pos === 'DST') continue;
         rows++;
-        const match = find(pl.name, pl.pos, pl.nfl);
+        const fixed = (FIXED[SEASON] || {})[pl.name];
+        const match = fixed ? { weeks: {}, fixed } : find(pl.name, pl.pos, pl.nfl);
         if (!match) { unmatched.set(`${pl.name} (${pl.pos}, ${pl.nfl})`, (unmatched.get(`${pl.name} (${pl.pos}, ${pl.nfl})`) || 0) + 1); continue; }
-        const club = clubIn(match, week, pl.nfl);
+        const club = match.fixed || clubIn(match, week, pl.nfl);
         if (club && club !== pl.nfl) {
           const key = `${pl.name}: ${pl.nfl} → ${club}`;
           if (!changed.has(key)) changed.set(key, []);

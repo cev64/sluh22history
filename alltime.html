@@ -2217,8 +2217,7 @@
     /* Most-started players come from boxscores/starters.json, which
        tools/boxscores/starters.mjs sums from every season's box scores. It is
        fetched the first time a profile opens and kept for the rest of the
-       visit. 2022's lineups were never imported, so that season has no
-       column until they are. */
+       visit. */
     const NFL_LOGOS = new Set(["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET",
       "GB", "HOU", "IND", "JAX", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT",
       "SEA", "SF", "TB", "TEN", "WSH"]);
@@ -2276,7 +2275,7 @@
               }).join("")}</span>
               <span class="starters-total"><strong>${p.starts}</strong><small>starts</small></span>
             </div>`).join("")}
-          <div class="starters-foot">Games in the starting lineup, playoffs included; each cell is one season, with the club he played for that year. 2022 lineups are not in the box scores yet.</div>
+          <div class="starters-foot">Games in the starting lineup, playoffs included; each cell is one season, with the club he played for that year.</div>
         `;
       });
     }
