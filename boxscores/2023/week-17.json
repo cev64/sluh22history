@@ -32,7 +32,7 @@
      {
       "name": "Saquon Barkley",
       "pos": "RB",
-      "nfl": "PHI",
+      "nfl": "NYG",
       "slot": "RB",
       "pts": 8.8,
       "proj": 16.73,
@@ -132,7 +132,7 @@
      {
       "name": "Gerald Everett",
       "pos": "TE",
-      "nfl": "CHI",
+      "nfl": "LAC",
       "slot": "BE",
       "pts": 7.7,
       "proj": 9.62,
@@ -142,7 +142,7 @@
      {
       "name": "Tony Pollard",
       "pos": "RB",
-      "nfl": "TEN",
+      "nfl": "DAL",
       "slot": "BE",
       "pts": 5.9,
       "proj": 14.75,
@@ -152,7 +152,7 @@
      {
       "name": "Keenan Allen",
       "pos": "WR",
-      "nfl": "CHI",
+      "nfl": "LAC",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -194,7 +194,7 @@
      {
       "name": "Derrick Henry",
       "pos": "RB",
-      "nfl": "BAL",
+      "nfl": "TEN",
       "slot": "RB",
       "pts": 4.2,
       "proj": 13.45,
@@ -274,7 +274,7 @@
      {
       "name": "Gus Edwards",
       "pos": "RB",
-      "nfl": "LAC",
+      "nfl": "BAL",
       "slot": "BE",
       "pts": 10.8,
       "proj": 9.68,
@@ -304,7 +304,7 @@
      {
       "name": "Jaret Patterson",
       "pos": "RB",
-      "nfl": "LAC",
+      "nfl": "WSH",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -314,7 +314,7 @@
      {
       "name": "Darnell Mooney",
       "pos": "WR",
-      "nfl": "ATL",
+      "nfl": "CHI",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -434,7 +434,7 @@
      {
       "name": "Justin Fields",
       "pos": "QB",
-      "nfl": "PIT",
+      "nfl": "CHI",
       "slot": "BE",
       "pts": 25.22,
       "proj": 16.84,
@@ -454,7 +454,7 @@
      {
       "name": "Devin Singletary",
       "pos": "RB",
-      "nfl": "NYG",
+      "nfl": "HOU",
       "slot": "BE",
       "pts": 11.6,
       "proj": 12.65,
@@ -474,7 +474,7 @@
      {
       "name": "Calvin Ridley",
       "pos": "WR",
-      "nfl": "TEN",
+      "nfl": "JAX",
       "slot": "BE",
       "pts": 7.9,
       "proj": 14.27,
@@ -606,7 +606,7 @@
      {
       "name": "Odell Beckham Jr.",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "BAL",
       "slot": "BE",
       "pts": 4.3,
       "proj": 9.67,
@@ -636,7 +636,7 @@
      {
       "name": "Josh Jacobs",
       "pos": "RB",
-      "nfl": "GB",
+      "nfl": "LV",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -806,7 +806,7 @@
      {
       "name": "D'Onta Foreman",
       "pos": "RB",
-      "nfl": "CLE",
+      "nfl": "CHI",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -888,7 +888,7 @@
      {
       "name": "Aaron Jones",
       "pos": "RB",
-      "nfl": "MIN",
+      "nfl": "GB",
       "slot": "FLEX",
       "pts": 14,
       "proj": 14.83,
@@ -1058,7 +1058,7 @@
      {
       "name": "Brandon McManus",
       "pos": "K",
-      "nfl": "WSH",
+      "nfl": "JAX",
       "slot": "K",
       "pts": 13.9,
       "proj": 7.52,
@@ -1140,7 +1140,7 @@
      {
       "name": "Russell Wilson",
       "pos": "QB",
-      "nfl": "PIT",
+      "nfl": "DEN",
       "slot": "QB",
       "pts": 0,
       "proj": 0,
@@ -1150,7 +1150,7 @@
      {
       "name": "Austin Ekeler",
       "pos": "RB",
-      "nfl": "WSH",
+      "nfl": "LAC",
       "slot": "RB",
       "pts": 4,
       "proj": 15.85,
@@ -1200,7 +1200,7 @@
      {
       "name": "D'Andre Swift",
       "pos": "RB",
-      "nfl": "CHI",
+      "nfl": "PHI",
       "slot": "FLEX",
       "pts": 7.6,
       "proj": 15.01,
@@ -1240,7 +1240,7 @@
      {
       "name": "Gabe Davis",
       "pos": "WR",
-      "nfl": "JAX",
+      "nfl": "BUF",
       "slot": "BE",
       "pts": 4.1,
       "proj": 8.39,
@@ -1320,7 +1320,7 @@
      {
       "name": "Joe Mixon",
       "pos": "RB",
-      "nfl": "HOU",
+      "nfl": "CIN",
       "slot": "RB",
       "pts": 18.7,
       "proj": 15.58,
@@ -1350,7 +1350,7 @@
      {
       "name": "Jonnu Smith",
       "pos": "TE",
-      "nfl": "MIA",
+      "nfl": "ATL",
       "slot": "TE",
       "pts": 0,
       "proj": 7.07,
@@ -1420,7 +1420,7 @@
      {
       "name": "Diontae Johnson",
       "pos": "WR",
-      "nfl": "CAR",
+      "nfl": "PIT",
       "slot": "BE",
       "pts": 11.6,
       "proj": 11.2,
@@ -1542,7 +1542,7 @@
      {
       "name": "Joe Flacco",
       "pos": "QB",
-      "nfl": "IND",
+      "nfl": "CLE",
       "slot": "BE",
       "pts": 22.66,
       "proj": 13.97,

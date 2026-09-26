@@ -32,7 +32,7 @@
      {
       "name": "Cam Akers",
       "pos": "RB",
-      "nfl": "MIN",
+      "nfl": "LAR",
       "slot": "RB",
       "pts": 8.9,
       "proj": 13.55,
@@ -184,7 +184,7 @@
      {
       "name": "Joe Mixon",
       "pos": "RB",
-      "nfl": "HOU",
+      "nfl": "CIN",
       "slot": "RB",
       "pts": 10.3,
       "proj": 0,
@@ -214,7 +214,7 @@
      {
       "name": "Marquise Brown",
       "pos": "WR",
-      "nfl": "KC",
+      "nfl": "ARI",
       "slot": "WR",
       "pts": 8.7,
       "proj": 0,
@@ -294,7 +294,7 @@
      {
       "name": "Rondale Moore",
       "pos": "WR",
-      "nfl": "ATL",
+      "nfl": "ARI",
       "slot": "BE",
       "pts": 7.5,
       "proj": 0,
@@ -334,7 +334,7 @@
      {
       "name": "Justin Fields",
       "pos": "QB",
-      "nfl": "PIT",
+      "nfl": "CHI",
       "slot": "QB",
       "pts": 14.54,
       "proj": 0,
@@ -344,7 +344,7 @@
      {
       "name": "Derrick Henry",
       "pos": "RB",
-      "nfl": "BAL",
+      "nfl": "TEN",
       "slot": "RB",
       "pts": 13.9,
       "proj": 0,
@@ -354,7 +354,7 @@
      {
       "name": "Alexander Mattison",
       "pos": "RB",
-      "nfl": "LV",
+      "nfl": "MIN",
       "slot": "RB",
       "pts": 13.4,
       "proj": 0,
@@ -374,7 +374,7 @@
      {
       "name": "Mike Williams",
       "pos": "WR",
-      "nfl": "NYJ",
+      "nfl": "LAC",
       "slot": "WR",
       "pts": 8.5,
       "proj": 0,
@@ -434,7 +434,7 @@
      {
       "name": "Odell Beckham Jr.",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "BAL",
       "slot": "BE",
       "pts": 5.7,
       "proj": 10.8,
@@ -454,7 +454,7 @@
      {
       "name": "D'Andre Swift",
       "pos": "RB",
-      "nfl": "CHI",
+      "nfl": "PHI",
       "slot": "BE",
       "pts": 1.3,
       "proj": 0,
@@ -464,7 +464,7 @@
      {
       "name": "Jerry Jeudy",
       "pos": "WR",
-      "nfl": "CLE",
+      "nfl": "DEN",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -506,7 +506,7 @@
      {
       "name": "Josh Jacobs",
       "pos": "RB",
-      "nfl": "GB",
+      "nfl": "LV",
       "slot": "RB",
       "pts": 9.1,
       "proj": 0,
@@ -516,7 +516,7 @@
      {
       "name": "Calvin Ridley",
       "pos": "WR",
-      "nfl": "TEN",
+      "nfl": "JAX",
       "slot": "WR",
       "pts": 24.1,
       "proj": 0,
@@ -646,7 +646,7 @@
      {
       "name": "Kirk Cousins",
       "pos": "QB",
-      "nfl": "ATL",
+      "nfl": "MIN",
       "slot": "QB",
       "pts": 16.46,
       "proj": 0,
@@ -666,7 +666,7 @@
      {
       "name": "Dalvin Cook",
       "pos": "RB",
-      "nfl": "BAL",
+      "nfl": "NYJ",
       "slot": "RB",
       "pts": 8.9,
       "proj": 11.98,
@@ -756,7 +756,7 @@
      {
       "name": "Zach Ertz",
       "pos": "TE",
-      "nfl": "WSH",
+      "nfl": "ARI",
       "slot": "BE",
       "pts": 8.1,
       "proj": 0,
@@ -808,7 +808,7 @@
      {
       "name": "Aaron Jones",
       "pos": "RB",
-      "nfl": "MIN",
+      "nfl": "GB",
       "slot": "RB",
       "pts": 26.7,
       "proj": 0,
@@ -858,7 +858,7 @@
      {
       "name": "Diontae Johnson",
       "pos": "WR",
-      "nfl": "CAR",
+      "nfl": "PIT",
       "slot": "FLEX",
       "pts": 7.8,
       "proj": 0,
@@ -968,7 +968,7 @@
      {
       "name": "Austin Ekeler",
       "pos": "RB",
-      "nfl": "WSH",
+      "nfl": "LAC",
       "slot": "RB",
       "pts": 26.4,
       "proj": 0,
@@ -978,7 +978,7 @@
      {
       "name": "Tony Pollard",
       "pos": "RB",
-      "nfl": "TEN",
+      "nfl": "DAL",
       "slot": "RB",
       "pts": 22.2,
       "proj": 0,
@@ -1058,7 +1058,7 @@
      {
       "name": "Gabe Davis",
       "pos": "WR",
-      "nfl": "JAX",
+      "nfl": "BUF",
       "slot": "BE",
       "pts": 5.2,
       "proj": 0,
@@ -1290,7 +1290,7 @@
      {
       "name": "Saquon Barkley",
       "pos": "RB",
-      "nfl": "PHI",
+      "nfl": "NYG",
       "slot": "RB",
       "pts": 9.3,
       "proj": 0,
@@ -1300,7 +1300,7 @@
      {
       "name": "Keenan Allen",
       "pos": "WR",
-      "nfl": "CHI",
+      "nfl": "LAC",
       "slot": "WR",
       "pts": 14.2,
       "proj": 0,
@@ -1410,7 +1410,7 @@
      {
       "name": "Devin Singletary",
       "pos": "RB",
-      "nfl": "NYG",
+      "nfl": "HOU",
       "slot": "BE",
       "pts": 1.5,
       "proj": 0,
@@ -1522,7 +1522,7 @@
      {
       "name": "Darnell Mooney",
       "pos": "WR",
-      "nfl": "ATL",
+      "nfl": "CHI",
       "slot": "BE",
       "pts": 15.3,
       "proj": 0,
@@ -1562,7 +1562,7 @@
      {
       "name": "Antonio Gibson",
       "pos": "RB",
-      "nfl": "NE",
+      "nfl": "WSH",
       "slot": "BE",
       "pts": 0.9,
       "proj": 0,

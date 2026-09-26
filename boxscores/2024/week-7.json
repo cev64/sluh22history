@@ -52,7 +52,7 @@
      {
       "name": "Deebo Samuel Sr.",
       "pos": "WR",
-      "nfl": "WSH",
+      "nfl": "SF",
       "slot": "WR",
       "pts": 0,
       "proj": 15.01,
@@ -224,7 +224,7 @@
      {
       "name": "Davante Adams",
       "pos": "WR",
-      "nfl": "LAR",
+      "nfl": "NYJ",
       "slot": "FLEX",
       "pts": 6,
       "proj": 15.6,
@@ -274,7 +274,7 @@
      {
       "name": "Tyler Lockett",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "SEA",
       "slot": "BE",
       "pts": 8.5,
       "proj": 11.12,
@@ -354,7 +354,7 @@
      {
       "name": "Najee Harris",
       "pos": "RB",
-      "nfl": "LAC",
+      "nfl": "PIT",
       "slot": "RB",
       "pts": 16.2,
       "proj": 13.09,
@@ -394,7 +394,7 @@
      {
       "name": "Javonte Williams",
       "pos": "RB",
-      "nfl": "DAL",
+      "nfl": "DEN",
       "slot": "FLEX",
       "pts": 26.1,
       "proj": 12.78,
@@ -464,7 +464,7 @@
      {
       "name": "Rico Dowdle",
       "pos": "RB",
-      "nfl": "CAR",
+      "nfl": "DAL",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -536,7 +536,7 @@
      {
       "name": "Diontae Johnson",
       "pos": "WR",
-      "nfl": "BAL",
+      "nfl": "CAR",
       "slot": "WR",
       "pts": 2.7,
       "proj": 17.02,
@@ -596,7 +596,7 @@
      {
       "name": "Christian Kirk",
       "pos": "WR",
-      "nfl": "HOU",
+      "nfl": "JAX",
       "slot": "BE",
       "pts": 3.4,
       "proj": 10.75,
@@ -686,7 +686,7 @@
      {
       "name": "DK Metcalf",
       "pos": "WR",
-      "nfl": "PIT",
+      "nfl": "SEA",
       "slot": "WR",
       "pts": 19.9,
       "proj": 15.15,
@@ -796,7 +796,7 @@
      {
       "name": "Justin Fields",
       "pos": "QB",
-      "nfl": "NYJ",
+      "nfl": "PIT",
       "slot": "BE",
       "pts": 0,
       "proj": 0.92,
@@ -838,7 +838,7 @@
      {
       "name": "Jordan Mason",
       "pos": "RB",
-      "nfl": "MIN",
+      "nfl": "SF",
       "slot": "RB",
       "pts": 8.9,
       "proj": 12.99,
@@ -1108,7 +1108,7 @@
      {
       "name": "Cooper Kupp",
       "pos": "WR",
-      "nfl": "SEA",
+      "nfl": "LAR",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -1140,7 +1140,7 @@
      {
       "name": "Geno Smith",
       "pos": "QB",
-      "nfl": "LV",
+      "nfl": "SEA",
       "slot": "QB",
       "pts": 17.78,
       "proj": 17.22,
@@ -1522,7 +1522,7 @@
      {
       "name": "Evan Engram",
       "pos": "TE",
-      "nfl": "DEN",
+      "nfl": "JAX",
       "slot": "TE",
       "pts": 8.5,
       "proj": 11.96,

@@ -142,7 +142,7 @@
      {
       "name": "Odell Beckham Jr.",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "BAL",
       "slot": "BE",
       "pts": 2.4,
       "proj": 10.95,
@@ -152,7 +152,7 @@
      {
       "name": "Josh Jacobs",
       "pos": "RB",
-      "nfl": "GB",
+      "nfl": "LV",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -164,7 +164,7 @@
      {
       "name": "Sam Howell",
       "pos": "QB",
-      "nfl": "SEA",
+      "nfl": "WSH",
       "slot": "QB",
       "pts": 8.28,
       "proj": 16.04,
@@ -304,7 +304,7 @@
      {
       "name": "D'Onta Foreman",
       "pos": "RB",
-      "nfl": "CLE",
+      "nfl": "CHI",
       "slot": "BE",
       "pts": -0.6,
       "proj": 10.33,
@@ -334,7 +334,7 @@
      {
       "name": "Drew Lock",
       "pos": "QB",
-      "nfl": "NYG",
+      "nfl": "SEA",
       "slot": "QB",
       "pts": 12.12,
       "proj": 0,
@@ -394,7 +394,7 @@
      {
       "name": "Calvin Ridley",
       "pos": "WR",
-      "nfl": "TEN",
+      "nfl": "JAX",
       "slot": "FLEX",
       "pts": 8.9,
       "proj": 14,
@@ -444,7 +444,7 @@
      {
       "name": "Devin Singletary",
       "pos": "RB",
-      "nfl": "NYG",
+      "nfl": "HOU",
       "slot": "BE",
       "pts": 21,
       "proj": 9.68,
@@ -616,7 +616,7 @@
      {
       "name": "Aaron Jones",
       "pos": "RB",
-      "nfl": "MIN",
+      "nfl": "GB",
       "slot": "BE",
       "pts": 10.9,
       "proj": 15.37,
@@ -726,7 +726,7 @@
      {
       "name": "Brandon McManus",
       "pos": "K",
-      "nfl": "WSH",
+      "nfl": "JAX",
       "slot": "K",
       "pts": -1,
       "proj": 7.82,
@@ -818,7 +818,7 @@
      {
       "name": "Joe Mixon",
       "pos": "RB",
-      "nfl": "HOU",
+      "nfl": "CIN",
       "slot": "RB",
       "pts": 15.1,
       "proj": 15.86,
@@ -908,7 +908,7 @@
      {
       "name": "Diontae Johnson",
       "pos": "WR",
-      "nfl": "CAR",
+      "nfl": "PIT",
       "slot": "BE",
       "pts": 16.2,
       "proj": 11.11,
@@ -1098,7 +1098,7 @@
      {
       "name": "Zach Ertz",
       "pos": "TE",
-      "nfl": "WSH",
+      "nfl": "ARI",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -1108,7 +1108,7 @@
      {
       "name": "Joshua Dobbs",
       "pos": "QB",
-      "nfl": "SF",
+      "nfl": "MIN",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -1130,7 +1130,7 @@
      {
       "name": "Russell Wilson",
       "pos": "QB",
-      "nfl": "PIT",
+      "nfl": "DEN",
       "slot": "QB",
       "pts": 17.52,
       "proj": 17.09,
@@ -1140,7 +1140,7 @@
      {
       "name": "D'Andre Swift",
       "pos": "RB",
-      "nfl": "CHI",
+      "nfl": "PHI",
       "slot": "RB",
       "pts": 9.5,
       "proj": 13.59,
@@ -1150,7 +1150,7 @@
      {
       "name": "Austin Ekeler",
       "pos": "RB",
-      "nfl": "WSH",
+      "nfl": "LAC",
       "slot": "RB",
       "pts": 7.8,
       "proj": 15.27,
@@ -1200,7 +1200,7 @@
      {
       "name": "Riley Patterson",
       "pos": "K",
-      "nfl": "JAX",
+      "nfl": "DET",
       "slot": "K",
       "pts": 0,
       "proj": 0,
@@ -1260,7 +1260,7 @@
      {
       "name": "Gabe Davis",
       "pos": "WR",
-      "nfl": "JAX",
+      "nfl": "BUF",
       "slot": "BE",
       "pts": 0,
       "proj": 9.52,

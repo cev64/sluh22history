@@ -742,6 +742,111 @@
 
     .h2h-card { margin-top: 10px; }
 
+    /* Most-started players ------------------------------------------ */
+
+    .starters-card { margin-top: 10px; }
+
+    .starters-row {
+      display: grid;
+      grid-template-columns: 22px 30px minmax(0, 1fr) var(--year-cols) 58px;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 14px;
+      border-top: 1px solid #edf0f3;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .starters-row:first-child { border-top: 0; }
+
+    .starters-row.header {
+      padding-top: 9px;
+      padding-bottom: 9px;
+      background: #f6f8fa;
+      color: #788696;
+      font-size: 7px;
+      font-weight: 950;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .starters-rank { color: var(--muted); font-weight: 850; text-align: center; }
+
+    .starters-logo {
+      width: 30px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .starters-chip {
+      display: inline-block;
+      width: 30px;
+      padding: 3px 0;
+      border-radius: 4px;
+      background: #e7ebef;
+      color: #4b5866;
+      font-size: 8px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .starters-name { min-width: 0; }
+    .starters-name strong {
+      display: block;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .starters-name small { color: var(--muted); font-size: 8.5px; font-weight: 800; letter-spacing: .05em; }
+
+    .starters-years {
+      display: grid;
+      grid-template-columns: repeat(var(--year-count), 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+
+    /* A lit cell is a season he started for this team: the club he played
+       for that year over the number of games. The tint deepens with the count
+       so a full season reads darker than a spot start, but stays light enough
+       for every club's logo to sit on it. */
+    .starters-year {
+      height: 38px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      border-radius: 6px;
+      font-size: 9.5px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .starters-year img { width: 26px; height: 17px; object-fit: contain; }
+    .starters-year .starters-chip { width: 26px; padding: 2px 0; font-size: 7px; }
+
+    .starters-year.on {
+      background: color-mix(in srgb, var(--team-color) calc(var(--fill) * 100%), #fff);
+      color: var(--ink);
+    }
+
+    .starters-year.off { background: #f1f4f7; color: #c3ccd5; }
+
+    .starters-total { text-align: right; }
+    .starters-total strong { display: block; color: var(--ink); font-size: 15px; line-height: 1; }
+    .starters-total small { color: var(--muted); font-size: 7.5px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+
+    .starters-foot {
+      padding: 9px 14px;
+      border-top: 1px solid #e7ebef;
+      background: #f6f8fa;
+      color: var(--muted);
+      font-size: 9px;
+    }
+
     .h2h-mobile-sort { display: none; }
 
     .empty-state {
@@ -1156,6 +1261,25 @@
 
       .season-history-row > :nth-child(4),
       .season-history-row > :nth-child(5) { display: none; }
+
+      .starters-card { margin-top: 7px; }
+      .starters-row {
+        grid-template-columns: 14px 24px minmax(0, 1fr) var(--year-cols-sm) 30px;
+        gap: 5px;
+        padding: 7px 9px;
+      }
+      .starters-logo, .starters-chip { width: 24px; }
+      .starters-logo { height: 18px; }
+      .starters-name strong { font-size: 10.5px; }
+      .starters-name small { font-size: 7.5px; }
+      .starters-years { gap: 2px; }
+      .starters-year { height: 32px; font-size: 8px; border-radius: 4px; gap: 1px; }
+      .starters-year img, .starters-year .starters-chip { width: 20px; }
+      .starters-year img { height: 14px; }
+      .starters-year .starters-chip { font-size: 6px; }
+      .starters-total strong { font-size: 13px; }
+      .starters-total small { display: none; }
+      .starters-foot { padding: 8px 9px; font-size: 7.5px; }
 
       .h2h-card .table-wrap { overflow: visible; }
       .h2h-card table,
@@ -2090,6 +2214,72 @@
       `;
     }
 
+    /* Most-started players come from boxscores/starters.json, which
+       tools/boxscores/starters.mjs sums from every season's box scores. It is
+       fetched the first time a profile opens and kept for the rest of the
+       visit. */
+    const NFL_LOGOS = new Set(["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET",
+      "GB", "HOU", "IND", "JAX", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT",
+      "SEA", "SF", "TB", "TEN", "WSH"]);
+
+    let startersPromise = null;
+
+    function loadStarters() {
+      if (!startersPromise) {
+        startersPromise = fetch("boxscores/starters.json")
+          .then((res) => (res.ok ? res.json() : null))
+          .catch(() => null);
+      }
+      return startersPromise;
+    }
+
+    function nflMark(abbr) {
+      if (NFL_LOGOS.has(abbr)) {
+        return `<img class="starters-logo" src="nfl-logos/${abbr}.png" alt="${abbr}" title="${abbr}" loading="lazy" decoding="async">`;
+      }
+      return `<span class="starters-chip">${abbr || "FA"}</span>`;
+    }
+
+    function renderStarters(ownerId) {
+      loadStarters().then((data) => {
+        const body = document.getElementById("startersBody");
+        if (!body || activeOwnerId !== ownerId) return;
+        const entry = data && data.owners[ownerId];
+        if (!entry || !entry.players.length) {
+          body.innerHTML = `<div class="empty-state">${data ? "No box scores for this manager yet." : "Lineups could not be loaded."}</div>`;
+          return;
+        }
+
+        const years = entry.seasons;
+        const most = Math.max(...entry.players.flatMap((p) => Object.values(p.years).map((y) => y[0])));
+        const cols = `--year-count:${years.length};--year-cols:${years.length * 42}px;--year-cols-sm:${years.length * 25}px`;
+
+        body.innerHTML = `
+          <div class="starters-row header" style="${cols}">
+            <span class="starters-rank">#</span><span></span><span>Player</span>
+            <span class="starters-years">${years.map((y) => `<span>’${String(y).slice(2)}</span>`).join("")}</span>
+            <span class="starters-total">Starts</span>
+          </div>
+          ${entry.players.map((p, i) => `
+            <div class="starters-row" style="${cols}">
+              <span class="starters-rank">${i + 1}</span>
+              ${nflMark(p.nfl)}
+              <span class="starters-name"><strong title="${p.name}">${p.name}</strong><small>${p.pos}</small></span>
+              <span class="starters-years">${years.map((y) => {
+                if (!p.years[y]) return `<span class="starters-year off" title="${y}: no starts">·</span>`;
+                // [starts, club, ...]: every club he started for that season,
+                // most starts first; the cell shows the first.
+                const [n, ...clubs] = p.years[y];
+                const fill = .1 + .3 * (n / most);
+                return `<span class="starters-year on" style="--fill:${fill.toFixed(2)}" title="${y}: ${n} start${n === 1 ? "" : "s"} · ${clubs.join(" / ")}">${nflMark(clubs[0])}${n}</span>`;
+              }).join("")}</span>
+              <span class="starters-total"><strong>${p.starts}</strong><small>starts</small></span>
+            </div>`).join("")}
+          <div class="starters-foot">Games in the starting lineup, playoffs included; each cell is one season, with the club he played for that year.</div>
+        `;
+      });
+    }
+
     function renderSeasonHistory(profile) {
       return `
         <div class="season-history-row header">
@@ -2200,6 +2390,13 @@
             </div>
           </section>
 
+          <section class="profile-card starters-card" style="--team-color:${profile.color}">
+            <div class="profile-card-head">
+              <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4l1.7 3.5 3.8.5-2.8 2.7.7 3.8L8 11.1l-3.4 1.8.7-3.8-2.8-2.7 3.8-.5z"/></svg></span>Most-Started Players</h3>
+            </div>
+            <div id="startersBody"><div class="empty-state">Loading lineups…</div></div>
+          </section>
+
           <section class="profile-card h2h-card">
             <div class="profile-card-head">
               <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.6 4.6 5.5 8l-2.9 3.4M13.4 4.6 10.5 8l2.9 3.4M8 2.9v10.2"/></svg></span>Head-to-Head Records</h3>
@@ -2238,6 +2435,7 @@
       `;
 
       renderH2H(profile);
+      renderStarters(ownerId);
 
       const profilePanel = document.getElementById("profilePanel");
       profilePanel.classList.add("open");

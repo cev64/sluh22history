@@ -132,7 +132,7 @@
      {
       "name": "Jordan Mason",
       "pos": "RB",
-      "nfl": "MIN",
+      "nfl": "SF",
       "slot": "BE",
       "pts": 0.5,
       "proj": 6.79,
@@ -152,7 +152,7 @@
      {
       "name": "Alexander Mattison",
       "pos": "RB",
-      "nfl": "MIA",
+      "nfl": "LV",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -224,7 +224,7 @@
      {
       "name": "Evan Engram",
       "pos": "TE",
-      "nfl": "DEN",
+      "nfl": "JAX",
       "slot": "TE",
       "pts": 10,
       "proj": 11.94,
@@ -404,7 +404,7 @@
      {
       "name": "DeAndre Hopkins",
       "pos": "WR",
-      "nfl": "BAL",
+      "nfl": "KC",
       "slot": "FLEX",
       "pts": 9.6,
       "proj": 11.52,
@@ -486,7 +486,7 @@
      {
       "name": "Aaron Rodgers",
       "pos": "QB",
-      "nfl": "FA",
+      "nfl": "NYJ",
       "slot": "QB",
       "pts": 4.04,
       "proj": 16.5,
@@ -576,7 +576,7 @@
      {
       "name": "DK Metcalf",
       "pos": "WR",
-      "nfl": "PIT",
+      "nfl": "SEA",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -716,7 +716,7 @@
      {
       "name": "Davante Adams",
       "pos": "WR",
-      "nfl": "LAR",
+      "nfl": "NYJ",
       "slot": "FLEX",
       "pts": 9.1,
       "proj": 16.68,
@@ -786,7 +786,7 @@
      {
       "name": "Tyler Lockett",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "SEA",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -878,7 +878,7 @@
      {
       "name": "Najee Harris",
       "pos": "RB",
-      "nfl": "LAC",
+      "nfl": "PIT",
       "slot": "FLEX",
       "pts": 11.3,
       "proj": 14.99,
@@ -888,7 +888,7 @@
      {
       "name": "Rico Dowdle",
       "pos": "RB",
-      "nfl": "CAR",
+      "nfl": "DAL",
       "slot": "FLEX",
       "pts": 8.6,
       "proj": 10.93,
@@ -928,7 +928,7 @@
      {
       "name": "Javonte Williams",
       "pos": "RB",
-      "nfl": "DAL",
+      "nfl": "DEN",
       "slot": "BE",
       "pts": 2.7,
       "proj": 11.27,
@@ -1048,7 +1048,7 @@
      {
       "name": "Deebo Samuel Sr.",
       "pos": "WR",
-      "nfl": "WSH",
+      "nfl": "SF",
       "slot": "FLEX",
       "pts": 12.6,
       "proj": 15.56,
@@ -1058,7 +1058,7 @@
      {
       "name": "Raheem Mostert",
       "pos": "RB",
-      "nfl": "LV",
+      "nfl": "MIA",
       "slot": "FLEX",
       "pts": 5.4,
       "proj": 9.56,
@@ -1340,7 +1340,7 @@
      {
       "name": "Cooper Kupp",
       "pos": "WR",
-      "nfl": "SEA",
+      "nfl": "LAR",
       "slot": "WR",
       "pts": 15,
       "proj": 15.56,
@@ -1472,7 +1472,7 @@
      {
       "name": "Sam Darnold",
       "pos": "QB",
-      "nfl": "SEA",
+      "nfl": "MIN",
       "slot": "QB",
       "pts": 6.44,
       "proj": 18.55,

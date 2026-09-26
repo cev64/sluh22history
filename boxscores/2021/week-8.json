@@ -162,7 +162,7 @@
      {
       "name": "Antonio Brown",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "TB",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -646,7 +646,7 @@
      {
       "name": "Henry Ruggs III",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "LV",
       "slot": "BE",
       "pts": 0,
       "proj": 0,
@@ -1148,7 +1148,7 @@
      {
       "name": "Odell Beckham Jr.",
       "pos": "WR",
-      "nfl": "LAR",
+      "nfl": "CLE",
       "slot": "BE",
       "pts": 1.6,
       "proj": 11.21,
@@ -1672,7 +1672,7 @@
      {
       "name": "Phillip Lindsay",
       "pos": "RB",
-      "nfl": "MIA",
+      "nfl": "HOU",
       "slot": "BE",
       "pts": 0.8,
       "proj": 6.72,

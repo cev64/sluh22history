@@ -18,6 +18,12 @@ Two things read these files and nothing else does:
 Because both read the same file, a newsletter can never disagree with the box
 score a reader can open on the site.
 
+One file is derived from all of them: `boxscores/starters.json`, each manager's
+ten most-started players with their starts per season, which the profile panel
+on the all-time page reads. `tools/boxscores/starters.mjs` builds it, and
+`import.mjs` reruns it after every import, so it cannot fall behind. Run it on
+its own after editing a week by hand.
+
 ## The weekly export
 
 The league export is one ESPN-shaped file for the whole season, and it is the
@@ -135,6 +141,33 @@ nothing anywhere keys off a name.
 `D/ST`, `BE`, `IR`); `pos` is what he is. Injured reserve is kept distinct from
 the bench on purpose — an IR player could not have been started, so counting him
 as a bench call would invent a manager's mistake that was never available.
+
+## 2022 came from Sleeper
+
+The league played 2022 on Sleeper, not ESPN, so that season was brought in
+once by `tools/boxscores/sleeper.mjs` from Sleeper's public API, in the same
+shape and under the same checks: every game matches the page's pairing and
+both scores, and every lineup's starters sum to its score. Two things it could
+not carry: Sleeper keeps no weekly injury designation (so `injury` is always
+null) and no injured-reserve slot in a matchup (so 2022 has no IR group).
+Projections are Sleeper's projected stats priced with the league's own
+scoring settings. The third-place game, which the page does not draw, is
+there too, and its score is now in `league-data.js`.
+
+## NFL clubs
+
+`nfl` is the club the player was on **that week**, not the one ESPN reports.
+ESPN carries one club per player per season — wherever he was when the season
+was pulled — so an archived season comes back with the next spring's rosters:
+2023 had Saquon Barkley an Eagle, 2024 had Davante Adams a Ram all year.
+`tools/boxscores/clubs.mjs` rewrites the field from nflverse's weekly rosters,
+which follow every trade week by week; its header has the download link and
+the matching rules. Every season, 2021–2025, has been through it.
+
+Once a week is on disk, `import.mjs` keeps each player's club when it rewrites
+that week, so a stat-correction re-import cannot put ESPN's club back. A
+week's first import carries ESPN's club as of the pull, which a few days after
+the games is the right one.
 
 ## One known gap
 

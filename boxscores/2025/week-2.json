@@ -122,7 +122,7 @@
      {
       "name": "David Montgomery",
       "pos": "RB",
-      "nfl": "HOU",
+      "nfl": "DET",
       "slot": "BE",
       "pts": 13.1,
       "proj": 13.09,
@@ -234,7 +234,7 @@
      {
       "name": "Tyreek Hill",
       "pos": "WR",
-      "nfl": "FA",
+      "nfl": "MIA",
       "slot": "FLEX",
       "pts": 16.9,
       "proj": 14.14,
@@ -566,7 +566,7 @@
      {
       "name": "Jakobi Meyers",
       "pos": "WR",
-      "nfl": "JAX",
+      "nfl": "LV",
       "slot": "FLEX",
       "pts": 12.8,
       "proj": 14.16,
@@ -1270,7 +1270,7 @@
      {
       "name": "Rashid Shaheed",
       "pos": "WR",
-      "nfl": "SEA",
+      "nfl": "NO",
       "slot": "BE",
       "pts": 15.2,
       "proj": 11.33,
