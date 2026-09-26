@@ -3386,8 +3386,7 @@
       .roster-name small { font-size: 8px; }
       .roster-strip { gap: 1px; grid-template-columns: repeat(var(--reg), minmax(0, 1fr)) 2px repeat(var(--po), minmax(0, 1fr)); }
       .roster-wk { height: 14px; border-radius: 2px; }
-      .roster-row.header .roster-wk { font-size: 6px; }
-      .roster-row.header .roster-wk.even { visibility: hidden; }
+      .roster-row.header .roster-wk { font-size: 6.5px; letter-spacing: -.03em; }
     }
 </style>
   <script src="team-logos.js"></script>
@@ -4205,7 +4204,7 @@
           <div class="roster-list" style="${cols}">
             <div class="roster-row header">
               <span></span><span>Player</span>
-              <span class="roster-strip">${weeks.map((w) => `${po(w)}<span class="roster-wk${w % 2 ? "" : " even"}">${w}</span>`).join("")}</span>
+              <span class="roster-strip">${weeks.map((w) => `${po(w)}<span class="roster-wk">${w}</span>`).join("")}</span>
               <span class="roster-num">GS</span><span class="roster-num">Pts</span>
             </div>
             ${team.players.map((p) => `
