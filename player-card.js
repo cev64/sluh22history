@@ -146,6 +146,8 @@
   }
   .pc-tl-row:first-child { border-top: 0; }
   .pc-tl-year { font-weight: 900; font-size: 12px; }
+  .pc-tl-row.pc-tl-head { padding-top: 6px; padding-bottom: 2px; }
+  .pc-wk-label { text-align: center; color: #8793a0; font-size: 8.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
   /* The playoff weeks stand apart by a spacer column of their own; a margin on
      the first playoff cell would narrow that one week. */
   .pc-tl-strip { display: grid; grid-template-columns: repeat(var(--reg), minmax(0, 1fr)) 3px repeat(var(--po), minmax(0, 1fr)); gap: 2px; }
@@ -316,6 +318,7 @@
     .pc-cols { grid-template-columns: 1fr; gap: 8px; }
     .pc-tl-row { grid-template-columns: 30px minmax(0, 1fr) 52px; gap: 6px; padding: 6px 10px; }
     .pc-tl-year { font-size: 10.5px; }
+    .pc-wk-label { font-size: 6.5px; letter-spacing: -.03em; }
     .pc-tl-who { gap: 2px; }
     .pc-tl-who .pc-mark { width: 16px; height: 16px; border-radius: 4px; }
     .pc-more { min-width: 16px; height: 16px; border-radius: 4px; font-size: 8px; }
@@ -545,6 +548,12 @@
     const lastOf = (season) => Math.max(...Object.keys(data.games[season] || {}).map(Number));
     const columns = Math.max(...data.seasons.map(lastOf));
     const current = data.seasons[data.seasons.length - 1];
+    // Week numbers over the strips, on the same grid (playoff gap included).
+    const labelReg = data.regularWeeks[current] || 14;
+    const weekLabels = `<div class="pc-tl-row pc-tl-head"><span></span>
+      <span class="pc-tl-strip" style="--reg:${labelReg};--po:${columns - labelReg}">${Array.from({ length: columns }, (_, i) =>
+        `${i + 1 === labelReg + 1 ? `<span class="pc-gap"></span>` : ""}<span class="pc-wk-label">${i + 1}</span>`).join("")}</span>
+      <span></span></div>`;
     const timeline = s.seasons.slice().reverse().map((season) => {   // newest on top
       const inSeason = s.rows.filter((r) => r.season === season);
       const played = Math.max(lastOf(season), ...inSeason.map((r) => r.week));
@@ -634,7 +643,7 @@
 
           <section class="pc-card">
             <div class="pc-card-head"><h3>Ownership timeline</h3><span>One cell per week</span></div>
-            ${timeline}
+            ${weekLabels}${timeline}
             <div class="pc-tl-key">
               <span><i style="background:${lead ? lead.color : "#304f91"}"></i>Started, in that team's colour</span>
               <span><i style="box-shadow: inset 0 0 0 1.5px ${lead ? lead.color : "#304f91"}"></i>Bench</span>
