@@ -179,15 +179,21 @@
   .pc-help li { display: flex; align-items: center; gap: 8px; }
   .pc-help .pc-pts { min-width: 44px; padding: 2px 6px; font-size: 10px; }
 
-  .pc-log { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .pc-log th {
-    padding: 6px 14px; background: #f6f8fa; color: #788696; text-align: left;
+  /* The log is rows of a grid, not a <table>: the season pages give every
+     table a phone min-width, which would push the points off the card. */
+  .pc-log { font-variant-numeric: tabular-nums; }
+  .pc-log-row {
+    display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+    padding: 5px 14px; border-top: 1px solid #eef1f4; font-size: 11.5px;
+  }
+  .pc-log-row.head {
+    padding-top: 6px; padding-bottom: 6px; border-top: 0; background: #f6f8fa; color: #788696;
     font-size: 8.5px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
   }
-  .pc-log td { padding: 5px 14px; border-top: 1px solid #eef1f4; font-size: 11.5px; }
-  .pc-log .wk { width: 1%; white-space: nowrap; color: var(--pc-muted); font-weight: 800; }
+  .pc-log.all .pc-log-row { grid-template-columns: 78px minmax(0, 1fr) auto; }
+  .pc-log .wk { white-space: nowrap; color: var(--pc-muted); font-weight: 800; }
   .pc-log .wk sup { color: #b8733f; font-size: 8px; margin-left: 1px; }
-  .pc-log .num { width: 1%; text-align: right; }
+  .pc-log .num { text-align: right; }
   .pc-team { display: flex; align-items: center; gap: 8px; min-width: 0; }
   .pc-team .pc-mark { width: 20px; height: 20px; border-radius: 6px; font-size: 8px; }
   .pc-team span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
@@ -255,8 +261,9 @@
     .pc-tabs { display: none; }
     .pc-year { display: block; }
     .pc-help { padding: 8px 10px; font-size: 10px; }
-    .pc-log th { padding: 5px 10px; font-size: 7.5px; }
-    .pc-log td { padding: 4px 10px; font-size: 10.5px; }
+    .pc-log-row { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; padding: 4px 10px; font-size: 10.5px; }
+    .pc-log.all .pc-log-row { grid-template-columns: 52px minmax(0, 1fr) auto; }
+    .pc-log-row.head { font-size: 7.5px; padding-top: 5px; padding-bottom: 5px; }
     .pc-team { gap: 6px; }
     .pc-team .pc-mark { width: 18px; height: 18px; border-radius: 5px; }
     .pc-pts { min-width: 50px; font-size: 10.5px; padding: 2px 7px; }
@@ -527,16 +534,16 @@
     const showLog = (season) => {
       const all = season === "all";
       const list = s.rows.filter((r) => all || r.season === Number(season)).slice().reverse();
-      logWrap.innerHTML = `<table class="pc-log"><thead><tr><th>Wk</th><th>Team</th><th class="num">Pts</th></tr></thead>
-        <tbody>${list.map((r) => {
+      logWrap.innerHTML = `<div class="pc-log${all ? " all" : ""}"><div class="pc-log-row head"><span>Wk</span><span>Team</span><span class="num">Pts</span></div>
+        ${list.map((r) => {
           const fill = r.started ? .22 + .78 * Math.max(0, r.pts) / bestPts : 0;
           const tip = `${r.season} week ${r.week}${r.playoff && r.game && r.game[3] ? ` (${r.game[3]})` : ""} · ${r.started ? r.slot : r.slot === "IR" ? "IR" : "bench"} · projected ${fmt(r.proj)}${r.result && r.started ? ` · ${r.result === "W" ? "won" : r.result === "L" ? "lost" : "tied"}` : ""}`;
-          return `<tr title="${esc(tip)}">
-            <td class="wk">${all ? `${r.season} · ` : ""}${r.week}${r.playoff ? "<sup>P</sup>" : ""}</td>
-            <td><span class="pc-team">${mark(r.team)}<span>${esc(r.team.name)}</span></span></td>
-            <td class="num"><span class="pc-pts ${r.started ? "start" : "bench"}" style="--c:${r.team.color};--fill:${fill.toFixed(2)};--pi:${inkOn(r.team.color, fill)}">${fmt(r.pts)}</span></td>
-          </tr>`;
-        }).join("")}</tbody></table>`;
+          return `<div class="pc-log-row" title="${esc(tip)}">
+            <span class="wk">${all ? `’${String(r.season).slice(2)} · ` : ""}${r.week}${r.playoff ? "<sup>P</sup>" : ""}</span>
+            <span class="pc-team">${mark(r.team)}<span>${esc(r.team.name)}</span></span>
+            <span class="num"><span class="pc-pts ${r.started ? "start" : "bench"}" style="--c:${r.team.color};--fill:${fill.toFixed(2)};--pi:${inkOn(r.team.color, fill)}">${fmt(r.pts)}</span></span>
+          </div>`;
+        }).join("")}</div>`;
       card.querySelectorAll(".pc-tabs button").forEach((b) => b.classList.toggle("active", b.dataset.season === String(season)));
       select.value = String(season);
     };
