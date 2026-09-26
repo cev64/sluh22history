@@ -733,6 +733,13 @@
     }
     .team-drawer.open { transform: translateX(0); }
 
+    /* Desktop: the team panel opens on the left, leaving the right of the
+       screen for a player card opened from it. */
+    @media (min-width: 761px) {
+      .team-drawer { left: 0; right: auto; transform: translateX(-104%); box-shadow: 25px 0 65px rgba(0,0,0,.25); }
+      .team-drawer.open { transform: translateX(0); }
+    }
+
     .drawer-hero {
       padding: 22px;
       color: #fff;
@@ -2984,7 +2991,13 @@
     }
 
     @media (max-width: 760px) {
-      .bx-modal { width: calc(100vw - 14px); max-height: 92vh; }
+      /* Phones: a bottom sheet, like the player card. */
+      .bx-modal {
+        left: 0; top: auto; bottom: 0; width: 100%; max-height: 92dvh;
+        border-radius: 16px 16px 0 0;
+        transform: translateY(24px);
+      }
+      .bx-modal.open { transform: none; }
       .bx-head { padding: 10px 12px; }
       .bx-head h3 { font-size: 12.5px; }
       .bx-row { grid-template-columns: minmax(0, 1fr) 42px 40px 42px minmax(0, 1fr); }

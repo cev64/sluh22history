@@ -524,6 +524,13 @@
 
     .profile-panel.open { transform: translateX(0); }
 
+    /* Desktop: the team profile opens on the left, leaving the right of the
+       screen for a player card opened from it. */
+    @media (min-width: 761px) {
+      .profile-panel { inset: 0 auto 0 0; transform: translateX(-102%); box-shadow: 24px 0 60px rgba(7, 20, 34, .26); }
+      .profile-panel.open { transform: translateX(0); }
+    }
+
     body.profile-open { overflow: hidden; }
 
     .profile-topbar {
