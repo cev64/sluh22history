@@ -17,6 +17,7 @@
   <script src="league-data.js"></script>
   <script src="team-logos.js"></script>
   <script src="pwa.js" defer></script>
+  <script src="player-card.js" defer></script>
   <style>
     :root {
       --navy: #071827;
@@ -742,6 +743,52 @@
 
     .h2h-card { margin-top: 10px; }
 
+    /* Player search ---------------------------------------------------- */
+
+    .player-search-sub { color: var(--muted); font-size: 10px; }
+    .player-search { padding: 12px 14px 14px; }
+    .player-search input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+    .player-search input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(23,105,224,.12); }
+    .player-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .player-results:not(:empty) { margin-top: 10px; }
+    .player-result {
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid #e7ebef;
+      border-radius: 12px;
+      background: #fff;
+      text-align: left;
+      font: inherit;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .player-result:hover, .player-result:focus-visible { border-color: var(--blue); background: #f7faff; outline: none; }
+    .player-result .pr-photo {
+      position: relative; width: 40px; height: 40px; border-radius: 50%;
+      background: #eef1f4; display: grid; place-items: center; overflow: hidden;
+    }
+    .player-result .pr-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .player-result .pr-photo img.pr-logo { width: 72%; height: 72%; object-fit: contain; }
+    .player-result strong { display: block; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .player-result small { display: block; color: var(--muted); font-size: 9.5px; font-weight: 700; }
+    .player-result .pr-nums { text-align: right; font-variant-numeric: tabular-nums; }
+    .player-result .pr-nums b { display: block; font-size: 13px; }
+    .player-result .pr-nums small { font-size: 8px; text-transform: uppercase; letter-spacing: .05em; }
+    .player-empty { grid-column: 1 / -1; padding: 10px 2px 0; color: var(--muted); font-size: 11px; }
+
     /* Most-started players ------------------------------------------ */
 
     .starters-card { margin-top: 10px; }
@@ -1262,6 +1309,11 @@
       .season-history-row > :nth-child(4),
       .season-history-row > :nth-child(5) { display: none; }
 
+      .player-results { grid-template-columns: 1fr; }
+      .player-search { padding: 10px; }
+      .player-search-sub { display: none; }
+      .player-search input { font-size: 16px; }
+
       .starters-card { margin-top: 7px; }
       .starters-row {
         grid-template-columns: 14px 24px minmax(0, 1fr) var(--year-cols-sm) 30px;
@@ -1679,6 +1731,20 @@
   </section>
 
   <main>
+    <section class="section">
+      <div class="card player-search-card">
+        <div class="card-head">
+          <h3><span class="head-icon mark"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2 13.4 13.4"/></svg></span>Player Search</h3>
+          <span class="player-search-sub">Every player to suit up in this league, 2021 on</span>
+        </div>
+        <div class="player-search">
+          <input id="playerSearch" type="search" autocomplete="off" spellcheck="false"
+            placeholder="Search a player — try Kelce, Chase or Bijan" aria-label="Search players" aria-controls="playerResults" />
+          <div class="player-results" id="playerResults" role="listbox" aria-label="Players"></div>
+        </div>
+      </div>
+    </section>
+
     <section class="section leaderboard-grid">
       <div class="card champions-card leaderboard-card">
         <div class="card-head">
@@ -2222,6 +2288,41 @@
       "GB", "HOU", "IND", "JAX", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT",
       "SEA", "SF", "TB", "TEN", "WSH"]);
 
+    /* Player search: PlayerCard (player-card.js) owns the data and the card;
+       this only draws the result list and opens the card on a pick. */
+    function setupPlayerSearch() {
+      const input = document.getElementById("playerSearch");
+      const list = document.getElementById("playerResults");
+      if (!input || !list) return;
+      let seq = 0;
+      const run = () => {
+        const q = input.value.trim();
+        const mine = ++seq;
+        if (!q || !window.PlayerCard) { list.innerHTML = ""; return; }
+        window.PlayerCard.search(q, 8).then((hits) => {
+          if (mine !== seq) return;
+          if (!hits.length) { list.innerHTML = `<div class="player-empty">No one by that name has played in this league.</div>`; return; }
+          list.innerHTML = hits.map((h) => {
+            const photo = h.headshot && h.pos !== "DST"
+              ? `<img src="https://sleepercdn.com/content/nfl/players/thumb/${h.headshot}.jpg" alt="" loading="lazy">`
+              : NFL_LOGOS.has(h.club) ? `<img class="pr-logo" src="nfl-logos/${h.club}.png" alt="">` : "";
+            const yrs = h.seasons.length > 1 ? `${h.seasons[0]}–${String(h.seasons[h.seasons.length - 1]).slice(2)}` : h.seasons[0];
+            return `<button type="button" class="player-result" role="option" data-player="${encodeURIComponent(h.name)}">
+              <span class="pr-photo">${photo}</span>
+              <span><strong>${h.name}</strong><small>${h.pos} · ${h.club} · ${yrs}</small></span>
+              <span class="pr-nums"><b>${h.starts}</b><small>starts</small></span>
+            </button>`;
+          }).join("");
+        });
+      };
+      input.addEventListener("input", run);
+      input.addEventListener("focus", () => window.PlayerCard && window.PlayerCard.search("", 0));
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { const first = list.querySelector("[data-player]"); if (first) first.click(); }
+        if (e.key === "ArrowDown") { const first = list.querySelector("[data-player]"); if (first) { e.preventDefault(); first.focus(); } }
+      });
+    }
+
     let startersPromise = null;
 
     function loadStarters() {
@@ -2264,7 +2365,7 @@
             <div class="starters-row" style="${cols}">
               <span class="starters-rank">${i + 1}</span>
               ${nflMark(p.nfl)}
-              <span class="starters-name"><strong title="${p.name}">${p.name}</strong><small>${p.pos}</small></span>
+              <span class="starters-name" data-player="${encodeURIComponent(p.name)}" tabindex="0" role="button"><strong title="${p.name}">${p.name}</strong><small>${p.pos}</small></span>
               <span class="starters-years">${years.map((y) => {
                 if (!p.years[y]) return `<span class="starters-year off" title="${y}: no starts">·</span>`;
                 // [starts, club, ...]: every club he started for that season,
@@ -2547,6 +2648,7 @@
     renderChampions();
     renderLosers();
     renderAllTime();
+    setupPlayerSearch();
     openFromHash();
   </script>
 </body>

@@ -24,7 +24,14 @@ on the all-time page reads. The same pass writes `boxscores/<season>/roster.json
 every player each team started that season with his points week by week, which
 the team drawer on the season page lists under the schedule.
 `tools/boxscores/starters.mjs` builds both, and `import.mjs` reruns it after
-every import, so they cannot fall behind. Run it on
+every import, so they cannot fall behind.
+
+The same pass also writes `boxscores/players.json`: every player's full
+history, week by week, which `player-card.js` reads for the player card and
+the all-time page's player search. Photos come from Sleeper's CDN through
+`boxscores/headshots.json` (name → Sleeper id), made by
+`tools/boxscores/headshots.mjs`; rerun it now and then so players new to the
+league get a photo. Until then the card shows their club's logo. Run it on
 its own after editing a week by hand.
 
 ## The weekly export
