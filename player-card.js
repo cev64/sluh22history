@@ -115,14 +115,16 @@
   }
   .pc-tl-row:first-child { border-top: 0; }
   .pc-tl-year { font-weight: 900; font-size: 12px; }
-  .pc-tl-strip { display: grid; grid-template-columns: repeat(var(--weeks), 1fr); gap: 2px; }
+  /* The playoff weeks stand apart by a spacer column of their own; a margin on
+     the first playoff cell would narrow that one week. */
+  .pc-tl-strip { display: grid; grid-template-columns: repeat(var(--reg), minmax(0, 1fr)) 3px repeat(var(--po), minmax(0, 1fr)); gap: 2px; }
+  .pc-gap { width: 0; }
   .pc-wk { height: 16px; border-radius: 3px; background: #f1f4f7; }
   .pc-wk.start { background: var(--c); }
   .pc-wk.bench { background: #fff; box-shadow: inset 0 0 0 1.5px var(--c); }
   .pc-wk.none { background: transparent; }
   .pc-wk.future { background: transparent; box-shadow: inset 0 0 0 1px #e3e8ee; }
   .pc-more { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 3px; border-radius: 6px; background: #eef1f4; color: var(--pc-muted); font-size: 9px; font-weight: 900; }
-  .pc-wk.po { margin-left: 4px; }
   /* A fixed column, three logos wide, so every season's strip is the same
      width and the weeks line up from row to row. */
   .pc-tl-who { display: flex; justify-content: flex-start; gap: 3px; }
@@ -145,7 +147,8 @@
   .pc-mgr-name { min-width: 0; }
   .pc-mgr-name strong { display: block; font-size: 12.5px; }
   .pc-mgr-name span { display: block; color: var(--pc-muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .pc-mgr-nums { display: flex; gap: 14px; text-align: right; font-variant-numeric: tabular-nums; }
+  /* Fixed-width columns, so GS, points and record line up down the list. */
+  .pc-mgr-nums { display: grid; grid-template-columns: 30px 50px 44px; gap: 8px; text-align: right; font-variant-numeric: tabular-nums; }
   .pc-mgr-nums b { display: block; font-size: 13px; }
   .pc-mgr-nums small { display: block; color: var(--pc-muted); font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
   .pc-bar { grid-column: 2 / -1; height: 4px; border-radius: 2px; background: #eef1f4; overflow: hidden; margin-top: -4px; }
@@ -285,13 +288,13 @@
     .pc-more { min-width: 16px; height: 16px; border-radius: 4px; font-size: 8px; }
     .pc-wk { height: 13px; border-radius: 2px; }
     .pc-tl-strip { gap: 1px; }
-    .pc-wk.po { margin-left: 2px; }
+    .pc-tl-strip { grid-template-columns: repeat(var(--reg), minmax(0, 1fr)) 1px repeat(var(--po), minmax(0, 1fr)); }
     .pc-tl-key { padding: 7px 10px; font-size: 9px; gap: 3px 10px; }
     .pc-mgr { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; padding: 7px 10px; }
     .pc-mark { width: 24px; height: 24px; border-radius: 6px; }
     .pc-mgr-name strong { font-size: 11.5px; }
     .pc-mgr-name span { font-size: 9px; }
-    .pc-mgr-nums { gap: 9px; }
+    .pc-mgr-nums { grid-template-columns: 24px 44px 38px; gap: 6px; }
     .pc-mgr-nums b { font-size: 12px; }
     .pc-mgr-nums small { font-size: 7.5px; }
     .pc-top { padding: 8px; gap: 6px; }
@@ -455,19 +458,19 @@
       const cells = Array.from({ length: lastWeek }, (_, i) => {
         const w = i + 1;
         const r = byWeek.get(w);
-        const po = w === reg + 1 ? " po" : "";
-        if (w > played) return `<span class="pc-wk future${po}" title="${season} week ${w}: not played yet"></span>`;
+        const po = w === reg + 1 ? `<span class="pc-gap"></span>` : "";
+        if (w > played) return `${po}<span class="pc-wk future" title="${season} week ${w}: not played yet"></span>`;
         if (!r) {
           // A week his last team had no game (a playoff bye, or knocked out)
           // is blank rather than "not on a roster".
           const before = inSeason.filter((x) => x.week < w).pop();
           const idle = before && !((data.games[season] || {})[w] || {})[before.team.id];
           return idle
-            ? `<span class="pc-wk none${po}" title="${season} week ${w}: ${esc(before.team.name)} had no game"></span>`
-            : `<span class="pc-wk${po}" title="${season} week ${w}: not on a roster"></span>`;
+            ? `${po}<span class="pc-wk none" title="${season} week ${w}: ${esc(before.team.name)} had no game"></span>`
+            : `${po}<span class="pc-wk" title="${season} week ${w}: not on a roster"></span>`;
         }
         const cls = r.started ? "start" : "bench";
-        return `<span class="pc-wk ${cls}${po}" style="--c:${r.team.color}" title="${season} week ${w}: ${esc(r.team.name)} · ${r.started ? r.slot : r.slot === "IR" ? "IR" : "bench"} · ${fmt(r.pts)}"></span>`;
+        return `${po}<span class="pc-wk ${cls}" style="--c:${r.team.color}" title="${season} week ${w}: ${esc(r.team.name)} · ${r.started ? r.slot : r.slot === "IR" ? "IR" : "bench"} · ${fmt(r.pts)}"></span>`;
       }).join("");
       // At most two logos, then a count, so a season he changed hands twice
       // cannot squeeze the strip on a phone.
@@ -476,7 +479,7 @@
         ? owners.slice(0, 2).map(mark).join("") + `<span class="pc-more" title="${owners.slice(2).map((t) => esc(t.owner)).join(", ")}">+${owners.length - 2}</span>`
         : owners.map(mark).join("");
       return `<div class="pc-tl-row"><span class="pc-tl-year">${season}</span>
-        <span class="pc-tl-strip" style="--weeks:${columns}">${cells}</span>
+        <span class="pc-tl-strip" style="--reg:${reg};--po:${columns - reg}">${cells}</span>
         <span class="pc-tl-who">${who}</span></div>`;
     }).join("");
 
@@ -546,7 +549,7 @@
 
           <div class="pc-cols">
             <section class="pc-card">
-              <div class="pc-card-head"><h3>By manager</h3><span>Starts · points · record</span></div>
+              <div class="pc-card-head"><h3>By manager</h3></div>
               ${managers}
             </section>
             <section class="pc-card">
