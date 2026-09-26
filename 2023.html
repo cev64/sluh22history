@@ -798,6 +798,7 @@
     }
     .drawer-stat small { display: block; color: rgba(255,255,255,.63); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; font-weight: 900; margin-bottom: 5px; }
     .drawer-stat strong { font-size: 14px; }
+    .drawer-stats-body { display: none; }
 
     .drawer-body {
       flex: 1;
@@ -843,7 +844,15 @@
     .result-pill.win { background: var(--green); }
     .result-pill.loss { background: #c73535; }
     .result-pill.bye { background: #8693a1; }
-    .schedule-opponent { min-width: 0; }
+    /* The opponent in a schedule row opens that team's season in its place. */
+    .schedule-opponent {
+      min-width: 0; padding: 0; border: 0; background: none; font: inherit; color: inherit;
+      text-align: left; cursor: pointer;
+    }
+    .schedule-opponent strong {
+      text-decoration: underline dotted rgba(23, 105, 224, .55) 1.5px; text-underline-offset: 3px;
+    }
+    .schedule-opponent:hover strong { color: var(--blue); text-decoration-style: solid; text-decoration-color: var(--blue); }
     .schedule-opponent strong { display: block; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .schedule-opponent span { color: var(--muted); font-size: 10px; }
     .schedule-score { text-align: right; font-size: 12px; }
@@ -1802,10 +1811,17 @@
       .drawer-team .team-badge, .drawer-team h2 { transition: width .2s ease, height .2s ease, font-size .2s ease; }
       .drawer-team .team-badge { width: 48px; height: 48px; }
       .drawer-team h2 { font-size: 21px; }
+      .drawer-hero .drawer-stats { display: none; }
+      .drawer-stats-body { display: grid; margin: 0 0 14px; }
+      .drawer-stats-body .drawer-stat { background: var(--drawer-color, var(--navy-2)); border-color: transparent; color: #fff; }
+      /* The header's lines fold away smoothly rather than vanishing. */
+      .drawer-year, .drawer-team p {
+        max-height: 34px; overflow: hidden;
+        transition: max-height .28s ease, opacity .2s ease, margin .28s ease, padding .28s ease;
+      }
       .team-drawer.compact .drawer-hero { padding-top: 8px; padding-bottom: 8px; }
-      .team-drawer.compact .drawer-stats,
       .team-drawer.compact .drawer-team p,
-      .team-drawer.compact .drawer-year { display: none; }
+      .team-drawer.compact .drawer-year { max-height: 0; opacity: 0; margin: 0; padding-top: 0; padding-bottom: 0; }
       .team-drawer.compact .drawer-team .team-badge { width: 34px; height: 34px; }
       .team-drawer.compact .drawer-team h2 { font-size: 16px; margin: 0; }
     }
@@ -4037,7 +4053,7 @@
         return `<div class="schedule-row${postseasonMode ? " post" : ""}">
           <span class="schedule-week">${postseasonMode ? g.label : `Week ${g.week}`}</span>
           <span class="result-pill ${result === "W" ? "win" : "loss"}">${result}</span>
-          <span class="schedule-opponent"><strong>${g.site} ${opponent.name}</strong><span>${opponent.owner}</span></span>
+          <button type="button" class="schedule-opponent" data-team="${g.opponent}" aria-label="${opponent.name}: season and schedule"><strong>${g.site} ${opponent.name}</strong><span>${opponent.owner}</span></button>
           <span class="schedule-score"><strong>${fmt(g.teamScore)}–${fmt(g.oppScore)}</strong><span>NFL Week ${g.week}</span></span>
         </div>`;
       }).join("");
@@ -4169,9 +4185,34 @@
       });
     }
 
+    /* Opening another team while the drawer is open (an opponent in the
+       schedule, say) slides the current team out to the left and the new one
+       in from the right, so it is plain the page has changed. */
+    function swapTeam(teamId) {
+      const parts = [document.getElementById("drawerHero"), document.getElementById("drawerBody")];
+      const out = parts.map((el) => el.animate(
+        [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(-22px)" }],
+        { duration: 150, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" }));
+      out[0].onfinish = () => {
+        drawer.dataset.team = teamId;
+        openTeam(teamId);
+        parts.forEach((el) => {
+          el.getAnimations().forEach((a) => a.cancel());
+          el.animate([{ opacity: 0, transform: "translateX(22px)" }, { opacity: 1, transform: "none" }],
+            { duration: 280, easing: "cubic-bezier(.2, .8, .2, 1)" });
+        });
+      };
+    }
+
     function openTeam(teamId) {
+      if (drawer.classList.contains("open") && drawer.dataset.team && drawer.dataset.team !== teamId) {
+        swapTeam(teamId);
+        return;
+      }
+      drawer.dataset.team = teamId;
       const t = teams[teamId];
       document.getElementById("drawerHero").style.setProperty("--drawer-color", t.color);
+      drawer.style.setProperty("--drawer-color", t.color);
       const badge = document.getElementById("drawerBadge");
       badge.style.setProperty("--team-color", t.color);
       badge.innerHTML = teamMark(t);
@@ -4198,6 +4239,10 @@
         </section>
         ${post.length ? `<section class="schedule-section"><div class="schedule-heading"><h3>${postTitle}</h3><span>Postseason</span></div><div class="schedule-list">${scheduleRows(post, true)}</div></section>` : ""}`;
 
+      // On a phone the stat tiles sit at the top of the scrolling content, so
+      // they scroll away with it instead of collapsing out of the header.
+      document.getElementById("drawerBody").insertAdjacentHTML("afterbegin",
+        `<div class="drawer-stats drawer-stats-body">${document.getElementById("drawerStats").innerHTML}</div>`);
       renderRoster(teamId);
 
       drawer.classList.add("open");
@@ -4207,6 +4252,7 @@
     }
 
     function closeTeam() {
+      delete drawer.dataset.team;
       drawer.classList.remove("open");
       backdrop.classList.remove("open");
       drawer.setAttribute("aria-hidden", "true");
@@ -4221,6 +4267,17 @@
     document.getElementById("drawerClose").addEventListener("click", closeTeam);
     backdrop.addEventListener("click", closeTeam);
     document.addEventListener("keydown", e => { if (e.key === "Escape") closeTeam(); });
+
+    /* ?team=<id> opens that team's drawer on arrival (the all-time page's
+       Season History links here). It opens a frame after the first paint,
+       so it slides in rather than appearing, and the parameter is dropped so
+       a reload shows the page itself. */
+    (() => {
+      const id = new URLSearchParams(window.location.search).get("team");
+      if (!id || !teams[id]) return;
+      history.replaceState(null, "", window.location.pathname + window.location.hash);
+      requestAnimationFrame(() => requestAnimationFrame(() => openTeam(id)));
+    })();
 
 
     document.querySelectorAll(".sort-button").forEach((button) => {
