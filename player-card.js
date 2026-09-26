@@ -56,7 +56,7 @@
      (photo, name, close) so the player is always named on screen. */
   .pc-hero {
     position: sticky; top: 0; z-index: 5; overflow: hidden;
-    transition: padding .2s ease;
+    transition: padding .28s ease;
     display: flex; align-items: center; gap: 16px;
     padding: 20px 60px 20px 22px;
     background: linear-gradient(120deg, var(--pc-color) 0%, color-mix(in srgb, var(--pc-color) 55%, #071827) 100%);
@@ -92,10 +92,14 @@
     color: #fff; font-size: 21px; line-height: 1; cursor: pointer;
   }
   .pc-close:hover { background: rgba(255,255,255,.24); }
-  .pc-photo, .pc-id h2 { transition: width .2s ease, height .2s ease, font-size .2s ease; }
+  .pc-photo, .pc-id h2 { transition: width .28s ease, height .28s ease, font-size .28s ease; }
   .pc.compact .pc-hero { padding-top: 8px; padding-bottom: 8px; }
   .pc.compact .pc-photo { width: 40px; height: 40px; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
-  .pc.compact .pc-photo .pc-club, .pc.compact .pc-tags { display: none; }
+  /* Tags and the club badge fold away smoothly rather than vanishing. */
+  .pc-tags { max-height: 60px; overflow: hidden; transition: max-height .28s ease, opacity .2s ease, margin .28s ease; }
+  .pc-photo .pc-club { transition: opacity .2s ease, transform .28s ease; }
+  .pc.compact .pc-tags { max-height: 0; opacity: 0; margin-top: 0; }
+  .pc.compact .pc-photo .pc-club { opacity: 0; transform: scale(.6); }
   .pc.compact .pc-id h2 { font-size: 18px; }
   .pc.compact .pc-close { top: 50%; transform: translateY(-50%); }
 
