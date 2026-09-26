@@ -3496,6 +3496,7 @@
     .roster-wk.start { background: color-mix(in srgb, var(--team-color) calc(var(--fill) * 100%), #fff); }
     .roster-wk.bench { background: #fff; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--team-color) 45%, #fff); }
     .roster-wk.none { background: transparent; }
+    .roster-wk.future { background: transparent; box-shadow: inset 0 0 0 1px #dfe5ec; }
     .roster-wk.po { margin-left: 4px; }
 
     .roster-row.header .roster-wk {
@@ -4176,7 +4177,11 @@
         // The drawer may have moved on to another team while this loaded.
         if (!team || !team.players.length || !holder.isConnected) { holder.remove(); return; }
 
-        const last = Math.max(...team.weeks);
+        // Always a full season wide (the regular season and three playoff
+        // weeks), so a season in progress shows its unplayed weeks as
+        // placeholders instead of stretching two weeks across the strip.
+        const leagueLast = Math.max(...Object.values(data).flatMap((t) => t.weeks));
+        const last = Math.max(REGULAR_WEEKS + 3, leagueLast);
         const weeks = Array.from({ length: last }, (_, i) => i + 1);
         const played = new Set(team.weeks);
         const best = Math.max(...team.players.flatMap((p) => Object.values(p.weeks).filter((w) => w[1]).map((w) => w[0])), 1);
@@ -4185,6 +4190,7 @@
 
         const cell = (p, w) => {
           const wk = p.weeks[w];
+          if (w > leagueLast) return `<span class="roster-wk future${po(w)}" title="Week ${w}: not played yet"></span>`;
           if (!played.has(w)) return `<span class="roster-wk none${po(w)}" title="Week ${w}: no game"></span>`;
           if (!wk) return `<span class="roster-wk${po(w)}" title="Week ${w}: not on the team"></span>`;
           const [pts, started, club] = wk;
@@ -4208,6 +4214,7 @@
               <li><i class="roster-wk bench"></i><span>Outlined: he was on the bench.</span></li>
               <li><i class="roster-wk"></i><span>Empty grey: he wasn't on the team.</span></li>
               <li><i class="roster-wk none"></i><span>Playoff weeks sit slightly apart. A week the team had no game, like a playoff bye, is left blank.</span></li>
+              <li><i class="roster-wk future"></i><span>Faintly outlined: a week not played yet.</span></li>
             </ul>
             <p class="roster-help-foot">GS is games started; Pts is his points as a starter. Hover a cell for that week's points and club.</p>
           </div>

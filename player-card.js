@@ -110,7 +110,7 @@
   /* Ownership timeline: a strip per season, a cell per week, in the colour of
      whichever team had him that week, and that team's logo at the end. */
   .pc-tl-row {
-    display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+    display: grid; grid-template-columns: 38px minmax(0, 1fr) 72px; gap: 10px; align-items: center;
     padding: 7px 14px; border-top: 1px solid #eef1f4;
   }
   .pc-tl-row:first-child { border-top: 0; }
@@ -120,8 +120,12 @@
   .pc-wk.start { background: var(--c); }
   .pc-wk.bench { background: #fff; box-shadow: inset 0 0 0 1.5px var(--c); }
   .pc-wk.none { background: transparent; }
+  .pc-wk.future { background: transparent; box-shadow: inset 0 0 0 1px #e3e8ee; }
+  .pc-more { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 3px; border-radius: 6px; background: #eef1f4; color: var(--pc-muted); font-size: 9px; font-weight: 900; }
   .pc-wk.po { margin-left: 4px; }
-  .pc-tl-who { display: flex; justify-content: flex-end; gap: 3px; min-width: 22px; }
+  /* A fixed column, three logos wide, so every season's strip is the same
+     width and the weeks line up from row to row. */
+  .pc-tl-who { display: flex; justify-content: flex-start; gap: 3px; }
   .pc-tl-who .pc-mark { width: 22px; height: 22px; border-radius: 6px; }
   .pc-tl-key { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 8px 14px; border-top: 1px solid #eef1f4; color: var(--pc-muted); font-size: 10px; }
   .pc-tl-key i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
@@ -274,10 +278,11 @@
     .pc-card-head h3 { font-size: 12px; }
     .pc-card-head > span { font-size: 9px; }
     .pc-cols { grid-template-columns: 1fr; gap: 8px; }
-    .pc-tl-row { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 6px; padding: 6px 10px; }
+    .pc-tl-row { grid-template-columns: 30px minmax(0, 1fr) 52px; gap: 6px; padding: 6px 10px; }
     .pc-tl-year { font-size: 10.5px; }
-    .pc-tl-who { gap: 2px; min-width: 16px; }
+    .pc-tl-who { gap: 2px; }
     .pc-tl-who .pc-mark { width: 16px; height: 16px; border-radius: 4px; }
+    .pc-more { min-width: 16px; height: 16px; border-radius: 4px; font-size: 8px; }
     .pc-wk { height: 13px; border-radius: 2px; }
     .pc-tl-strip { gap: 1px; }
     .pc-wk.po { margin-left: 2px; }
@@ -434,19 +439,24 @@
     const bestPts = Math.max(1, ...s.starts.map((r) => r.pts));
 
     // Timeline: every week of every season he was on a roster. Every row
-    // shares one grid, as wide as the longest season, so a season still in
-    // progress stays short instead of stretching two weeks across the card.
+    // shares one grid, a full league season wide whichever seasons he played,
+    // so a two-week season reads as two weeks of seventeen rather than two
+    // cells stretched across the card; weeks not yet played show as
+    // placeholders.
     const lastOf = (season) => Math.max(...Object.keys(data.games[season] || {}).map(Number));
-    const columns = Math.max(...s.seasons.map(lastOf));
+    const columns = Math.max(...data.seasons.map(lastOf));
+    const current = data.seasons[data.seasons.length - 1];
     const timeline = s.seasons.slice().reverse().map((season) => {   // newest on top
       const inSeason = s.rows.filter((r) => r.season === season);
-      const lastWeek = Math.max(lastOf(season), ...inSeason.map((r) => r.week));
+      const played = Math.max(lastOf(season), ...inSeason.map((r) => r.week));
+      const lastWeek = season === current ? columns : played;
       const reg = data.regularWeeks[season] || 14;
       const byWeek = new Map(inSeason.map((r) => [r.week, r]));
       const cells = Array.from({ length: lastWeek }, (_, i) => {
         const w = i + 1;
         const r = byWeek.get(w);
         const po = w === reg + 1 ? " po" : "";
+        if (w > played) return `<span class="pc-wk future${po}" title="${season} week ${w}: not played yet"></span>`;
         if (!r) {
           // A week his last team had no game (a playoff bye, or knocked out)
           // is blank rather than "not on a roster".
@@ -459,7 +469,12 @@
         const cls = r.started ? "start" : "bench";
         return `<span class="pc-wk ${cls}${po}" style="--c:${r.team.color}" title="${season} week ${w}: ${esc(r.team.name)} · ${r.started ? r.slot : r.slot === "IR" ? "IR" : "bench"} · ${fmt(r.pts)}"></span>`;
       }).join("");
-      const who = [...new Map(inSeason.map((r) => [r.team.ownerId, r.team])).values()].map(mark).join("");
+      // At most two logos, then a count, so a season he changed hands twice
+      // cannot squeeze the strip on a phone.
+      const owners = [...new Map(inSeason.map((r) => [r.team.ownerId, r.team])).values()];
+      const who = owners.length > 3
+        ? owners.slice(0, 2).map(mark).join("") + `<span class="pc-more" title="${owners.slice(2).map((t) => esc(t.owner)).join(", ")}">+${owners.length - 2}</span>`
+        : owners.map(mark).join("");
       return `<div class="pc-tl-row"><span class="pc-tl-year">${season}</span>
         <span class="pc-tl-strip" style="--weeks:${columns}">${cells}</span>
         <span class="pc-tl-who">${who}</span></div>`;
@@ -525,6 +540,7 @@
               <span><i style="background:${lead ? lead.color : "#304f91"}"></i>Started, in that team's colour</span>
               <span><i style="box-shadow: inset 0 0 0 1.5px ${lead ? lead.color : "#304f91"}"></i>Bench</span>
               <span><i style="background:#f1f4f7"></i>Not on a roster</span>
+              <span><i style="box-shadow: inset 0 0 0 1px #d3dae2"></i>Not played yet</span>
             </div>
           </section>
 
