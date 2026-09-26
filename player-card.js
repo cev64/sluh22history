@@ -720,7 +720,7 @@
         <header class="pc-hero">
           <div class="pc-photo">${photo}${!isDst ? `<span class="pc-club">${nfl(s.lastClub)}</span>` : ""}</div>
           <div class="pc-id">
-            ${s.titles.length ? `<div class="pc-champ" title="Championship games won in the starting lineup">🏆 ${[...new Set(s.titles.map((r) => r.season))].join(" · ")} Champion</div>` : ""}
+            ${s.titles.length ? `<div class="pc-champ" title="Championship games won in the starting lineup">🏆 ${[...new Set(s.titles.map((r) => r.season))].join(" · ")}</div>` : ""}
             <h2 id="pcName"${s.titles.length ? ` class="pc-gold"` : ""}>${esc(p.n)}</h2>
             <div class="pc-tags">
               <span class="pc-tag">${p.p}</span>
