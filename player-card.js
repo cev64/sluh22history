@@ -543,7 +543,8 @@
       const boxW = Math.min(880, vw - cardW - 48);
       target.host.style.setProperty("--bx-dw", `${boxW}px`);
       target.host.classList.add("bx-docked");
-      card.style.zIndex = "62";
+      // Just above the box score, wherever it sits (over a team drawer it is raised).
+      card.style.zIndex = String((parseInt(getComputedStyle(target.host).zIndex, 10) || 61) + 1);
       card.classList.remove("from-panel");
     } else {
       if (!target.host.dataset.pcWidth) target.host.dataset.pcWidth = target.host.getBoundingClientRect().width;
