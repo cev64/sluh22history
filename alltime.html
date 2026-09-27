@@ -1354,24 +1354,6 @@
        ================================================================ */
 
     .home-hero h1 { margin: 0; }
-    .trophy-room-link {
-      align-self: flex-start;
-      margin-top: 18px;
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px 14px 9px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 800;
-      text-decoration: none;
-      transition: background .18s ease, border-color .18s ease;
-    }
-    .trophy-room-link:hover { background: rgba(255,255,255,.14); border-color: rgba(246,183,60,.55); }
-    .trophy-room-link .arrow { color: var(--gold); }
 
     /* The player search sits where a season page has its week rail. */
     .search-rail {
@@ -1542,7 +1524,6 @@
     .empty-state { padding: 24px; color: var(--muted); font-size: 12px; text-align: center; }
 
     @media (max-width: 700px) {
-      .trophy-room-link { margin-top: 12px; padding: 7px 12px 7px 9px; font-size: 12px; border-radius: 10px; }
       .search-rail { padding: 5px; border-radius: 12px; }
       .search-rail input { padding: 10px 12px; font-size: 16px; }
       .player-results { grid-template-columns: 1fr; gap: 4px; }
@@ -1661,6 +1642,38 @@
     @media (min-width: 1200px) and (max-width: 1439px) {
       .division-grid { grid-template-columns: minmax(0, 1fr); }
     }
+  
+    /* Trophy Room: always in the header, between the brand and the season
+       menu; in the desktop sidebar it sits under the menu. */
+    .topbar-trophy {
+      margin-left: auto;
+      display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+      padding: 9px 13px;
+      border: 1px solid rgba(246, 183, 60, .45); border-radius: 10px;
+      background: rgba(246, 183, 60, .12);
+      color: #fff; font-size: 13px; font-weight: 800; text-decoration: none; white-space: nowrap;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .topbar-trophy:hover { background: rgba(246, 183, 60, .22); border-color: rgba(246, 183, 60, .7); }
+    .topbar-trophy + .year-control { margin-left: 0; }
+    @media (max-width: 700px) {
+      .topbar-inner { gap: 8px; }
+      .topbar-trophy { padding: 6px 9px; gap: 5px; font-size: 11.5px; border-radius: 9px; }
+    }
+    @media (max-width: 374px) {
+      .topbar-trophy { font-size: 0; gap: 0; padding: 6px 8px; }
+      .topbar-trophy span { font-size: 14px; }
+    }
+    @media (min-width: 1200px) {
+      :root { --topbar-h: 124px; }
+      .topbar-inner {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto;
+        align-content: center; row-gap: 12px; column-gap: 10px; padding-top: 14px; padding-bottom: 14px;
+      }
+      .topbar .brand { grid-column: 1; grid-row: 1; }
+      .topbar .year-control { grid-column: 2; grid-row: 1; }
+      .topbar-trophy { grid-column: 1 / -1; grid-row: 2; margin: 0; justify-content: center; }
+    }
   </style>
 </head>
 <body>
@@ -1674,6 +1687,7 @@
         </div>
       </a>
 
+      <a class="topbar-trophy" href="trophy.html"><span aria-hidden="true">🏆</span>Trophy Room</a>
       <label class="year-control">
         <span>Season</span>
         <select id="pageSelect" aria-label="Choose season">
@@ -1694,7 +1708,6 @@
       <div class="live-status">
         <span class="live-badge" id="heroBadge"></span>
         <h1>All-Time</h1>
-        <a class="trophy-room-link" href="trophy.html"><span aria-hidden="true">🏆</span>Trophy Room<span class="arrow" aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>

@@ -3690,6 +3690,38 @@
     @media (min-width: 1200px) and (max-width: 1439px) {
       .division-grid { grid-template-columns: minmax(0, 1fr); }
     }
+  
+    /* Trophy Room: always in the header, between the brand and the season
+       menu; in the desktop sidebar it sits under the menu. */
+    .topbar-trophy {
+      margin-left: auto;
+      display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+      padding: 9px 13px;
+      border: 1px solid rgba(246, 183, 60, .45); border-radius: 10px;
+      background: rgba(246, 183, 60, .12);
+      color: #fff; font-size: 13px; font-weight: 800; text-decoration: none; white-space: nowrap;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .topbar-trophy:hover { background: rgba(246, 183, 60, .22); border-color: rgba(246, 183, 60, .7); }
+    .topbar-trophy + .year-control { margin-left: 0; }
+    @media (max-width: 700px) {
+      .topbar-inner { gap: 8px; }
+      .topbar-trophy { padding: 6px 9px; gap: 5px; font-size: 11.5px; border-radius: 9px; }
+    }
+    @media (max-width: 374px) {
+      .topbar-trophy { font-size: 0; gap: 0; padding: 6px 8px; }
+      .topbar-trophy span { font-size: 14px; }
+    }
+    @media (min-width: 1200px) {
+      :root { --topbar-h: 124px; }
+      .topbar-inner {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto;
+        align-content: center; row-gap: 12px; column-gap: 10px; padding-top: 14px; padding-bottom: 14px;
+      }
+      .topbar .brand { grid-column: 1; grid-row: 1; }
+      .topbar .year-control { grid-column: 2; grid-row: 1; }
+      .topbar-trophy { grid-column: 1 / -1; grid-row: 2; margin: 0; justify-content: center; }
+    }
   </style>
   <script src="team-logos.js"></script>
 </head>
@@ -3703,6 +3735,7 @@
           <span class="brand-title">League History</span>
         </div>
       </a>
+      <a class="topbar-trophy" href="trophy.html"><span aria-hidden="true">🏆</span>Trophy Room</a>
       <label class="year-control">
         <span>Season</span>
         <select id="yearSelect" aria-label="Choose season">
