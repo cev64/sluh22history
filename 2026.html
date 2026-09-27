@@ -4074,6 +4074,29 @@
     @media (min-width: 1200px) and (max-width: 1439px) {
       .division-grid { grid-template-columns: minmax(0, 1fr); }
     }
+  
+    /* Header summary: a plain heading on a desktop, a fold on a phone. */
+    .brief-toggle {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      width: 100%; margin: 0; padding: 0; border: 0; background: none; color: inherit;
+      font: inherit; text-align: left; cursor: default;
+    }
+    .brief-chevron { display: none; }
+    .brief-body > div { display: flex; flex-direction: column; gap: 13px; min-height: 0; }
+    @media (max-width: 700px) {
+      .hero-brief { gap: 0; }
+      .brief-toggle { cursor: pointer; min-height: 22px; }
+      .brief-chevron {
+        display: block; flex: 0 0 auto; width: 18px; height: 18px;
+        fill: none; stroke: rgba(255, 255, 255, .75); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+        transition: transform .25s ease;
+      }
+      .hero-brief.open .brief-chevron { transform: rotate(180deg); }
+      .brief-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s ease; }
+      .brief-body > div { overflow: hidden; gap: 11px; }
+      .brief-body > div > :first-child { margin-top: 11px; }
+      .hero-brief.open .brief-body { grid-template-rows: 1fr; }
+    }
   </style>
   <script src="team-logos.js"></script>
 </head>
@@ -5395,13 +5418,31 @@
         : `Week ${lastPlayedWeek} of ${REGULAR_WEEKS}. Six make the playoffs, four fall to the Toilet Bowl.`;
 
       const brief = preseason ? preseasonBrief : inSeasonBrief(asOf);
-      document.getElementById("heroBrief").innerHTML = `
-        <span class="brief-label">${brief.label}</span>
-        <p class="brief-narrative">${brief.narrative}</p>
-        <ul class="brief-headlines">
-          ${brief.headlines.map((h) => `<li><span>${h}</span></li>`).join("")}
-        </ul>`;
+      const box = document.getElementById("heroBrief");
+      box.classList.toggle("open", briefOpen);
+      box.innerHTML = `
+        <button type="button" class="brief-toggle" aria-expanded="${briefOpen}" aria-controls="briefBody">
+          <span class="brief-label">${brief.label}</span>
+          <svg class="brief-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+        </button>
+        <div class="brief-body" id="briefBody"><div>
+          <p class="brief-narrative">${brief.narrative}</p>
+          <ul class="brief-headlines">
+            ${brief.headlines.map((h) => `<li><span>${h}</span></li>`).join("")}
+          </ul>
+        </div></div>`;
     }
+
+    /* On a phone the summary starts folded to its one-line label; the arrow
+       opens it, and it stays as left while moving between weeks. */
+    let briefOpen = false;
+    document.getElementById("heroBrief").addEventListener("click", (event) => {
+      const toggle = event.target.closest(".brief-toggle");
+      if (!toggle || !window.matchMedia("(max-width: 700px)").matches) return;
+      briefOpen = !briefOpen;
+      event.currentTarget.classList.toggle("open", briefOpen);
+      toggle.setAttribute("aria-expanded", String(briefOpen));
+    });
 
     /* Written once, from the league's own history. Update it if a storyline
        goes stale before Week 1. */
