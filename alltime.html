@@ -1442,6 +1442,8 @@
     .champions-card .division-chip { background: #b8860b; }
     .losers-card .division-chip { background: #a62f2b; }
     .titles-table { min-width: 0; }
+    .standings-section { margin-top: 18px; }
+    @media (max-width: 700px) { .standings-section { margin-top: 9px; } }
     .title-count { font-weight: 900; }
     .title-years { color: var(--muted); }
 
@@ -1609,6 +1611,56 @@
     th .sort-button { justify-content: flex-end; }
     th:first-child .sort-button, th:nth-child(2) .sort-button { justify-content: flex-start; }
     th .sort-indicator:empty { display: none; }
+  
+    /* ---- Desktop: the navy header becomes a sidebar ----------------------
+       On a wide screen the top bar and the hero stack into one navy column
+       fixed down the left, with the red stripe on its edge, so the page's
+       own content (week rail, tabs, tables) starts at the very top on the
+       right. Narrower screens keep the header across the top. */
+    @media (min-width: 1200px) {
+      :root { --side: 340px; --topbar-h: 76px; }
+      body { padding-left: var(--side); }
+      .topbar {
+        position: fixed; top: 0; left: 0; bottom: auto; width: var(--side);
+        border-right: 4px solid var(--red);
+      }
+      .topbar-inner { width: auto; min-height: var(--topbar-h); padding: 0 18px 0 20px; gap: 10px; }
+      .topbar .year-control > span { display: none; }
+      .topbar .brand-title { font-size: 17px; }
+      html body .hero {
+        position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 30;
+        width: var(--side); overflow-y: auto; overscroll-behavior: contain;
+        border-bottom: 0; border-right: 4px solid var(--red);
+        scrollbar-width: none;
+      }
+      html body .hero::-webkit-scrollbar { display: none; }
+      html body .hero .hero-inner,
+      html body .hero .hero-inner.outcome-grid,
+      html body .live-hero .hero-inner {
+        width: auto; margin: 0; padding: 26px 20px 28px;
+        display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start;
+      }
+      html body .hero-brief { width: auto; max-width: none; justify-self: stretch; }
+      html body .live-status h1 { font-size: 38px; }
+      .week-rail-wrap,
+      main { width: min(1220px, calc(100% - 48px)); }
+      .week-rail-wrap { margin-top: 24px; }
+      main { padding-top: 22px; }
+      main > .page-toolbar:first-child { margin-top: 0; }
+      .topbar .brand-kicker { white-space: nowrap; letter-spacing: .16em; }
+      /* Every week still fits beside the sidebar. */
+      .week-rail { gap: 2px; }
+      .week-pill { padding: 9px 6px; }
+      /* Division tables sit two across in less room: let them fit it. */
+      .division-grid table { min-width: 0; }
+      .division-grid th, .division-grid td { padding-left: 7px; padding-right: 7px; }
+      .division-grid .team-cell { min-width: 0; }
+    }
+    /* Beside the sidebar on a smaller desktop, the division tables take a
+       row each rather than squeeze two across. */
+    @media (min-width: 1200px) and (max-width: 1439px) {
+      .division-grid { grid-template-columns: minmax(0, 1fr); }
+    }
   </style>
 </head>
 <body>
@@ -1661,13 +1713,36 @@
       <div class="page-title">
         <h2 id="pageTitle">Record Book</h2>
       </div>
-      <div class="view-tabs" id="viewTabs" role="tablist" aria-label="All-time views"></div>
-      <div class="view-select-wrap">
-        <select id="viewSelect" aria-label="All-time views"></select>
-      </div>
     </div>
 
-    <section id="standings" class="view-panel active" role="tabpanel">
+    <section id="titles" class="titles-section">
+      <div class="division-grid">
+        <div class="card champions-card">
+          <div class="card-head">
+            <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2.8h6v3.4a3 3 0 0 1-6 0zM5 4H2.8v.9A2.2 2.2 0 0 0 5 7.1M11 4h2.2v.9A2.2 2.2 0 0 1 11 7.1M8 9.2v2.4M5.6 13.2h4.8"/></svg></span>Champions</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="titles-table">
+              <thead><tr><th>Rk</th><th>Team</th><th>Titles</th><th>Years</th></tr></thead>
+              <tbody id="championBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card losers-card">
+          <div class="card-head">
+            <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4v7.2M5.1 6.7 8 9.6l2.9-2.9M3.2 13.2h9.6"/></svg></span>Last Places</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="titles-table">
+              <thead><tr><th>Rk</th><th>Team</th><th>Last</th><th>Years</th></tr></thead>
+              <tbody id="loserBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="standings" class="standings-section">
       <div class="card compact-table">
         <div class="card-head">
           <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/></svg></span>Standings</h3>
@@ -1705,32 +1780,6 @@
       </div>
     </section>
 
-    <section id="titles" class="view-panel" role="tabpanel">
-      <div class="division-grid">
-        <div class="card champions-card">
-          <div class="card-head">
-            <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2.8h6v3.4a3 3 0 0 1-6 0zM5 4H2.8v.9A2.2 2.2 0 0 0 5 7.1M11 4h2.2v.9A2.2 2.2 0 0 1 11 7.1M8 9.2v2.4M5.6 13.2h4.8"/></svg></span>Champions</h3>
-          </div>
-          <div class="table-wrap">
-            <table class="titles-table">
-              <thead><tr><th>Rk</th><th>Team</th><th>Titles</th><th>Years</th></tr></thead>
-              <tbody id="championBody"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card losers-card">
-          <div class="card-head">
-            <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4v7.2M5.1 6.7 8 9.6l2.9-2.9M3.2 13.2h9.6"/></svg></span>Last Places</h3>
-          </div>
-          <div class="table-wrap">
-            <table class="titles-table">
-              <thead><tr><th>Rk</th><th>Team</th><th>Last</th><th>Years</th></tr></thead>
-              <tbody id="loserBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
 
   <div class="drawer-backdrop profile-backdrop" id="profileBackdrop"></div>
@@ -2104,30 +2153,6 @@
       markSort("allTime", allTimeSort, "allTimeMobileSort", "allTimeMobileDirection");
     }
 
-    /* ---- Views: the same tabs (a dropdown on a phone) as a season page ---- */
-    const VIEWS = [{ id: "standings", label: "Standings" }, { id: "titles", label: "Titles" }];
-    let view = "standings";
-
-    function renderViews() {
-      document.getElementById("viewTabs").innerHTML = VIEWS.map((v) => `
-        <button type="button" class="view-tab ${v.id === view ? "active" : ""}" data-view="${v.id}"
-          role="tab" aria-selected="${v.id === view}">${v.label}</button>`).join("");
-      document.getElementById("viewSelect").innerHTML = VIEWS.map((v) =>
-        `<option value="${v.id}" ${v.id === view ? "selected" : ""}>${v.label}</option>`).join("");
-      VIEWS.forEach((v) => document.getElementById(v.id).classList.toggle("active", v.id === view));
-    }
-
-    function setView(next) {
-      if (next === view || !VIEWS.some((v) => v.id === next)) return;
-      view = next;
-      renderViews();
-    }
-
-    document.getElementById("viewTabs").addEventListener("click", (event) => {
-      const tab = event.target.closest(".view-tab");
-      if (tab) setView(tab.dataset.view);
-    });
-    document.getElementById("viewSelect").addEventListener("change", (event) => setView(event.target.value));
 
     function renderWinsChart(profile) {
       // Finished seasons only: a season in progress would read as a slump.
@@ -2550,7 +2575,6 @@
       renderAllTime();
     }
 
-    renderViews();
     renderAll();
     setupPlayerSearch();
     openFromHash();
