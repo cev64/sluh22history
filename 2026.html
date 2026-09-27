@@ -4096,6 +4096,16 @@
       .brief-body > div { overflow: hidden; gap: 11px; }
       .brief-body > div > :first-child { margin-top: 11px; }
       .hero-brief.open .brief-body { grid-template-rows: 1fr; }
+
+      /* The season title block is left to the page below; the header keeps
+         only the summary, as a slim bar. */
+      .live-hero .live-status { display: none; }
+      html body .live-hero .hero-inner { padding: 12px 14px 14px; gap: 0; }
+      .live-hero .hero-brief { padding: 9px 12px; border-radius: 12px; }
+      .brief-toggle { min-height: 18px; }
+      .brief-toggle .brief-label { font-size: 9px; letter-spacing: .12em; color: rgba(255, 255, 255, .72); }
+      .brief-chevron { width: 15px; height: 15px; }
+      .brief-body > div > :first-child { margin-top: 9px; }
     }
   </style>
   <script src="team-logos.js"></script>
