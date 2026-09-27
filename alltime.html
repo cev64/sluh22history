@@ -1354,7 +1354,6 @@
        ================================================================ */
 
     .home-hero h1 { margin: 0; }
-    .home-hero .brief-headlines { border-top: 0; padding-top: 4px; }
     .trophy-room-link {
       align-self: flex-start;
       margin-top: 18px;
@@ -1455,23 +1454,33 @@
     .schedule-list .team-name { font-size: 12px; }
     .schedule-list .owner { font-size: 10px; }
 
-    /* Highlights: one line each, label on the left, the figure on the right. */
-    .h2h-card th:nth-child(2), .h2h-card td:nth-child(2) { text-align: right; }
-    .h2h-card th:nth-child(2) .sort-button { justify-content: flex-end; }
-
-    .hl-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      padding: 11px 12px;
-      border-bottom: 1px solid #edf0f3;
+    /* Highlights: a tinted tile each, its emoji large in the corner. */
+    .hl-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .hl-tile {
+      --hl-bg: #f1f4f8; --hl-line: #d3dbe5; --hl-ink: #102b43; --hl-chip: #102b43;
+      position: relative; overflow: hidden; min-width: 0; min-height: 98px;
+      display: flex; flex-direction: column;
+      padding: 12px 12px 11px;
+      border: 1px solid var(--hl-line); border-radius: 14px;
+      background: linear-gradient(145deg, #fff 0%, var(--hl-bg) 100%);
     }
-    .hl-row:last-child { border-bottom: 0; }
-    .hl-row > span { color: var(--muted); font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
-    .hl-row > div { text-align: right; font-size: 12px; }
-    .hl-row strong { display: block; font-size: 13px; font-variant-numeric: tabular-nums; }
-    .hl-row small { color: var(--muted); font-size: 10px; }
+    .hl-icon {
+      position: absolute; right: -8px; bottom: -14px;
+      font-size: 58px; line-height: 1; opacity: .2; transform: rotate(-12deg);
+      pointer-events: none;
+    }
+    .hl-label { position: relative; color: var(--hl-ink); font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .hl-value { position: relative; margin-top: 6px; color: var(--ink); font-size: 20px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    .hl-meta { position: relative; margin-top: auto; padding-top: 4px; color: var(--muted); font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hl-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 1px; }
+    .hl-chips span { padding: 3px 8px; border-radius: 999px; background: var(--hl-chip); color: #fff; font-size: 11px; font-weight: 900; letter-spacing: .02em; }
+    .hl-gold   { --hl-bg: #fff4cf; --hl-line: #ead58b; --hl-ink: #8a6500; --hl-chip: #c99a1c; }
+    .hl-red    { --hl-bg: #ffe9e7; --hl-line: #efc9c6; --hl-ink: #a62f2b; --hl-chip: #c73535; }
+    .hl-green  { --hl-bg: #e3f5ea; --hl-line: #bfe3cc; --hl-ink: #16834a; --hl-chip: #16834a; }
+    .hl-fire   { --hl-bg: #ffe8d9; --hl-line: #f6cfb0; --hl-ink: #b4540f; --hl-chip: #b4540f; }
+    .hl-blue   { --hl-bg: #e2eeff; --hl-line: #c5dafb; --hl-ink: #0f56bd; --hl-chip: #0f56bd; }
+    .hl-purple { --hl-bg: #ece6ff; --hl-line: #d6cdf7; --hl-ink: #5b3fb8; --hl-chip: #5b3fb8; }
+    .hl-navy   { --hl-bg: #e6ebf2; --hl-line: #d3dbe5; --hl-ink: #102b43; --hl-chip: #102b43; }
 
     /* Season history rows: the schedule row, with the finish in the pill. */
     .season-row { color: inherit; text-decoration: none; transition: background .15s ease; }
@@ -1484,6 +1493,9 @@
     .result-pill.place-3 { background: #b0703a; }
     .result-pill.place-last { background: #c73535; }
     .result-pill.place-mid { background: #d5dce4; color: #4b5866; }
+    /* The season still being played: a red dot, as on the live season page. */
+    .result-pill.place-live { background: #fdecec; }
+    .result-pill.place-live::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 3px rgba(215, 25, 32, .18); }
 
     .chart-wrap { padding: 10px 10px 4px; }
     .wins-chart { display: block; width: 100%; height: auto; }
@@ -1558,10 +1570,13 @@
       .compact-table td.team-cell { grid-column: 2; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; }
       .compact-table td:not(.rank):not(.team-cell) { display: none; }
 
-      .hl-row { padding: 7px; gap: 6px; }
-      .hl-row > span { font-size: 8px; }
-      .hl-row strong { font-size: 10px; }
-      .hl-row small { font-size: 8px; }
+      .hl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+      .hl-tile { min-height: 82px; padding: 9px 10px; border-radius: 12px; }
+      .hl-icon { font-size: 46px; }
+      .hl-label { font-size: 8px; }
+      .hl-value { margin-top: 4px; font-size: 16px; }
+      .hl-meta { font-size: 9px; }
+      .hl-chips span { padding: 2px 7px; font-size: 10px; }
       .schedule-list > .table-wrap { overflow: visible; }
       .schedule-list > .table-wrap table,
       .schedule-list > .table-wrap tbody { display: block; width: 100%; min-width: 0; }
@@ -1629,7 +1644,6 @@
         <h1>All-Time</h1>
         <a class="trophy-room-link" href="trophy.html"><span aria-hidden="true">🏆</span>Trophy Room<span class="arrow" aria-hidden="true">→</span></a>
       </div>
-      <aside class="hero-brief" id="heroBrief" aria-label="League leaders"></aside>
     </div>
   </section>
 
@@ -1645,7 +1659,7 @@
   <main>
     <div class="page-toolbar">
       <div class="page-title">
-        <h2 id="pageTitle">All-Time</h2>
+        <h2 id="pageTitle">Record Book</h2>
       </div>
       <div class="view-tabs" id="viewTabs" role="tablist" aria-label="All-time views"></div>
       <div class="view-select-wrap">
@@ -1767,7 +1781,11 @@
       return src ? `<img class="team-logo" src="${src}" alt="">` : (team && team.icon) || "";
     };
 
-    function createProfiles() {
+    /* `seasons` is every finished season from league-data.js, plus the one
+       being played (marked `live`, built from the season page's results; see
+       loadLiveSeason). A live season adds its games, records and scores, but
+       no finish: nobody has won or lost it yet. */
+    function createProfiles(seasons) {
       const profiles = {};
 
       Object.entries(LEAGUE_DATA.owners).forEach(([ownerId, owner]) => {
@@ -1786,6 +1804,8 @@
           bestSeason: null,
           playoffWins: 0,
           playoffLosses: 0,
+          streak: { run: 0, best: null },
+          biggestWin: null,
           h2h: {}
         };
       });
@@ -1820,6 +1840,25 @@
         addH2H(aOwner, bOwner, game.aScore, game.bScore);
         addH2H(bOwner, aOwner, game.bScore, game.aScore);
 
+        // Win streaks run across seasons and through the playoffs; a loss or
+        // a tie ends one. Games arrive in order, season by season, week by week.
+        [[aOwner, game.aScore, game.bScore, bOwner], [bOwner, game.bScore, game.aScore, aOwner]].forEach(([id, mine, theirs, opp]) => {
+          const p = profiles[id];
+          if (!p) return;
+          if (mine > theirs) {
+            p.streak.run += 1;
+            if (p.streak.run === 1) p.streak.from = season.year;
+            if (!p.streak.best || p.streak.run > p.streak.best.length) {
+              p.streak.best = { length: p.streak.run, fromYear: p.streak.from, toYear: season.year };
+            }
+            if (!p.biggestWin || mine - theirs > p.biggestWin.margin) {
+              p.biggestWin = { margin: mine - theirs, year: season.year, week: game.week, opponentId: opp };
+            }
+          } else {
+            p.streak.run = 0;
+          }
+        });
+
         [
           { ownerId: aOwner, team: aTeam, opponentId: bOwner, points: game.aScore },
           { ownerId: bOwner, team: bTeam, opponentId: aOwner, points: game.bScore }
@@ -1839,7 +1878,7 @@
         });
       };
 
-      [...LEAGUE_DATA.seasons]
+      [...seasons]
         .sort((a, b) => a.year - b.year)
         .forEach((season) => {
           Object.entries(season.teams).forEach(([teamId, team]) => {
@@ -1853,12 +1892,14 @@
               losses: team.losses,
               pf: team.pf,
               pa: team.pa,
-              finalRank: team.finalRank
+              finalRank: team.finalRank,
+              live: Boolean(season.live)
             });
             profile.wins += team.wins;
             profile.losses += team.losses;
             profile.pf += team.pf;
             profile.pa += team.pa;
+            if (season.live) return;
             profile.finishes[season.year] = team.finalRank;
 
             if (team.finalRank === 1) profile.championshipYears.push(season.year);
@@ -1873,7 +1914,7 @@
             }
           });
 
-          season.regularGames.forEach((game) => recordGame(season, game));
+          [...season.regularGames].sort((a, b) => a.week - b.week).forEach((game) => recordGame(season, game));
 
           season.postseasonGames.forEach((game) => {
             recordGame(season, game, game.label);
@@ -1911,18 +1952,68 @@
       return profiles;
     }
 
-    const profiles = createProfiles();
+    let profiles = {};
+    let profileList = [];
+    let liveSeason = null;
 
-    // Only the 2020 championship result survives from that deleted season.
-    // It affects championship displays only—not standings, records, points, or year navigation.
-    if (profiles.charlie_vonderheid && !profiles.charlie_vonderheid.championshipYears.includes(2020)) {
-      profiles.charlie_vonderheid.championshipYears.unshift(2020);
+    function buildProfiles() {
+      profiles = createProfiles(liveSeason ? [...LEAGUE_DATA.seasons, liveSeason] : LEAGUE_DATA.seasons);
+      // Only the 2020 championship result survives from that deleted season.
+      // It affects championship displays only—not standings, records, points, or year navigation.
+      if (profiles.charlie_vonderheid && !profiles.charlie_vonderheid.championshipYears.includes(2020)) {
+        profiles.charlie_vonderheid.championshipYears.unshift(2020);
+      }
+      profileList = Object.values(profiles);
+    }
+    buildProfiles();
+
+    /* The season being played lives on its own page (2026.html), where the
+       weekly update posts each week's scores into `teams` and `results`. This
+       reads those two blocks straight off the page, so every week posted
+       there counts here too, with nothing else to update. It is the newest
+       season in the menu that league-data.js does not have yet; once a season
+       is finished and added to league-data.js, this reads nothing. Only the
+       regular season is read: playoff games count once the season is final. */
+    function loadLiveSeason() {
+      const menu = [...document.querySelectorAll("#pageSelect option")].map((o) => Number(o.value)).filter(Boolean);
+      const year = Math.max(...menu);
+      if (!year || LEAGUE_DATA.seasons.some((season) => season.year === year)) return Promise.resolve(null);
+      return fetch(`${year}.html`)
+        .then((res) => (res.ok ? res.text() : ""))
+        .then((html) => {
+          const block = (name) => {
+            const start = html.indexOf(`const ${name} = {`);
+            if (start < 0) return null;
+            let depth = 0, i = html.indexOf("{", start);
+            const open = i;
+            for (; i < html.length; i++) {
+              if (html[i] === "{") depth++;
+              else if (html[i] === "}" && --depth === 0) break;
+            }
+            return new Function(`return ${html.slice(open, i + 1)};`)();
+          };
+          const teams = block("teams");
+          const results = block("results");
+          if (!teams || !results) return null;
+          const regularGames = [];
+          Object.entries(results).forEach(([week, games]) => games.forEach(([a, aScore, b, bScore]) =>
+            regularGames.push({ week: Number(week), a, aScore, b, bScore })));
+          if (!regularGames.length) return null;
+          const standing = {};
+          Object.entries(teams).forEach(([id, t]) => { standing[id] = { ...t, wins: 0, losses: 0, pf: 0, pa: 0 }; });
+          regularGames.forEach((g) => {
+            const a = standing[g.a], b = standing[g.b];
+            if (!a || !b) return;
+            a.pf += g.aScore; a.pa += g.bScore; b.pf += g.bScore; b.pa += g.aScore;
+            if (g.aScore > g.bScore) { a.wins++; b.losses++; } else if (g.bScore > g.aScore) { b.wins++; a.losses++; }
+          });
+          return { year, live: true, throughWeek: Math.max(...regularGames.map((g) => g.week)),
+            teams: standing, regularGames, postseasonGames: [] };
+        })
+        .catch(() => null);
     }
 
-    const profileList = Object.values(profiles);
 
-
-    const seasonYears = LEAGUE_DATA.seasons.map((season) => season.year).sort((a, b) => a - b);
     const signed = (value) => `${value >= 0 ? "+" : ""}${fmt(value)}`;
 
     function teamButton(profile) {
@@ -1933,29 +2024,12 @@
         </button>`;
     }
 
-    /* Hero: how many seasons, and who leads the league across them. */
+    /* Hero badge: how far the record runs. While a season is being played
+       it says which week the totals include. */
     function renderHero() {
-      document.getElementById("heroBadge").textContent =
-        `${seasonYears.length} seasons · ${seasonYears[0]}–${seasonYears[seasonYears.length - 1]}`;
-      document.getElementById("pageTitle").textContent = `${seasonYears[0]}–${seasonYears[seasonYears.length - 1]}`;
-
-      const top = (value) => {
-        const best = Math.max(...profileList.map(value));
-        return profileList.filter((p) => value(p) === best);
-      };
-      const names = (list) => list.map((p) => `<strong>${p.currentTeam}</strong>`).join(" and ");
-      const titled = top((p) => p.championshipYears.length);
-      const wins = top((p) => p.wins);
-      const points = top((p) => p.pfg);
-      const titles = titled[0].championshipYears.length;
-
-      document.getElementById("heroBrief").innerHTML = `
-        <span class="brief-label">League leaders</span>
-        <ul class="brief-headlines">
-          <li><span>${names(titled)} ${titled.length > 1 ? "share" : "has"} the most titles, with ${titles}${titled.length > 1 ? " each" : ""}.</span></li>
-          <li><span>${names(wins)} ${wins.length > 1 ? "have" : "has"} the most wins: ${wins[0].wins}–${wins[0].losses}.</span></li>
-          <li><span>${names(points)} ${points.length > 1 ? "score" : "scores"} the most, at ${points[0].pfg.toFixed(1)} a week.</span></li>
-        </ul>`;
+      document.getElementById("heroBadge").textContent = liveSeason
+        ? `Through ${liveSeason.year} · Week ${liveSeason.throughWeek}`
+        : `${LEAGUE_DATA.seasons.length} seasons`;
     }
 
     function renderTitleTable(bodyId, yearsOf, mark) {
@@ -2056,7 +2130,8 @@
     document.getElementById("viewSelect").addEventListener("change", (event) => setView(event.target.value));
 
     function renderWinsChart(profile) {
-      const seasons = profile.seasons;
+      // Finished seasons only: a season in progress would read as a slump.
+      const seasons = profile.seasons.filter((season) => !season.live);
       const width = 620;
       const height = 220;
       const left = 54;
@@ -2208,32 +2283,50 @@
     const yearsAtFinish = (profile, rank) =>
       profile.seasons.filter((season) => season.finalRank === rank).map((season) => season.year);
 
-    function highlightRows(profile) {
-      const row = (label, value, meta) =>
-        `<div class="hl-row"><span>${label}</span><div><strong>${value}</strong>${meta ? `<small>${meta}</small>` : ""}</div></div>`;
-      const titles = profile.championshipYears.length
-        ? row("Championships", profile.championshipYears.join(", "))
-        : row("Best finish", ordinal(profile.bestFinish), yearsAtFinish(profile, profile.bestFinish).join(", "));
-      const lasts = profile.lastPlaceYears.length
-        ? row("Last-place finishes", profile.lastPlaceYears.join(", "))
-        : row("Lowest finish", ordinal(profile.worstFinish), yearsAtFinish(profile, profile.worstFinish).join(", "));
+    /* Highlights: a tile each, in the colour of what it marks. */
+    function highlightTiles(profile) {
+      const tile = (kind, icon, label, value, meta) => `
+        <div class="hl-tile hl-${kind}">
+          <span class="hl-icon" aria-hidden="true">${icon}</span>
+          <span class="hl-label">${label}</span>
+          <span class="hl-value">${value}</span>
+          ${meta ? `<span class="hl-meta">${meta}</span>` : ""}
+        </div>`;
+      const chips = (years) => `<span class="hl-chips">${years.map((y) => `<span>${y}</span>`).join("")}</span>`;
+      const finishYears = (rank) => yearsAtFinish(profile, rank).join(", ");
       const week = profile.highestWeek;
-      return titles + lasts
-        + row("Highest-scoring week", fmt(week.points), `Week ${week.week} · ${week.year}`)
-        + row("Best scoring season", fmt(profile.bestSeason.points), profile.bestSeason.year);
+      const win = profile.biggestWin;
+      const streak = profile.streak.best;
+      const best = profile.seasons.filter((season) => !season.live)
+        .reduce((top, season) => (!top || season.wins > top.wins || (season.wins === top.wins && season.pf > top.pf) ? season : top), null);
+
+      return [
+        profile.championshipYears.length
+          ? tile("gold", "🏆", profile.championshipYears.length === 1 ? "Champion" : `${profile.championshipYears.length}× Champion`, chips(profile.championshipYears))
+          : tile("gold", "🏅", "Best finish", ordinal(profile.bestFinish), finishYears(profile.bestFinish)),
+        profile.lastPlaceYears.length
+          ? tile("red", "💩", profile.lastPlaceYears.length === 1 ? "Last place" : `${profile.lastPlaceYears.length}× Last place`, chips(profile.lastPlaceYears))
+          : tile("green", "🛡️", "Never last", `Low: ${ordinal(profile.worstFinish)}`, finishYears(profile.worstFinish)),
+        week ? tile("fire", "🔥", "Biggest week", fmt(week.points), `Week ${week.week} · ${week.year}`) : "",
+        win ? tile("blue", "💥", "Biggest win", `+${fmt(win.margin)}`, `vs ${profiles[win.opponentId] ? profiles[win.opponentId].currentTeam : ""} · ${win.year}`) : "",
+        streak ? tile("purple", "📈", "Longest win streak", `${streak.length} straight`, streak.fromYear === streak.toYear ? streak.toYear : `${streak.fromYear}–${String(streak.toYear).slice(2)}`) : "",
+        best ? tile("navy", "⭐", "Best season", `${best.wins}–${best.losses}`, `${best.year} · ${fmt(best.pf)} pts`) : ""
+      ].join("");
     }
 
     function seasonRows(profile) {
       return [...profile.seasons].reverse().map((season) => {
-        const size = Object.keys(LEAGUE_DATA.seasons.find((s) => s.year === season.year).teams).length;
-        const place = season.finalRank <= 3 ? `place-${season.finalRank}`
+        const finished = LEAGUE_DATA.seasons.find((s) => s.year === season.year);
+        const size = finished ? Object.keys(finished.teams).length : 0;
+        const place = season.live ? "place-live"
+          : season.finalRank <= 3 ? `place-${season.finalRank}`
           : season.finalRank === size ? "place-last" : "place-mid";
         return `<a class="schedule-row season-row season-link" href="${season.year}.html?team=${season.teamId}"
             aria-label="${season.teamName}, ${season.year}: open that season">
           <span class="schedule-week">${season.year}</span>
-          <span class="result-pill ${place}">${season.finalRank}</span>
-          <span class="schedule-opponent"><strong>${season.teamName}</strong><span>${season.wins}–${season.losses}</span></span>
-          <span class="schedule-score"><strong>${fmt(season.pf)}–${fmt(season.pa)}</strong></span>
+          <span class="result-pill ${place}" ${season.live ? 'title="In progress"' : ""}>${season.live ? "" : season.finalRank}</span>
+          <span class="schedule-opponent"><strong>${season.teamName}</strong></span>
+          <span class="schedule-score"><strong>${season.wins}–${season.losses}</strong></span>
         </a>`;
       }).join("");
     }
@@ -2288,7 +2381,7 @@
         <div class="drawer-stats drawer-stats-body">${document.getElementById("profileStats").innerHTML}</div>
         <section class="schedule-section">
           <div class="schedule-heading"><h3>Highlights</h3></div>
-          <div class="schedule-list">${highlightRows(profile)}</div>
+          <div class="hl-grid">${highlightTiles(profile)}</div>
         </section>
         <section class="schedule-section">
           <div class="schedule-heading"><h3>Season History</h3></div>
@@ -2450,13 +2543,26 @@
       else if (y < 10) panel.classList.remove("compact");
     }, { passive: true });
 
-    renderHero();
+    function renderAll() {
+      renderHero();
+      renderTitleTable("championBody", (p) => p.championshipYears, "🏆");
+      renderTitleTable("loserBody", (p) => p.lastPlaceYears, "💩");
+      renderAllTime();
+    }
+
     renderViews();
-    renderTitleTable("championBody", (p) => p.championshipYears, "🏆");
-    renderTitleTable("loserBody", (p) => p.lastPlaceYears, "💩");
-    renderAllTime();
+    renderAll();
     setupPlayerSearch();
     openFromHash();
+
+    // Fold in the season being played, then draw again with it counted.
+    loadLiveSeason().then((season) => {
+      if (!season) return;
+      liveSeason = season;
+      buildProfiles();
+      renderAll();
+      if (activeOwnerId) openProfile(activeOwnerId);
+    });
   </script>
 </body>
 </html>

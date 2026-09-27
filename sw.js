@@ -5,7 +5,7 @@
      - Google Fonts: stale-while-revalidate in a separate cache
    Bump CACHE_VERSION whenever the precache list or these rules change. */
 
-const CACHE_VERSION = 'v49';
+const CACHE_VERSION = 'v50';
 const SHELL_CACHE = `league-history-shell-${CACHE_VERSION}`;
 const FONT_CACHE = `league-history-fonts-${CACHE_VERSION}`;
 
@@ -126,7 +126,10 @@ self.addEventListener('fetch', (event) => {
 
   if (url.origin !== self.location.origin) return;
 
-  if (request.mode === 'navigate') {
+  // Pages come from the network first, both when opened and when another page
+  // reads one (the all-time page reads the live season's scores off its page),
+  // so a posted week shows everywhere at once.
+  if (request.mode === 'navigate' || url.pathname.endsWith('.html')) {
     event.respondWith(networkFirst(request));
     return;
   }
