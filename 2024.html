@@ -3558,6 +3558,17 @@
       .topbar .year-control { grid-column: 2; grid-row: 1; }
       .topbar-trophy { grid-column: 1 / -1; grid-row: 2; margin: 0; justify-content: center; }
     }
+  
+    /* Team drawer: its name opens the team's all-time history, and each
+       played score opens that game's box score (above the drawer). */
+    .drawer-name-link { color: inherit; text-decoration: underline dotted rgba(255, 255, 255, .55) 1.5px; text-underline-offset: 5px; }
+    @media (hover: hover) { .drawer-name-link:hover { text-decoration-style: solid; text-decoration-color: #fff; } }
+    .schedule-score.bx-link { cursor: pointer; margin: -5px -7px; padding: 5px 7px; border-radius: 8px; transition: background .15s ease; }
+    .schedule-score.bx-link strong { color: var(--blue-2); text-decoration: underline dotted rgba(23, 105, 224, .55) 1.5px; text-underline-offset: 3px; }
+    @media (hover: hover) { .schedule-score.bx-link:hover { background: rgba(23, 105, 224, .08); } }
+    .schedule-score.bx-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+    body:has(#teamDrawer.open) #bxBackdrop { z-index: 90; }
+    body:has(#teamDrawer.open) #bxModal { z-index: 91; }
   </style>
   <script src="team-logos.js"></script>
 </head>
@@ -4266,6 +4277,24 @@
         .sort((a,b) => a.week - b.week);
     }
 
+    /* A played score in the team drawer opens that game's box score, once the
+       season's index says the week has one. */
+    function markScheduleBoxes(teamId) {
+      boxWeeks().then((weeks) => {
+        if (drawer.dataset.current !== teamId) return;
+        document.querySelectorAll("#drawerBody .schedule-score[data-week]").forEach((el) => {
+          if (!weeks.has(Number(el.dataset.week))) return;
+          el.dataset.bxWeek = el.dataset.week;
+          el.dataset.bxA = teamId;
+          el.dataset.bxB = el.dataset.opp;
+          el.classList.add("bx-link");
+          el.setAttribute("role", "button");
+          el.setAttribute("aria-label", `Box score, week ${el.dataset.week}`);
+          el.tabIndex = 0;
+        });
+      });
+    }
+
     function scheduleRows(items, postseasonMode = false) {
       return items.map(g => {
         const opponent = teams[g.opponent];
@@ -4274,7 +4303,7 @@
           <span class="schedule-week">${postseasonMode ? g.label : `Week ${g.week}`}</span>
           <span class="result-pill ${result === "W" ? "win" : "loss"}">${result}</span>
           <button type="button" class="schedule-opponent" data-team="${g.opponent}" aria-label="${opponent.name}: season and schedule"><strong>${g.site} ${opponent.name}</strong><span>${opponent.owner}</span></button>
-          <span class="schedule-score"><strong>${fmt(g.teamScore)}–${fmt(g.oppScore)}</strong></span>
+          <span class="schedule-score" data-week="${g.week}" data-opp="${g.opponent}"><strong>${fmt(g.teamScore)}–${fmt(g.oppScore)}</strong></span>
         </div>`;
       }).join("");
     }
@@ -4438,7 +4467,14 @@
       badge.style.setProperty("--team-color", t.color);
       badge.innerHTML = teamMark(t);
       document.getElementById("drawerYear").textContent = `${BOX_SEASON} season`;
-      document.getElementById("drawerName").textContent = t.name;
+      const nameEl = document.getElementById("drawerName");
+      // The name opens the team's all-time history; the two departed 2021
+      // teams have none (and, alone, no logo), so theirs stays plain.
+      if (window.TEAM_LOGOS && window.TEAM_LOGOS[t.ownerId]) {
+        nameEl.innerHTML = `<a class="drawer-name-link" href="alltime.html#owner=${t.ownerId}">${t.name}</a>`;
+      } else {
+        nameEl.textContent = t.name;
+      }
       drawer.classList.remove("compact");
       document.getElementById("drawerBody").scrollTop = 0;
       document.getElementById("drawerOwner").textContent = `${t.owner} · ${t.division} Division`;
@@ -4464,6 +4500,7 @@
       // they scroll away with it instead of collapsing out of the header.
       document.getElementById("drawerBody").insertAdjacentHTML("afterbegin",
         `<div class="drawer-stats drawer-stats-body">${document.getElementById("drawerStats").innerHTML}</div>`);
+      markScheduleBoxes(teamId);
       renderRoster(teamId);
 
       drawer.classList.add("open");
@@ -4487,7 +4524,7 @@
 
     document.getElementById("drawerClose").addEventListener("click", closeTeam);
     backdrop.addEventListener("click", closeTeam);
-    document.addEventListener("keydown", e => { if (e.key === "Escape") closeTeam(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !document.querySelector("#bxModal.open")) closeTeam(); });
 
     /* ?team=<id> opens that team's drawer on arrival (the all-time page's
        Season History links here). It opens a frame after the first paint,
@@ -5806,7 +5843,7 @@
       bxModal.classList.remove("open");
       bxBackdrop.classList.remove("open");
       bxModal.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
+      document.body.style.overflow = document.querySelector(".team-drawer.open") ? "hidden" : "";
     }
 
     function openBox(week, idA, idB) {
@@ -5872,7 +5909,7 @@
       });
 
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && bxModal.classList.contains("open")) { closeBox(); return; }
+        if (event.key === "Escape" && bxModal.classList.contains("open")) { event.stopImmediatePropagation(); closeBox(); return; }
         if (event.key !== "Enter" && event.key !== " ") return;
         const card = event.target.closest && event.target.closest("[data-bx-week]");
         if (card) { event.preventDefault(); openBox(Number(card.dataset.bxWeek), card.dataset.bxA, card.dataset.bxB); }

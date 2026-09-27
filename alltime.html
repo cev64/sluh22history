@@ -1519,7 +1519,7 @@
     .starters-year.on { background: color-mix(in srgb, var(--team-color) calc(var(--fill) * 100%), #fff); color: var(--ink); }
     .starters-year.off { background: #f1f4f7; color: #c3ccd5; }
     .starters-total { text-align: right; }
-    .starters-total strong { display: block; color: var(--ink); font-size: 12.5px; }
+    .starters-total strong { display: block; color: var(--ink); font-size: 13px; line-height: 1; }
     .starters-total small { color: var(--muted); font-size: 8px; }
     .empty-state { padding: 24px; color: var(--muted); font-size: 12px; text-align: center; }
 
@@ -2295,7 +2295,7 @@
                 const fill = .1 + .3 * (n / most);
                 return `<span class="starters-year on" style="--fill:${fill.toFixed(2)}" title="${y}: ${n} start${n === 1 ? "" : "s"} · ${clubs.join(" / ")}">${nflMark(clubs[0])}${n}</span>`;
               }).join("")}</span>
-              <span class="starters-total"><strong>${p.starts}</strong><small>starts</small></span>
+              <span class="starters-total"><strong>${p.starts}</strong></span>
             </div>`).join("")}
         `;
       });
