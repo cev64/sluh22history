@@ -61,6 +61,11 @@ Bowl seeding, the "Storylines" panel in the header, and the Side Bets tab —
 the Xavier-vs-Ignatius ledger counts itself off `results` like everything
 else, so posting the week is all it needs.
 
+The all-time page (`alltime.html`) counts the season too: it reads the `teams`
+and `results` blocks straight off `2026.html`, so its standings, head-to-head
+records and highlights pick up each posted week with no edit of their own.
+Keep both blocks as plain `const teams = {` / `const results = {` literals.
+
 The finished 2025 season (`2025.html`) is the reference for what a
 completed week looks like. Match it.
 

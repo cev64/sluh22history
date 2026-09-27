@@ -3613,7 +3613,13 @@
       .roster-wk { height: 14px; border-radius: 2px; }
       .roster-row.header .roster-wk { font-size: 6.5px; letter-spacing: -.03em; }
     }
-</style>
+
+    /* Sortable headers line up with their column: numbers sit right, so
+       their headers do too. */
+    th .sort-button { justify-content: flex-end; }
+    th:first-child .sort-button, th:nth-child(2) .sort-button { justify-content: flex-start; }
+    th .sort-indicator:empty { display: none; }
+  </style>
   <script src="team-logos.js"></script>
 </head>
 <body>
@@ -3629,7 +3635,7 @@
       <label class="year-control">
         <span>Season</span>
         <select id="yearSelect" aria-label="Choose season">
-          <option value="home">All-Time Home</option>
+          <option value="home">All-Time</option>
           <option value="2026">2026</option>
           <option value="2025">2025</option>
           <option value="2024">2024</option>
@@ -3674,7 +3680,6 @@
   <div class="week-rail-wrap">
     <div class="week-rail-head">
       <strong>Week</strong>
-      <span>Season summary plus every week replayed</span>
     </div>
     <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
     <div class="week-select-wrap">
@@ -3697,14 +3702,12 @@
     <section id="regular" class="view-panel active" role="tabpanel">
       <div class="division-grid single-standings" id="divisionGrid"></div>
       <div id="regularLegend"></div>
-      <div class="source-note">The 2021 divisions determined only the two division champions, who received the #1 and #2 playoff seeds. Everything else came off one league-wide order — record, then points for, with no head-to-head tiebreak.</div>
     </section>
 
     <section id="final" class="view-panel" role="tabpanel">
       <div class="card final-card">
         <div class="card-head">
           <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/></svg></span> Final Standings</h3>
-          <span>Postseason finish · click a column to sort</span>
           <div class="mobile-sort-control">
             <label for="mobileFinalSort">Sort</label>
             <select id="mobileFinalSort" aria-label="Sort final standings">
@@ -3737,7 +3740,6 @@
           </table>
         </div>
       </div>
-      <div class="source-note">The table preserves the actual 12-team finish. One En is the official league loser for 2021 because Kroenke Sucks was exempt from the punishment.</div>
     </section>
 
     <section id="bracket" class="view-panel" role="tabpanel">
@@ -3892,7 +3894,6 @@
           </div>
         </div>
       </div>
-      <div class="source-note">One En is the official 2021 league loser under the teacher-exemption rule, despite Kroenke Sucks losing Game 4.</div>
     </section>
 
     <section id="panel-results" class="view-panel" role="tabpanel"></section>
@@ -3930,8 +3931,6 @@
     </div>
     <div class="drawer-body" id="drawerBody"></div>
   </aside>
-
-  <footer class="footer">League History · 2021 season archive</footer>
 
   <script>
     // Stable owner IDs are intentionally separate from team names so future
@@ -4063,7 +4062,6 @@
         <article class="card">
           <div class="card-head">
             <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/></svg></span>Regular Season Standings</h3>
-            <span>12 teams · divisions decide the top two seeds</span>
           </div>
           ${standingsTable(picture, "season")}
           <div class="tag-row">
@@ -4189,7 +4187,7 @@
           <span class="schedule-week">${postseasonMode ? g.label : `Week ${g.week}`}</span>
           <span class="result-pill ${result === "W" ? "win" : "loss"}">${result}</span>
           <button type="button" class="schedule-opponent" data-team="${g.opponent}" aria-label="${opponent.name}: season and schedule"><strong>${g.site} ${opponent.name}</strong><span>${opponent.owner}</span></button>
-          <span class="schedule-score"><strong>${fmt(g.teamScore)}–${fmt(g.oppScore)}</strong><span>NFL Week ${g.week}</span></span>
+          <span class="schedule-score"><strong>${fmt(g.teamScore)}–${fmt(g.oppScore)}</strong></span>
         </div>`;
       }).join("");
     }
@@ -4218,7 +4216,7 @@
        own change of height cannot make it flicker. */
     document.getElementById("drawerBody").addEventListener("scroll", (event) => {
       const y = event.target.scrollTop;
-      if (y > 60) drawer.classList.add("compact");
+      if (y > 60 && event.target.scrollHeight - event.target.clientHeight > 160) drawer.classList.add("compact");
       else if (y < 10) drawer.classList.remove("compact");
     }, { passive: true });
     const backdrop = document.getElementById("drawerBackdrop");
@@ -4370,10 +4368,10 @@
         : "Postseason";
       document.getElementById("drawerBody").innerHTML = `
         <section class="schedule-section">
-          <div class="schedule-heading"><h3>Regular Season Schedule</h3><span>Weeks 1–14</span></div>
+          <div class="schedule-heading"><h3>Regular Season Schedule</h3></div>
           <div class="schedule-list">${scheduleRows(regular)}</div>
         </section>
-        ${post.length ? `<section class="schedule-section"><div class="schedule-heading"><h3>${postTitle}</h3><span>Postseason</span></div><div class="schedule-list">${scheduleRows(post, true)}</div></section>` : ""}`;
+        ${post.length ? `<section class="schedule-section"><div class="schedule-heading"><h3>${postTitle}</h3></div><div class="schedule-list">${scheduleRows(post, true)}</div></section>` : ""}`;
 
       // On a phone the stat tiles sit at the top of the scrolling content, so
       // they scroll away with it instead of collapsing out of the header.
@@ -5233,7 +5231,7 @@
         </div>`;
       return `<article class="game-card">
         <div class="game-card-head">
-          <span>Week ${week}${week === rivalryWeek ? " · Rivalry" : ""}</span>
+          <span>${week === rivalryWeek ? "Rivalry" : "Final"}</span>
           <span class="game-margin">${as === bs ? "Tie" : `Margin ${fmt(Math.abs(as - bs))}`}</span>
         </div>
         ${side(a, as, as > bs)}
@@ -5272,7 +5270,7 @@
             ${weekResults[week].map(([a, as, b, bs]) => gameCard(week, a, as, b, bs)).join("")}
           </div>
           <article class="card">
-            ${cardHead(`Week ${week} Notes`, "notes", "Scoring extremes")}
+            ${cardHead(`Week ${week} Notes`, "notes")}
             ${weekSuperlatives(week)}
           </article>
         </div>`;
@@ -5379,7 +5377,7 @@
       }
       panel.innerHTML = `
         <article class="card summary-card">
-          ${cardHead(`Week ${week} Recap`, "recap", week === rivalryWeek ? "Rivalry Week" : "League recap")}
+          ${cardHead(`Week ${week} Recap`, "recap", week === rivalryWeek ? "Rivalry Week" : "")}
           <div class="summary-meta">${summary.headline}</div>
           <ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>
         </article>`;

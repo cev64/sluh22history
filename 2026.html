@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="2026 fantasy football season live hub: weekly results, standings, and the playoff picture as it stands today." />
-  <title>League History · 2026 Live</title>
+  <title>League History · 2026</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#071827" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -3997,7 +3997,13 @@
       .roster-wk { height: 14px; border-radius: 2px; }
       .roster-row.header .roster-wk { font-size: 6.5px; letter-spacing: -.03em; }
     }
-</style>
+
+    /* Sortable headers line up with their column: numbers sit right, so
+       their headers do too. */
+    th .sort-button { justify-content: flex-end; }
+    th:first-child .sort-button, th:nth-child(2) .sort-button { justify-content: flex-start; }
+    th .sort-indicator:empty { display: none; }
+  </style>
   <script src="team-logos.js"></script>
 </head>
 <body>
@@ -4013,7 +4019,7 @@
       <label class="year-control">
         <span>Season</span>
         <select id="yearSelect" aria-label="Choose season">
-          <option value="home">All-Time Home</option>
+          <option value="home">All-Time</option>
           <option value="2026" selected>2026</option>
           <option value="2025">2025</option>
           <option value="2024">2024</option>
@@ -4039,7 +4045,6 @@
   <div class="week-rail-wrap">
     <div class="week-rail-head">
       <strong>Week</strong>
-      <span id="weekRailNote"></span>
     </div>
     <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
     <div class="week-select-wrap">
@@ -4095,8 +4100,6 @@
     </div>
     <div class="drawer-body" id="drawerBody"></div>
   </aside>
-
-  <footer class="footer">League History · 2026 season in progress · standings and seeding update as results are posted</footer>
 
   <script>
     /* =================================================================
@@ -5522,10 +5525,6 @@
           aria-selected="${w === state.week}">${w === 0 ? "Week 0" : `Wk ${w}`}<small>${status}</small></button>`;
       }).join("");
 
-      document.getElementById("weekRailNote").textContent = lastPlayedWeek === 0
-        ? "No results posted yet"
-        : `Weeks 1–${lastPlayedWeek} posted`;
-
       const select = document.getElementById("weekSelect");
       select.innerHTML = weeks.map((w) => {
         const status = w === 0 ? "Preseason"
@@ -5577,7 +5576,7 @@
         </div>`;
       return `<article class="game-card">
         <div class="game-card-head">
-          <span>Week ${week}${week === rivalryWeek ? " · Rivalry" : ""}</span>
+          <span>${week === rivalryWeek ? "Rivalry" : "Final"}</span>
           <span class="game-margin">${as === bs ? "Tie" : `Margin ${fmt(margin)}`}</span>
         </div>
         ${side(a, as, aWon)}
@@ -5639,7 +5638,7 @@
               ${results[week].map(([a, as, b, bs]) => gameCard(week, a, as, b, bs)).join("")}
             </div>
             <article class="card">
-              ${cardHead(`Week ${week} Notes`, "notes", "Scoring extremes")}
+              ${cardHead(`Week ${week} Notes`, "notes")}
               ${weekSuperlatives(week)}
             </article>
           </div>`;
@@ -6301,7 +6300,7 @@
 
     function newsletterCard(week) {
       return `<article class="card nl-card">
-        ${cardHead("Weekly Newsletter", "document", "One-page recap")}
+        ${cardHead("Weekly Newsletter", "document")}
         <div class="nl-body">
           <p class="nl-copy">Week ${week} on one printable sheet: every result, the standings and seeding as they stood, and the box scores behind them.</p>
           <a class="nl-download" href="${newsletterUrl(week)}" download>Download PDF</a>
@@ -6343,7 +6342,7 @@
 
       panel.innerHTML = `
         <article class="card summary-card">
-          ${cardHead(week === 0 ? "Preseason Outlook" : `Week ${week} Recap`, "recap", summary.generated || "League recap")}
+          ${cardHead(week === 0 ? "Preseason Outlook" : `Week ${week} Recap`, "recap", "")}
           ${summary.headline ? `<div class="summary-meta">${summary.headline}</div>` : ""}
           ${summary.bullets
             ? `<ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>`
@@ -6495,7 +6494,7 @@
        own change of height cannot make it flicker. */
     document.getElementById("drawerBody").addEventListener("scroll", (event) => {
       const y = event.target.scrollTop;
-      if (y > 60) drawer.classList.add("compact");
+      if (y > 60 && event.target.scrollHeight - event.target.clientHeight > 160) drawer.classList.add("compact");
       else if (y < 10) drawer.classList.remove("compact");
     }, { passive: true });
     const backdrop = document.getElementById("drawerBackdrop");
@@ -6530,7 +6529,7 @@
           ? `<span class="result-pill ${g.result === "W" ? "win" : g.result === "L" ? "loss" : "bye"}">${g.result}</span>`
           : `<span class="result-pill pending">–</span>`;
         const score = g.played
-          ? `<strong>${fmt(g.teamScore)}–${fmt(g.oppScore)}</strong><span>NFL Week ${g.week}</span>`
+          ? `<strong>${fmt(g.teamScore)}–${fmt(g.oppScore)}</strong>`
           : `<strong>—</strong><span>Not played</span>`;
         return `<div class="schedule-row">
           <span class="schedule-week">Week ${g.week}</span>
@@ -6688,7 +6687,7 @@
 
       document.getElementById("drawerBody").innerHTML = `
         <section class="schedule-section">
-          <div class="schedule-heading"><h3>2026 Schedule</h3><span>Weeks 1–${REGULAR_WEEKS}</span></div>
+          <div class="schedule-heading"><h3>Regular Season Schedule</h3></div>
           <div class="schedule-list">${scheduleRows(seasonScheduleFor(teamId))}</div>
         </section>`;
 

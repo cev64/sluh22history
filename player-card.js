@@ -55,7 +55,7 @@
      scroll height never shrinks and scrollTop is never clamped back under
      the threshold (which toggled the header on and off: the jitter). */
   .pc.compact .pc-body { padding-bottom: calc(14px + var(--pc-shrink, 0px)); }
-  #bxCols, #drawerBody, #profilePanel { overscroll-behavior: contain; }
+  #bxCols, #drawerBody, #profileBody { overscroll-behavior: contain; }
 
   /* The header stays pinned while the card scrolls, shrinking to a slim bar
      (photo, name, close) so the player is always named on screen. */
@@ -1101,7 +1101,7 @@
       close: click("#drawerClose"),
     });
     swipeToClose(document.getElementById("profilePanel"), {
-      scroller: () => document.getElementById("profilePanel"),
+      scroller: () => document.getElementById("profileBody"),
       backdrop: () => document.getElementById("profileBackdrop"),
       close: click("#closeProfile"),
     });
