@@ -4003,6 +4003,27 @@
     th .sort-button { justify-content: flex-end; }
     th:first-child .sort-button, th:nth-child(2) .sort-button { justify-content: flex-start; }
     th .sort-indicator:empty { display: none; }
+  
+    /* The week buttons share the rail's width, so every week fits on a
+       desktop; on a narrower screen the rail still scrolls. */
+    .week-pill { flex: 1 0 auto; padding: 9px 10px; }
+
+    /* Phones: the week and the view pickers share one row. */
+    .picker-row { display: contents; }
+    @media (max-width: 700px) {
+      .week-rail-wrap .week-rail-head { display: none; }
+      .picker-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .picker-row #weekSelect,
+      .picker-row #viewSelect {
+        padding: 12px 32px 12px 13px;
+        border-radius: 12px;
+        background: var(--navy-2);
+        font-size: 14px;
+        text-overflow: ellipsis;
+      }
+      .picker-row .week-select-wrap::after,
+      .picker-row .view-select-wrap::after { right: 14px; width: 7px; height: 7px; margin-top: -5px; border-width: 0 2px 2px 0; }
+    }
   </style>
   <script src="team-logos.js"></script>
 </head>
@@ -4047,8 +4068,13 @@
       <strong>Week</strong>
     </div>
     <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
-    <div class="week-select-wrap">
-      <select id="weekSelect" aria-label="Choose a week"></select>
+    <div class="picker-row">
+      <div class="week-select-wrap">
+        <select id="weekSelect" aria-label="Choose a week"></select>
+      </div>
+      <div class="view-select-wrap">
+        <select id="viewSelect" aria-label="Week views"></select>
+      </div>
     </div>
   </div>
 
@@ -4058,9 +4084,6 @@
         <h2 id="weekTitle">Preseason</h2>
       </div>
       <div class="view-tabs" id="viewTabs" role="tablist" aria-label="Week views"></div>
-      <div class="view-select-wrap">
-        <select id="viewSelect" aria-label="Week views"></select>
-      </div>
     </div>
 
     <section id="panel-results" class="live-panel active" role="tabpanel"></section>
@@ -5516,22 +5539,17 @@
 
       rail.innerHTML = weeks.map((w) => {
         const played = w > REGULAR_WEEKS ? w <= lastPlayoffWeek() : isPlayed(w);
-        const status = w === 0 ? "Preseason" : played ? "Final" : w > REGULAR_WEEKS ? "Playoffs" : "Upcoming";
         const cls = ["week-pill"];
         if (w === state.week) cls.push("active");
         if (played) cls.push("played");
         if (w !== 0 && !played) cls.push("upcoming");
         return `<button type="button" class="${cls.join(" ")}" data-week="${w}" role="tab"
-          aria-selected="${w === state.week}">${w === 0 ? "Week 0" : `Wk ${w}`}<small>${status}</small></button>`;
+          aria-selected="${w === state.week}">${w === 0 ? "Preseason" : `Wk ${w}`}</button>`;
       }).join("");
 
       const select = document.getElementById("weekSelect");
       select.innerHTML = weeks.map((w) => {
-        const status = w === 0 ? "Preseason"
-          : w > REGULAR_WEEKS ? (w <= lastPlayoffWeek() ? "Playoffs · Final" : "Playoffs")
-          : isPlayed(w) ? "Final" : "Upcoming";
-        const label = status === weekLabel(w) ? weekLabel(w) : `${weekLabel(w)} · ${status}`;
-        return `<option value="${w}" ${w === state.week ? "selected" : ""}>${label}</option>`;
+        return `<option value="${w}" ${w === state.week ? "selected" : ""}>${weekLabel(w)}</option>`;
       }).join("");
 
       const active = rail.querySelector(".week-pill.active");
