@@ -3654,6 +3654,56 @@
       .picker-row .week-select-wrap::after,
       .picker-row .view-select-wrap::after { right: 14px; width: 7px; height: 7px; margin-top: -5px; border-width: 0 2px 2px 0; }
     }
+  
+    /* ---- Desktop: the navy header becomes a sidebar ----------------------
+       On a wide screen the top bar and the hero stack into one navy column
+       fixed down the left, with the red stripe on its edge, so the page's
+       own content (week rail, tabs, tables) starts at the very top on the
+       right. Narrower screens keep the header across the top. */
+    @media (min-width: 1200px) {
+      :root { --side: 340px; --topbar-h: 76px; }
+      body { padding-left: var(--side); }
+      .topbar {
+        position: fixed; top: 0; left: 0; bottom: auto; width: var(--side);
+        border-right: 4px solid var(--red);
+      }
+      .topbar-inner { width: auto; min-height: var(--topbar-h); padding: 0 18px 0 20px; gap: 10px; }
+      .topbar .year-control > span { display: none; }
+      .topbar .brand-title { font-size: 17px; }
+      html body .hero {
+        position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 30;
+        width: var(--side); overflow-y: auto; overscroll-behavior: contain;
+        border-bottom: 0; border-right: 4px solid var(--red);
+        scrollbar-width: none;
+      }
+      html body .hero::-webkit-scrollbar { display: none; }
+      html body .hero .hero-inner,
+      html body .hero .hero-inner.outcome-grid,
+      html body .live-hero .hero-inner {
+        width: auto; margin: 0; padding: 26px 20px 28px;
+        display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start;
+      }
+      html body .hero-brief { width: auto; max-width: none; justify-self: stretch; }
+      html body .live-status h1 { font-size: 38px; }
+      .week-rail-wrap,
+      main { width: min(1220px, calc(100% - 48px)); }
+      .week-rail-wrap { margin-top: 24px; }
+      main { padding-top: 22px; }
+      main > .page-toolbar:first-child { margin-top: 0; }
+      .topbar .brand-kicker { white-space: nowrap; letter-spacing: .16em; }
+      /* Every week still fits beside the sidebar. */
+      .week-rail { gap: 2px; }
+      .week-pill { padding: 9px 6px; }
+      /* Division tables sit two across in less room: let them fit it. */
+      .division-grid table { min-width: 0; }
+      .division-grid th, .division-grid td { padding-left: 7px; padding-right: 7px; }
+      .division-grid .team-cell { min-width: 0; }
+    }
+    /* Beside the sidebar on a smaller desktop, the division tables take a
+       row each rather than squeeze two across. */
+    @media (min-width: 1200px) and (max-width: 1439px) {
+      .division-grid { grid-template-columns: minmax(0, 1fr); }
+    }
   </style>
   <script src="team-logos.js"></script>
 </head>
