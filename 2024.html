@@ -5959,6 +5959,9 @@
        week's instead of the table simply redrawing. */
     SeasonNav.mount("#seasonNav", {
       viewsLabel: "Season views",
+      // on a phone, choosing from the bottom capsule scrolls the champion
+      // and last-place cards away so the view gets the screen
+      hideHero: true,
       onWeek: (week) => {
         const panel = document.getElementById(state.view);
         const before = UI.measureRows(panel);

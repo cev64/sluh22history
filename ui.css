@@ -468,7 +468,7 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 /* Every press is felt. (Only controls with their own box: a button
    stretched over a whole row, like a results card's team row, must not
    shrink under the finger or the tap is lost.) */
-.bx-open, .bx-cue-row, .why-btn, .sort-button, .mobile-sort-direction, .drawer-close, .bx-close, .brief-toggle {
+.bx-open, .bx-cue-row, .why-btn, .sort-button, .mobile-sort-direction, .drawer-close, .bx-close {
   transition: background-color .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease);
 }
 .bx-open:active, .bx-cue-row:active, .sort-button:active, .mobile-sort-direction:active, .drawer-close:active, .bx-close:active { transform: scale(.97); }
@@ -664,18 +664,6 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 @keyframes uiFromLeft { from { opacity: 0; transform: translateX(-22px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
 @keyframes uiFromRight { from { opacity: 0; transform: translateX(22px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
 @keyframes uiScoreIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
-
-/* ---------------------------------------------------------------
-   Header summary fold (phones)
-   --------------------------------------------------------------- */
-@media (max-width: 700px) {
-  .brief-body { transition: grid-template-rows .5s var(--spring); }
-  .brief-body > div > * { opacity: 0; transform: translateY(-6px); filter: blur(3px);
-    transition: opacity .2s var(--ease), transform .3s var(--ease), filter .25s var(--ease); }
-  .hero-brief.open .brief-body > div > * { opacity: 1; transform: none; filter: none;
-    transition: opacity .35s var(--ease) .05s, transform .55s var(--spring) .05s, filter .4s var(--ease) .05s; }
-  .brief-chevron { transition: transform .45s var(--spring) !important; }
-}
 
 /* ---------------------------------------------------------------
    Keyframes

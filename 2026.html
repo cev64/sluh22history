@@ -2188,7 +2188,7 @@
     .live-hero .hero-inner {
       display: grid;
       gap: 18px;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       align-items: stretch;
       padding: 26px 20px 30px;
       max-width: 1180px;
@@ -2249,67 +2249,6 @@
       font-size: 14.5px;
       line-height: 1.45;
     }
-
-    .hero-brief {
-      background: rgba(255, 255, 255, .07);
-      border: 1px solid rgba(255, 255, 255, .16);
-      border-radius: 16px;
-      padding: 17px 19px;
-      display: flex;
-      flex-direction: column;
-      gap: 13px;
-      min-width: 0;
-    }
-
-    .brief-label {
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, .55);
-    }
-
-    .brief-narrative {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.55;
-      color: rgba(255, 255, 255, .86);
-    }
-
-    .brief-narrative strong { color: #fff; font-weight: 800; }
-
-    .brief-headlines {
-      list-style: none;
-      margin: 0;
-      padding: 13px 0 0;
-      border-top: 1px solid rgba(255, 255, 255, .13);
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-    }
-
-    .brief-headlines li {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      font-size: 13px;
-      line-height: 1.42;
-      color: rgba(255, 255, 255, .8);
-    }
-
-    .brief-headlines li::before {
-      content: "";
-      flex: 0 0 auto;
-      width: 5px;
-      height: 5px;
-      margin-top: 6px;
-      border-radius: 50%;
-      background: var(--gold);
-    }
-
-    .brief-headlines li > span { min-width: 0; }
-
-    .brief-headlines strong { color: #fff; font-weight: 800; }
 
     /* Week rail ---------------------------------------------------- */
 
@@ -3282,14 +3221,10 @@
 
     @media (max-width: 900px) {
       .live-hero .hero-inner { grid-template-columns: minmax(0, 1fr); }
-      .hero-brief { order: 2; }
     }
 
     @media (max-width: 560px) {
       .live-hero .hero-inner { padding: 20px 14px 24px; gap: 14px; }
-      .hero-brief { padding: 14px 15px; gap: 11px; }
-      .brief-narrative { font-size: 13.5px; }
-      .brief-headlines li { font-size: 12.5px; }
       .seed-row { padding: 10px 12px; gap: 9px; }
       .seed-chip { width: 30px; height: 27px; font-size: 10px; }
       .summary-card .summary-body { padding: 4px 14px 16px; font-size: 14.5px; }
@@ -4000,7 +3935,6 @@
         width: auto; margin: 0; padding: 26px 20px 28px;
         display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start;
       }
-      html body .hero-brief { width: auto; max-width: none; justify-self: stretch; }
       html body .live-status h1 { font-size: 38px; }
       .week-rail-wrap,
       main { width: min(1220px, calc(100% - 48px)); }
@@ -4022,37 +3956,10 @@
       .division-grid { grid-template-columns: minmax(0, 1fr); }
     }
   
-    /* Header summary: a plain heading on a desktop, a fold on a phone. */
-    .brief-toggle {
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      width: 100%; margin: 0; padding: 0; border: 0; background: none; color: inherit;
-      font: inherit; text-align: left; cursor: default;
-    }
-    .brief-chevron { display: none; }
-    .brief-body > div { display: flex; flex-direction: column; gap: 13px; min-height: 0; }
+    /* Phones: the header band held only the week's summary, which is
+       retired, so the page starts at the week itself. */
     @media (max-width: 700px) {
-      .hero-brief { gap: 0; }
-      .brief-toggle { cursor: pointer; min-height: 22px; }
-      .brief-chevron {
-        display: block; flex: 0 0 auto; width: 18px; height: 18px;
-        fill: none; stroke: rgba(255, 255, 255, .75); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-        transition: transform .25s ease;
-      }
-      .hero-brief.open .brief-chevron { transform: rotate(180deg); }
-      .brief-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s ease; }
-      .brief-body > div { overflow: hidden; gap: 11px; }
-      .brief-body > div > :first-child { margin-top: 11px; }
-      .hero-brief.open .brief-body { grid-template-rows: 1fr; }
-
-      /* The season title block is left to the page below; the header keeps
-         only the summary, as a slim bar. */
-      .live-hero .live-status { display: none; }
-      html body .live-hero .hero-inner { padding: 12px 14px 14px; gap: 0; }
-      .live-hero .hero-brief { padding: 9px 12px; border-radius: 12px; }
-      .brief-toggle { min-height: 18px; }
-      .brief-toggle .brief-label { font-size: 9px; letter-spacing: .12em; color: rgba(255, 255, 255, .72); }
-      .brief-chevron { width: 15px; height: 15px; }
-      .brief-body > div > :first-child { margin-top: 9px; }
+      .live-hero { display: none; }
     }
   
     /* Trophy Room: always in the header, between the brand and the season
@@ -4135,7 +4042,6 @@
         <h1 id="liveHeadline">2026 Season</h1>
         <p id="liveSubhead"></p>
       </div>
-      <aside class="hero-brief" id="heroBrief" aria-label="League summary"></aside>
     </div>
   </section>
 
@@ -5401,7 +5307,6 @@
        ================================================================= */
 
     function renderHero(week) {
-      const asOf = asOfWeek(week);
       const preseason = lastPlayedWeek === 0;
 
       document.getElementById("liveBadgeText").textContent = preseason ? "Preseason" : `Through Week ${lastPlayedWeek}`;
@@ -5409,93 +5314,7 @@
       document.getElementById("liveSubhead").textContent = preseason
         ? `Ten teams. ${REGULAR_WEEKS} weeks. Six make the playoffs.`
         : `Week ${lastPlayedWeek} of ${REGULAR_WEEKS}. Six make the playoffs, four fall to the Toilet Bowl.`;
-
-      const brief = preseason ? preseasonBrief : inSeasonBrief(asOf);
-      const box = document.getElementById("heroBrief");
-      box.classList.toggle("open", briefOpen);
-      box.innerHTML = `
-        <button type="button" class="brief-toggle" aria-expanded="${briefOpen}" aria-controls="briefBody">
-          <span class="brief-label">${brief.label}</span>
-          <svg class="brief-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
-        </button>
-        <div class="brief-body" id="briefBody"><div>
-          <p class="brief-narrative">${brief.narrative}</p>
-          <ul class="brief-headlines">
-            ${brief.headlines.map((h) => `<li><span>${h}</span></li>`).join("")}
-          </ul>
-        </div></div>`;
     }
-
-    /* On a phone the summary starts folded to its one-line label; the arrow
-       opens it, and it stays as left while moving between weeks. */
-    let briefOpen = false;
-    document.getElementById("heroBrief").addEventListener("click", (event) => {
-      const toggle = event.target.closest(".brief-toggle");
-      if (!toggle || !window.matchMedia("(max-width: 700px)").matches) return;
-      briefOpen = !briefOpen;
-      event.currentTarget.classList.toggle("open", briefOpen);
-      toggle.setAttribute("aria-expanded", String(briefOpen));
-    });
-
-    /* Written once, from the league's own history. Update it if a storyline
-       goes stale before Week 1. */
-    const preseasonBrief = {
-      label: "Storylines",
-      narrative: "<strong>Game of Throws</strong> defends a title it won from the #2 seed at 8–6, three years after finishing dead last twice in a row. Nobody has gone back-to-back since <strong>Hamilton Administration</strong> in 2021 and 2022.",
-      headlines: [
-        "<strong>Hawaii McLovins VIII</strong> won 12 games last year and still lost in the semis.",
-        "<strong>Jared's Pack Attack</strong> is coming off 1–13 — and draws Windler in Rivalry Week.",
-        "<strong>Grant Thornberry</strong> has taken two of the last three punishments."
-      ]
-    };
-
-    /* In-season the brief is generated from the standings, so it stays true
-       to whatever has actually been played. */
-    function inSeasonBrief(asOf) {
-      const picture = buildPicture(asOf);
-      const stats = picture.stats;
-      const name = (id) => `<strong>${teams[id].name}</strong>`;
-
-      const leaders = DIVISION_NAMES.map((d) => {
-        const ids = picture.divisions[d];
-        const top = ids[0];
-        const tied = ids.filter((id) => stats[id].wins === stats[top].wins && stats[id].losses === stats[top].losses);
-        return { division: d, id: top, tied, record: stats[top].record };
-      });
-
-      const count = ["", "", "Two", "Three", "Four", "Five"];
-      const narrative = leaders.map((l) => l.tied.length > 1
-        ? `${count[l.tied.length]} teams share the top of <strong>${l.division}</strong> at ${l.record}, with ${name(l.id)} holding the tiebreaker.`
-        : `${name(l.id)} leads <strong>${l.division}</strong> at ${l.record}.`).join(" ");
-
-      const headlines = [];
-
-      const lastIn = picture.wildcards[1];
-      const firstOut = picture.firstOut;
-      if (lastIn && firstOut) {
-        const gap = stats[lastIn].wins - stats[firstOut].wins;
-        headlines.push(gap === 0
-          ? `${name(lastIn)} holds the last playoff spot over ${name(firstOut)} on points for, by ${fmt(stats[lastIn].pf - stats[firstOut].pf)}.`
-          : `${name(lastIn)} holds the last playoff spot, ${gap} game${gap === 1 ? "" : "s"} up on ${name(firstOut)}.`);
-      }
-
-      const pointsLeader = TEAM_IDS.slice().sort((a, b) => stats[b].pf - stats[a].pf)[0];
-      const inField = picture.playoffField.includes(pointsLeader);
-      headlines.push(inField
-        ? `${name(pointsLeader)} leads the league in scoring at ${fmt1(stats[pointsLeader].pfg)} a week.`
-        : `${name(pointsLeader)} leads the league in scoring and is still on the outside.`);
-
-      const hot = TEAM_IDS
-        .filter((id) => stats[id].streak && stats[id].streak.type === "W" && stats[id].streak.count >= 2)
-        .sort((a, b) => stats[b].streak.count - stats[a].streak.count)[0];
-      if (hot) headlines.push(`${name(hot)} has won ${stats[hot].streak.count} straight.`);
-
-      const basement = picture.toiletSeeds[3];
-      if (basement && headlines.length < 3) headlines.push(`${name(basement)} sits last at ${stats[basement].record}.`);
-
-      return { label: `Where it stands · Week ${asOf}`, narrative, headlines: headlines.slice(0, 3) };
-    }
-
 
     /* =================================================================
        STANDINGS MARKERS — seeds, clinch flags, tiebreak explanations

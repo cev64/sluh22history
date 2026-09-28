@@ -198,12 +198,15 @@
         { rootMargin: `-${t + 1}px 0px 0px 0px`, threshold: 0 });
       io.observe(sentinel);
     }
-    /* back to the top of the content: where the pill lets go, or (with
-       the pill at the bottom) just under the header */
-    function toTop() {
+    /* The top of the content: where the pill lets go, or (with the pill
+       at the bottom) just under the header. By default only scrolls back
+       up to it; { down: true } also scrolls down to it, past whatever sits
+       above the content. */
+    function toTop({ up = true, down = false } = {}) {
       const from = bottom() ? (root.nextElementSibling || root) : sentinel;
-      const y = from.getBoundingClientRect().top + window.scrollY - top() - (bottom() ? 6 : 0);
-      if (window.scrollY > y + 1) window.scrollTo({ top: Math.max(0, y), behavior: REDUCE.matches ? "auto" : "smooth" });
+      const y = Math.max(0, from.getBoundingClientRect().top + window.scrollY - top() - (bottom() ? 6 : 0));
+      const d = window.scrollY - y;
+      if ((up && d > 1) || (down && d < -1)) window.scrollTo({ top: y, behavior: REDUCE.matches ? "auto" : "smooth" });
     }
     return { sentinel, top, measure, watch, toTop };
   }
@@ -493,14 +496,19 @@
     function goWeek(w) {
       if (w === week) return;
       if (opts.onWeek) opts.onWeek(w);
+      toContentTop(false);
     }
 
     /* ---- pinning (shared with the all-time search: pinnable) -------- */
     const measure = () => pin && pin.measure();
     const watch = () => pin && pin.watch();
     /* Changing view from the pinned capsule starts the new view at its
-       top: the page scrolls back to where the capsule just lets go. */
-    const toContentTop = () => pin && pin.toTop();
+       top: the page scrolls back to where the capsule just lets go. With
+       opts.hideHero (the finished seasons) the bottom capsule on a phone
+       also scrolls down to it, tucking the champion and last-place cards
+       away under the header so the content gets the screen. A new week
+       only ever scrolls down: flipping weeks mid-table keeps your place. */
+    const toContentTop = (up = true) => pin && pin.toTop({ up, down: !!opts.hideHero && PHONE.matches });
 
     /* ---- search ----------------------------------------------------
        The magnifier opens a search field across the capsule: the views
@@ -565,7 +573,9 @@
       wireSearch();
       seg.addEventListener("click", (e) => {
         const b = e.target.closest("button[data-view]");
-        if (!b || b.dataset.view === view) return;
+        if (!b) return;
+        // the view you're already on: back to its top, like a tab bar
+        if (b.dataset.view === view) { toContentTop(); return; }
         haptic("tap");
         if (opts.onView) opts.onView(b.dataset.view);
         toContentTop();
