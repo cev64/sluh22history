@@ -15,6 +15,9 @@
    SeasonNav.mount(el, opts)   the season pages' pinned navigation: the view
    SeasonNav.render(state)     switcher across the top of a frosted capsule
                                and the week wheel under it (see below).
+   (cards, automatic)          the team drawer, box score and player card
+                               arrive in choreographed steps, and on a
+                               desktop grow out of whatever opened them.
 
    Every animation is skipped under prefers-reduced-motion. */
 (() => {
@@ -205,13 +208,17 @@
       });
       placeSegInd();
     }
+    /* The pill is placed by index, not measured in pixels: its size and
+       offset are fractions of the track (see .sn-seg-ind), so it stays on
+       its button at any width, including while the capsule pins and the
+       track narrows under it. */
     function placeSegInd() {
-      if (!seg || !seg.offsetParent) return;
-      const on = seg.querySelector('[aria-selected="true"]');
-      if (!on) return;
-      segInd.style.width = `${on.offsetWidth}px`;
-      segInd.style.transform = `translateX(${on.offsetLeft}px)`;
-      if (!segInd.classList.contains("ready")) raf2(() => segInd.classList.add("ready"));
+      if (!seg) return;
+      const k = views.findIndex((v) => v.id === view);
+      if (k < 0) return;
+      seg.style.setProperty("--n", views.length);
+      seg.style.setProperty("--k", k);
+      if (!segInd.classList.contains("ready") && seg.offsetParent) raf2(() => segInd.classList.add("ready"));
     }
 
     /* ---- weeks ---------------------------------------------------- */
@@ -522,6 +529,187 @@
       get dir() { return prevWeek != null && week < prevWeek ? "down" : "up"; },
       relayout,
     };
+  })();
+
+  /* ===============================================================
+     CARDS
+
+     The team drawer (and the all-time profile), the box score and the
+     player card are opened and closed by their own code; this only
+     watches for it and choreographs what that code already does:
+
+     - Desktop: a centred card (the box score, a player card that isn't
+       docked) grows out of whatever was tapped to open it, and shrinks
+       back into it on the way out.
+     - Every card: its parts settle in, in order (.ui-enter in ui.css),
+       and its headline numbers count up to their exact values.
+
+     The phone sheets keep their own slide and swipe-to-close; docked
+     player cards keep their own slide. Nothing here writes content: a
+     counting number always ends on the text the page put there.
+     =============================================================== */
+  (() => {
+    const DESKTOP = matchMedia("(min-width: 761px)");
+    const ZOOM_EASE = "cubic-bezier(.2, 1.08, .3, 1)";
+
+    /* what was pressed last, as the likely thing that opened a card */
+    let pressed = null;
+    const remember = (e) => { if (e.target && e.target.closest) pressed = e.target; };
+    document.addEventListener("pointerdown", remember, true);
+    document.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") remember(e); }, true);
+    const sourceFor = (el) => {
+      if (!pressed || !pressed.isConnected) return null;
+      const pick = el.classList.contains("pc")
+        ? pressed.closest("[data-player], .player-result")
+        : pressed.closest("[data-bx-week], .bx-link, .bx-open, .bx-cue-row");
+      return pick && !el.contains(pick) ? pick : null;
+    };
+
+    /* Centred cards sit at left/top 50% with translate(-50%, -50%), so
+       their transform origin (the centre of the laid-out box) and their
+       resting centre are both known without measuring mid-transition.
+       The zoom uses the individual translate/scale properties, which
+       compose with the card's own transform instead of fighting its
+       transition. */
+    function zoomGeometry(el, src) {
+      const s = src.getBoundingClientRect();
+      if (!s.width || !s.height || s.bottom < 0 || s.top > innerHeight) return null;
+      const w = el.offsetWidth, h = el.offsetHeight;
+      if (!w || !h) return null;
+      const cx = innerWidth / 2, cy = innerHeight / 2;
+      const ox = cx + w / 2, oy = cy + h / 2;
+      const k = Math.max(0.16, Math.min(0.55, s.width / w));
+      const sx = s.left + s.width / 2, sy = s.top + s.height / 2;
+      return { k, tx: sx - ox - k * (cx - ox), ty: sy - oy - k * (cy - oy) };
+    }
+    const centred = (el) => DESKTOP.matches && !el.classList.contains("docked") && !el.classList.contains("bx-docked") &&
+      (el.classList.contains("pc") || el.classList.contains("bx-modal"));
+    function stopZoom(el) { el.getAnimations().forEach((a) => { if (a.id === "ui-zoom") a.cancel(); }); }
+    function zoomIn(el) {
+      stopZoom(el);
+      el._zoomFrom = null;
+      if (REDUCE.matches || !centred(el)) return;
+      const src = sourceFor(el);
+      const g = src && zoomGeometry(el, src);
+      if (!g) return;
+      el._zoomFrom = src;
+      const a = el.animate([
+        { translate: `${g.tx}px ${g.ty}px`, scale: String(g.k) },
+        { translate: "0px 0px", scale: "1" },
+      ], { duration: 620, easing: ZOOM_EASE });
+      a.id = "ui-zoom";
+    }
+    function zoomOut(el) {
+      const src = el._zoomFrom;
+      el._zoomFrom = null;
+      stopZoom(el);
+      if (REDUCE.matches || !src || !src.isConnected || !centred(el)) return;
+      const g = zoomGeometry(el, src);
+      if (!g) return;
+      const a = el.animate([
+        { translate: "0px 0px", scale: "1" },
+        { translate: `${g.tx}px ${g.ty}px`, scale: String(g.k) },
+      ], { duration: 340, easing: "cubic-bezier(.4, 0, .7, .2)", fill: "forwards" });
+      a.id = "ui-zoom";
+      a.onfinish = () => a.cancel();   // it has faded out by now; put it back
+    }
+
+    /* Number the repeated parts within each parent, for the stagger. */
+    const REPEATS = [".schedule-row", ".roster-row", ".bx-row", ".drawer-stat", ".drawer-team > div > *",
+      ".pc-tile", ".pc-tl-row", ".pc-mgr", ".pc-medal", ".pc-log-row", ".pc-body > *", ".pc-id > *",
+      ".drawer-body > *", ".hl-grid > *"];
+    function number(el) {
+      REPEATS.forEach((sel) => {
+        const seen = new Map();
+        el.querySelectorAll(sel).forEach((n) => {
+          const i = seen.get(n.parentNode) || 0;
+          seen.set(n.parentNode, i + 1);
+          n.style.setProperty("--ui-i", i);
+        });
+      });
+    }
+
+    /* Headline numbers count up (plain numbers only: "237.68", "1,248.18",
+       "72"; a record like "6–3" or a seed like "#9" is left as it is). */
+    const COUNT = ".drawer-stat strong, .pc-tile strong, .bx-total b";
+    function countUp(el) {
+      if (REDUCE.matches) return;
+      el.querySelectorAll(COUNT).forEach((n, i) => {
+        const text = n.textContent.trim();
+        if (!/^-?\d{1,3}(,\d{3})*(\.\d+)?$|^-?\d+(\.\d+)?$/.test(text) || n.children.length) return;
+        const end = parseFloat(text.replace(/,/g, ""));
+        if (!end) return;
+        const dec = (text.split(".")[1] || "").length, commas = text.includes(",");
+        const show = (v) => (commas
+          ? v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec })
+          : v.toFixed(dec));
+        const t0 = performance.now() + 140 + i * 45, dur = 750;
+        let wrote = show(0);
+        n.textContent = wrote;
+        const step = (now) => {
+          // the page rewrote it (a new team, say): leave its text alone
+          if (n.textContent !== wrote) return;
+          const t = Math.min(1, Math.max(0, (now - t0) / dur));
+          wrote = t < 1 ? show(end * (1 - Math.pow(2, -10 * t))) : text;
+          n.textContent = wrote;
+          if (t < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }
+
+    function enter(el) {
+      if (REDUCE.matches) return;
+      number(el);
+      el.classList.remove("ui-enter");
+      void el.offsetWidth;
+      el.classList.add("ui-enter");
+      clearTimeout(el._enterT);
+      el._enterT = setTimeout(() => el.classList.remove("ui-enter"), 1700);
+      countUp(el);
+    }
+
+    /* One observer for every card: a card opening, closing, or having its
+       contents replaced while it's open (a new team, a new player). */
+    const cards = new Set();
+    const open = new WeakMap();
+    const mo = new MutationObserver((records) => {
+      // class changes that aren't open/close (compact on scroll, docking)
+      // only count if they flipped "open"; new children always count
+      const touched = new Map();
+      records.forEach((r) => {
+        const card = [...cards].find((c) => c === r.target || c.contains(r.target));
+        if (card) touched.set(card, touched.get(card) || r.type === "childList");
+      });
+      touched.forEach((newContent, card) => {
+        const now = card.classList.contains("open"), was = open.get(card) || false;
+        open.set(card, now);
+        if (now && !was) { zoomIn(card); enter(card); }
+        else if (!now && was) zoomOut(card);
+        else if (now && newContent) enter(card);   // same card, new contents
+      });
+    });
+    function watch(card) {
+      if (!card || cards.has(card)) return;
+      cards.add(card);
+      open.set(card, card.classList.contains("open"));
+      // one call: observing the same node again would replace these options.
+      // Its class (open / close), its own children, and (below) the
+      // scrolling body inside it.
+      mo.observe(card, { attributes: true, attributeFilter: ["class"], childList: true });
+      card.querySelectorAll("#drawerBody, #profileBody, #bxCols, #drawerStats, #profileStats").forEach((b) =>
+        mo.observe(b, { childList: true }));
+    }
+    function start() {
+      ["teamDrawer", "profilePanel", "bxModal"].forEach((id) => watch(document.getElementById(id)));
+      document.querySelectorAll(".pc").forEach(watch);
+      // the player card is built the first time one is opened
+      new MutationObserver((rs) => rs.forEach((r) => r.addedNodes.forEach((n) => {
+        if (n.nodeType === 1 && n.classList.contains("pc")) watch(n);
+      }))).observe(document.body, { childList: true });
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+    else start();
   })();
 
   window.UI = { roll, measureRows, shuffleRows, haptic, reduced: () => REDUCE.matches };

@@ -4206,7 +4206,6 @@
     <section id="panel-results" class="live-panel active" role="tabpanel"></section>
     <section id="panel-standings" class="live-panel" role="tabpanel"></section>
     <section id="panel-picture" class="live-panel" role="tabpanel"></section>
-    <section id="panel-summary" class="live-panel" role="tabpanel"></section>
     <section id="panel-sidebets" class="live-panel" role="tabpanel"></section>
     <section id="panel-sos" class="live-panel" role="tabpanel"></section>
     <section id="panel-bracket" class="live-panel" role="tabpanel"></section>
@@ -5360,7 +5359,7 @@
        VIEW STATE
        ================================================================= */
 
-    const VIEWS = ["results", "standings", "picture", "summary", "sidebets", "sos"];
+    const VIEWS = ["results", "standings", "picture", "sidebets", "sos"];
 
     // Strength of schedule is a preseason view; once games are played the
     // week tabs carry results instead.
@@ -5390,13 +5389,13 @@
 
     function viewLabels(week) {
       if (week > REGULAR_WEEKS) return { bracket: "Bracket", standings: "Standings" };
-      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoffs", summary: "Preseason", sidebets: "Side Bets", sos: "Strength of Schedule" };
-      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoffs", summary: "Summary", sidebets: "Side Bets" };
-      return { results: "Matchups", standings: "Standings", picture: "Playoffs", summary: "Summary", sidebets: "Side Bets" };
+      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets", sos: "Strength of Schedule" };
+      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets" };
+      return { results: "Matchups", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets" };
     }
-    // Preseason has a sixth view; on a phone the longer names shorten so all
-    // six still share the capsule's width.
-    const PRESEASON_SHORT = { summary: "Preview", sidebets: "Bets", sos: "SOS" };
+    // Preseason adds a fifth view; on a phone its long name shortens so all
+    // five still share the capsule's width.
+    const PRESEASON_SHORT = { sos: "SOS" };
 
     /* =================================================================
        SHARED PIECES
@@ -6455,7 +6454,7 @@
        before it lands. Check that the week is still the one on screen, and
        that a re-render has not already placed the card, before inserting. */
     function renderNewsletterLink(week) {
-      const panel = document.getElementById("panel-summary");
+      const panel = document.getElementById("panel-results");
       if (!panel) return;
       // A week without a newsletter must not inherit the last week's card,
       // and not every path through the panel rewrites its contents.
@@ -6896,10 +6895,9 @@
         bracket: () => renderPlayoffPanel(week),
         standings: () => renderStandingsPanel(REGULAR_WEEKS, { odds: false }),
       } : {
-        results: () => renderResultsPanel(week),
+        results: () => { renderResultsPanel(week); renderNewsletterLink(week); },
         standings: () => renderStandingsPanel(week),
         picture: () => renderPicturePanel(week),
-        summary: () => renderSummaryPanel(week),
         sidebets: () => renderSideBetsPanel(week),
         ...(week === 0 ? { sos: () => renderSosPanel() } : {}),
       };

@@ -4125,7 +4125,6 @@
     <section id="panel-results" class="view-panel" role="tabpanel"></section>
     <section id="panel-standings" class="view-panel" role="tabpanel"></section>
     <section id="panel-picture" class="view-panel" role="tabpanel"></section>
-    <section id="panel-summary" class="view-panel" role="tabpanel"></section>
     <section id="panel-playoffs" class="view-panel" role="tabpanel"></section>
   </main>
 
@@ -5639,11 +5638,10 @@
     const WEEK_VIEWS = [
       { id: "panel-results", label: "Results" },
       { id: "panel-standings", label: "Standings" },
-      { id: "panel-picture", label: "Playoffs" },
-      { id: "panel-summary", label: "Summary" }
+      { id: "panel-picture", label: "Playoffs" }
     ];
 
-    const state = { week: 0, view: "regular" };
+    const state = { week: 0, view: "final" };
 
     // Weeks 15 to 17 are the playoffs: the bracket through that week, and the
     // final regular-season standings the field was seeded from.
@@ -6483,7 +6481,7 @@
        before it lands. Check that the week is still the one on screen, and
        that a re-render has not already placed the card, before inserting. */
     function renderNewsletterLink(week) {
-      const panel = document.getElementById("panel-summary");
+      const panel = document.getElementById("panel-results");
       if (!panel) return;
       // A week without a newsletter must not inherit the last week's card,
       // and not every path through the panel rewrites its contents.
@@ -6555,7 +6553,6 @@
         renderResultsPanel(week);
         renderStandingsPanel(week);
         renderPicturePanel(week);
-        renderSummaryPanel(week);
       } else if (week > REGULAR_WEEKS) {
         pendingPanels = {
           "panel-playoffs": () => renderPlayoffPanel(week),
@@ -6563,10 +6560,9 @@
         };
       } else {
         pendingPanels = {
-          "panel-results": () => renderResultsPanel(week),
+          "panel-results": () => { renderResultsPanel(week); renderNewsletterLink(week); },
           "panel-standings": () => renderStandingsPanel(week),
           "panel-picture": () => renderPicturePanel(week),
-          "panel-summary": () => renderSummaryPanel(week),
         };
       }
       showActivePanel();
@@ -6579,7 +6575,7 @@
       if (week < 0 || week > LAST_WEEK) return false;
       const views = viewsFor(week);
       state.week = week;
-      state.view = views.some((v) => v.id === match[2]) ? match[2] : views[0].id;
+      state.view = views.some((v) => v.id === match[2]) ? match[2] : week === 0 ? "final" : views[0].id;
       return true;
     }
 
@@ -6593,7 +6589,7 @@
       const previous = viewsFor(state.week).findIndex((v) => v.id === state.view);
       state.week = week;
       // Keep the reader on the same slot when moving between numbered weeks.
-      state.view = (views[previous] || views[0]).id;
+      state.view = week === 0 ? "final" : (views[previous] || views[0]).id;
       renderAll();
       writeHash();
     }
@@ -6619,7 +6615,9 @@
       },
     });
 
-    window.addEventListener("hashchange", () => { if (applyHash()) renderAll(); });
+    // applyHash may substitute a view the week does not offer (an old link to
+    // the retired Summary tab, say), so rewrite the URL to what rendered.
+    window.addEventListener("hashchange", () => { if (applyHash()) { renderAll(); writeHash(); } });
 
     renderDivisions();
     applyHash();

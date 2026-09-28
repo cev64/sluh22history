@@ -100,8 +100,12 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 .sn-seg button[aria-selected="true"] { color: var(--ink, #0b1726); }
 .sn-seg button:active { transform: scale(.96); }
 .sn-seg button:focus-visible { outline: 2px solid var(--blue, #1769e0); outline-offset: -2px; }
+/* The track is 3px of padding, then --n equal buttons 2px apart; the pill
+   is one button wide and steps a button (plus its gap) per index. */
 .sn-seg-ind {
-  position: absolute; top: 3px; left: 0; height: calc(100% - 6px); border-radius: 9px; background: #fff;
+  position: absolute; top: 3px; left: 3px; height: calc(100% - 6px); border-radius: 9px; background: #fff;
+  width: calc((100% - 6px - (var(--n, 1) - 1) * 2px) / var(--n, 1));
+  transform: translateX(calc(var(--k, 0) * (100% + 2px)));
   box-shadow: 0 1px 3px rgba(16, 24, 40, .14), 0 1px 1px rgba(16, 24, 40, .05);
   pointer-events: none; z-index: 0; will-change: transform, width;
 }
@@ -296,21 +300,181 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 }
 .why-pop > * { animation: uiPiIn .4s var(--ease) both; animation-delay: 70ms; }
 
-/* Backdrops behind the team drawer and the box score blur the page */
-.drawer-backdrop, .bx-backdrop {
-  background: rgba(7, 24, 39, .36);
-  -webkit-backdrop-filter: blur(8px) saturate(1.2);
-  backdrop-filter: blur(8px) saturate(1.2);
-  transition: opacity .3s var(--ease);
+/* ===============================================================
+   Cards: the team drawer (and the all-time team profile, which shares
+   its classes) and the box score. The player card's own look lives in
+   player-card.js, on the same tokens. Nothing here changes what a card
+   says; it changes the glass it's printed on and how it arrives.
+   =============================================================== */
+:root {
+  --glass-sheet: rgba(240, 244, 249, .76);
+  --glass-tile: rgba(255, 255, 255, .8);
+  --glass-edge: rgba(255, 255, 255, .7);
+  --glass-hair: rgba(7, 24, 39, .08);
+  --sheet-shadow: 0 40px 90px -30px rgba(7, 24, 39, .55), 0 14px 36px -14px rgba(7, 24, 39, .28), 0 0 0 .5px rgba(7, 24, 39, .16);
+  --tile-shadow: 0 0 0 .5px var(--glass-hair), 0 12px 28px -20px rgba(7, 24, 39, .4);
 }
-/* Desktop: open generously, close quickly. The drawer slides with the
-   ease (a spring would lift it off the edge it's pinned to); the centred
-   box score springs up. Phones keep the sheet curve player-card.js sets. */
+
+/* The page behind a card dims and goes soft, like iOS behind a sheet. */
+.drawer-backdrop, .bx-backdrop {
+  background: rgba(7, 24, 39, .3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.35);
+  backdrop-filter: blur(14px) saturate(1.35);
+  transition: opacity .35s var(--ease);
+}
+
+/* ---- the sheets themselves: frosted, with a hairline of light ---- */
+.team-drawer, .bx-modal {
+  background: var(--glass-sheet);
+  -webkit-backdrop-filter: blur(34px) saturate(1.9);
+  backdrop-filter: blur(34px) saturate(1.9);
+  box-shadow: var(--sheet-shadow);
+}
+.team-drawer::after, .bx-modal::after {
+  /* the light catching the sheet's edge, drawn over its content */
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 7;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+.bx-modal { border-radius: 24px; }
+
+/* Desktop: the drawer floats as an inset card instead of a slab against
+   the edge. (It still docks narrower beside a player card.) */
 @media (min-width: 761px) {
-  .team-drawer { transition: transform .3s var(--ease); }
-  .team-drawer.open { transition: transform .5s var(--ease); }
+  .team-drawer {
+    top: 12px; bottom: 12px; left: 12px; height: auto; max-height: none;
+    width: min(680px, calc(100% - 24px));
+    border-radius: 26px; overflow: hidden;
+    transform: translateX(calc(-100% - 40px));
+    transition: transform .32s var(--ease);
+  }
+  .team-drawer.open { transform: none; transition: transform .6s var(--ease); }
   .bx-modal.open { transition: opacity .3s var(--ease), transform .5s var(--spring), left .45s var(--ease), width .45s var(--ease); }
 }
+
+/* Phones: rounder sheets with a grabber, which is what the swipe-down
+   (player-card.js) has always done; now it shows. */
+@media (max-width: 760px) {
+  .team-drawer, .bx-modal { border-radius: 24px 24px 0 0; }
+  .team-drawer::before, .bx-modal::before {
+    content: ""; position: absolute; z-index: 8; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px;
+    border-radius: 3px; background: rgba(255, 255, 255, .55); pointer-events: none;
+  }
+  .bx-head { padding-top: 16px; }
+}
+
+/* ---- headers: the team's colour, lit from the top left ------------- */
+.drawer-hero {
+  background:
+    radial-gradient(120% 150% at 0% 0%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(140deg,
+      color-mix(in srgb, var(--drawer-color, var(--navy-2)) 86%, #fff) 0%,
+      var(--drawer-color, var(--navy-2)) 45%,
+      color-mix(in srgb, var(--drawer-color, var(--navy-2)) 70%, #071827) 100%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .12);
+}
+.drawer-hero::after {
+  background: radial-gradient(circle, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 68%);
+  animation: uiDrift 14s ease-in-out infinite alternate;
+}
+.drawer-hero .drawer-stat {
+  background: rgba(255, 255, 255, .13); border-color: rgba(255, 255, 255, .22); border-radius: 14px;
+  -webkit-backdrop-filter: blur(12px) saturate(1.4); backdrop-filter: blur(12px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+/* on a phone the stat tiles sit in the body, as little slabs of team colour */
+.drawer-stats-body .drawer-stat {
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(140deg, var(--drawer-color, var(--navy-2)), color-mix(in srgb, var(--drawer-color, var(--navy-2)) 72%, #071827));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 10px 20px -12px color-mix(in srgb, var(--drawer-color, var(--navy-2)) 80%, transparent);
+}
+.drawer-team .team-badge { box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .45), 0 0 0 3px rgba(255, 255, 255, .18); }
+.drawer-year { background: rgba(255, 255, 255, .2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+
+.bx-head {
+  background:
+    radial-gradient(120% 180% at 0% 0%, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(140deg, #1c3a57 0%, #0e2439 50%, #071827 100%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08);
+}
+
+/* round glass close buttons (sizes stay each page's own) */
+.drawer-close, .bx-close {
+  display: grid; place-items: center; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .26); background: rgba(255, 255, 255, .16); color: #fff;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 4px 12px -4px rgba(0, 0, 0, .3);
+}
+@media (hover: hover) { .drawer-close:hover, .bx-close:hover { background: rgba(255, 255, 255, .28); } }
+.drawer-close:active, .bx-close:active { transform: scale(.9); }
+
+/* ---- what's printed on the glass ---------------------------------- */
+.drawer-body .schedule-list, .drawer-body .roster-list, .drawer-body .roster-help {
+  background: var(--glass-tile); border: 1px solid var(--glass-edge); border-radius: 18px;
+  box-shadow: var(--tile-shadow);
+}
+.drawer-body .schedule-row { border-bottom-color: rgba(7, 24, 39, .06); transition: background-color .2s var(--ease); }
+.drawer-body .roster-row { border-top-color: rgba(7, 24, 39, .06); transition: background-color .2s var(--ease); }
+.drawer-body .roster-row.header { background: rgba(236, 241, 246, .75); }
+@media (hover: hover) {
+  .drawer-body .schedule-row:hover, .drawer-body .roster-row:not(.header):hover { background: rgba(255, 255, 255, .85); }
+}
+.schedule-heading h3 { letter-spacing: -.01em; }
+
+/* the box score: its scoreboard is frosted and the lineups scroll under it */
+.bx-cols { background: transparent; }
+.bx-sb {
+  background: rgba(255, 255, 255, .72);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8);
+  border-bottom-color: rgba(7, 24, 39, .08);
+  box-shadow: 0 8px 18px -14px rgba(7, 24, 39, .35);
+}
+.bx-row { background: rgba(255, 255, 255, .58); border-top-color: rgba(7, 24, 39, .05); transition: background-color .2s var(--ease); }
+@media (hover: hover) { .bx-row:not(.bx-grouphead):hover { background: rgba(255, 255, 255, .92); } }
+.bx-slot { background: rgba(12, 28, 45, .045); }
+.bx-grouphead, .bx-grouphead .bx-slot { background: rgba(229, 235, 242, .7); }
+.bx-foot { background: rgba(255, 255, 255, .5); border-top-color: rgba(7, 24, 39, .07); }
+.bx-total b { letter-spacing: -.02em; }
+
+/* ---- arrival: the card's parts settle in, in order -----------------
+   ui.js adds .ui-enter when a card opens (or its contents change while
+   it's open) and numbers each repeated part with --ui-i. */
+.ui-enter .drawer-team .team-badge { animation: uiBadgeIn .7s var(--spring) both .06s; }
+.ui-enter .drawer-team > div > * { animation: uiLift .55s var(--ease) both; animation-delay: calc(.1s + var(--ui-i, 0) * 50ms); }
+.ui-enter .drawer-stat { animation: uiTileIn .6s var(--spring) both; animation-delay: calc(.16s + var(--ui-i, 0) * 45ms); }
+.ui-enter :is(.schedule-heading, .roster-help) { animation: uiLift .5s var(--ease) both .18s; }
+.ui-enter :is(.schedule-row, .roster-row, .bx-row) {
+  animation: uiRowIn .5s var(--ease) both; animation-delay: calc(.2s + min(var(--ui-i, 0), 14) * 24ms);
+}
+.ui-enter .roster-strip { animation: uiWipe .9s var(--ease) both; animation-delay: calc(.32s + min(var(--ui-i, 0), 14) * 24ms); }
+.ui-enter .drawer-body > :is(.schedule-section, .schedule-list, .hl-grid, .table-wrap) { animation: uiRise .55s var(--ease) both; animation-delay: calc(.14s + min(var(--ui-i, 0), 8) * 60ms); }
+.ui-enter .bx-head h3, .ui-enter .bx-head .bx-sub { animation: uiLift .5s var(--ease) both .06s; }
+.ui-enter .bx-sb .bx-p.bx-l { animation: uiFromLeft .65s var(--ease) both .1s; }
+.ui-enter .bx-sb .bx-p.bx-r { animation: uiFromRight .65s var(--ease) both .1s; }
+.ui-enter .bx-sb .bx-total { animation: uiScoreIn .7s var(--spring) both .18s; }
+
+/* the player card: photo pops, tiles cascade, each season's strip wipes in
+   left to right, the managers' bars grow and the medals settle */
+.ui-enter .pc-photo { animation: uiBadgeIn .75s var(--spring) both .05s; }
+.ui-enter .pc-id > * { animation: uiLift .55s var(--ease) both; animation-delay: calc(.1s + var(--ui-i, 0) * 50ms); }
+.ui-enter .pc-tile { animation: uiTileIn .6s var(--spring) both; animation-delay: calc(.14s + var(--ui-i, 0) * 50ms); }
+.ui-enter .pc-body > :not(.pc-tiles) { animation: uiRise .6s var(--ease) both; animation-delay: calc(.2s + min(var(--ui-i, 0), 6) * 70ms); }
+.ui-enter .pc-tl-row:not(.pc-tl-head) .pc-tl-strip { animation: uiWipe .9s var(--ease) both; animation-delay: calc(.32s + min(var(--ui-i, 0), 12) * 55ms); }
+.ui-enter .pc-mgr .pc-bar i { transform-origin: left center; animation: uiGrowX 1s var(--ease) both; animation-delay: calc(.45s + min(var(--ui-i, 0), 10) * 60ms); }
+.ui-enter .pc-medal { animation: uiTileIn .6s var(--spring) both; animation-delay: calc(.42s + var(--ui-i, 0) * 70ms); }
+
+/* ---- keyframes for the cards ---- */
+@keyframes uiDrift { from { transform: translate(0, 0) scale(1); } to { transform: translate(-40px, 26px) scale(1.18); } }
+@keyframes uiBadgeIn { from { opacity: 0; transform: scale(.4) rotate(-10deg); } to { opacity: 1; transform: none; } }
+@keyframes uiLift { from { opacity: 0; transform: translateY(8px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiTileIn { from { opacity: 0; transform: translateY(10px) scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes uiRowIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes uiWipe { from { clip-path: inset(0 100% 0 0 round 3px); } to { clip-path: inset(0 0 0 0 round 3px); } }
+@keyframes uiGrowX { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes uiFromLeft { from { opacity: 0; transform: translateX(-22px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiFromRight { from { opacity: 0; transform: translateX(22px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiScoreIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
 
 /* ---------------------------------------------------------------
    Header summary fold (phones)
