@@ -124,6 +124,145 @@
     });
   }, { passive: true });
 
+  /* ---------------------------------------------------------------
+     Pinning, shared by the season capsule and the all-time search.
+     A sentinel just above the pill marks where it pins; the
+     pill's box in the page keeps its open height (the capsule shrinks
+     inside it, and a search drops out of it over the page), so neither
+     pinning nor searching ever moves the page.
+     --------------------------------------------------------------- */
+  function pinnable(root, { onStick } = {}) {
+    root.insertAdjacentHTML("beforebegin", '<div class="sn-sentinel" aria-hidden="true"></div>');
+    const sentinel = root.previousElementSibling;
+    const cap = root.querySelector(".sn-cap");
+    let io = null;
+    /* How far down it pins: under a header that runs across the top, or
+       at the very top beside the desktop sidebar. */
+    function top() {
+      const bar = document.querySelector(".topbar");
+      if (!bar) return 0;
+      const pos = getComputedStyle(bar).position;
+      if (pos !== "sticky" && pos !== "fixed") return 0;
+      if (bar.getBoundingClientRect().right <= root.getBoundingClientRect().left + 1) return 0;
+      return bar.offsetHeight;
+    }
+    const setStuck = (on) => root.classList.toggle("stuck", on);
+    /* freeze the footprint at the open, resting height: measured with
+       transitions off and without the pinned or searching states, which
+       are put back unseen */
+    function measure() {
+      if (!root.offsetParent) return;
+      root.style.setProperty("--sn-top", `${top()}px`);
+      const stuck = root.classList.contains("stuck"), open = root.classList.contains("searching");
+      root.classList.add("measuring");
+      if (stuck) setStuck(false);
+      if (open) root.classList.remove("searching");
+      root.style.height = "";
+      root.style.height = `${cap.offsetHeight}px`;
+      if (open) root.classList.add("searching");
+      if (stuck) setStuck(true);
+      void cap.offsetHeight;
+      raf2(() => root.classList.remove("measuring"));
+    }
+    function watch() {
+      if (io) io.disconnect();
+      if (!("IntersectionObserver" in window)) return;
+      const t = top();
+      io = new IntersectionObserver(([e]) => {
+        const stuck = !e.isIntersecting && e.boundingClientRect.top < t + 1;
+        if (stuck === root.classList.contains("stuck")) return;
+        setStuck(stuck);
+        if (onStick) onStick(stuck);
+      }, { rootMargin: `-${t + 1}px 0px 0px 0px`, threshold: 0 });
+      io.observe(sentinel);
+    }
+    /* back to where the pill lets go: the top of the content under it */
+    function toTop() {
+      const y = sentinel.getBoundingClientRect().top + window.scrollY - top();
+      if (window.scrollY > y + 1) window.scrollTo({ top: y, behavior: REDUCE.matches ? "auto" : "smooth" });
+    }
+    return { sentinel, top, measure, watch, toTop };
+  }
+
+  const ICON_FIND = '<svg class="ic-find" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>';
+  const ICON_X = '<svg class="ic-x" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+  /* ---------------------------------------------------------------
+     Player search results, shared by every search box. PlayerCard
+     (player-card.js) owns the data, the search and the card; each
+     result carries data-player, which player-card.js opens on a tap.
+     onChange(hasContent) says whether there is a list to show.
+     --------------------------------------------------------------- */
+  function playerFinder(input, list, { limit = 8, onChange } = {}) {
+    let seq = 0, shown = false;
+    const tell = (has) => { if (has !== shown) { shown = has; if (onChange) onChange(has); } };
+    const photo = (h) => {
+      if (h.headshot && h.pos !== "DST") {
+        return `<img src="https://sleepercdn.com/content/nfl/players/thumb/${esc(h.headshot)}.jpg" alt="" loading="lazy" data-club="${esc(h.club)}">`;
+      }
+      return window.PlayerCard && window.PlayerCard.nflLogo ? window.PlayerCard.nflLogo(h.club, "pr-logo") : "";
+    };
+    function run() {
+      const q = input.value.trim();
+      const mine = ++seq;
+      if (!q || !window.PlayerCard) { list.innerHTML = ""; tell(false); return; }
+      window.PlayerCard.search(q, limit).then((hits) => {
+        if (mine !== seq) return;
+        list.innerHTML = hits.length ? hits.map((h, i) => {
+          const yrs = h.seasons.length > 1 ? `${h.seasons[0]}–${String(h.seasons[h.seasons.length - 1]).slice(2)}` : h.seasons[0];
+          return `<button type="button" class="player-result" role="option" style="--ui-i:${i}" data-player="${encodeURIComponent(h.name)}">
+            <span class="pr-photo">${photo(h)}</span>
+            <span class="pr-who"><strong>${esc(h.name)}</strong><small>${esc(h.pos)} · ${esc(h.club)} · ${yrs}</small></span>
+            <span class="pr-nums"><b>${h.starts}</b><small>starts</small></span>
+          </button>`;
+        }).join("") : `<div class="player-empty">No one by that name has played in this league.</div>`;
+        tell(true);
+      });
+    }
+    input.addEventListener("input", run);
+    // a photo that can't load (offline, say) gives way to the player's club logo
+    list.addEventListener("error", (e) => {
+      const img = e.target;
+      if (!img || img.tagName !== "IMG" || !img.dataset.club) return;
+      const slot = img.closest(".pr-photo");
+      if (slot && window.PlayerCard && window.PlayerCard.nflLogo) slot.innerHTML = window.PlayerCard.nflLogo(img.dataset.club, "pr-logo");
+    }, true);
+    // start loading the player data the moment someone looks like searching
+    input.addEventListener("focus", () => window.PlayerCard && window.PlayerCard.search("", 0));
+    input.addEventListener("keydown", (e) => {
+      const first = list.querySelector("[data-player]");
+      if (e.key === "Enter" && first) { e.preventDefault(); first.click(); }
+      if (e.key === "ArrowDown" && first) { e.preventDefault(); first.focus(); }
+    });
+    // up and down move through the results; up from the first returns to the field
+    list.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      const items = [...list.querySelectorAll("[data-player]")], i = items.indexOf(document.activeElement);
+      if (i < 0) return;
+      e.preventDefault();
+      const next = items[i + (e.key === "ArrowDown" ? 1 : -1)];
+      (next || (e.key === "ArrowUp" ? input : items[i])).focus();
+    });
+    return {
+      run,
+      clear() { seq++; input.value = ""; list.innerHTML = ""; tell(false); },
+      get shown() { return shown; },
+    };
+  }
+
+  /* "/" opens search from anywhere, as on most sites, unless a field or
+     an open card already has the keyboard. */
+  function slashOpens(open) {
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target;
+      if (t && t.closest && t.closest("input, select, textarea, [contenteditable]")) return;
+      if (document.querySelector(".team-drawer.open, .bx-modal.open, .pc.open")) return;
+      e.preventDefault();
+      open();
+    });
+  }
+
   /* ===============================================================
      SEASON NAV
 
@@ -147,13 +286,12 @@
      weeks and views it has, and hears back through onWeek / onView.
      =============================================================== */
   const SeasonNav = (() => {
-    let root = null, cap = null, seg = null, segInd = null, wkbar = null, rail = null, sentinel = null;
+    let root = null, cap = null, seg = null, segInd = null, wkbar = null, rail = null, pin = null;
+    let findBtn = null, findInput = null, finder = null;
     let opts = {};
     let weeks = [], views = [], week = null, view = null, prevWeek = null;
     let chips = [], railWeek = null, visWeek = null, segIds = "";
     let userScroll = false, touching = false, swiping = false, lastCentre = null, sraf = 0, mraf = 0, mx = 0, settleT = 0;
-    let io = null;
-
     const arrow = (d) => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
 
     function mount(el, options = {}) {
@@ -162,16 +300,28 @@
       opts = options;
       root.classList.add("season-nav");
       root.innerHTML = `<div class="sn-cap">
-        <div class="sn-seg" role="tablist" aria-label="${esc(opts.viewsLabel || "Views")}"><span class="sn-seg-ind" aria-hidden="true"></span></div>
-        <div class="sn-wkbar"><div class="sn-wkcap">
+        <div class="sn-top">
+          <div class="sn-seg" role="tablist" aria-label="${esc(opts.viewsLabel || "Views")}"><span class="sn-seg-ind" aria-hidden="true"></span></div>
+          <div class="sn-find" role="search">${ICON_FIND}<input type="search" placeholder="Search any player" aria-label="Search players"
+            autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="search" tabindex="-1"></div>
+          <button class="sn-search" type="button" aria-label="Search players" aria-expanded="false" title="Search players (/)">${ICON_FIND}${ICON_X}</button>
+        </div>
+        <div class="sn-drop"><div><div class="player-results" role="listbox" aria-label="Players"></div></div></div>
+        <div class="sn-wkwrap"><div class="sn-wkbar"><div class="sn-wkcap">
           <button class="sn-arrow l" type="button" aria-label="Earlier weeks" tabindex="-1">${arrow("m15 18-6-6 6-6")}</button>
           <div class="sn-rail" role="tablist" aria-label="Week"></div>
           <button class="sn-arrow r" type="button" aria-label="Later weeks" tabindex="-1">${arrow("m9 18 6-6-6-6")}</button>
-        </div></div>
+        </div></div></div>
       </div>`;
-      root.insertAdjacentHTML("beforebegin", '<div class="sn-sentinel" aria-hidden="true"></div>');
-      sentinel = root.previousElementSibling;
       cap = root.querySelector(".sn-cap");
+      // ring sizes animate for ~.55s as it pins; keep the disc and the edges in step
+      pin = pinnable(root, { onStick: () => {
+        const t0 = performance.now();
+        const follow = () => { placeDisc(); railEdges(); if (performance.now() - t0 < 650) requestAnimationFrame(follow); };
+        requestAnimationFrame(follow);
+      } });
+      findBtn = root.querySelector(".sn-search");
+      findInput = root.querySelector(".sn-find input");
       seg = root.querySelector(".sn-seg");
       segInd = root.querySelector(".sn-seg-ind");
       wkbar = root.querySelector(".sn-wkbar");
@@ -320,51 +470,44 @@
       if (opts.onWeek) opts.onWeek(w);
     }
 
-    /* ---- pinning -------------------------------------------------- */
-    /* How far down the capsule pins: under a header that runs across the
-       top, or at the very top beside the desktop sidebar. */
-    function navTop() {
-      const bar = document.querySelector(".topbar");
-      if (!bar) return 0;
-      const pos = getComputedStyle(bar).position;
-      if (pos !== "sticky" && pos !== "fixed") return 0;
-      if (bar.getBoundingClientRect().right <= root.getBoundingClientRect().left + 1) return 0;
-      return bar.offsetHeight;
-    }
-    function setStuck(on) { root.classList.toggle("stuck", on); }
-    /* freeze the footprint at the open height; if it's pinned right now,
-       measure the open layout with transitions off, then put it back */
-    function measure() {
-      if (!root || !root.offsetParent) return;
-      root.style.setProperty("--sn-top", `${navTop()}px`);
-      const stuck = root.classList.contains("stuck");
-      root.classList.add("measuring");
-      if (stuck) setStuck(false);
-      root.style.height = "";
-      root.style.height = `${cap.offsetHeight}px`;
-      if (stuck) { setStuck(true); void cap.offsetHeight; }
-      raf2(() => root.classList.remove("measuring"));
-    }
-    function watch() {
-      if (io) io.disconnect();
-      if (!("IntersectionObserver" in window) || !root) return;
-      const top = navTop();
-      io = new IntersectionObserver(([e]) => {
-        const stuck = !e.isIntersecting && e.boundingClientRect.top < top + 1;
-        if (stuck === root.classList.contains("stuck")) return;
-        setStuck(stuck);
-        // ring sizes animate for ~.55s; keep the disc and the edges in step
-        const t0 = performance.now();
-        const follow = () => { placeDisc(); railEdges(); if (performance.now() - t0 < 650) requestAnimationFrame(follow); };
-        requestAnimationFrame(follow);
-      }, { rootMargin: `-${top + 1}px 0px 0px 0px`, threshold: 0 });
-      io.observe(sentinel);
-    }
+    /* ---- pinning (shared with the all-time search: pinnable) -------- */
+    const measure = () => pin && pin.measure();
+    const watch = () => pin && pin.watch();
     /* Changing view from the pinned capsule starts the new view at its
        top: the page scrolls back to where the capsule just lets go. */
-    function toContentTop() {
-      const top = sentinel.getBoundingClientRect().top + window.scrollY - navTop();
-      if (window.scrollY > top + 1) window.scrollTo({ top, behavior: REDUCE.matches ? "auto" : "smooth" });
+    const toContentTop = () => pin && pin.toTop();
+
+    /* ---- search ----------------------------------------------------
+       The magnifier opens a search field across the capsule: the views
+       blur away, the field grows out of the button, the week wheel folds
+       up and the results drop out of the capsule over the page. A tap on
+       a result opens that player's card and leaves the search open for
+       the next one; the button (now a cross), Escape, or a tap anywhere
+       else closes it. */
+    function setSearch(on) {
+      if (on === root.classList.contains("searching")) return;
+      root.classList.toggle("searching", on);
+      findBtn.setAttribute("aria-expanded", on);
+      findBtn.setAttribute("aria-label", on ? "Close search" : "Search players");
+      findInput.tabIndex = on ? 0 : -1;
+      seg.inert = on;
+      root.querySelector(".sn-wkwrap").inert = on;
+      if (on) findInput.focus({ preventScroll: true });
+      else { finder.clear(); if (root.contains(document.activeElement)) findBtn.focus({ preventScroll: true }); }
+    }
+    function wireSearch() {
+      finder = playerFinder(findInput, root.querySelector(".sn-drop .player-results"),
+        { onChange: (has) => root.classList.toggle("found", has) });
+      findBtn.addEventListener("click", () => { haptic("tap"); setSearch(!root.classList.contains("searching")); });
+      document.addEventListener("click", (e) => {
+        if (!root.classList.contains("searching") || root.contains(e.target)) return;
+        if (e.target.closest && e.target.closest(".pc, .pc-backdrop")) return;   // a player card opened from the results
+        setSearch(false);
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && root.classList.contains("searching")) setSearch(false);
+      });
+      slashOpens(() => setSearch(true));
     }
     const relayout = () => {
       if (!root || !root.offsetParent) return;
@@ -373,6 +516,7 @@
 
     /* ---- events --------------------------------------------------- */
     function wire() {
+      wireSearch();
       seg.addEventListener("click", (e) => {
         const b = e.target.closest("button[data-view]");
         if (!b || b.dataset.view === view) return;
@@ -712,6 +856,49 @@
     else start();
   })();
 
-  window.UI = { roll, measureRows, shuffleRows, haptic, reduced: () => REDUCE.matches };
+
+  /* ===============================================================
+     FIND PILL (the all-time page)
+
+     The player search as a pill of its own: it pins under the header
+     like a season's capsule and turns to frosted glass as it does, and
+     its results drop out of it over the page rather than pushing the
+     page down. The markup is the page's (#findPill); this wires it.
+     =============================================================== */
+  function findPill(el) {
+    const root = typeof el === "string" ? document.querySelector(el) : el;
+    if (!root) return;
+    root.classList.add("season-nav", "find-pill");
+    const input = root.querySelector("input");
+    const list = root.querySelector(".player-results");
+    const clear = root.querySelector(".sn-clear");
+    const pin = pinnable(root);
+    const finder = playerFinder(input, list, { onChange: (has) => root.classList.toggle("found", has) });
+    const open = (on) => {
+      root.classList.toggle("searching", on);
+      root.classList.toggle("found", on && finder.shown);
+    };
+    const sync = () => { clear.hidden = !input.value; };
+    input.addEventListener("focus", () => open(true));
+    input.addEventListener("input", sync);
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      finder.clear(); sync(); input.blur(); open(false);
+    });
+    clear.addEventListener("click", () => { finder.clear(); sync(); input.focus({ preventScroll: true }); });
+    // a tap anywhere else folds the results away (the text stays for next time)
+    document.addEventListener("click", (e) => {
+      if (root.contains(e.target) || (e.target.closest && e.target.closest(".pc, .pc-backdrop"))) return;
+      open(false);
+    });
+    slashOpens(() => input.focus({ preventScroll: true }));
+    const layout = () => { pin.watch(); pin.measure(); };
+    raf2(layout);
+    let rz = 0;
+    window.addEventListener("resize", () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(layout); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(pin.measure);
+  }
+
+  window.UI = { roll, measureRows, shuffleRows, haptic, findPill, reduced: () => REDUCE.matches };
   window.SeasonNav = SeasonNav;
 })();

@@ -116,17 +116,145 @@ button, summary, [role="tab"] { touch-action: manipulation; }
   .sn-seg:is([data-n="5"], [data-n="6"]) .l-lg { display: none; }
   .sn-seg:is([data-n="5"], [data-n="6"]) .l-sm { display: inline; }
   .sn-seg button { font-size: 12px; padding: 8px 1px; letter-spacing: -.01em; }
-  .sn-seg[data-n="6"] button { font-size: 11px; letter-spacing: -.02em; }
+  .sn-seg:is([data-n="5"], [data-n="6"]) button { font-size: 11.5px; letter-spacing: -.02em; }
   /* pinned, the capsule keeps the views as wide as they were */
   .season-nav.stuck .sn-cap { padding: 6px 5px 0; }
 }
 @media (max-width: 374px) {
   .sn-seg button { font-size: 11px; letter-spacing: -.02em; }
-  .sn-seg[data-n="6"] button { font-size: 10px; }
+  .sn-seg:is([data-n="5"], [data-n="6"]) button { font-size: 10.5px; }
 }
 /* a different set of views (a playoff week, the season overview) ripples in */
 .sn-seg.swap button { animation: snTabIn .45s var(--spring) both; animation-delay: calc(var(--i) * 35ms); }
 @keyframes snTabIn { from { opacity: 0; transform: translateY(5px) scale(.94); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* ---- search ------------------------------------------------------ */
+/* The views share their row with a magnifier at its right end. */
+.sn-top { position: relative; display: flex; align-items: stretch; gap: 6px; }
+.sn-top .sn-seg { flex: 1 1 auto; min-width: 0; transition: opacity .25s var(--ease), filter .3s var(--ease), transform .45s var(--spring); }
+.sn-search {
+  flex: 0 0 auto; width: 40px; padding: 0; border: 0; border-radius: 12px; cursor: pointer;
+  display: grid; place-items: center; color: var(--ink, #0b1726); background: rgba(12, 28, 45, .07);
+  transition: background-color .25s var(--ease), color .25s var(--ease), transform .18s var(--ease), box-shadow .25s var(--ease);
+}
+.sn-search svg { grid-area: 1 / 1; transition: opacity .22s var(--ease), transform .5s var(--spring); }
+.sn-search .ic-x { opacity: 0; transform: rotate(-90deg) scale(.5); }
+@media (hover: hover) { .sn-search:hover { background: rgba(12, 28, 45, .12); } }
+.sn-search:active { transform: scale(.92); }
+.sn-search:focus-visible { outline: 2px solid var(--blue, #1769e0); outline-offset: 2px; }
+.season-nav.searching .sn-search { background: var(--navy, #071827); color: #fff; box-shadow: 0 6px 14px -6px rgba(7, 24, 39, .6); }
+.season-nav.searching .sn-search .ic-find { opacity: 0; transform: rotate(90deg) scale(.5); }
+.season-nav.searching .sn-search .ic-x { opacity: 1; transform: none; }
+
+/* The field grows leftward out of the button while the views blur away. */
+.sn-find {
+  position: absolute; top: 0; bottom: 0; left: 0; right: 46px;
+  display: flex; align-items: center; gap: 9px; padding: 0 12px;
+  border-radius: 12px; background: #fff; color: var(--muted, #637083);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .12), 0 0 0 1px rgba(7, 24, 39, .06);
+  clip-path: inset(0 0 0 100% round 12px); opacity: 0; pointer-events: none;
+  transition: clip-path .32s var(--ease), opacity .2s var(--ease);
+}
+.season-nav.searching .sn-find {
+  clip-path: inset(0 0 0 0 round 12px); opacity: 1; pointer-events: auto;
+  transition: clip-path .55s var(--ease), opacity .25s var(--ease);
+}
+.season-nav.searching .sn-top .sn-seg { opacity: 0; filter: blur(4px); transform: scale(.96); pointer-events: none; }
+.sn-find svg { flex: none; }
+.sn-find input, .sn-find-bar input {
+  flex: 1 1 auto; min-width: 0; height: 100%; border: 0; outline: 0; padding: 0; margin: 0;
+  background: transparent; color: var(--ink, #0b1726); font: inherit; font-size: 14px; font-weight: 600;
+  -webkit-appearance: none; appearance: none;
+}
+.sn-find input::placeholder, .sn-find-bar input::placeholder { color: #8391a1; font-weight: 500; }
+.sn-find input::-webkit-search-cancel-button, .sn-find-bar input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+@media (max-width: 700px) { .sn-find input, .sn-find-bar input { font-size: 16px; } }   /* no zoom-on-focus in iOS */
+
+/* The results drop out of the capsule, over the page. */
+/* minmax(0, 1fr): the column is the capsule's width, never its content's
+   (the wheel's track is max-content wide, and its end spacers are sized
+   from the rail, so a content-sized column would grow without end) */
+.sn-drop { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 0fr; transition: grid-template-rows .45s var(--ease); }
+.sn-drop > div { min-height: 0; overflow: hidden; }
+.season-nav.found .sn-drop { grid-template-rows: 1fr; transition: grid-template-rows .55s var(--spring); }
+.sn-drop .player-results {
+  max-height: min(58vh, 460px); overflow-y: auto; overscroll-behavior: contain;
+  padding: 8px 0 2px; scrollbar-width: thin;
+}
+/* While searching, the week wheel folds up out of the way. */
+.sn-wkwrap { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .45s var(--ease); }
+.sn-wkwrap > .sn-wkbar { min-height: 0; }
+.sn-wkbar { transition: margin .5s var(--spring), opacity .25s var(--ease), transform .4s var(--ease); }
+.season-nav.searching .sn-wkwrap { grid-template-rows: 0fr; }
+.season-nav.searching .sn-wkbar { opacity: 0; transform: translateY(-8px) scale(.98); pointer-events: none; margin-top: 0; }
+
+/* Searching, the capsule is a frosted card wherever it is on the page. */
+.season-nav.searching .sn-cap {
+  padding: 8px;
+  background-color: rgba(255, 255, 255, .86);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7);
+  backdrop-filter: blur(18px) saturate(1.7);
+  border-color: rgba(7, 24, 39, .08);
+  box-shadow: 0 18px 44px rgba(7, 24, 39, .16), 0 2px 8px rgba(7, 24, 39, .06);
+}
+@media (max-width: 520px) {
+  .sn-search { width: 36px; }
+  .sn-top { gap: 4px; }
+  .sn-find { right: 40px; }
+  .season-nav.searching .sn-cap { padding: 6px; }
+}
+
+/* ---- the results themselves ---- */
+.player-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.player-result {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  padding: 8px 10px; border: 1px solid rgba(255, 255, 255, .8); border-radius: 14px;
+  background: rgba(255, 255, 255, .78); box-shadow: 0 0 0 .5px rgba(7, 24, 39, .08), 0 6px 16px -12px rgba(7, 24, 39, .35);
+  font: inherit; text-align: left; color: var(--ink, #0b1726); cursor: pointer;
+  animation: uiRowIn .45s var(--ease) both; animation-delay: calc(var(--ui-i, 0) * 30ms);
+  transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease);
+}
+@media (hover: hover) { .player-result:hover { background: #fff; border-color: rgba(23, 105, 224, .45); } }
+.player-result:active { transform: scale(.98); }
+.player-result:focus-visible { outline: 2px solid var(--blue, #1769e0); outline-offset: 1px; }
+.pr-photo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: #eef1f4; }
+.pr-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.pr-photo img.pr-logo { width: 72%; height: 72%; object-fit: contain; }
+.pr-who { min-width: 0; }
+.player-result strong { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player-result small { display: block; color: var(--muted, #637083); font-size: 11px; font-weight: 600; }
+.pr-nums { text-align: right; font-variant-numeric: tabular-nums; }
+.pr-nums b { display: block; font-size: 13px; }
+.pr-nums small { font-size: 9.5px !important; letter-spacing: .09em; text-transform: uppercase; font-weight: 900 !important; }
+.player-empty { grid-column: 1 / -1; padding: 8px 10px 6px; color: var(--muted, #637083); font-size: 12px; }
+@media (max-width: 700px) {
+  .player-results { grid-template-columns: 1fr; gap: 5px; }
+  .player-result { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; padding: 6px 8px; border-radius: 12px; }
+  .pr-photo { width: 34px; height: 34px; }
+  .player-result strong { font-size: 12.5px; }
+  .player-result small { font-size: 10px; }
+}
+
+/* ---- the all-time page's search pill ---- */
+/* Always a field; pinned, it floats as frosted glass like a season's capsule. */
+.find-pill .sn-find-bar {
+  display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 8px 0 14px;
+  border-radius: 14px; background: #fff; color: var(--muted, #637083);
+  box-shadow: 0 0 0 1px var(--line, #dce3eb), 0 10px 26px -18px rgba(7, 24, 39, .4);
+  transition: box-shadow .25s var(--ease), height .5s var(--spring);
+}
+.find-pill.searching .sn-find-bar { box-shadow: 0 0 0 1.5px var(--blue, #1769e0), 0 0 0 5px rgba(23, 105, 224, .12); }
+.find-pill.stuck .sn-find-bar { height: 42px; }
+.find-pill.stuck .sn-cap { padding: 8px; }
+.sn-clear {
+  flex: none; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  display: grid; place-items: center; background: rgba(12, 28, 45, .08); color: var(--ink, #0b1726);
+  transition: background-color .2s var(--ease), transform .18s var(--ease);
+  animation: uiPopIn .35s var(--spring) both;
+}
+.sn-clear[hidden] { display: none; }
+.sn-clear:active { transform: scale(.9); }
+@media (hover: hover) { .sn-clear:hover { background: rgba(12, 28, 45, .14); } }
 
 /* ---- week wheel -------------------------------------------------- */
 /* sizes are registered so they can animate when the capsule pins */
@@ -134,7 +262,7 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 @property --sn-padT { syntax: '<length>'; inherits: true; initial-value: 14px; }
 @property --sn-padB { syntax: '<length>'; inherits: true; initial-value: 14px; }
 @property --sn-dot { syntax: '<length>'; inherits: true; initial-value: 5px; }
-.sn-wkbar { position: relative; margin: 2px 0 -6px; transition: margin .5s var(--spring); }
+.sn-wkbar { position: relative; margin: 2px 0 -6px; }
 .season-nav.stuck .sn-wkbar { margin-top: 4px; }
 .sn-wkcap { position: relative; }
 .sn-rail {

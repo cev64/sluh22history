@@ -5601,26 +5601,6 @@
       if (typeof markBracketBoxScores === "function") markBracketBoxScores();
     }
 
-    /* =================================================================
-       WEEKLY SUMMARY PANEL
-       ================================================================= */
-
-    function renderSummaryPanel(week) {
-      if (week === 0) return;
-      const summary = weeklySummaries[week];
-      const panel = document.getElementById("panel-summary");
-      if (!summary) {
-        panel.innerHTML = `<div class="empty-state"><strong>No recap for Week ${week}</strong><p>The scores are on the Results tab.</p></div>`;
-        return;
-      }
-      panel.innerHTML = `
-        <article class="card summary-card">
-          ${cardHead(`Week ${week} Recap`, "recap", week === rivalryWeek ? "Rivalry Week" : "")}
-          <div class="summary-meta">${summary.headline}</div>
-          <ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>
-        </article>`;
-    }
-
     /* Primary club colours, with the ink that stays legible on each. */
     const NFL_TEAMS = {
       ARI: "#97233F", ATL: "#A71930", BAL: "#241773", BUF: "#00338D",

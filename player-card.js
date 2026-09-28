@@ -365,7 +365,7 @@
        row (a results card's team row) must not change size while pressed,
        or the tap lands outside it and is lost. */
     :where(.week-pill, .view-tab, .bx-open, .bx-cue-row, .player-result, .pc-tabs button,
-      .pc-close, .bx-close, .drawer-close, .close-profile, .nl-download, .trophy-room-link):active {
+      .pc-close, .bx-close, .drawer-close, .close-profile, .trophy-room-link):active {
       transform: scale(.97); transition-duration: .06s;
     }
     :where(.game-side, .season-link, .schedule-opponent):active { background-color: rgba(23, 105, 224, .07); transition-duration: .06s; }
