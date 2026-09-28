@@ -100,8 +100,12 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 .sn-seg button[aria-selected="true"] { color: var(--ink, #0b1726); }
 .sn-seg button:active { transform: scale(.96); }
 .sn-seg button:focus-visible { outline: 2px solid var(--blue, #1769e0); outline-offset: -2px; }
+/* The track is 3px of padding, then --n equal buttons 2px apart; the pill
+   is one button wide and steps a button (plus its gap) per index. */
 .sn-seg-ind {
-  position: absolute; top: 3px; left: 0; height: calc(100% - 6px); border-radius: 9px; background: #fff;
+  position: absolute; top: 3px; left: 3px; height: calc(100% - 6px); border-radius: 9px; background: #fff;
+  width: calc((100% - 6px - (var(--n, 1) - 1) * 2px) / var(--n, 1));
+  transform: translateX(calc(var(--k, 0) * (100% + 2px)));
   box-shadow: 0 1px 3px rgba(16, 24, 40, .14), 0 1px 1px rgba(16, 24, 40, .05);
   pointer-events: none; z-index: 0; will-change: transform, width;
 }
@@ -112,17 +116,145 @@ button, summary, [role="tab"] { touch-action: manipulation; }
   .sn-seg:is([data-n="5"], [data-n="6"]) .l-lg { display: none; }
   .sn-seg:is([data-n="5"], [data-n="6"]) .l-sm { display: inline; }
   .sn-seg button { font-size: 12px; padding: 8px 1px; letter-spacing: -.01em; }
-  .sn-seg[data-n="6"] button { font-size: 11px; letter-spacing: -.02em; }
+  .sn-seg:is([data-n="5"], [data-n="6"]) button { font-size: 11.5px; letter-spacing: -.02em; }
   /* pinned, the capsule keeps the views as wide as they were */
   .season-nav.stuck .sn-cap { padding: 6px 5px 0; }
 }
 @media (max-width: 374px) {
   .sn-seg button { font-size: 11px; letter-spacing: -.02em; }
-  .sn-seg[data-n="6"] button { font-size: 10px; }
+  .sn-seg:is([data-n="5"], [data-n="6"]) button { font-size: 10.5px; }
 }
 /* a different set of views (a playoff week, the season overview) ripples in */
 .sn-seg.swap button { animation: snTabIn .45s var(--spring) both; animation-delay: calc(var(--i) * 35ms); }
 @keyframes snTabIn { from { opacity: 0; transform: translateY(5px) scale(.94); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* ---- search ------------------------------------------------------ */
+/* The views share their row with a magnifier at its right end. */
+.sn-top { position: relative; display: flex; align-items: stretch; gap: 6px; }
+.sn-top .sn-seg { flex: 1 1 auto; min-width: 0; transition: opacity .25s var(--ease), filter .3s var(--ease), transform .45s var(--spring); }
+.sn-search {
+  flex: 0 0 auto; width: 40px; padding: 0; border: 0; border-radius: 12px; cursor: pointer;
+  display: grid; place-items: center; color: var(--ink, #0b1726); background: rgba(12, 28, 45, .07);
+  transition: background-color .25s var(--ease), color .25s var(--ease), transform .18s var(--ease), box-shadow .25s var(--ease);
+}
+.sn-search svg { grid-area: 1 / 1; transition: opacity .22s var(--ease), transform .5s var(--spring); }
+.sn-search .ic-x { opacity: 0; transform: rotate(-90deg) scale(.5); }
+@media (hover: hover) { .sn-search:hover { background: rgba(12, 28, 45, .12); } }
+.sn-search:active { transform: scale(.92); }
+.sn-search:focus-visible { outline: 2px solid var(--blue, #1769e0); outline-offset: 2px; }
+.season-nav.searching .sn-search { background: var(--navy, #071827); color: #fff; box-shadow: 0 6px 14px -6px rgba(7, 24, 39, .6); }
+.season-nav.searching .sn-search .ic-find { opacity: 0; transform: rotate(90deg) scale(.5); }
+.season-nav.searching .sn-search .ic-x { opacity: 1; transform: none; }
+
+/* The field grows leftward out of the button while the views blur away. */
+.sn-find {
+  position: absolute; top: 0; bottom: 0; left: 0; right: 46px;
+  display: flex; align-items: center; gap: 9px; padding: 0 12px;
+  border-radius: 12px; background: #fff; color: var(--muted, #637083);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .12), 0 0 0 1px rgba(7, 24, 39, .06);
+  clip-path: inset(0 0 0 100% round 12px); opacity: 0; pointer-events: none;
+  transition: clip-path .32s var(--ease), opacity .2s var(--ease);
+}
+.season-nav.searching .sn-find {
+  clip-path: inset(0 0 0 0 round 12px); opacity: 1; pointer-events: auto;
+  transition: clip-path .55s var(--ease), opacity .25s var(--ease);
+}
+.season-nav.searching .sn-top .sn-seg { opacity: 0; filter: blur(4px); transform: scale(.96); pointer-events: none; }
+.sn-find svg { flex: none; }
+.sn-find input, .sn-find-bar input {
+  flex: 1 1 auto; min-width: 0; height: 100%; border: 0; outline: 0; padding: 0; margin: 0;
+  background: transparent; color: var(--ink, #0b1726); font: inherit; font-size: 14px; font-weight: 600;
+  -webkit-appearance: none; appearance: none;
+}
+.sn-find input::placeholder, .sn-find-bar input::placeholder { color: #8391a1; font-weight: 500; }
+.sn-find input::-webkit-search-cancel-button, .sn-find-bar input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+@media (max-width: 700px) { .sn-find input, .sn-find-bar input { font-size: 16px; } }   /* no zoom-on-focus in iOS */
+
+/* The results drop out of the capsule, over the page. */
+/* minmax(0, 1fr): the column is the capsule's width, never its content's
+   (the wheel's track is max-content wide, and its end spacers are sized
+   from the rail, so a content-sized column would grow without end) */
+.sn-drop { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 0fr; transition: grid-template-rows .45s var(--ease); }
+.sn-drop > div { min-height: 0; overflow: hidden; }
+.season-nav.found .sn-drop { grid-template-rows: 1fr; transition: grid-template-rows .55s var(--spring); }
+.sn-drop .player-results {
+  max-height: min(58vh, 460px); overflow-y: auto; overscroll-behavior: contain;
+  padding: 8px 0 2px; scrollbar-width: thin;
+}
+/* While searching, the week wheel folds up out of the way. */
+.sn-wkwrap { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .45s var(--ease); }
+.sn-wkwrap > .sn-wkbar { min-height: 0; }
+.sn-wkbar { transition: margin .5s var(--spring), opacity .25s var(--ease), transform .4s var(--ease); }
+.season-nav.searching .sn-wkwrap { grid-template-rows: 0fr; }
+.season-nav.searching .sn-wkbar { opacity: 0; transform: translateY(-8px) scale(.98); pointer-events: none; margin-top: 0; }
+
+/* Searching, the capsule is a frosted card wherever it is on the page. */
+.season-nav.searching .sn-cap {
+  padding: 8px;
+  background-color: rgba(255, 255, 255, .86);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7);
+  backdrop-filter: blur(18px) saturate(1.7);
+  border-color: rgba(7, 24, 39, .08);
+  box-shadow: 0 18px 44px rgba(7, 24, 39, .16), 0 2px 8px rgba(7, 24, 39, .06);
+}
+@media (max-width: 520px) {
+  .sn-search { width: 36px; }
+  .sn-top { gap: 4px; }
+  .sn-find { right: 40px; }
+  .season-nav.searching .sn-cap { padding: 6px; }
+}
+
+/* ---- the results themselves ---- */
+.player-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.player-result {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  padding: 8px 10px; border: 1px solid rgba(255, 255, 255, .8); border-radius: 14px;
+  background: rgba(255, 255, 255, .78); box-shadow: 0 0 0 .5px rgba(7, 24, 39, .08), 0 6px 16px -12px rgba(7, 24, 39, .35);
+  font: inherit; text-align: left; color: var(--ink, #0b1726); cursor: pointer;
+  animation: uiRowIn .45s var(--ease) both; animation-delay: calc(var(--ui-i, 0) * 30ms);
+  transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease);
+}
+@media (hover: hover) { .player-result:hover { background: #fff; border-color: rgba(23, 105, 224, .45); } }
+.player-result:active { transform: scale(.98); }
+.player-result:focus-visible { outline: 2px solid var(--blue, #1769e0); outline-offset: 1px; }
+.pr-photo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: #eef1f4; }
+.pr-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.pr-photo img.pr-logo { width: 72%; height: 72%; object-fit: contain; }
+.pr-who { min-width: 0; }
+.player-result strong { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player-result small { display: block; color: var(--muted, #637083); font-size: 11px; font-weight: 600; }
+.pr-nums { text-align: right; font-variant-numeric: tabular-nums; }
+.pr-nums b { display: block; font-size: 13px; }
+.pr-nums small { font-size: 9.5px !important; letter-spacing: .09em; text-transform: uppercase; font-weight: 900 !important; }
+.player-empty { grid-column: 1 / -1; padding: 8px 10px 6px; color: var(--muted, #637083); font-size: 12px; }
+@media (max-width: 700px) {
+  .player-results { grid-template-columns: 1fr; gap: 5px; }
+  .player-result { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; padding: 6px 8px; border-radius: 12px; }
+  .pr-photo { width: 34px; height: 34px; }
+  .player-result strong { font-size: 12.5px; }
+  .player-result small { font-size: 10px; }
+}
+
+/* ---- the all-time page's search pill ---- */
+/* Always a field; pinned, it floats as frosted glass like a season's capsule. */
+.find-pill .sn-find-bar {
+  display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 8px 0 14px;
+  border-radius: 14px; background: #fff; color: var(--muted, #637083);
+  box-shadow: 0 0 0 1px var(--line, #dce3eb), 0 10px 26px -18px rgba(7, 24, 39, .4);
+  transition: box-shadow .25s var(--ease), height .5s var(--spring);
+}
+.find-pill.searching .sn-find-bar { box-shadow: 0 0 0 1.5px var(--blue, #1769e0), 0 0 0 5px rgba(23, 105, 224, .12); }
+.find-pill.stuck .sn-find-bar { height: 42px; }
+.find-pill.stuck .sn-cap { padding: 8px; }
+.sn-clear {
+  flex: none; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  display: grid; place-items: center; background: rgba(12, 28, 45, .08); color: var(--ink, #0b1726);
+  transition: background-color .2s var(--ease), transform .18s var(--ease);
+  animation: uiPopIn .35s var(--spring) both;
+}
+.sn-clear[hidden] { display: none; }
+.sn-clear:active { transform: scale(.9); }
+@media (hover: hover) { .sn-clear:hover { background: rgba(12, 28, 45, .14); } }
 
 /* ---- week wheel -------------------------------------------------- */
 /* sizes are registered so they can animate when the capsule pins */
@@ -130,7 +262,7 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 @property --sn-padT { syntax: '<length>'; inherits: true; initial-value: 14px; }
 @property --sn-padB { syntax: '<length>'; inherits: true; initial-value: 14px; }
 @property --sn-dot { syntax: '<length>'; inherits: true; initial-value: 5px; }
-.sn-wkbar { position: relative; margin: 2px 0 -6px; transition: margin .5s var(--spring); }
+.sn-wkbar { position: relative; margin: 2px 0 -6px; }
 .season-nav.stuck .sn-wkbar { margin-top: 4px; }
 .sn-wkcap { position: relative; }
 .sn-rail {
@@ -234,6 +366,67 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 .sn-wkbar.enter .sn-wk { animation: uiPopIn .55s var(--spring) both; animation-delay: calc(var(--i) * 22ms); }
 .sn-wkbar.enter .sn-disc { animation: uiFade .4s var(--ease) both; animation-delay: .3s; }
 
+/* ---- phones: the capsule at the bottom of the screen ----------------
+   Fixed to the bottom, in thumb reach, with the week wheel above the
+   views. At the top of the page it rests as a frosted bar docked to the
+   screen's edge; the moment the page scrolls it gathers itself into a
+   smaller capsule that lifts off the edge and hovers. A search grows up
+   out of it and rides on top of the keyboard. */
+.sn-scroll-mark { position: absolute; top: 0; left: 0; width: 1px; height: 24px; pointer-events: none; visibility: hidden; }
+@media (max-width: 760px) {
+  .season-nav.sn-bottom {
+    position: fixed; top: auto; left: 0; right: 0; bottom: var(--kb, 0px);
+    width: auto; height: auto !important; margin: 0; z-index: 45;
+    transition: bottom .25s var(--ease);
+  }
+  .season-nav.sn-bottom .sn-cap {
+    display: flex; flex-direction: column;
+    margin: 0; transform: none;
+    padding: 0 10px calc(8px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0; border: 1px solid rgba(7, 24, 39, .07); border-bottom: 0;
+    background-color: rgba(255, 255, 255, .88);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    backdrop-filter: blur(20px) saturate(1.8);
+    box-shadow: 0 -10px 30px rgba(7, 24, 39, .08);
+    transition: margin .55s var(--spring), padding .55s var(--spring), border-radius .55s var(--spring),
+      box-shadow .45s var(--ease), background-color .35s var(--ease);
+  }
+  /* the week wheel on top, the views under it, results above both */
+  .season-nav.sn-bottom .sn-drop { order: 0; }
+  .season-nav.sn-bottom .sn-wkwrap { order: 1; }
+  .season-nav.sn-bottom .sn-top { order: 2; }
+  .season-nav.sn-bottom .sn-wkbar { margin: 0 0 -4px; }
+  .season-nav.sn-bottom .sn-wkbar.lens .sn-track { --sn-padT: 16px; --sn-padB: 12px; }
+
+  /* scrolled: it lifts off the edge and hovers */
+  .season-nav.sn-bottom.stuck .sn-cap {
+    margin: 0 10px calc(10px + env(safe-area-inset-bottom));
+    padding: 0 6px 6px;
+    border-radius: 26px; border-bottom: 1px solid rgba(7, 24, 39, .07);
+    background-color: rgba(255, 255, 255, .84);
+    box-shadow: 0 18px 44px -10px rgba(7, 24, 39, .34), 0 2px 8px rgba(7, 24, 39, .08);
+  }
+  .season-nav.sn-bottom.stuck .sn-wkbar { margin: 0 0 -2px; }
+  .season-nav.sn-bottom.stuck .sn-wkbar.lens .sn-track { --sn-ring: 32px; --sn-padT: 12px; --sn-padB: 8px; }
+
+  /* searching: the wheel folds away downward and the results open upward */
+  .season-nav.sn-bottom.searching .sn-cap { padding-top: 6px; }
+  .season-nav.sn-bottom.searching .sn-wkbar { transform: translateY(8px) scale(.98); }
+  .season-nav.sn-bottom .sn-drop .player-results {
+    max-height: min(52vh, calc(var(--vvh, 100vh) - 190px)); padding: 2px 0 8px;
+  }
+  .season-nav.sn-bottom.searching:not(.stuck) .sn-cap { padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+  /* with the keyboard up, the capsule sits right on it */
+  .season-nav.sn-bottom[style*="--kb"].stuck .sn-cap { margin-bottom: 8px; }
+
+  /* the page keeps room at its foot for the bar */
+  .season-nav.sn-bottom + main { padding-top: 6px; padding-bottom: calc(var(--sn-space, 150px) + 24px + env(safe-area-inset-bottom)); }
+  /* Android's install prompt moves up above it */
+  html:has(.season-nav.sn-bottom) .lh-install { bottom: calc(var(--sn-space, 150px) + 22px + env(safe-area-inset-bottom)); }
+}
+/* the header clears the status bar in the installed iPhone app */
+@media (max-width: 1199px) { .topbar { padding-top: env(safe-area-inset-top); } }
+
 /* The page title no longer shares its row with the view tabs (they live in
    the capsule now), and it rolls when the week changes. */
 .season-nav + main { padding-top: 0; }
@@ -296,21 +489,181 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 }
 .why-pop > * { animation: uiPiIn .4s var(--ease) both; animation-delay: 70ms; }
 
-/* Backdrops behind the team drawer and the box score blur the page */
-.drawer-backdrop, .bx-backdrop {
-  background: rgba(7, 24, 39, .36);
-  -webkit-backdrop-filter: blur(8px) saturate(1.2);
-  backdrop-filter: blur(8px) saturate(1.2);
-  transition: opacity .3s var(--ease);
+/* ===============================================================
+   Cards: the team drawer (and the all-time team profile, which shares
+   its classes) and the box score. The player card's own look lives in
+   player-card.js, on the same tokens. Nothing here changes what a card
+   says; it changes the glass it's printed on and how it arrives.
+   =============================================================== */
+:root {
+  --glass-sheet: rgba(240, 244, 249, .76);
+  --glass-tile: rgba(255, 255, 255, .8);
+  --glass-edge: rgba(255, 255, 255, .7);
+  --glass-hair: rgba(7, 24, 39, .08);
+  --sheet-shadow: 0 40px 90px -30px rgba(7, 24, 39, .55), 0 14px 36px -14px rgba(7, 24, 39, .28), 0 0 0 .5px rgba(7, 24, 39, .16);
+  --tile-shadow: 0 0 0 .5px var(--glass-hair), 0 12px 28px -20px rgba(7, 24, 39, .4);
 }
-/* Desktop: open generously, close quickly. The drawer slides with the
-   ease (a spring would lift it off the edge it's pinned to); the centred
-   box score springs up. Phones keep the sheet curve player-card.js sets. */
+
+/* The page behind a card dims and goes soft, like iOS behind a sheet. */
+.drawer-backdrop, .bx-backdrop {
+  background: rgba(7, 24, 39, .3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.35);
+  backdrop-filter: blur(14px) saturate(1.35);
+  transition: opacity .35s var(--ease);
+}
+
+/* ---- the sheets themselves: frosted, with a hairline of light ---- */
+.team-drawer, .bx-modal {
+  background: var(--glass-sheet);
+  -webkit-backdrop-filter: blur(34px) saturate(1.9);
+  backdrop-filter: blur(34px) saturate(1.9);
+  box-shadow: var(--sheet-shadow);
+}
+.team-drawer::after, .bx-modal::after {
+  /* the light catching the sheet's edge, drawn over its content */
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 7;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+.bx-modal { border-radius: 24px; }
+
+/* Desktop: the drawer floats as an inset card instead of a slab against
+   the edge. (It still docks narrower beside a player card.) */
 @media (min-width: 761px) {
-  .team-drawer { transition: transform .3s var(--ease); }
-  .team-drawer.open { transition: transform .5s var(--ease); }
+  .team-drawer {
+    top: 12px; bottom: 12px; left: 12px; height: auto; max-height: none;
+    width: min(680px, calc(100% - 24px));
+    border-radius: 26px; overflow: hidden;
+    transform: translateX(calc(-100% - 40px));
+    transition: transform .32s var(--ease);
+  }
+  .team-drawer.open { transform: none; transition: transform .6s var(--ease); }
   .bx-modal.open { transition: opacity .3s var(--ease), transform .5s var(--spring), left .45s var(--ease), width .45s var(--ease); }
 }
+
+/* Phones: rounder sheets with a grabber, which is what the swipe-down
+   (player-card.js) has always done; now it shows. */
+@media (max-width: 760px) {
+  .team-drawer, .bx-modal { border-radius: 24px 24px 0 0; }
+  .team-drawer::before, .bx-modal::before {
+    content: ""; position: absolute; z-index: 8; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px;
+    border-radius: 3px; background: rgba(255, 255, 255, .55); pointer-events: none;
+  }
+  .bx-head { padding-top: 16px; }
+}
+
+/* ---- headers: the team's colour, lit from the top left ------------- */
+.drawer-hero {
+  background:
+    radial-gradient(120% 150% at 0% 0%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(140deg,
+      color-mix(in srgb, var(--drawer-color, var(--navy-2)) 86%, #fff) 0%,
+      var(--drawer-color, var(--navy-2)) 45%,
+      color-mix(in srgb, var(--drawer-color, var(--navy-2)) 70%, #071827) 100%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .12);
+}
+.drawer-hero::after {
+  background: radial-gradient(circle, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 68%);
+  animation: uiDrift 14s ease-in-out infinite alternate;
+}
+.drawer-hero .drawer-stat {
+  background: rgba(255, 255, 255, .13); border-color: rgba(255, 255, 255, .22); border-radius: 14px;
+  -webkit-backdrop-filter: blur(12px) saturate(1.4); backdrop-filter: blur(12px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+/* on a phone the stat tiles sit in the body, as little slabs of team colour */
+.drawer-stats-body .drawer-stat {
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(140deg, var(--drawer-color, var(--navy-2)), color-mix(in srgb, var(--drawer-color, var(--navy-2)) 72%, #071827));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 10px 20px -12px color-mix(in srgb, var(--drawer-color, var(--navy-2)) 80%, transparent);
+}
+.drawer-team .team-badge { box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .45), 0 0 0 3px rgba(255, 255, 255, .18); }
+.drawer-year { background: rgba(255, 255, 255, .2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+
+.bx-head {
+  background:
+    radial-gradient(120% 180% at 0% 0%, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(140deg, #1c3a57 0%, #0e2439 50%, #071827 100%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08);
+}
+
+/* round glass close buttons (sizes stay each page's own) */
+.drawer-close, .bx-close {
+  display: grid; place-items: center; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .26); background: rgba(255, 255, 255, .16); color: #fff;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 4px 12px -4px rgba(0, 0, 0, .3);
+}
+@media (hover: hover) { .drawer-close:hover, .bx-close:hover { background: rgba(255, 255, 255, .28); } }
+.drawer-close:active, .bx-close:active { transform: scale(.9); }
+
+/* ---- what's printed on the glass ---------------------------------- */
+.drawer-body .schedule-list, .drawer-body .roster-list, .drawer-body .roster-help {
+  background: var(--glass-tile); border: 1px solid var(--glass-edge); border-radius: 18px;
+  box-shadow: var(--tile-shadow);
+}
+.drawer-body .schedule-row { border-bottom-color: rgba(7, 24, 39, .06); transition: background-color .2s var(--ease); }
+.drawer-body .roster-row { border-top-color: rgba(7, 24, 39, .06); transition: background-color .2s var(--ease); }
+.drawer-body .roster-row.header { background: rgba(236, 241, 246, .75); }
+@media (hover: hover) {
+  .drawer-body .schedule-row:hover, .drawer-body .roster-row:not(.header):hover { background: rgba(255, 255, 255, .85); }
+}
+.schedule-heading h3 { letter-spacing: -.01em; }
+
+/* the box score: its scoreboard is frosted and the lineups scroll under it */
+.bx-cols { background: transparent; }
+.bx-sb {
+  background: rgba(255, 255, 255, .72);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8);
+  border-bottom-color: rgba(7, 24, 39, .08);
+  box-shadow: 0 8px 18px -14px rgba(7, 24, 39, .35);
+}
+.bx-row { background: rgba(255, 255, 255, .58); border-top-color: rgba(7, 24, 39, .05); transition: background-color .2s var(--ease); }
+@media (hover: hover) { .bx-row:not(.bx-grouphead):hover { background: rgba(255, 255, 255, .92); } }
+.bx-slot { background: rgba(12, 28, 45, .045); }
+.bx-grouphead, .bx-grouphead .bx-slot { background: rgba(229, 235, 242, .7); }
+.bx-foot { background: rgba(255, 255, 255, .5); border-top-color: rgba(7, 24, 39, .07); }
+.bx-total b { letter-spacing: -.02em; }
+
+/* ---- arrival: the card's parts settle in, in order -----------------
+   ui.js adds .ui-enter when a card opens (or its contents change while
+   it's open) and numbers each repeated part with --ui-i. */
+.ui-enter .drawer-team .team-badge { animation: uiBadgeIn .7s var(--spring) both .06s; }
+.ui-enter .drawer-team > div > * { animation: uiLift .55s var(--ease) both; animation-delay: calc(.1s + var(--ui-i, 0) * 50ms); }
+.ui-enter .drawer-stat { animation: uiTileIn .6s var(--spring) both; animation-delay: calc(.16s + var(--ui-i, 0) * 45ms); }
+.ui-enter :is(.schedule-heading, .roster-help) { animation: uiLift .5s var(--ease) both .18s; }
+.ui-enter :is(.schedule-row, .roster-row, .bx-row) {
+  animation: uiRowIn .5s var(--ease) both; animation-delay: calc(.2s + min(var(--ui-i, 0), 14) * 24ms);
+}
+.ui-enter .roster-strip { animation: uiWipe .9s var(--ease) both; animation-delay: calc(.32s + min(var(--ui-i, 0), 14) * 24ms); }
+.ui-enter .drawer-body > :is(.schedule-section, .schedule-list, .hl-grid, .table-wrap) { animation: uiRise .55s var(--ease) both; animation-delay: calc(.14s + min(var(--ui-i, 0), 8) * 60ms); }
+.ui-enter .bx-head h3, .ui-enter .bx-head .bx-sub { animation: uiLift .5s var(--ease) both .06s; }
+.ui-enter .bx-sb .bx-p.bx-l { animation: uiFromLeft .65s var(--ease) both .1s; }
+.ui-enter .bx-sb .bx-p.bx-r { animation: uiFromRight .65s var(--ease) both .1s; }
+.ui-enter .bx-sb .bx-total { animation: uiScoreIn .7s var(--spring) both .18s; }
+
+/* the player card: photo pops, tiles cascade, each season's strip wipes in
+   left to right, the managers' bars grow and the medals settle */
+.ui-enter .pc-photo { animation: uiBadgeIn .75s var(--spring) both .05s; }
+.ui-enter .pc-id > * { animation: uiLift .55s var(--ease) both; animation-delay: calc(.1s + var(--ui-i, 0) * 50ms); }
+.ui-enter .pc-tile { animation: uiTileIn .6s var(--spring) both; animation-delay: calc(.14s + var(--ui-i, 0) * 50ms); }
+.ui-enter .pc-body > :not(.pc-tiles) { animation: uiRise .6s var(--ease) both; animation-delay: calc(.2s + min(var(--ui-i, 0), 6) * 70ms); }
+.ui-enter .pc-tl-row:not(.pc-tl-head) .pc-tl-strip { animation: uiWipe .9s var(--ease) both; animation-delay: calc(.32s + min(var(--ui-i, 0), 12) * 55ms); }
+.ui-enter .pc-mgr .pc-bar i { transform-origin: left center; animation: uiGrowX 1s var(--ease) both; animation-delay: calc(.45s + min(var(--ui-i, 0), 10) * 60ms); }
+.ui-enter .pc-medal { animation: uiTileIn .6s var(--spring) both; animation-delay: calc(.42s + var(--ui-i, 0) * 70ms); }
+
+/* ---- keyframes for the cards ---- */
+@keyframes uiDrift { from { transform: translate(0, 0) scale(1); } to { transform: translate(-40px, 26px) scale(1.18); } }
+@keyframes uiBadgeIn { from { opacity: 0; transform: scale(.4) rotate(-10deg); } to { opacity: 1; transform: none; } }
+@keyframes uiLift { from { opacity: 0; transform: translateY(8px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiTileIn { from { opacity: 0; transform: translateY(10px) scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes uiRowIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes uiWipe { from { clip-path: inset(0 100% 0 0 round 3px); } to { clip-path: inset(0 0 0 0 round 3px); } }
+@keyframes uiGrowX { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes uiFromLeft { from { opacity: 0; transform: translateX(-22px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiFromRight { from { opacity: 0; transform: translateX(22px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiScoreIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
 
 /* ---------------------------------------------------------------
    Header summary fold (phones)

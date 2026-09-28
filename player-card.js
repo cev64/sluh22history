@@ -30,9 +30,9 @@
   const CSS = `
   .pc-backdrop {
     position: fixed; inset: 0; z-index: 200;
-    background: rgba(7, 18, 30, .55);
-    opacity: 0; pointer-events: none; transition: opacity .3s cubic-bezier(.22, 1, .36, 1);
-    -webkit-backdrop-filter: blur(8px) saturate(1.2); backdrop-filter: blur(8px) saturate(1.2);
+    background: rgba(7, 24, 39, .3);
+    opacity: 0; pointer-events: none; transition: opacity .35s cubic-bezier(.22, 1, .36, 1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.35); backdrop-filter: blur(14px) saturate(1.35);
   }
   .pc-backdrop.open { opacity: 1; pointer-events: auto; }
 
@@ -43,12 +43,18 @@
     transform: translate(-50%, -48%) scale(.98); opacity: 0; pointer-events: none;
     transition: opacity .18s ease, transform .18s ease;
     display: flex; flex-direction: column;
-    background: var(--pc-soft); border-radius: 18px; overflow: hidden;
-    box-shadow: 0 30px 80px rgba(7, 18, 30, .35);
+    /* frosted glass (tokens from ui.css), with a hairline of light on its edge */
+    background: var(--glass-sheet, rgba(240, 244, 249, .76)); border-radius: 24px; overflow: hidden;
+    -webkit-backdrop-filter: blur(34px) saturate(1.9); backdrop-filter: blur(34px) saturate(1.9);
+    box-shadow: var(--sheet-shadow, 0 30px 80px rgba(7, 18, 30, .35));
     color: var(--pc-ink); font-size: 12px; line-height: 1.35;
     -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
   }
   .pc.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+  .pc::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 7;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), inset 0 1px 0 rgba(255, 255, 255, .45);
+  }
   /* Desktop: opens generously with a little spring, closes quickly. (Phones
      keep the sheet curve further down.) */
   @media (min-width: 761px) {
@@ -71,16 +77,31 @@
     transition: padding .28s ease;
     display: flex; align-items: center; gap: 16px;
     padding: 20px 60px 20px 22px;
-    background: linear-gradient(120deg, var(--pc-color) 0%, color-mix(in srgb, var(--pc-color) 55%, #071827) 100%);
+    /* the club's colour, lit from the top left */
+    background:
+      radial-gradient(120% 160% at 0% 0%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 55%),
+      linear-gradient(120deg, color-mix(in srgb, var(--pc-color) 88%, #fff) 0%, var(--pc-color) 40%, color-mix(in srgb, var(--pc-color) 55%, #071827) 100%);
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .12);
     color: #fff;
   }
   .pc-hero::after {
     content: ""; position: absolute; right: -60px; top: -80px; width: 240px; height: 240px;
-    border-radius: 50%; background: rgba(255,255,255,.07);
+    border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 68%);
+    animation: pcDrift 14s ease-in-out infinite alternate;
+  }
+  @keyframes pcDrift { from { transform: none; } to { transform: translate(-40px, 26px) scale(1.18); } }
+  /* Shrunk to a bar while the card scrolls, the header turns to tinted
+     glass and the stats slide by underneath it. */
+  .pc.compact .pc-hero {
+    background:
+      radial-gradient(120% 160% at 0% 0%, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 55%),
+      linear-gradient(120deg, color-mix(in srgb, var(--pc-color) 90%, transparent) 0%,
+        color-mix(in srgb, color-mix(in srgb, var(--pc-color) 55%, #071827) 93%, transparent) 100%);
+    -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7);
   }
   .pc-photo {
     position: relative; flex: 0 0 auto; width: 84px; height: 84px; border-radius: 50%;
-    background: rgba(255,255,255,.95); box-shadow: 0 0 0 4px rgba(255,255,255,.25);
+    background: rgba(255,255,255,.95); box-shadow: 0 0 0 4px rgba(255,255,255,.25), 0 14px 30px -10px rgba(0, 0, 0, .5);
     display: grid; place-items: center;
   }
   .pc-photo > img.pc-face { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: top; opacity: 0; transition: opacity .3s ease; }
@@ -95,7 +116,8 @@
   .pc-id h2 { margin: 0; font-size: 26px; line-height: 1.05; letter-spacing: -.02em; }
   .pc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .pc-tag {
-    padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.16);
+    padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.18);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18);
     font-size: 10.5px; font-weight: 800; letter-spacing: .03em;
   }
   /* A champion's name sits on gold, with the winning years above it. */
@@ -112,10 +134,13 @@
   .pc.compact .pc-champ { max-height: 0; opacity: 0; margin-bottom: 0; }
   .pc-close {
     position: absolute; z-index: 2; top: 14px; right: 14px; width: 34px; height: 34px;
-    border: 1px solid rgba(255,255,255,.3); border-radius: 10px; background: rgba(255,255,255,.12);
+    display: grid; place-items: center; padding: 0;
+    border: 1px solid rgba(255,255,255,.28); border-radius: 50%; background: rgba(255,255,255,.16);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 4px 12px -4px rgba(0, 0, 0, .3);
     color: #fff; font-size: 21px; line-height: 1; cursor: pointer;
   }
-  .pc-close:hover { background: rgba(255,255,255,.24); }
+  .pc-close:hover { background: rgba(255,255,255,.28); }
   .pc-photo, .pc-id h2 { transition: width .28s ease, height .28s ease, font-size .28s ease; }
   .pc.compact .pc-hero { padding-top: 8px; padding-bottom: 8px; }
   .pc.pc-measure, .pc.pc-measure * { transition: none !important; }
@@ -157,15 +182,22 @@
   .pc-body { padding: 14px; display: grid; gap: 12px; }
 
   .pc-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-  .pc-tile { background: #fff; border: 1px solid var(--pc-line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+  /* tiles and cards are printed on the glass: near-white, edged with light */
+  .pc-tile {
+    background: var(--glass-tile, #fff); border: 1px solid var(--glass-edge, var(--pc-line)); border-radius: 16px;
+    box-shadow: var(--tile-shadow, none); padding: 10px 12px; min-width: 0;
+  }
   .pc-tile small { display: block; color: var(--pc-muted); font-size: 8.5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
   .pc-tile strong { display: block; margin-top: 4px; font-size: 21px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
   .pc-tile span { display: block; margin-top: 2px; color: var(--pc-muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .pc-card { background: #fff; border: 1px solid var(--pc-line); border-radius: 14px; overflow: hidden; }
+  .pc-card {
+    background: var(--glass-tile, #fff); border: 1px solid var(--glass-edge, var(--pc-line)); border-radius: 18px;
+    box-shadow: var(--tile-shadow, none); overflow: hidden;
+  }
   .pc-card-head {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 10px 14px; border-bottom: 1px solid var(--pc-line);
+    padding: 10px 14px; border-bottom: 1px solid rgba(7, 24, 39, .07);
   }
   .pc-card-head h3 { margin: 0; font-size: 13.5px; display: flex; align-items: center; gap: 7px; }
   .pc-card-head > span { color: var(--pc-muted); font-size: 10px; }
@@ -176,7 +208,7 @@
      whichever team had him that week, and that team's logo at the end. */
   .pc-tl-row {
     display: grid; grid-template-columns: 38px minmax(0, 1fr) 72px; gap: 10px; align-items: center;
-    padding: 7px 14px; border-top: 1px solid #eef1f4;
+    padding: 7px 14px; border-top: 1px solid rgba(7, 24, 39, .06);
   }
   .pc-tl-row:first-child { border-top: 0; }
   .pc-tl-year { font-weight: 900; font-size: 12px; }
@@ -208,7 +240,7 @@
 
   .pc-mgr {
     display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center;
-    padding: 9px 14px; border-top: 1px solid #eef1f4;
+    padding: 9px 14px; border-top: 1px solid rgba(7, 24, 39, .06);
   }
   .pc-mgr:first-child { border-top: 0; }
   .pc-mgr-name { min-width: 0; }
@@ -250,12 +282,18 @@
 
   /* Game log */
   .pc-log-tools { display: flex; align-items: center; gap: 8px; }
-  .pc-tabs { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
-  .pc-tabs button {
-    border: 1px solid var(--pc-line); background: #fff; color: var(--pc-ink);
-    border-radius: 999px; padding: 3px 9px; font: inherit; font-size: 10.5px; font-weight: 800; cursor: pointer;
+  .pc-tabs {
+    display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end;
+    padding: 2px; border-radius: 999px; background: rgba(12, 28, 45, .06);
   }
-  .pc-tabs button.active { background: var(--pc-ink); border-color: var(--pc-ink); color: #fff; }
+  .pc-tabs button {
+    border: 0; background: transparent; color: var(--pc-muted);
+    border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 10.5px; font-weight: 800; cursor: pointer;
+    transition: background-color .25s cubic-bezier(.22, 1, .36, 1), color .25s cubic-bezier(.22, 1, .36, 1), box-shadow .25s, transform .18s;
+  }
+  @media (hover: hover) { .pc-tabs button:not(.active):hover { color: var(--pc-ink); } }
+  .pc-tabs button:active { transform: scale(.94); }
+  .pc-tabs button.active { background: #fff; color: var(--pc-ink); box-shadow: 0 1px 3px rgba(16, 24, 40, .14), 0 1px 1px rgba(16, 24, 40, .05); }
   .pc-year {
     display: none; border: 1px solid var(--pc-line); border-radius: 8px; background: #fff; color: var(--pc-ink);
     font: inherit; font-size: 12px; font-weight: 800; padding: 4px 6px;
@@ -278,10 +316,12 @@
   .pc-log { font-variant-numeric: tabular-nums; }
   .pc-log-row {
     display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 10px; align-items: center;
-    padding: 5px 14px; border-top: 1px solid #eef1f4; font-size: 11.5px;
+    padding: 5px 14px; border-top: 1px solid rgba(7, 24, 39, .06); font-size: 11.5px;
+    transition: background-color .2s cubic-bezier(.22, 1, .36, 1);
   }
+  @media (hover: hover) { .pc-log-row:not(.head):hover { background: rgba(255, 255, 255, .9); } }
   .pc-log-row.head {
-    padding-top: 6px; padding-bottom: 6px; border-top: 0; background: #f6f8fa; color: #788696;
+    padding-top: 6px; padding-bottom: 6px; border-top: 0; background: rgba(236, 241, 246, .75); color: #788696;
     font-size: 8.5px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
   }
   .pc-log.all .pc-log-row { grid-template-columns: 78px minmax(0, 1fr) auto; }
@@ -325,7 +365,7 @@
        row (a results card's team row) must not change size while pressed,
        or the tap lands outside it and is lost. */
     :where(.week-pill, .view-tab, .bx-open, .bx-cue-row, .player-result, .pc-tabs button,
-      .pc-close, .bx-close, .drawer-close, .close-profile, .nl-download, .trophy-room-link):active {
+      .pc-close, .bx-close, .drawer-close, .close-profile, .trophy-room-link):active {
       transform: scale(.97); transition-duration: .06s;
     }
     :where(.game-side, .season-link, .schedule-opponent):active { background-color: rgba(23, 105, 224, .07); transition-duration: .06s; }
@@ -377,10 +417,15 @@
   @media (max-width: 760px) {
     .pc {
       left: 0; top: auto; bottom: 0; width: 100%; max-height: 92dvh;
-      border-radius: 16px 16px 0 0; transform: translateY(24px); font-size: 11px;
+      border-radius: 24px 24px 0 0; transform: translateY(24px); font-size: 11px;
+    }
+    /* the grabber the swipe-down has always answered to */
+    .pc::before {
+      content: ""; position: absolute; z-index: 8; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px;
+      border-radius: 3px; background: rgba(255, 255, 255, .55); pointer-events: none;
     }
     .pc.open { transform: none; }
-    .pc-hero { padding: 14px 50px 14px 12px; gap: 12px; }
+    .pc-hero { padding: 18px 50px 14px 12px; gap: 12px; }
     .pc-photo { width: 56px; height: 56px; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
     .pc-photo .pc-club { width: 24px; height: 24px; right: -4px; }
     .pc-photo .pc-club img { width: 18px; height: 14px; }
@@ -389,17 +434,17 @@
     .pc-tag { font-size: 9px; padding: 2px 7px; }
     .pc-champ { font-size: 9px; margin-bottom: 4px; }
     .pc-id h2.pc-gold { padding: 1px 8px 2px; border-radius: 8px; }
-    .pc-close { top: 10px; right: 10px; width: 30px; height: 30px; font-size: 18px; border-radius: 8px; }
+    .pc-close { top: 10px; right: 10px; width: 30px; height: 30px; font-size: 18px; border-radius: 50%; }
     .pc.compact .pc-photo { width: 34px; height: 34px; }
     .pc.compact .pc-id h2 { font-size: 16px; }
     .pc-body { padding: 8px; gap: 8px; }
     .pc.compact .pc-body { padding-bottom: calc(8px + var(--pc-shrink, 0px)); }
     .pc-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-    .pc-tile { padding: 8px 10px; border-radius: 10px; }
+    .pc-tile { padding: 8px 10px; border-radius: 14px; }
     .pc-tile small { font-size: 7.5px; }
     .pc-tile strong { font-size: 17px; margin-top: 2px; }
     .pc-tile span { font-size: 9px; }
-    .pc-card { border-radius: 12px; }
+    .pc-card { border-radius: 16px; }
     .pc-card-head { padding: 8px 10px; }
     .pc-card-head h3 { font-size: 12px; }
     .pc-card-head > span { font-size: 9px; }
@@ -564,7 +609,8 @@
       card.classList.remove("from-panel");
     } else {
       if (!target.host.dataset.pcWidth) target.host.dataset.pcWidth = target.host.getBoundingClientRect().width;
-      const panelW = Math.min(Number(target.host.dataset.pcWidth), vw - cardW - 32);
+      // the panel floats 12px in from the left; keep 16px between it and the card
+      const panelW = Math.min(Number(target.host.dataset.pcWidth), vw - cardW - 44);
       target.host.style.width = `${panelW}px`;
       // Just under the panel, just over its backdrop, so it slides out from
       // behind the panel's edge.

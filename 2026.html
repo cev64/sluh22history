@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="2026 fantasy football season live hub: weekly results, standings, and the playoff picture as it stands today." />
   <title>League History · 2026</title>
   <link rel="manifest" href="manifest.webmanifest" />
@@ -3060,57 +3060,6 @@
       .bx-p { gap: 4px; }
     }
 
-    /* Weekly newsletter download ------------------------------------ */
-
-    .nl-card { margin-bottom: 14px; }
-
-    .nl-body {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px 16px;
-      padding: 14px 20px 18px;
-    }
-
-    .nl-copy {
-      flex: 1 1 260px;
-      min-width: 0;
-      margin: 0;
-      font-size: 13.5px;
-      line-height: 1.55;
-      color: #24354a;
-    }
-
-    .nl-download {
-      flex: 0 0 auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      padding: 10px 17px;
-      border-radius: 999px;
-      background: var(--navy);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: .02em;
-      text-decoration: none;
-      transition: background .15s ease;
-    }
-
-    .nl-download::before {
-      content: "";
-      flex: 0 0 auto;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--red);
-      box-shadow: 0 0 0 3px rgba(215, 25, 32, .22);
-    }
-
-    .nl-download:hover { background: var(--navy-2); }
-    .nl-download:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
-
     .summary-meta {
       display: flex;
       align-items: center;
@@ -3346,8 +3295,6 @@
       .summary-card .summary-body { padding: 4px 14px 16px; font-size: 14.5px; }
       .summary-superlatives { padding: 4px 14px 16px; }
       .summary-meta { padding: 12px 14px 0; }
-      .nl-body { padding: 12px 14px 16px; }
-      .nl-download { width: 100%; justify-content: center; }
     }
 
     /* Seed, clinch, and tiebreaker markers in the standings tables ---- */
@@ -4206,7 +4153,6 @@
     <section id="panel-results" class="live-panel active" role="tabpanel"></section>
     <section id="panel-standings" class="live-panel" role="tabpanel"></section>
     <section id="panel-picture" class="live-panel" role="tabpanel"></section>
-    <section id="panel-summary" class="live-panel" role="tabpanel"></section>
     <section id="panel-sidebets" class="live-panel" role="tabpanel"></section>
     <section id="panel-sos" class="live-panel" role="tabpanel"></section>
     <section id="panel-bracket" class="live-panel" role="tabpanel"></section>
@@ -5360,7 +5306,7 @@
        VIEW STATE
        ================================================================= */
 
-    const VIEWS = ["results", "standings", "picture", "summary", "sidebets", "sos"];
+    const VIEWS = ["results", "standings", "picture", "sidebets", "sos"];
 
     // Strength of schedule is a preseason view; once games are played the
     // week tabs carry results instead.
@@ -5390,13 +5336,13 @@
 
     function viewLabels(week) {
       if (week > REGULAR_WEEKS) return { bracket: "Bracket", standings: "Standings" };
-      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoffs", summary: "Preseason", sidebets: "Side Bets", sos: "Strength of Schedule" };
-      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoffs", summary: "Summary", sidebets: "Side Bets" };
-      return { results: "Matchups", standings: "Standings", picture: "Playoffs", summary: "Summary", sidebets: "Side Bets" };
+      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets", sos: "Strength of Schedule" };
+      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets" };
+      return { results: "Matchups", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets" };
     }
-    // Preseason has a sixth view; on a phone the longer names shorten so all
-    // six still share the capsule's width.
-    const PRESEASON_SHORT = { summary: "Preview", sidebets: "Bets", sos: "SOS" };
+    // Preseason adds a fifth view; on a phone its long name shortens so all
+    // five still share the capsule's width.
+    const PRESEASON_SHORT = { sos: "SOS" };
 
     /* =================================================================
        SHARED PIECES
@@ -6408,93 +6354,6 @@
     }
 
     /* =================================================================
-       WEEKLY NEWSLETTER
-
-       The one-page PDF built by tools/newsletter/build.mjs, committed to
-       newsletters/ and served straight off Pages. Which weeks have one is
-       not written down here: build.mjs rebuilds newsletters/index.json from
-       that folder's own contents every run, and this reads it. Publishing a
-       week is therefore building it into the folder and committing, and a
-       week with no file gets no button.
-       ================================================================= */
-
-    const NEWSLETTER_SEASON = 2026;
-    let newsletterIndex = null;
-
-    const newsletterUrl = (week) =>
-      `newsletters/SLUH22-${NEWSLETTER_SEASON}-Week${week}-Newsletter.pdf`;
-
-    /* One request for the folder's index rather than a HEAD probe per week.
-       Asking for each file directly also works, but every week without a
-       newsletter then logs a 404 in the console, and thirteen expected 404s
-       would bury a real error. build.mjs rebuilds this file from the folder
-       every time it writes a PDF, so it is still the files on disk talking,
-       not a hand-kept list. A missing or unreadable index means no buttons,
-       which is the right way to fail. */
-    function newsletterWeeks() {
-      if (!newsletterIndex) {
-        newsletterIndex = fetch("newsletters/index.json")
-          .then((res) => (res.ok ? res.json() : {}))
-          .then((index) => new Set(index[String(NEWSLETTER_SEASON)] || []))
-          .catch(() => new Set());
-      }
-      return newsletterIndex;
-    }
-
-    function newsletterCard(week) {
-      return `<article class="card nl-card">
-        ${cardHead("Weekly Newsletter", "document")}
-        <div class="nl-body">
-          <p class="nl-copy">Week ${week} on one printable sheet: every result, the standings and seeding as they stood, and the box scores behind them.</p>
-          <a class="nl-download" href="${newsletterUrl(week)}" download>Download PDF</a>
-        </div>
-      </article>`;
-    }
-
-    /* The index arrives asynchronously, so the reader can move to another week
-       before it lands. Check that the week is still the one on screen, and
-       that a re-render has not already placed the card, before inserting. */
-    function renderNewsletterLink(week) {
-      const panel = document.getElementById("panel-summary");
-      if (!panel) return;
-      // A week without a newsletter must not inherit the last week's card,
-      // and not every path through the panel rewrites its contents.
-      const stale = panel.querySelector(".nl-card");
-      if (stale) stale.remove();
-      if (week < 1) return;
-      newsletterWeeks().then((weeks) => {
-        if (!weeks.has(week) || state.week !== week) return;
-        if (panel.querySelector(".nl-card")) return;
-        panel.insertAdjacentHTML("afterbegin", newsletterCard(week));
-      });
-    }
-
-    function renderSummaryPanel(week) {
-      const panel = document.getElementById("panel-summary");
-      const summary = weeklySummaries[week];
-
-      if (!summary) {
-        panel.innerHTML = emptyState(
-          week === 0 ? "No preseason notes yet" : `Week ${week} recap not posted yet`,
-          isPlayed(week)
-            ? "The scores are in but the write-up has not been added for this week."
-            : "The recap goes up once the week's results are posted.");
-        renderNewsletterLink(week);
-        return;
-      }
-
-      panel.innerHTML = `
-        <article class="card summary-card">
-          ${cardHead(week === 0 ? "Preseason Outlook" : `Week ${week} Recap`, "recap", "")}
-          ${summary.headline ? `<div class="summary-meta">${summary.headline}</div>` : ""}
-          ${summary.bullets
-            ? `<ul class="recap-list">${summary.bullets.map((b) => `<li><span>${b}</span></li>`).join("")}</ul>`
-            : `<div class="summary-body">${summary.body.map((para) => `<p>${para}</p>`).join("")}</div>`}
-        </article>`;
-      renderNewsletterLink(week);
-    }
-
-    /* =================================================================
        SIDE BETS PANEL
        ================================================================= */
 
@@ -6899,7 +6758,6 @@
         results: () => renderResultsPanel(week),
         standings: () => renderStandingsPanel(week),
         picture: () => renderPicturePanel(week),
-        summary: () => renderSummaryPanel(week),
         sidebets: () => renderSideBetsPanel(week),
         ...(week === 0 ? { sos: () => renderSosPanel() } : {}),
       };
