@@ -366,6 +366,67 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 .sn-wkbar.enter .sn-wk { animation: uiPopIn .55s var(--spring) both; animation-delay: calc(var(--i) * 22ms); }
 .sn-wkbar.enter .sn-disc { animation: uiFade .4s var(--ease) both; animation-delay: .3s; }
 
+/* ---- phones: the capsule at the bottom of the screen ----------------
+   Fixed to the bottom, in thumb reach, with the week wheel above the
+   views. At the top of the page it rests as a frosted bar docked to the
+   screen's edge; the moment the page scrolls it gathers itself into a
+   smaller capsule that lifts off the edge and hovers. A search grows up
+   out of it and rides on top of the keyboard. */
+.sn-scroll-mark { position: absolute; top: 0; left: 0; width: 1px; height: 24px; pointer-events: none; visibility: hidden; }
+@media (max-width: 760px) {
+  .season-nav.sn-bottom {
+    position: fixed; top: auto; left: 0; right: 0; bottom: var(--kb, 0px);
+    width: auto; height: auto !important; margin: 0; z-index: 45;
+    transition: bottom .25s var(--ease);
+  }
+  .season-nav.sn-bottom .sn-cap {
+    display: flex; flex-direction: column;
+    margin: 0; transform: none;
+    padding: 0 10px calc(8px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0; border: 1px solid rgba(7, 24, 39, .07); border-bottom: 0;
+    background-color: rgba(255, 255, 255, .88);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    backdrop-filter: blur(20px) saturate(1.8);
+    box-shadow: 0 -10px 30px rgba(7, 24, 39, .08);
+    transition: margin .55s var(--spring), padding .55s var(--spring), border-radius .55s var(--spring),
+      box-shadow .45s var(--ease), background-color .35s var(--ease);
+  }
+  /* the week wheel on top, the views under it, results above both */
+  .season-nav.sn-bottom .sn-drop { order: 0; }
+  .season-nav.sn-bottom .sn-wkwrap { order: 1; }
+  .season-nav.sn-bottom .sn-top { order: 2; }
+  .season-nav.sn-bottom .sn-wkbar { margin: 0 0 -4px; }
+  .season-nav.sn-bottom .sn-wkbar.lens .sn-track { --sn-padT: 16px; --sn-padB: 12px; }
+
+  /* scrolled: it lifts off the edge and hovers */
+  .season-nav.sn-bottom.stuck .sn-cap {
+    margin: 0 10px calc(10px + env(safe-area-inset-bottom));
+    padding: 0 6px 6px;
+    border-radius: 26px; border-bottom: 1px solid rgba(7, 24, 39, .07);
+    background-color: rgba(255, 255, 255, .84);
+    box-shadow: 0 18px 44px -10px rgba(7, 24, 39, .34), 0 2px 8px rgba(7, 24, 39, .08);
+  }
+  .season-nav.sn-bottom.stuck .sn-wkbar { margin: 0 0 -2px; }
+  .season-nav.sn-bottom.stuck .sn-wkbar.lens .sn-track { --sn-ring: 32px; --sn-padT: 12px; --sn-padB: 8px; }
+
+  /* searching: the wheel folds away downward and the results open upward */
+  .season-nav.sn-bottom.searching .sn-cap { padding-top: 6px; }
+  .season-nav.sn-bottom.searching .sn-wkbar { transform: translateY(8px) scale(.98); }
+  .season-nav.sn-bottom .sn-drop .player-results {
+    max-height: min(52vh, calc(var(--vvh, 100vh) - 190px)); padding: 2px 0 8px;
+  }
+  .season-nav.sn-bottom.searching:not(.stuck) .sn-cap { padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+  /* with the keyboard up, the capsule sits right on it */
+  .season-nav.sn-bottom[style*="--kb"].stuck .sn-cap { margin-bottom: 8px; }
+
+  /* the page keeps room at its foot for the bar */
+  .season-nav.sn-bottom + main { padding-top: 6px; padding-bottom: calc(var(--sn-space, 150px) + 24px + env(safe-area-inset-bottom)); }
+  /* Android's install prompt moves up above it */
+  html:has(.season-nav.sn-bottom) .lh-install { bottom: calc(var(--sn-space, 150px) + 22px + env(safe-area-inset-bottom)); }
+}
+/* the header clears the status bar in the installed iPhone app */
+@media (max-width: 1199px) { .topbar { padding-top: env(safe-area-inset-top); } }
+
 /* The page title no longer shares its row with the view tabs (they live in
    the capsule now), and it rolls when the week changes. */
 .season-nav + main { padding-top: 0; }

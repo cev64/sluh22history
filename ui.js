@@ -26,6 +26,8 @@
   const REDUCE = matchMedia("(prefers-reduced-motion: reduce)");
   const FINE = matchMedia("(hover: hover) and (pointer: fine)");
   const COARSE = matchMedia("(pointer: coarse)");
+  // phones: the season capsule lives at the bottom of the screen, in thumb reach
+  const PHONE = matchMedia("(max-width: 760px)");
   const EASE = "cubic-bezier(.22,1,.36,1)";
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const raf2 = (fn) => requestAnimationFrame(() => requestAnimationFrame(fn));
@@ -126,15 +128,28 @@
 
   /* ---------------------------------------------------------------
      Pinning, shared by the season capsule and the all-time search.
-     A sentinel just above the pill marks where it pins; the
-     pill's box in the page keeps its open height (the capsule shrinks
-     inside it, and a search drops out of it over the page), so neither
-     pinning nor searching ever moves the page.
+
+     At the top (desktops, tablets, the all-time page): a sentinel just
+     above the pill marks where it pins under the header, and the pill's
+     box in the page keeps its open height (the capsule shrinks inside
+     it, and a search drops out of it over the page), so neither pinning
+     nor searching ever moves the page.
+
+     At the bottom (a season's capsule on a phone, where a thumb can
+     reach it): the pill is fixed to the bottom of the screen and out of
+     the page's flow. It rests as a docked bar while the page is at its
+     top and "pins" into a floating capsule as soon as the page scrolls;
+     the page keeps room for it at its foot (--sn-space).
      --------------------------------------------------------------- */
-  function pinnable(root, { onStick } = {}) {
+  function pinnable(root, { onStick, bottom = () => false } = {}) {
     root.insertAdjacentHTML("beforebegin", '<div class="sn-sentinel" aria-hidden="true"></div>');
     const sentinel = root.previousElementSibling;
     const cap = root.querySelector(".sn-cap");
+    // for the bottom pill: has the page left its top?
+    const mark = document.createElement("div");
+    mark.className = "sn-scroll-mark";
+    mark.setAttribute("aria-hidden", "true");
+    document.body.prepend(mark);
     let io = null;
     /* How far down it pins: under a header that runs across the top, or
        at the very top beside the desktop sidebar. */
@@ -143,22 +158,22 @@
       if (!bar) return 0;
       const pos = getComputedStyle(bar).position;
       if (pos !== "sticky" && pos !== "fixed") return 0;
-      if (bar.getBoundingClientRect().right <= root.getBoundingClientRect().left + 1) return 0;
+      if (!bottom() && bar.getBoundingClientRect().right <= root.getBoundingClientRect().left + 1) return 0;
       return bar.offsetHeight;
     }
     const setStuck = (on) => root.classList.toggle("stuck", on);
-    /* freeze the footprint at the open, resting height: measured with
-       transitions off and without the pinned or searching states, which
-       are put back unseen */
+    /* measure the resting, open layout with transitions off and without
+       the pinned or searching states, which are put back unseen */
     function measure() {
-      if (!root.offsetParent) return;
+      if (!root.offsetParent && !bottom()) return;
       root.style.setProperty("--sn-top", `${top()}px`);
       const stuck = root.classList.contains("stuck"), open = root.classList.contains("searching");
       root.classList.add("measuring");
       if (stuck) setStuck(false);
       if (open) root.classList.remove("searching");
       root.style.height = "";
-      root.style.height = `${cap.offsetHeight}px`;
+      if (bottom()) document.documentElement.style.setProperty("--sn-space", `${cap.offsetHeight}px`);
+      else root.style.height = `${cap.offsetHeight}px`;
       if (open) root.classList.add("searching");
       if (stuck) setStuck(true);
       void cap.offsetHeight;
@@ -166,20 +181,29 @@
     }
     function watch() {
       if (io) io.disconnect();
+      sentinel.hidden = bottom();
       if (!("IntersectionObserver" in window)) return;
-      const t = top();
-      io = new IntersectionObserver(([e]) => {
-        const stuck = !e.isIntersecting && e.boundingClientRect.top < t + 1;
+      const flip = (stuck) => {
         if (stuck === root.classList.contains("stuck")) return;
         setStuck(stuck);
         if (onStick) onStick(stuck);
-      }, { rootMargin: `-${t + 1}px 0px 0px 0px`, threshold: 0 });
+      };
+      if (bottom()) {
+        io = new IntersectionObserver(([e]) => flip(!e.isIntersecting), { threshold: 0 });
+        io.observe(mark);
+        return;
+      }
+      const t = top();
+      io = new IntersectionObserver(([e]) => flip(!e.isIntersecting && e.boundingClientRect.top < t + 1),
+        { rootMargin: `-${t + 1}px 0px 0px 0px`, threshold: 0 });
       io.observe(sentinel);
     }
-    /* back to where the pill lets go: the top of the content under it */
+    /* back to the top of the content: where the pill lets go, or (with
+       the pill at the bottom) just under the header */
     function toTop() {
-      const y = sentinel.getBoundingClientRect().top + window.scrollY - top();
-      if (window.scrollY > y + 1) window.scrollTo({ top: y, behavior: REDUCE.matches ? "auto" : "smooth" });
+      const from = bottom() ? (root.nextElementSibling || root) : sentinel;
+      const y = from.getBoundingClientRect().top + window.scrollY - top() - (bottom() ? 6 : 0);
+      if (window.scrollY > y + 1) window.scrollTo({ top: Math.max(0, y), behavior: REDUCE.matches ? "auto" : "smooth" });
     }
     return { sentinel, top, measure, watch, toTop };
   }
@@ -314,8 +338,9 @@
         </div></div></div>
       </div>`;
       cap = root.querySelector(".sn-cap");
+      root.classList.toggle("sn-bottom", PHONE.matches);
       // ring sizes animate for ~.55s as it pins; keep the disc and the edges in step
-      pin = pinnable(root, { onStick: () => {
+      pin = pinnable(root, { bottom: () => PHONE.matches, onStick: () => {
         const t0 = performance.now();
         const follow = () => { placeDisc(); railEdges(); if (performance.now() - t0 < 650) requestAnimationFrame(follow); };
         requestAnimationFrame(follow);
@@ -492,8 +517,28 @@
       findInput.tabIndex = on ? 0 : -1;
       seg.inert = on;
       root.querySelector(".sn-wkwrap").inert = on;
+      followKeyboard(on && PHONE.matches);
       if (on) findInput.focus({ preventScroll: true });
       else { finder.clear(); if (root.contains(document.activeElement)) findBtn.focus({ preventScroll: true }); }
+    }
+    /* With the capsule at the bottom of a phone, the on-screen keyboard
+       would cover it: while searching it rides on top of the keyboard,
+       following the visual viewport, and its results fit what's left. */
+    let kbUpdate = null;
+    function followKeyboard(on) {
+      const vv = window.visualViewport;
+      if (!vv) return;
+      if (kbUpdate) { vv.removeEventListener("resize", kbUpdate); vv.removeEventListener("scroll", kbUpdate); kbUpdate = null; }
+      root.style.removeProperty("--kb");
+      root.style.removeProperty("--vvh");
+      if (!on) return;
+      kbUpdate = () => {
+        root.style.setProperty("--kb", `${Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop))}px`);
+        root.style.setProperty("--vvh", `${Math.round(vv.height)}px`);
+      };
+      vv.addEventListener("resize", kbUpdate);
+      vv.addEventListener("scroll", kbUpdate);
+      kbUpdate();
     }
     function wireSearch() {
       finder = playerFinder(findInput, root.querySelector(".sn-drop .player-results"),
@@ -510,7 +555,8 @@
       slashOpens(() => setSearch(true));
     }
     const relayout = () => {
-      if (!root || !root.offsetParent) return;
+      // (a fixed element has no offsetParent, so ask whether it has a box)
+      if (!root || !root.getClientRects().length) return;
       layoutRail(); measure(); centerWeek(week, "auto"); lensUpdate(); placeDisc(); placeSegInd();
     };
 
@@ -646,6 +692,14 @@
         rz = requestAnimationFrame(() => { watch(); relayout(); });
       });
       if (FINE.addEventListener) FINE.addEventListener("change", relayout);
+      // crossing the phone breakpoint moves the capsule between top and bottom
+      const place = () => {
+        root.classList.remove("stuck");
+        root.classList.toggle("sn-bottom", PHONE.matches);
+        if (root.classList.contains("searching")) followKeyboard(PHONE.matches);
+        watch(); relayout();
+      };
+      if (PHONE.addEventListener) PHONE.addEventListener("change", place);
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
     }
 
