@@ -1,0 +1,342 @@
+/* Shared look and motion for every page of the record book.
+
+   Linked after each page's own <style>, so where the two disagree this
+   file wins. It adds rather than rebuilds: the data, the tables and the
+   copy are the page's; this is the feel around them.
+
+   The feel: quiet at rest, lively on interaction. Selections glide, new
+   things settle in, changes show where they came from, and floating
+   chrome (the pinned season capsule, the header on a phone, popovers and
+   the backdrops behind sheets) is frosted glass. Nothing blinks, jumps or
+   pops without a reason.
+
+   One ease-out for movement, one gentle spring for "settle" moments. */
+
+:root {
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --spring: cubic-bezier(.34, 1.4, .64, 1);
+}
+
+/* Reserve the scrollbar's space on every view, so switching between a long
+   one and a short one never nudges the layout sideways. */
+html { scrollbar-gutter: stable; }
+body { -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+/* no grey flash on tap in mobile browsers; :active below gives feedback instead */
+html, button, a, summary, select, [role="tab"] { -webkit-tap-highlight-color: transparent; }
+button, summary, [role="tab"] { touch-action: manipulation; }
+/* taps leave no focus ring behind; the keyboard still shows one */
+:focus:not(:focus-visible) { outline: none; }
+
+/* ---------------------------------------------------------------
+   Header
+   --------------------------------------------------------------- */
+/* Across the top (phones, tablets) the header is frosted glass: the page
+   slides under it, and a soft shadow appears once it has. The desktop
+   sidebar stays solid navy. */
+@media (max-width: 1199px) {
+  .topbar {
+    background: rgba(7, 24, 39, .84);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    backdrop-filter: blur(18px) saturate(1.6);
+    transition: box-shadow .3s var(--ease), border-color .3s var(--ease);
+  }
+  .topbar.scrolled { box-shadow: 0 10px 28px rgba(7, 24, 39, .22); border-bottom-color: transparent; }
+}
+.topbar-trophy { transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease); }
+.topbar-trophy:active { transform: scale(.96); }
+.year-control select { transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease); }
+.year-control select:active { transform: scale(.97); }
+@media (hover: hover) { .year-control select:hover { border-color: rgba(255, 255, 255, .32); } }
+.brand { transition: opacity .2s var(--ease), transform .18s var(--ease); }
+.brand:active { transform: scale(.98); }
+
+/* ---------------------------------------------------------------
+   Season capsule: the views across the top, the week wheel below
+   --------------------------------------------------------------- */
+/* Sits where the week rail used to: the same width as the page, with the
+   sentinel above it marking the point where it pins. */
+.sn-sentinel,
+.season-nav { width: min(1220px, calc(100% - 32px)); margin: 0 auto; }
+.sn-sentinel { height: 20px; }
+@media (min-width: 1200px) {
+  .sn-sentinel, .season-nav { width: min(1220px, calc(100% - 48px)); }
+  .sn-sentinel { height: 22px; }
+}
+
+/* Its box in the page never changes height (the capsule shrinks inside
+   it), so pinning can't make the page jump. */
+.season-nav { position: sticky; top: var(--sn-top, 0px); z-index: 35; pointer-events: none; display: block; }
+.sn-cap {
+  position: relative; pointer-events: auto; border-radius: 22px; border: 1px solid transparent;
+  background-color: rgba(255, 255, 255, 0);
+  transition: background-color .35s var(--ease), border-color .35s var(--ease), box-shadow .45s var(--ease),
+    transform .5s var(--spring), padding .5s var(--spring);
+}
+.season-nav.stuck .sn-cap {
+  transform: translateY(8px); padding: 8px 8px 0;
+  background-color: rgba(255, 255, 255, .84);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7);
+  backdrop-filter: blur(18px) saturate(1.7);
+  border-color: rgba(7, 24, 39, .08);
+  box-shadow: 0 10px 30px rgba(7, 24, 39, .13), 0 1px 3px rgba(7, 24, 39, .06);
+}
+.season-nav.measuring, .season-nav.measuring * { transition: none !important; }
+
+/* Views: one white pill glides to the chosen one. The buttons share the
+   capsule's whole width. */
+.sn-seg {
+  display: flex; position: relative; gap: 2px; padding: 3px; border-radius: 12px;
+  background: rgba(12, 28, 45, .07);
+}
+.sn-seg button {
+  flex: 1 1 0; min-width: 0; position: relative; z-index: 1;
+  background: none; border: 0; border-radius: 9px; padding: 8px 6px;
+  font: inherit; font-size: 13px; font-weight: 700; line-height: 1.2; letter-spacing: -.005em;
+  color: var(--muted, #637083); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+  transition: color .25s var(--ease), transform .18s var(--ease);
+}
+.sn-seg button > span { overflow: hidden; text-overflow: ellipsis; }
+@media (hover: hover) { .sn-seg button:hover { color: var(--ink, #0b1726); } }
+.sn-seg button[aria-selected="true"] { color: var(--ink, #0b1726); }
+.sn-seg button:active { transform: scale(.96); }
+.sn-seg button:focus-visible { outline: 2px solid var(--blue, #1769e0); outline-offset: -2px; }
+.sn-seg-ind {
+  position: absolute; top: 3px; left: 0; height: calc(100% - 6px); border-radius: 9px; background: #fff;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .14), 0 1px 1px rgba(16, 24, 40, .05);
+  pointer-events: none; z-index: 0; will-change: transform, width;
+}
+.sn-seg-ind.ready { transition: transform .45s var(--ease), width .45s var(--ease); }
+.season-nav.stuck .sn-seg { background: rgba(12, 28, 45, .06); }
+.sn-seg .l-sm { display: none; }
+@media (max-width: 520px) {
+  .sn-seg:is([data-n="5"], [data-n="6"]) .l-lg { display: none; }
+  .sn-seg:is([data-n="5"], [data-n="6"]) .l-sm { display: inline; }
+  .sn-seg button { font-size: 12px; padding: 8px 1px; letter-spacing: -.01em; }
+  .sn-seg[data-n="6"] button { font-size: 11px; letter-spacing: -.02em; }
+  /* pinned, the capsule keeps the views as wide as they were */
+  .season-nav.stuck .sn-cap { padding: 6px 5px 0; }
+}
+@media (max-width: 374px) {
+  .sn-seg button { font-size: 11px; letter-spacing: -.02em; }
+  .sn-seg[data-n="6"] button { font-size: 10px; }
+}
+/* a different set of views (a playoff week, the season overview) ripples in */
+.sn-seg.swap button { animation: snTabIn .45s var(--spring) both; animation-delay: calc(var(--i) * 35ms); }
+@keyframes snTabIn { from { opacity: 0; transform: translateY(5px) scale(.94); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* ---- week wheel -------------------------------------------------- */
+/* sizes are registered so they can animate when the capsule pins */
+@property --sn-ring { syntax: '<length>'; inherits: true; initial-value: 38px; }
+@property --sn-padT { syntax: '<length>'; inherits: true; initial-value: 14px; }
+@property --sn-padB { syntax: '<length>'; inherits: true; initial-value: 14px; }
+@property --sn-dot { syntax: '<length>'; inherits: true; initial-value: 5px; }
+.sn-wkbar { position: relative; margin: 2px 0 -6px; transition: margin .5s var(--spring); }
+.season-nav.stuck .sn-wkbar { margin-top: 4px; }
+.sn-wkcap { position: relative; }
+.sn-rail {
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain;
+  --fl: 0px; --fr: 0px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--fl), #000 calc(100% - var(--fr)), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 var(--fl), #000 calc(100% - var(--fr)), transparent 100%);
+}
+.sn-rail::-webkit-scrollbar { display: none; }
+/* generous inner padding: magnified rings and the disc's shadow never get
+   clipped. max-content: the track grows to hold every week, so its end
+   padding stays scrollable. */
+.sn-track {
+  --sn-ring: 38px; --sn-padT: 14px; --sn-padB: 14px; --sn-dot: 5px;
+  position: relative; display: flex; width: max-content; min-width: 100%;
+  padding: var(--sn-padT) 8px var(--sn-padB);
+  transition: --sn-ring .55s var(--spring), --sn-padT .55s var(--spring), --sn-padB .55s var(--spring), --sn-dot .3s var(--ease);
+}
+.season-nav.stuck .sn-track { --sn-ring: 30px; --sn-padT: 8px; --sn-padB: 13px; --sn-dot: 0px; }
+.sn-wk {
+  --s: 1; flex: 1 0 46px; display: flex; flex-direction: column; align-items: center; gap: calc(var(--sn-dot) * 1.2);
+  background: none; border: none; padding: 0; margin: 0; cursor: pointer; position: relative; z-index: 1;
+  color: var(--muted, #637083); scroll-snap-align: center; opacity: var(--o, 1); font: inherit;
+  transition: none; /* the wheel sets --s and --o every frame; nothing may lag behind it */
+}
+/* a hairline between the regular season and the playoffs */
+.sn-wk.po-first::before {
+  content: ""; position: absolute; left: 0; top: calc(var(--sn-ring) * .18); height: calc(var(--sn-ring) * .64);
+  border-left: 1.5px dashed rgba(12, 28, 45, .16);
+}
+.sn-wk-in {
+  position: relative; width: var(--sn-ring); height: var(--sn-ring); display: grid; place-items: center;
+  transform: translateY(calc((var(--s) - 1) * -12px)) scale(var(--s)); transition: transform .5s var(--spring);
+}
+.sn-wkbar.mag .sn-wk-in { transition: transform .18s var(--ease); }
+.sn-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.sn-ring circle { fill: none; stroke-width: 3; }
+.sn-ring .trk { stroke: var(--line, #dce3eb); transition: stroke .3s var(--ease); }
+.sn-ring .prg {
+  stroke: var(--navy-2, #102b43); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100;
+  transition: stroke-dashoffset .8s var(--ease), stroke .3s var(--ease), opacity .3s;
+}
+.sn-wk.zero .sn-ring .prg { opacity: 0; }
+.sn-wk.po .sn-ring .prg { stroke: var(--gold, #f6b73c); }
+.sn-wk.po.zero .sn-ring .trk { stroke: rgba(246, 183, 60, .35); }
+.sn-num {
+  position: relative; font-weight: 800; font-size: calc(var(--sn-ring) * .37); line-height: 1;
+  font-variant-numeric: tabular-nums; transition: color .3s var(--ease);
+}
+.sn-wk.final .sn-num { color: var(--ink, #0b1726); }
+.sn-wk.txt .sn-num { font-size: calc(var(--sn-ring) * .26); letter-spacing: .02em; }
+.sn-dot { width: var(--sn-dot); height: var(--sn-dot); border-radius: 50%; background: transparent; transition: background-color .3s, transform .5s var(--spring); }
+.sn-wk.now .sn-dot { background: var(--red, #d71920); }
+/* .on = the week under the disc (while swiping, the one you'll land on) */
+.sn-wk.on .sn-num { color: #fff; }
+.sn-wk.on .sn-ring .trk { stroke: rgba(255, 255, 255, .18); }
+.sn-wk.on .sn-ring .prg { stroke: #fff; }
+.sn-wk.on.po .sn-ring .prg { stroke: var(--gold, #f6b73c); }
+.sn-wk.on .sn-dot { transform: scale(1.2); }
+@media (hover: hover) { .sn-wk:not(.on):hover .sn-num { color: var(--ink, #0b1726); } }
+.sn-wk:focus-visible { outline: none; }
+.sn-wk:focus-visible .sn-wk-in { border-radius: 50%; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--blue, #1769e0); }
+/* the gliding disc, centred on its week via left:-ring/2, so it stays put
+   while ring sizes animate */
+.sn-disc {
+  position: absolute; top: var(--sn-padT); left: calc(var(--sn-ring) / -2); width: var(--sn-ring); height: var(--sn-ring);
+  border-radius: 50%; background: var(--navy, #071827); box-shadow: 0 4px 10px rgba(7, 24, 39, .26);
+  z-index: 0; pointer-events: none; will-change: transform;
+}
+.season-nav.stuck .sn-disc { box-shadow: 0 2px 6px rgba(7, 24, 39, .24); }
+.sn-disc.ready { transition: transform .6s var(--spring), box-shadow .3s var(--ease); }
+.sn-wkbar.mag .sn-disc.ready { transition: transform .18s var(--ease); }
+/* while the wheel moves, the disc keeps up with the centre line; the spring is for taps */
+.sn-wkbar.lens.scrolling .sn-disc.ready { transition: transform .22s var(--ease); }
+/* touch wheel. The spacers at both ends are real flex items (see
+   setRailEdge), so the first and last weeks can always reach the centre. */
+.sn-wkbar.lens .sn-rail { scroll-snap-type: x mandatory; }
+.sn-wkbar.lens .sn-track { --sn-ring: 42px; --sn-padT: 16px; padding-inline: 0; }
+.sn-wkbar.lens .sn-track::before,
+.sn-wkbar.lens .sn-track::after { content: ""; flex: 0 0 var(--edge, calc(50% - 29px)); width: var(--edge, calc(50% - 29px)); }
+.season-nav.stuck .sn-wkbar.lens .sn-track { --sn-ring: 32px; --sn-padT: 12px; --sn-padB: 14px; }
+.sn-wkbar.lens .sn-wk { flex: 0 0 58px; width: 58px; }
+.sn-wkbar.lens .sn-wk-in { transition: none; }
+/* arrows: mouse users, only when the weeks don't all fit */
+.sn-arrow {
+  position: absolute; top: calc(var(--sn-padT, 14px) + 4px); width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--line, #dce3eb); background: rgba(255, 255, 255, .94);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(7, 24, 39, .12);
+  display: none; align-items: center; justify-content: center; z-index: 3; color: var(--ink, #0b1726); cursor: pointer; padding: 0;
+  opacity: 0; pointer-events: none; transition: opacity .25s var(--ease), transform .18s var(--ease), top .5s var(--spring);
+}
+.season-nav.stuck .sn-arrow { top: 7px; }
+.sn-arrow.l { left: -6px; }
+.sn-arrow.r { right: -6px; }
+.season-nav.stuck .sn-arrow.l { left: 2px; }
+.season-nav.stuck .sn-arrow.r { right: 2px; }
+.sn-wkbar.can-l .sn-arrow.l, .sn-wkbar.can-r .sn-arrow.r { opacity: 1; pointer-events: auto; }
+.sn-arrow:active { transform: scale(.92); }
+@media (hover: hover) and (pointer: fine) { .sn-wkbar.over:not(.lens) .sn-arrow { display: flex; } }
+/* weeks ripple in on first load */
+.sn-wkbar.enter .sn-wk { animation: uiPopIn .55s var(--spring) both; animation-delay: calc(var(--i) * 22ms); }
+.sn-wkbar.enter .sn-disc { animation: uiFade .4s var(--ease) both; animation-delay: .3s; }
+
+/* The page title no longer shares its row with the view tabs (they live in
+   the capsule now), and it rolls when the week changes. */
+.season-nav + main { padding-top: 0; }
+.season-nav + main > .page-toolbar,
+.season-nav + main > .page-toolbar:first-child { margin-top: 12px; }
+.ui-roll { position: relative; display: inline-block; vertical-align: top; }
+.ui-roll > span { display: inline-block; white-space: nowrap; }
+.ui-roll .ui-roll-out { position: absolute; left: 0; top: 0; pointer-events: none; }
+.ui-roll .ui-roll-in.up { animation: uiRollInUp .5s var(--ease) both; }
+.ui-roll .ui-roll-out.up { animation: uiRollOutUp .38s var(--ease) both; }
+.ui-roll .ui-roll-in.down { animation: uiRollInDown .5s var(--ease) both; }
+.ui-roll .ui-roll-out.down { animation: uiRollOutDown .38s var(--ease) both; }
+
+/* ---------------------------------------------------------------
+   Views and cards
+   --------------------------------------------------------------- */
+/* A view fades up into place when it's opened or its week changes, and
+   its cards cascade in (the first dozen staggered, then together). */
+.view-panel.active { animation: none; }
+.view-panel.active.panel-in,
+.live-panel.active.panel-in,
+.panel.active.panel-in { animation: uiRise .42s var(--ease) both; }
+.panel-in :is(.score-grid, .division-grid, .summary-superlatives) > * { animation: uiRise .5s var(--ease) both; }
+.panel-in :is(.score-grid, .division-grid, .summary-superlatives) > :nth-child(2) { animation-delay: 28ms; }
+.panel-in :is(.score-grid, .division-grid, .summary-superlatives) > :nth-child(3) { animation-delay: 56ms; }
+.panel-in :is(.score-grid, .division-grid, .summary-superlatives) > :nth-child(4) { animation-delay: 84ms; }
+.panel-in :is(.score-grid, .division-grid, .summary-superlatives) > :nth-child(5) { animation-delay: 112ms; }
+.panel-in :is(.score-grid, .division-grid, .summary-superlatives) > :nth-child(6) { animation-delay: 140ms; }
+.panel-in :is(.score-grid, .division-grid, .summary-superlatives) > :nth-child(7) { animation-delay: 168ms; }
+.panel-in :is(.score-grid, .division-grid, .summary-superlatives) > :nth-child(n+8) { animation-delay: 196ms; }
+/* When the standings only reshuffle from one week to the next, the rows
+   slide instead (UI.shuffleRows) and the view itself holds still. */
+.panel-in.ui-shuffled, .panel-in.ui-shuffled * { animation: none !important; }
+
+/* The all-time record book's sections fade up into place on arrival. */
+.titles-section, .standings-section { animation: uiRise .55s var(--ease) both; }
+.standings-section { animation-delay: 60ms; }
+
+/* Every press is felt. (Only controls with their own box: a button
+   stretched over a whole row, like a results card's team row, must not
+   shrink under the finger or the tap is lost.) */
+.bx-open, .bx-cue-row, .why-btn, .sort-button, .mobile-sort-direction, .drawer-close, .bx-close, .brief-toggle {
+  transition: background-color .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease);
+}
+.bx-open:active, .bx-cue-row:active, .sort-button:active, .mobile-sort-direction:active, .drawer-close:active, .bx-close:active { transform: scale(.97); }
+.why-btn:active { transform: scale(.9); }
+.game-side { transition: background-color .25s var(--ease); }
+
+/* ---------------------------------------------------------------
+   Floating layers: frosted glass, springing in
+   --------------------------------------------------------------- */
+/* The "why" popover on a seed or a tag */
+.why-pop {
+  background: rgba(255, 255, 255, .9);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7);
+  backdrop-filter: blur(18px) saturate(1.7);
+  border-color: rgba(7, 24, 39, .08);
+  box-shadow: 0 18px 44px rgba(7, 24, 39, .18), 0 2px 8px rgba(7, 24, 39, .06);
+  animation: uiPopover .4s var(--ease) both;
+}
+.why-pop > * { animation: uiPiIn .4s var(--ease) both; animation-delay: 70ms; }
+
+/* Backdrops behind the team drawer and the box score blur the page */
+.drawer-backdrop, .bx-backdrop {
+  background: rgba(7, 24, 39, .36);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  backdrop-filter: blur(8px) saturate(1.2);
+  transition: opacity .3s var(--ease);
+}
+/* Desktop: open generously, close quickly. The drawer slides with the
+   ease (a spring would lift it off the edge it's pinned to); the centred
+   box score springs up. Phones keep the sheet curve player-card.js sets. */
+@media (min-width: 761px) {
+  .team-drawer { transition: transform .3s var(--ease); }
+  .team-drawer.open { transition: transform .5s var(--ease); }
+  .bx-modal.open { transition: opacity .3s var(--ease), transform .5s var(--spring), left .45s var(--ease), width .45s var(--ease); }
+}
+
+/* ---------------------------------------------------------------
+   Header summary fold (phones)
+   --------------------------------------------------------------- */
+@media (max-width: 700px) {
+  .brief-body { transition: grid-template-rows .5s var(--spring); }
+  .brief-body > div > * { opacity: 0; transform: translateY(-6px); filter: blur(3px);
+    transition: opacity .2s var(--ease), transform .3s var(--ease), filter .25s var(--ease); }
+  .hero-brief.open .brief-body > div > * { opacity: 1; transform: none; filter: none;
+    transition: opacity .35s var(--ease) .05s, transform .55s var(--spring) .05s, filter .4s var(--ease) .05s; }
+  .brief-chevron { transition: transform .45s var(--spring) !important; }
+}
+
+/* ---------------------------------------------------------------
+   Keyframes
+   --------------------------------------------------------------- */
+@keyframes uiRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes uiFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes uiPopIn { from { opacity: 0; transform: scale(.55); } to { opacity: 1; transform: none; } }
+@keyframes uiPopover { from { opacity: 0; transform: translateY(-4px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiPiIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+@keyframes uiRollInUp { from { opacity: 0; transform: translateY(55%); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiRollOutUp { to { opacity: 0; transform: translateY(-55%); filter: blur(6px); } }
+@keyframes uiRollInDown { from { opacity: 0; transform: translateY(-55%); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes uiRollOutDown { to { opacity: 0; transform: translateY(55%); filter: blur(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

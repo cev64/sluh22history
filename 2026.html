@@ -4151,6 +4151,8 @@
     body:has(#teamDrawer.open) #bxBackdrop { z-index: 90; }
     body:has(#teamDrawer.open) #bxModal { z-index: 91; }
   </style>
+  <link rel="stylesheet" href="ui.css" />
+  <script src="ui.js"></script>
   <script src="team-logos.js"></script>
 </head>
 <body>
@@ -4190,27 +4192,15 @@
     </div>
   </section>
 
-  <div class="week-rail-wrap">
-    <div class="week-rail-head">
-      <strong>Week</strong>
-    </div>
-    <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
-    <div class="picker-row">
-      <div class="week-select-wrap">
-        <select id="weekSelect" aria-label="Choose a week"></select>
-      </div>
-      <div class="view-select-wrap">
-        <select id="viewSelect" aria-label="Week views"></select>
-      </div>
-    </div>
-  </div>
+  <!-- The week's views across the top and the week wheel under them, in
+       one capsule that pins under the header (ui.js, SeasonNav). -->
+  <nav id="seasonNav" aria-label="Weeks and views"></nav>
 
   <main>
     <div class="page-toolbar">
       <div class="page-title">
         <h2 id="weekTitle">Preseason</h2>
       </div>
-      <div class="view-tabs" id="viewTabs" role="tablist" aria-label="Week views"></div>
     </div>
 
     <section id="panel-results" class="live-panel active" role="tabpanel"></section>
@@ -5399,11 +5389,14 @@
     const isPlayed = (w) => playedWeeks.includes(w);
 
     function viewLabels(week) {
-      if (week > REGULAR_WEEKS) return { bracket: "Playoff Bracket", standings: "Standings" };
-      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoff Picture", summary: "Preseason", sidebets: "Side Bets", sos: "Strength of Schedule" };
-      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary", sidebets: "Side Bets" };
-      return { results: "Matchups", standings: "Standings", picture: "Playoff Picture", summary: "Weekly Summary", sidebets: "Side Bets" };
+      if (week > REGULAR_WEEKS) return { bracket: "Bracket", standings: "Standings" };
+      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoffs", summary: "Preseason", sidebets: "Side Bets", sos: "Strength of Schedule" };
+      if (isPlayed(week)) return { results: "Results", standings: "Standings", picture: "Playoffs", summary: "Summary", sidebets: "Side Bets" };
+      return { results: "Matchups", standings: "Standings", picture: "Playoffs", summary: "Summary", sidebets: "Side Bets" };
     }
+    // Preseason has a sixth view; on a phone the longer names shorten so all
+    // six still share the capsule's width.
+    const PRESEASON_SHORT = { summary: "Preview", sidebets: "Bets", sos: "SOS" };
 
     /* =================================================================
        SHARED PIECES
@@ -5677,48 +5670,35 @@
        WEEK RAIL + VIEW TABS
        ================================================================= */
 
+    /* A played week's ring is closed and a week still to come is an open
+       track; the next week to be played carries a dot, and the playoff
+       weeks are gold. The preseason ring closes once the season starts. */
     function renderWeekRail() {
-      const rail = document.getElementById("weekRail");
+      const playedWeek = (w) => (w === 0 ? playedWeeks.length > 0 : w > REGULAR_WEEKS ? w <= lastPlayoffWeek() : isPlayed(w));
+      let next = null;
+      for (let w = 1; w <= LAST_WEEK && next === null; w++) if (!playedWeek(w)) next = w;
       const weeks = [];
-      for (let w = 0; w <= LAST_WEEK; w++) weeks.push(w);
-
-      rail.innerHTML = weeks.map((w) => {
-        const played = w > REGULAR_WEEKS ? w <= lastPlayoffWeek() : isPlayed(w);
-        const cls = ["week-pill"];
-        if (w === state.week) cls.push("active");
-        if (played) cls.push("played");
-        if (w !== 0 && !played) cls.push("upcoming");
-        return `<button type="button" class="${cls.join(" ")}" data-week="${w}" role="tab"
-          aria-selected="${w === state.week}">${w === 0 ? "Preseason" : `Wk ${w}`}</button>`;
-      }).join("");
-
-      const select = document.getElementById("weekSelect");
-      select.innerHTML = weeks.map((w) => {
-        return `<option value="${w}" ${w === state.week ? "selected" : ""}>${weekLabel(w)}</option>`;
-      }).join("");
-
-      const active = rail.querySelector(".week-pill.active");
-      // Centre the chosen week in the rail by scrolling the rail alone, never
-      // the page: scrollIntoView could also move the whole page up or down.
-      // (This page already holds the rail in \`rail\`, above.)
-      if (active && rail && rail.offsetParent) {
-        rail.scrollTo({ left: active.offsetLeft - (rail.clientWidth - active.offsetWidth) / 2, behavior: "smooth" });
+      for (let w = 0; w <= LAST_WEEK; w++) {
+        const playoff = w > REGULAR_WEEKS, played = playedWeek(w);
+        weeks.push({
+          w, played, playoff, now: w === next,
+          num: w === 0 ? "PRE" : String(w),
+          label: w === 0 ? "Preseason"
+            : `Week ${w}${playoff ? " · playoffs" : ""}${w === next ? " · up next" : played ? "" : " · not played yet"}`,
+        });
       }
+      SeasonNav.render({ weeks, week: state.week });
     }
 
     function renderViewTabs() {
       const labels = viewLabels(state.week);
-      document.getElementById("viewTabs").innerHTML = viewsFor(state.week).map((v) => `
-        <button type="button" class="view-tab ${v === state.view ? "active" : ""}" data-view="${v}"
-          role="tab" aria-selected="${v === state.view}">${labels[v]}</button>`).join("");
-
-      // The same views as the phone's dropdown, kept in step with the tabs.
-      document.getElementById("viewSelect").innerHTML = viewsFor(state.week).map((v) =>
-        `<option value="${v}" ${v === state.view ? "selected" : ""}>${labels[v]}</option>`).join("");
-
-      document.getElementById("weekTitle").textContent = state.week === 0
+      SeasonNav.render({
+        views: viewsFor(state.week).map((v) => ({ id: v, label: labels[v], short: state.week === 0 ? PRESEASON_SHORT[v] : undefined })),
+        view: state.view,
+      });
+      UI.roll(document.getElementById("weekTitle"), state.week === 0
         ? "Preseason · 2026"
-        : `Week ${state.week} · 2026`;
+        : `Week ${state.week} · 2026`, SeasonNav.dir);
     }
 
     /* =================================================================
@@ -6939,7 +6919,7 @@
       });
       // Ease the panel in whenever it is shown or its week changes.
       const shown = document.getElementById(`panel-${state.view}`);
-      if (shown) { shown.classList.remove("panel-in"); void shown.offsetWidth; shown.classList.add("panel-in"); }
+      if (shown) { shown.classList.remove("panel-in", "ui-shuffled"); void shown.offsetWidth; shown.classList.add("panel-in"); }
     }
 
     function applyHash() {
@@ -6958,38 +6938,31 @@
       if (window.location.hash !== next) history.replaceState(null, "", next);
     }
 
-    document.getElementById("weekRail").addEventListener("click", (event) => {
-      const pill = event.target.closest(".week-pill");
-      if (!pill) return;
-      state.week = Number(pill.dataset.week);
-      renderAll();
-      writeHash();
-    });
-
-    document.getElementById("weekSelect").addEventListener("change", (event) => {
-      state.week = Number(event.target.value);
-      renderAll();
-      writeHash();
-    });
-
-    document.getElementById("viewTabs").addEventListener("click", (event) => {
-      const tab = event.target.closest(".view-tab");
-      if (!tab) return;
-      state.view = tab.dataset.view;
-      renderViewTabs();
-      showLivePanel();
-      writeHash();
-    });
-
-    document.getElementById("viewSelect").addEventListener("change", (event) => {
-      state.view = event.target.value;
-      renderViewTabs();
-      showLivePanel();
-      writeHash();
+    /* A new week re-renders the view on screen. When that view is a set of
+       standings, each team's row slides from last week's place to this
+       week's instead of the table simply redrawing. */
+    SeasonNav.mount("#seasonNav", {
+      viewsLabel: "Week views",
+      onWeek: (week) => {
+        const panel = document.getElementById(`panel-${state.view}`);
+        const before = UI.measureRows(panel);
+        state.week = week;
+        renderAll();
+        writeHash();
+        if (before && document.getElementById(`panel-${state.view}`) === panel && UI.shuffleRows(panel, before)) {
+          panel.classList.add("ui-shuffled");
+        }
+      },
+      onView: (view) => {
+        state.view = view;
+        renderViewTabs();
+        showLivePanel();
+        writeHash();
+      },
     });
 
     document.addEventListener("click", (event) => {
-      if (event.target.closest(".week-pill") || event.target.closest(".view-tab")) return;
+      if (event.target.closest(".season-nav")) return;
       const team = event.target.closest("[data-team]");
       if (team) openTeam(team.dataset.team);
     });

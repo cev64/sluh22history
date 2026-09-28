@@ -3585,6 +3585,8 @@
     body:has(#teamDrawer.open) #bxBackdrop { z-index: 90; }
     body:has(#teamDrawer.open) #bxModal { z-index: 91; }
   </style>
+  <link rel="stylesheet" href="ui.css" />
+  <script src="ui.js"></script>
   <script src="team-logos.js"></script>
 </head>
 <body>
@@ -3660,20 +3662,9 @@
     </div>
   </section>
 
-  <div class="week-rail-wrap">
-    <div class="week-rail-head">
-      <strong>Week</strong>
-    </div>
-    <div class="week-rail" id="weekRail" role="tablist" aria-label="Choose a week"></div>
-    <div class="picker-row">
-      <div class="week-select-wrap">
-        <select id="weekSelect" aria-label="Choose a week"></select>
-      </div>
-      <div class="view-select-wrap">
-        <select id="viewSelect" aria-label="Season views"></select>
-      </div>
-    </div>
-  </div>
+  <!-- The season's views across the top and the week wheel under them,
+       in one capsule that pins under the header (ui.js, SeasonNav). -->
+  <nav id="seasonNav" aria-label="Weeks and views"></nav>
 
   <main>
 
@@ -3681,7 +3672,6 @@
       <div class="page-title">
         <h2 id="weekTitle">2023 Season</h2>
       </div>
-      <div class="view-tabs" id="viewTabs" role="tablist" aria-label="Season views"></div>
     </div>
 
     <section id="regular" class="view-panel active" role="tabpanel">
@@ -4774,16 +4764,16 @@
        ================================================================= */
 
     const SEASON_VIEWS = [
-      { id: "regular", label: "Regular Season" },
-      { id: "final", label: "Final Standings" },
-      { id: "bracket", label: "Playoff Bracket" }
+      { id: "regular", label: "Regular Season", short: "Regular" },
+      { id: "final", label: "Final Standings", short: "Final" },
+      { id: "bracket", label: "Bracket" }
     ];
 
     const WEEK_VIEWS = [
       { id: "panel-results", label: "Results" },
       { id: "panel-standings", label: "Standings" },
-      { id: "panel-picture", label: "Playoff Picture" },
-      { id: "panel-summary", label: "Weekly Summary" }
+      { id: "panel-picture", label: "Playoffs" },
+      { id: "panel-summary", label: "Summary" }
     ];
 
     const state = { week: 0, view: "regular" };
@@ -4793,7 +4783,7 @@
     const PLAYOFF_WEEKS = [15, 16, 17];
     const LAST_WEEK = PLAYOFF_WEEKS[PLAYOFF_WEEKS.length - 1];
     const PLAYOFF_VIEWS = [
-      { id: "panel-playoffs", label: "Playoff Bracket" },
+      { id: "panel-playoffs", label: "Bracket" },
       { id: "panel-standings", label: "Standings" }
     ];
 
@@ -5154,39 +5144,26 @@
        WEEK RAIL + VIEW TABS
        ================================================================= */
 
+    /* Every week of a finished season has been played, so every ring is
+       closed; the playoff weeks are gold. Week 0 is the season overview. */
     function renderWeekRail() {
       const weeks = [];
-      for (let w = 0; w <= LAST_WEEK; w++) weeks.push(w);
-
-      document.getElementById("weekRail").innerHTML = weeks.map((w) => {
-                return `<button type="button" class="week-pill ${w === state.week ? "active" : ""} played"
-          data-week="${w}" role="tab" aria-selected="${w === state.week}">${w === 0 ? "Season" : `Wk ${w}`}</button>`;
-      }).join("");
-
-      document.getElementById("weekSelect").innerHTML = weeks.map((w) =>
-        `<option value="${w}" ${w === state.week ? "selected" : ""}>${w === 0 ? "Season" : `Week ${w}`}</option>`).join("");
-
-      const active = document.querySelector(".week-pill.active");
-      // Centre the chosen week in the rail by scrolling the rail alone, never
-      // the page: scrollIntoView could also move the whole page up or down.
-      const rail = document.getElementById("weekRail");
-      if (active && rail && rail.offsetParent) {
-        rail.scrollTo({ left: active.offsetLeft - (rail.clientWidth - active.offsetWidth) / 2, behavior: "smooth" });
+      for (let w = 0; w <= LAST_WEEK; w++) {
+        const playoff = w > REGULAR_WEEKS;
+        weeks.push({
+          w, played: true, playoff,
+          num: w === 0 ? "SZN" : String(w),
+          label: w === 0 ? "2023 season overview" : `Week ${w}${playoff ? " · playoffs" : ""}`,
+        });
       }
+      SeasonNav.render({ weeks, week: state.week });
     }
 
     function renderViewTabs() {
-      document.getElementById("viewTabs").innerHTML = viewsFor(state.week).map((v) => `
-        <button type="button" class="view-tab ${v.id === state.view ? "active" : ""}" data-view="${v.id}"
-          role="tab" aria-selected="${v.id === state.view}">${v.label}</button>`).join("");
-
-      // The same views as the phone's dropdown, kept in step with the tabs.
-      document.getElementById("viewSelect").innerHTML = viewsFor(state.week).map((v) =>
-        `<option value="${v.id}" ${v.id === state.view ? "selected" : ""}>${v.label}</option>`).join("");
-
-      document.getElementById("weekTitle").textContent = state.week === 0
+      SeasonNav.render({ views: viewsFor(state.week), view: state.view });
+      UI.roll(document.getElementById("weekTitle"), state.week === 0
         ? "2023 Season"
-        : `Week ${state.week} · 2023`;
+        : `Week ${state.week} · 2023`, SeasonNav.dir);
     }
 
     /* =================================================================
@@ -5642,7 +5619,7 @@
       });
       // Ease the panel in whenever it is shown or its week changes.
       const shown = document.getElementById(state.view);
-      if (shown) { shown.classList.remove("panel-in"); void shown.offsetWidth; shown.classList.add("panel-in"); }
+      if (shown) { shown.classList.remove("panel-in", "ui-shuffled"); void shown.offsetWidth; shown.classList.add("panel-in"); }
       if (state.view === "bracket" || state.view === "panel-playoffs") updateBracketNameAlignment();
     }
 
@@ -5712,29 +5689,25 @@
       writeHash();
     }
 
-    document.getElementById("weekRail").addEventListener("click", (event) => {
-      const pill = event.target.closest(".week-pill");
-      if (pill) goToWeek(Number(pill.dataset.week));
-    });
-
-    document.getElementById("weekSelect").addEventListener("change", (event) => {
-      goToWeek(Number(event.target.value));
-    });
-
-    document.getElementById("viewTabs").addEventListener("click", (event) => {
-      const tab = event.target.closest(".view-tab");
-      if (!tab) return;
-      state.view = tab.dataset.view;
-      renderViewTabs();
-      showActivePanel();
-      writeHash();
-    });
-
-    document.getElementById("viewSelect").addEventListener("change", (event) => {
-      state.view = event.target.value;
-      renderViewTabs();
-      showActivePanel();
-      writeHash();
+    /* A new week re-renders the view on screen. When that view is a set of
+       standings, each team's row slides from last week's place to this
+       week's instead of the table simply redrawing. */
+    SeasonNav.mount("#seasonNav", {
+      viewsLabel: "Season views",
+      onWeek: (week) => {
+        const panel = document.getElementById(state.view);
+        const before = UI.measureRows(panel);
+        goToWeek(week);
+        if (before && document.getElementById(state.view) === panel && UI.shuffleRows(panel, before)) {
+          panel.classList.add("ui-shuffled");
+        }
+      },
+      onView: (view) => {
+        state.view = view;
+        renderViewTabs();
+        showActivePanel();
+        writeHash();
+      },
     });
 
     window.addEventListener("hashchange", () => { if (applyHash()) renderAll(); });
