@@ -1355,6 +1355,113 @@
 
     .home-hero h1 { margin: 0; }
 
+
+    .division-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+    /* Titles and last places wear the same tints as the season pages'
+       winners and losers brackets. */
+    .champions-card .card-head { background: #fffae9; border-bottom-color: #ead58b; }
+    .losers-card .card-head { background: #fffbfb; border-bottom-color: #efc9c6; }
+    .champions-card .division-chip { background: #b8860b; }
+    .losers-card .division-chip { background: #a62f2b; }
+    .titles-table { min-width: 0; }
+    .standings-section { margin-top: 18px; }
+    @media (max-width: 700px) { .standings-section { margin-top: 9px; } }
+    .title-count { font-weight: 900; }
+    .title-years { color: var(--muted); }
+
+    /* ---- Team history panel: the season pages' team drawer ---- */
+    .drawer-body .schedule-list + .schedule-list { margin-top: 10px; }
+    .schedule-list > .table-wrap table { min-width: 520px; }
+    .schedule-list th, .schedule-list td { padding-left: 12px; padding-right: 12px; }
+    .schedule-list td { font-size: 12px; padding-top: 10px; padding-bottom: 10px; }
+    .schedule-list .team-badge { width: 28px; height: 28px; border-radius: 8px; }
+    .schedule-list .team-name { font-size: 12px; }
+    .schedule-list .owner { font-size: 10px; }
+
+    /* Highlights: a tinted tile each, its emoji large in the corner. */
+    .hl-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .hl-tile {
+      --hl-bg: #f1f4f8; --hl-line: #d3dbe5; --hl-ink: #102b43; --hl-chip: #102b43;
+      position: relative; overflow: hidden; min-width: 0; min-height: 98px;
+      display: flex; flex-direction: column;
+      padding: 12px 12px 11px;
+      border: 1px solid var(--hl-line); border-radius: 14px;
+      background: linear-gradient(145deg, #fff 0%, var(--hl-bg) 100%);
+    }
+    .hl-icon {
+      position: absolute; right: -8px; bottom: -14px;
+      font-size: 58px; line-height: 1; opacity: .2; transform: rotate(-12deg);
+      pointer-events: none;
+    }
+    .hl-label { position: relative; color: var(--hl-ink); font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .hl-value { position: relative; margin-top: 6px; color: var(--ink); font-size: 20px; font-weight: 900; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    .hl-meta { position: relative; margin-top: auto; padding-top: 4px; color: var(--muted); font-size: 10px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hl-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 1px; }
+    .hl-chips span { padding: 3px 8px; border-radius: 999px; background: var(--hl-chip); color: #fff; font-size: 11px; font-weight: 900; letter-spacing: .02em; }
+    .hl-gold   { --hl-bg: #fff4cf; --hl-line: #ead58b; --hl-ink: #8a6500; --hl-chip: #c99a1c; }
+    .hl-red    { --hl-bg: #ffe9e7; --hl-line: #efc9c6; --hl-ink: #a62f2b; --hl-chip: #c73535; }
+    .hl-green  { --hl-bg: #e3f5ea; --hl-line: #bfe3cc; --hl-ink: #16834a; --hl-chip: #16834a; }
+    .hl-fire   { --hl-bg: #ffe8d9; --hl-line: #f6cfb0; --hl-ink: #b4540f; --hl-chip: #b4540f; }
+    .hl-blue   { --hl-bg: #e2eeff; --hl-line: #c5dafb; --hl-ink: #0f56bd; --hl-chip: #0f56bd; }
+    .hl-purple { --hl-bg: #ece6ff; --hl-line: #d6cdf7; --hl-ink: #5b3fb8; --hl-chip: #5b3fb8; }
+    .hl-navy   { --hl-bg: #e6ebf2; --hl-line: #d3dbe5; --hl-ink: #102b43; --hl-chip: #102b43; }
+
+    /* Season history rows: the schedule row, with the finish in the pill. */
+    .season-row { color: inherit; text-decoration: none; transition: background .15s ease; }
+    @media (hover: hover) {
+      .season-row:hover { background: #f5f8fb; }
+      .season-row:hover .schedule-opponent strong { color: var(--blue); text-decoration-style: solid; text-decoration-color: var(--blue); }
+    }
+    .result-pill.place-1 { background: #c99a1c; }
+    .result-pill.place-2 { background: #8a97a6; }
+    .result-pill.place-3 { background: #b0703a; }
+    .result-pill.place-last { background: #c73535; }
+    .result-pill.place-mid { background: #d5dce4; color: #4b5866; }
+    /* The season still being played: a red dot, as on the live season page. */
+    .result-pill.place-live { background: #fdecec; }
+    .result-pill.place-live::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 3px rgba(215, 25, 32, .18); }
+
+    .chart-wrap { padding: 10px 10px 4px; }
+    .wins-chart { display: block; width: 100%; height: auto; }
+
+    /* Most-started players: the drawer's roster rows, one cell per season. */
+    .starters-row {
+      display: grid;
+      grid-template-columns: 22px 28px minmax(0, 1fr) var(--year-cols) 50px;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 12px;
+      border-top: 1px solid #edf0f3;
+      font-variant-numeric: tabular-nums;
+    }
+    .starters-row:first-child { border-top: 0; }
+    .starters-row.header {
+      padding-top: 8px; padding-bottom: 8px;
+      background: #f6f8fa; color: #788696;
+      font-size: 8px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .starters-rank { color: var(--muted); font-size: 11px; font-weight: 900; text-align: center; }
+    .starters-logo { width: 28px; height: 20px; object-fit: contain; }
+    .starters-chip {
+      display: inline-block; width: 28px; padding: 3px 0; border-radius: 4px;
+      background: #e7ebef; color: #4b5866; font-size: 8px; font-weight: 900; text-align: center;
+    }
+    .starters-name { min-width: 0; }
+    .starters-name strong { display: block; overflow: hidden; color: var(--ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .starters-name small { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .03em; }
+    .starters-years { display: grid; grid-template-columns: repeat(var(--year-count), 1fr); gap: 4px; text-align: center; }
+    .starters-year {
+      height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      border-radius: 6px; font-size: 9.5px; font-weight: 900; line-height: 1;
+    }
+    .starters-year img { width: 24px; height: 16px; object-fit: contain; }
+    .starters-year .starters-chip { width: 24px; padding: 2px 0; font-size: 7px; }
+    .starters-year.on { background: color-mix(in srgb, var(--team-color) calc(var(--fill) * 100%), #fff); color: var(--ink); }
     .starters-year.off { background: #f1f4f7; color: #c3ccd5; }
     .starters-total { text-align: right; }
     .starters-total strong { display: block; color: var(--ink); font-size: 13px; line-height: 1; }

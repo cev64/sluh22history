@@ -62,43 +62,57 @@
     .pc.open { transition: opacity .3s cubic-bezier(.22, 1, .36, 1), transform .5s cubic-bezier(.34, 1.4, .64, 1); }
   }
   .pc *, .pc *::before, .pc *::after { box-sizing: border-box; }
-  /* No scroll anchoring: it would pull scrollTop back as the header shrinks. */
   .pc-scroll { overflow: auto; overscroll-behavior: contain; overflow-anchor: none; }
-  /* While compact, the body grows by exactly what the header lost, so the
-     scroll height never shrinks and scrollTop is never clamped back under
-     the threshold (which toggled the header on and off: the jitter). */
-  .pc.compact .pc-body { padding-bottom: calc(14px + var(--pc-shrink, 0px)); }
   #bxCols, #drawerBody, #profileBody { overscroll-behavior: contain; }
 
-  /* The header stays pinned while the card scrolls, shrinking to a slim bar
-     (photo, name, close) so the player is always named on screen. */
+  /* The header stays pinned while the card scrolls and folds down to a
+     slim bar (photo, name, close), so the player is always named on screen.
+
+     The fold follows the scroll itself rather than switching at a
+     threshold: --p goes from 0 to 1 over the first stretch of scrolling
+     (the difference between the full and slim header, --hd), set on the
+     header each frame (see foldHeader). Nothing in the page reflows as it
+     does: the header keeps its full height in the layout, and only its
+     background (.pc-hero-bg) shrinks, its lower edge travelling exactly
+     with the content, while the photo, name and close button glide to
+     their places in the bar on transforms and the tags fade. The colour
+     turns to tinted glass on the way, so the stats show through it. */
   .pc-hero {
-    position: sticky; top: 0; z-index: 5; overflow: hidden;
-    transition: padding .28s ease;
+    --p: 0;
+    position: sticky; top: 0; z-index: 5;
     display: flex; align-items: center; gap: 16px;
     padding: 20px 60px 20px 22px;
-    /* the club's colour, lit from the top left */
+    color: #fff;
+    pointer-events: none;   /* the part below the bar lets taps through to the content */
+  }
+  .pc-hero .pc-close { pointer-events: auto; }
+  .pc-hero-bg {
+    position: absolute; left: 0; right: 0; top: 0; overflow: hidden; pointer-events: none;
+    height: calc(100% - var(--hd, 0px) * var(--p));
+    /* the club's colour, lit from the top left, going to glass as it folds */
     background:
       radial-gradient(120% 160% at 0% 0%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 55%),
-      linear-gradient(120deg, color-mix(in srgb, var(--pc-color) 88%, #fff) 0%, var(--pc-color) 40%, color-mix(in srgb, var(--pc-color) 55%, #071827) 100%);
-    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .12);
-    color: #fff;
+      linear-gradient(120deg,
+        color-mix(in srgb, color-mix(in srgb, var(--pc-color) 88%, #fff) calc(100% - var(--p) * 10%), transparent) 0%,
+        color-mix(in srgb, var(--pc-color) calc(100% - var(--p) * 9%), transparent) 40%,
+        color-mix(in srgb, color-mix(in srgb, var(--pc-color) 55%, #071827) calc(100% - var(--p) * 7%), transparent) 100%);
+    -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7);
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .12), 0 8px 20px -12px rgba(7, 24, 39, calc(var(--p) * .5));
   }
-  .pc-hero::after {
+  .pc-hero-bg::after {
     content: ""; position: absolute; right: -60px; top: -80px; width: 240px; height: 240px;
     border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 68%);
     animation: pcDrift 14s ease-in-out infinite alternate;
   }
   @keyframes pcDrift { from { transform: none; } to { transform: translate(-40px, 26px) scale(1.18); } }
-  /* Shrunk to a bar while the card scrolls, the header turns to tinted
-     glass and the stats slide by underneath it. */
-  .pc.compact .pc-hero {
-    background:
-      radial-gradient(120% 160% at 0% 0%, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 55%),
-      linear-gradient(120deg, color-mix(in srgb, var(--pc-color) 90%, transparent) 0%,
-        color-mix(in srgb, color-mix(in srgb, var(--pc-color) 55%, #071827) 93%, transparent) 100%);
-    -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7);
+  /* each moving part: from where it sits in the full header (--dx, --dy,
+     --k measured against where it sits in the slim one) */
+  .pc-hero [data-fold] {
+    transform-origin: 0 0;
+    transform: translate(calc(var(--dx, 0px) * var(--p)), calc(var(--dy, 0px) * var(--p))) scale(calc(1 + (var(--k, 1) - 1) * var(--p)));
   }
+  .pc-hero .pc-tags, .pc-hero .pc-champ { opacity: calc(1 - var(--p) * 1.8); }
+  .pc-hero .pc-photo .pc-club { opacity: calc(1 - var(--p) * 1.6); }
   .pc-photo {
     position: relative; flex: 0 0 auto; width: 84px; height: 84px; border-radius: 50%;
     background: rgba(255,255,255,.95); box-shadow: 0 0 0 4px rgba(255,255,255,.25), 0 14px 30px -10px rgba(0, 0, 0, .5);
@@ -129,9 +143,8 @@
   .pc-champ {
     margin-bottom: 5px; color: #fbe08a; font-size: 10.5px; font-weight: 900;
     letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    max-height: 20px; transition: max-height .28s ease, opacity .2s ease, margin .28s ease;
+    max-height: 20px;
   }
-  .pc.compact .pc-champ { max-height: 0; opacity: 0; margin-bottom: 0; }
   .pc-close {
     position: absolute; z-index: 2; top: 14px; right: 14px; width: 34px; height: 34px;
     display: grid; place-items: center; padding: 0;
@@ -141,17 +154,18 @@
     color: #fff; font-size: 21px; line-height: 1; cursor: pointer;
   }
   .pc-close:hover { background: rgba(255,255,255,.28); }
-  .pc-photo, .pc-id h2 { transition: width .28s ease, height .28s ease, font-size .28s ease; }
-  .pc.compact .pc-hero { padding-top: 8px; padding-bottom: 8px; }
-  .pc.pc-measure, .pc.pc-measure * { transition: none !important; }
-  .pc.compact .pc-photo { width: 40px; height: 40px; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
-  /* Tags and the club badge fold away smoothly rather than vanishing. */
-  .pc-tags { max-height: 60px; overflow: hidden; transition: max-height .28s ease, opacity .2s ease, margin .28s ease; }
-  .pc-photo .pc-club { transition: opacity .2s ease, transform .28s ease; }
-  .pc.compact .pc-tags { max-height: 0; opacity: 0; margin-top: 0; }
-  .pc.compact .pc-photo .pc-club { opacity: 0; transform: scale(.6); }
-  .pc.compact .pc-id h2 { font-size: 18px; }
-  .pc.compact .pc-close { top: 50%; transform: translateY(-50%); }
+  .pc-tags { max-height: 60px; overflow: hidden; }
+  /* The slim bar's layout. It is never shown as such: foldHeader lays the
+     header out this way for a moment, unseen, to measure where each part
+     goes, and the fold glides them there. */
+  .pc.pc-small, .pc.pc-small * { transition: none !important; animation: none !important; }
+  .pc.pc-small .pc-hero { padding-top: 8px; padding-bottom: 8px; }
+  .pc.pc-small .pc-photo { width: 40px; height: 40px; }
+  .pc.pc-small .pc-champ { max-height: 0; margin-bottom: 0; }
+  .pc.pc-small .pc-tags { max-height: 0; margin-top: 0; }
+  .pc.pc-small .pc-id h2 { font-size: 18px; }
+  /* centred by its offset, not a transform, so the measurement sees it */
+  .pc.pc-small .pc-close { top: calc(50% - 17px); }
 
   /* Desktop: opened from a team panel or a box score, the card docks on the
      right beside it instead of covering it. */
@@ -435,10 +449,10 @@
     .pc-champ { font-size: 9px; margin-bottom: 4px; }
     .pc-id h2.pc-gold { padding: 1px 8px 2px; border-radius: 8px; }
     .pc-close { top: 10px; right: 10px; width: 30px; height: 30px; font-size: 18px; border-radius: 50%; }
-    .pc.compact .pc-photo { width: 34px; height: 34px; }
-    .pc.compact .pc-id h2 { font-size: 16px; }
+    .pc.pc-small .pc-photo { width: 34px; height: 34px; }
+    .pc.pc-small .pc-id h2 { font-size: 16px; }
+    .pc.pc-small .pc-close { top: calc(50% - 15px); }
     .pc-body { padding: 8px; gap: 8px; }
-    .pc.compact .pc-body { padding-bottom: calc(8px + var(--pc-shrink, 0px)); }
     .pc-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
     .pc-tile { padding: 8px 10px; border-radius: 14px; }
     .pc-tile small { font-size: 7.5px; }
@@ -781,16 +795,17 @@
     card.innerHTML = `
       <div class="pc-scroll">
         <header class="pc-hero">
-          <div class="pc-photo">${photo}${!isDst ? `<span class="pc-club">${nfl(s.lastClub)}</span>` : ""}</div>
+          <div class="pc-hero-bg" aria-hidden="true"></div>
+          <div class="pc-photo" data-fold>${photo}${!isDst ? `<span class="pc-club">${nfl(s.lastClub)}</span>` : ""}</div>
           <div class="pc-id">
-            ${s.titles.length ? `<div class="pc-champ" title="Championship games won in the starting lineup">🏆 ${[...new Set(s.titles.map((r) => r.season))].join(" · ")}</div>` : ""}
-            <h2 id="pcName"${s.titles.length ? ` class="pc-gold"` : ""}>${esc(p.n)}</h2>
-            <div class="pc-tags">
+            ${s.titles.length ? `<div class="pc-champ" data-fold title="Championship games won in the starting lineup">🏆 ${[...new Set(s.titles.map((r) => r.season))].join(" · ")}</div>` : ""}
+            <h2 id="pcName" data-fold${s.titles.length ? ` class="pc-gold"` : ""}>${esc(p.n)}</h2>
+            <div class="pc-tags" data-fold>
               <span class="pc-tag">${p.p}</span>
               <span class="pc-tag">${s.managers.length} manager${s.managers.length === 1 ? "" : "s"}</span>
             </div>
           </div>
-          <button type="button" class="pc-close" aria-label="Close player card">&times;</button>
+          <button type="button" class="pc-close" data-fold aria-label="Close player card">&times;</button>
         </header>
         <div class="pc-body">
           <section class="pc-tiles">
@@ -928,6 +943,52 @@
     card.querySelector(".pc-close").addEventListener("click", close);
   }
 
+  /* The header's fold, tied to the scroll (see .pc-hero in the CSS).
+     Where each part sits in the full header and in the slim bar is
+     measured once per card, from layout offsets (a card still zooming in
+     is scaled, so on-screen boxes would be off), and the scroll only moves
+     --p between the two. */
+  function offsetIn(el, root) {
+    let x = 0, y = 0;
+    for (let n = el; n && n !== root; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; }
+    return { x, y, w: el.offsetWidth };
+  }
+  function measureFold(card) {
+    const hero = card.querySelector(".pc-hero");
+    if (!hero) return 0;
+    const parts = [...hero.querySelectorAll("[data-fold]")];
+    const full = parts.map((el) => offsetIn(el, hero)), fullH = hero.offsetHeight;
+    card.classList.add("pc-small");
+    const small = parts.map((el) => offsetIn(el, hero)), smallH = hero.offsetHeight;
+    card.classList.remove("pc-small");
+    parts.forEach((el, i) => {
+      el.style.setProperty("--dx", `${small[i].x - full[i].x}px`);
+      el.style.setProperty("--dy", `${small[i].y - full[i].y}px`);
+      el.style.setProperty("--k", full[i].w ? (small[i].w / full[i].w).toFixed(4) : 1);
+    });
+    const d = Math.max(0, fullH - smallH);
+    hero.style.setProperty("--hd", `${d}px`);
+    return d;
+  }
+  function foldHeader(card, scroller) {
+    const hero = card.querySelector(".pc-hero");
+    if (!hero) return;
+    let d = measureFold(card), raf = 0;
+    const set = () => {
+      raf = 0;
+      const p = d ? Math.min(1, Math.max(0, scroller.scrollTop / d)) : 0;
+      hero.style.setProperty("--p", p.toFixed(4));
+      card.classList.toggle("compact", p >= 1);
+    };
+    set();
+    scroller.addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(set); }, { passive: true });
+    // a new size (rotating a phone, docking beside a panel) is a new fold
+    card._refold = () => { d = measureFold(card); set(); };
+  }
+  window.addEventListener("resize", () => {
+    if (els && els.card.classList.contains("open") && els.card._refold) els.card._refold();
+  });
+
   function open(name, from) {
     const { card, backdrop } = ensureShell();
     lastFocus = document.activeElement;
@@ -958,23 +1019,7 @@
       const scroller = card.querySelector(".pc-scroll");
       if (scroller) {
         scroller.scrollTop = 0;
-        // Measure how much the header shrinks when compact, without animating.
-        const hero = card.querySelector(".pc-hero");
-        if (hero) {
-          const full = hero.offsetHeight;
-          card.classList.add("compact", "pc-measure");
-          const small = hero.offsetHeight;
-          card.classList.remove("compact", "pc-measure");
-          void hero.offsetHeight;
-          card.style.setProperty("--pc-shrink", `${Math.max(0, full - small)}px`);
-        }
-        // Compact past 60px, full again under 10px: the gap keeps the header
-        // from flickering as its own height change moves the content.
-        scroller.addEventListener("scroll", () => {
-          const y = scroller.scrollTop;
-          if (y > 60) card.classList.add("compact");
-          else if (y < 10) card.classList.remove("compact");
-        }, { passive: true });
+        foldHeader(card, scroller);
       }
     };
     const show = () => { card.classList.add("open"); backdrop.classList.add("open"); };

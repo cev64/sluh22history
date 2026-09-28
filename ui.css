@@ -468,7 +468,7 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 /* Every press is felt. (Only controls with their own box: a button
    stretched over a whole row, like a results card's team row, must not
    shrink under the finger or the tap is lost.) */
-.bx-open, .bx-cue-row, .why-btn, .sort-button, .mobile-sort-direction, .drawer-close, .bx-close, .brief-toggle {
+.bx-open, .bx-cue-row, .why-btn, .sort-button, .mobile-sort-direction, .drawer-close, .bx-close {
   transition: background-color .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease);
 }
 .bx-open:active, .bx-cue-row:active, .sort-button:active, .mobile-sort-direction:active, .drawer-close:active, .bx-close:active { transform: scale(.97); }
@@ -573,12 +573,12 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 /* on a phone the stat tiles sit in the body, as little slabs of team colour */
 .drawer-stats-body .drawer-stat {
   border-radius: 14px;
-  background:
-    radial-gradient(120% 120% at 0% 0%, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 60%),
-    linear-gradient(140deg, var(--drawer-color, var(--navy-2)), color-mix(in srgb, var(--drawer-color, var(--navy-2)) 72%, #071827));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 10px 20px -12px color-mix(in srgb, var(--drawer-color, var(--navy-2)) 80%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--drawer-color, var(--navy-2)) 92%, #fff), color-mix(in srgb, var(--drawer-color, var(--navy-2)) 86%, #071827));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18);
 }
-.drawer-team .team-badge { box-shadow: 0 10px 24px -8px rgba(0, 0, 0, .45), 0 0 0 3px rgba(255, 255, 255, .18); }
+/* the badge keeps its ring in the team's colour (the page draws it as an
+   inset shadow) and gains a lift */
+.drawer-team .team-badge { box-shadow: inset 0 0 0 1.5px var(--team-color, transparent), 0 10px 24px -8px rgba(0, 0, 0, .45); }
 .drawer-year { background: rgba(255, 255, 255, .2); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 
 .bx-head {
@@ -664,18 +664,6 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 @keyframes uiFromLeft { from { opacity: 0; transform: translateX(-22px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
 @keyframes uiFromRight { from { opacity: 0; transform: translateX(22px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
 @keyframes uiScoreIn { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
-
-/* ---------------------------------------------------------------
-   Header summary fold (phones)
-   --------------------------------------------------------------- */
-@media (max-width: 700px) {
-  .brief-body { transition: grid-template-rows .5s var(--spring); }
-  .brief-body > div > * { opacity: 0; transform: translateY(-6px); filter: blur(3px);
-    transition: opacity .2s var(--ease), transform .3s var(--ease), filter .25s var(--ease); }
-  .hero-brief.open .brief-body > div > * { opacity: 1; transform: none; filter: none;
-    transition: opacity .35s var(--ease) .05s, transform .55s var(--spring) .05s, filter .4s var(--ease) .05s; }
-  .brief-chevron { transition: transform .45s var(--spring) !important; }
-}
 
 /* ---------------------------------------------------------------
    Keyframes
