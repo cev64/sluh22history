@@ -69,14 +69,19 @@
      slim bar (photo, name, close), so the player is always named on screen.
 
      The fold follows the scroll itself rather than switching at a
-     threshold: --p goes from 0 to 1 over the first stretch of scrolling
-     (the difference between the full and slim header, --hd), set on the
-     header each frame (see foldHeader). Nothing in the page reflows as it
-     does: the header keeps its full height in the layout, and only its
-     background (.pc-hero-bg) shrinks, its lower edge travelling exactly
-     with the content, while the photo, name and close button glide to
-     their places in the bar on transforms and the tags fade. The colour
-     turns to tinted glass on the way, so the stats show through it. */
+     threshold: over the first stretch of scrolling (the difference between
+     the full and slim header, --hd) it goes from open to folded. Where the
+     browser can tie an animation to the scroll (animation-timeline), the
+     fold is such an animation and moves in step with the scroll on the
+     compositor; elsewhere foldHeader sets --p (0 to 1) each frame. Either
+     way only transforms and opacity change, so nothing is laid out or
+     repainted as it goes: the header keeps its full height, its background
+     slides up (.pc-hero-bg, clipped by the scroller) with its lower edge
+     travelling exactly with the content while the glass inside it slides
+     back down to stay put, and the photo, name and close button glide to
+     their places in the bar as the tags fade. The colour thins towards
+     tinted glass on the way, so the stats show through it. A scroll that
+     comes to rest partway settles to the nearer end (see foldHeader). */
   .pc-hero {
     --p: 0;
     position: sticky; top: 0; z-index: 5;
@@ -86,20 +91,34 @@
     pointer-events: none;   /* the part below the bar lets taps through to the content */
   }
   .pc-hero .pc-close { pointer-events: auto; }
-  .pc-hero-bg {
-    position: absolute; left: 0; right: 0; top: 0; overflow: hidden; pointer-events: none;
-    height: calc(100% - var(--hd, 0px) * var(--p));
-    /* the club's colour, lit from the top left, going to glass as it folds */
+  .pc-hero-bg, .pc-hero-shade {
+    position: absolute; inset: 0; pointer-events: none;
+    transform: translate3d(0, calc(var(--hd, 0px) * var(--p) * -1), 0); will-change: transform;
+  }
+  .pc-hero-bg { overflow: hidden; }
+  /* the shadow the folded bar casts on the stats */
+  .pc-hero-shade { box-shadow: 0 8px 20px -12px rgba(7, 24, 39, .5); opacity: var(--p); }
+  .pc-hero-bg::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: rgba(255, 255, 255, .12);
+  }
+  .pc-hero-glass {
+    position: absolute; inset: 0; overflow: hidden;
+    transform: translate3d(0, calc(var(--hd, 0px) * var(--p)), 0); will-change: transform;
+    -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7);
+  }
+  /* the club's colour, lit from the top left */
+  .pc-hero-glass::before {
+    content: ""; position: absolute; inset: 0;
     background:
       radial-gradient(120% 160% at 0% 0%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 55%),
       linear-gradient(120deg,
-        color-mix(in srgb, color-mix(in srgb, var(--pc-color) 88%, #fff) calc(100% - var(--p) * 10%), transparent) 0%,
-        color-mix(in srgb, var(--pc-color) calc(100% - var(--p) * 9%), transparent) 40%,
-        color-mix(in srgb, color-mix(in srgb, var(--pc-color) 55%, #071827) calc(100% - var(--p) * 7%), transparent) 100%);
-    -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7);
-    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .12), 0 8px 20px -12px rgba(7, 24, 39, calc(var(--p) * .5));
+        color-mix(in srgb, var(--pc-color) 88%, #fff) 0%,
+        var(--pc-color) 40%,
+        color-mix(in srgb, var(--pc-color) 55%, #071827) 100%);
+    opacity: calc(1 - var(--p) * .09);
   }
-  .pc-hero-bg::after {
+  .pc-hero-glass::after {
     content: ""; position: absolute; right: -60px; top: -80px; width: 240px; height: 240px;
     border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 68%);
     animation: pcDrift 14s ease-in-out infinite alternate;
@@ -108,11 +127,38 @@
   /* each moving part: from where it sits in the full header (--dx, --dy,
      --k measured against where it sits in the slim one) */
   .pc-hero [data-fold] {
-    transform-origin: 0 0;
+    transform-origin: 0 0; will-change: transform;
     transform: translate(calc(var(--dx, 0px) * var(--p)), calc(var(--dy, 0px) * var(--p))) scale(calc(1 + (var(--k, 1) - 1) * var(--p)));
   }
   .pc-hero .pc-tags, .pc-hero .pc-champ { opacity: calc(1 - var(--p) * 1.8); }
   .pc-hero .pc-photo .pc-club { opacity: calc(1 - var(--p) * 1.6); }
+  /* The same fold as a scroll-driven animation: the same values, keyed to
+     the first --hd of the card's scroll instead of to --p. */
+  @supports (animation-timeline: scroll()) {
+    .pc-hero-bg, .pc-hero-shade, .pc-hero-glass, .pc-hero-glass::before,
+    .pc-hero [data-fold], .pc-hero .pc-tags, .pc-hero .pc-champ, .pc-hero .pc-photo .pc-club {
+      animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
+      animation-timeline: scroll(nearest block); animation-range: 0px var(--hd, 0px);
+    }
+    .pc-hero-bg { animation-name: pcFoldUp; }
+    .pc-hero-shade { animation-name: pcFoldUp, pcFoldIn; }
+    .pc-hero-glass { animation-name: pcFoldDown; }
+    .pc-hero-glass::before { animation-name: pcFoldThin; }
+    .pc-hero [data-fold] { animation-name: pcFoldPart; }
+    .pc-hero .pc-tags[data-fold], .pc-hero .pc-champ[data-fold] { animation-name: pcFoldPart, pcFoldFade; }
+    .pc-hero .pc-photo .pc-club { animation-name: pcFoldFadeLate; }
+    .pc .pc-hero.pc-nofold *, .pc .pc-hero.pc-nofold *::before { animation-name: none; }
+  }
+  @keyframes pcFoldUp { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, calc(var(--hd, 0px) * -1), 0); } }
+  @keyframes pcFoldDown { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, var(--hd, 0px), 0); } }
+  @keyframes pcFoldIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pcFoldThin { from { opacity: 1; } to { opacity: .91; } }
+  @keyframes pcFoldPart {
+    from { transform: translate(0px, 0px) scale(1); }
+    to { transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(var(--k, 1)); }
+  }
+  @keyframes pcFoldFade { from { opacity: 1; } 55% { opacity: 0; } to { opacity: 0; } }
+  @keyframes pcFoldFadeLate { from { opacity: 1; } 62% { opacity: 0; } to { opacity: 0; } }
   .pc-photo {
     position: relative; flex: 0 0 auto; width: 84px; height: 84px; border-radius: 50%;
     background: rgba(255,255,255,.95); box-shadow: 0 0 0 4px rgba(255,255,255,.25), 0 14px 30px -10px rgba(0, 0, 0, .5);
@@ -795,7 +841,8 @@
     card.innerHTML = `
       <div class="pc-scroll">
         <header class="pc-hero">
-          <div class="pc-hero-bg" aria-hidden="true"></div>
+          <div class="pc-hero-shade" aria-hidden="true"></div>
+          <div class="pc-hero-bg" aria-hidden="true"><div class="pc-hero-glass"></div></div>
           <div class="pc-photo" data-fold>${photo}${!isDst ? `<span class="pc-club">${nfl(s.lastClub)}</span>` : ""}</div>
           <div class="pc-id">
             ${s.titles.length ? `<div class="pc-champ" data-fold title="Championship games won in the starting lineup">🏆 ${[...new Set(s.titles.map((r) => r.season))].join(" · ")}</div>` : ""}
@@ -970,20 +1017,47 @@
     hero.style.setProperty("--hd", `${d}px`);
     return d;
   }
+  // where the browser runs the fold itself, tied to the scroll (see the CSS)
+  const SCROLL_DRIVEN = !!(window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()"));
   function foldHeader(card, scroller) {
     const hero = card.querySelector(".pc-hero");
     if (!hero) return;
-    let d = measureFold(card), raf = 0;
+    let d = 0, raf = 0, idle = 0, touching = false;
     const set = () => {
       raf = 0;
+      if (SCROLL_DRIVEN) return;
       const p = d ? Math.min(1, Math.max(0, scroller.scrollTop / d)) : 0;
       hero.style.setProperty("--p", p.toFixed(4));
-      card.classList.toggle("compact", p >= 1);
     };
-    set();
-    scroller.addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(set); }, { passive: true });
+    const measure = () => {
+      d = measureFold(card);
+      hero.classList.toggle("pc-nofold", !d);
+      set();
+    };
+    // A scroll that comes to rest partway through the fold finishes it,
+    // gliding to whichever end is nearer, so the header is never left
+    // half folded. Not while a finger is still on the card.
+    const settle = () => {
+      clearTimeout(idle);
+      if (touching || !d) return;
+      const t = scroller.scrollTop;
+      const end = Math.min(d, scroller.scrollHeight - scroller.clientHeight);
+      if (t > 0.5 && t < end - 0.5) scroller.scrollTo({ top: t < d / 2 ? 0 : end, behavior: "smooth" });
+    };
+    const HAS_SCROLLEND = "onscrollend" in window;
+    measure();
+    scroller.addEventListener("scroll", () => {
+      if (!raf && !SCROLL_DRIVEN) raf = requestAnimationFrame(set);
+      clearTimeout(idle);
+      if (!HAS_SCROLLEND) idle = setTimeout(settle, 160);
+    }, { passive: true });
+    if (HAS_SCROLLEND) scroller.addEventListener("scrollend", settle);
+    scroller.addEventListener("touchstart", () => { touching = true; clearTimeout(idle); }, { passive: true });
+    const lift = () => { touching = false; clearTimeout(idle); idle = setTimeout(settle, 160); };
+    scroller.addEventListener("touchend", lift, { passive: true });
+    scroller.addEventListener("touchcancel", lift, { passive: true });
     // a new size (rotating a phone, docking beside a panel) is a new fold
-    card._refold = () => { d = measureFold(card); set(); };
+    card._refold = measure;
   }
   window.addEventListener("resize", () => {
     if (els && els.card.classList.contains("open") && els.card._refold) els.card._refold();
@@ -995,7 +1069,7 @@
     const target = dockFor(from);
     const wasOpen = card.classList.contains("open");
     if (!wasOpen) {
-      card.classList.remove("docked", "from-panel", "compact");
+      card.classList.remove("docked", "from-panel");
       card.style.width = card.style.zIndex = "";
       backdrop.classList.remove("docked");
       // Jump, untransitioned, to the docked start position (off to the left,
@@ -1015,7 +1089,6 @@
       render(name);
       const btn = card.querySelector(".pc-close");
       if (btn) btn.focus({ preventScroll: true });
-      card.classList.remove("compact");
       const scroller = card.querySelector(".pc-scroll");
       if (scroller) {
         scroller.scrollTop = 0;
