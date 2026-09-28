@@ -31,7 +31,8 @@
   .pc-backdrop {
     position: fixed; inset: 0; z-index: 200;
     background: rgba(7, 18, 30, .55);
-    opacity: 0; pointer-events: none; transition: opacity .18s ease;
+    opacity: 0; pointer-events: none; transition: opacity .3s cubic-bezier(.22, 1, .36, 1);
+    -webkit-backdrop-filter: blur(8px) saturate(1.2); backdrop-filter: blur(8px) saturate(1.2);
   }
   .pc-backdrop.open { opacity: 1; pointer-events: auto; }
 
@@ -48,6 +49,12 @@
     -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
   }
   .pc.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+  /* Desktop: opens generously with a little spring, closes quickly. (Phones
+     keep the sheet curve further down.) */
+  @media (min-width: 761px) {
+    .pc { transition: opacity .2s cubic-bezier(.22, 1, .36, 1), transform .25s cubic-bezier(.22, 1, .36, 1); }
+    .pc.open { transition: opacity .3s cubic-bezier(.22, 1, .36, 1), transform .5s cubic-bezier(.34, 1.4, .64, 1); }
+  }
   .pc *, .pc *::before, .pc *::after { box-sizing: border-box; }
   /* No scroll anchoring: it would pull scrollTop back as the header shrinks. */
   .pc-scroll { overflow: auto; overscroll-behavior: contain; overflow-anchor: none; }
@@ -132,11 +139,20 @@
   .pc.docked.open { transform: none; opacity: 1; }
   .pc-backdrop.docked { display: none; }
   .bx-modal {
-    transition: opacity .18s ease, transform .18s ease,
-      left .45s cubic-bezier(.2,.8,.2,1), width .45s cubic-bezier(.2,.8,.2,1);
+    transition: opacity .2s cubic-bezier(.22, 1, .36, 1), transform .25s cubic-bezier(.22, 1, .36, 1),
+      left .45s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1);
+  }
+  @media (min-width: 761px) {
+    .bx-modal.open {
+      transition: opacity .3s cubic-bezier(.22, 1, .36, 1), transform .5s cubic-bezier(.34, 1.4, .64, 1),
+        left .45s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1);
+    }
   }
   .bx-modal.bx-docked { left: calc(16px + var(--bx-dw) / 2); width: var(--bx-dw); }
-  #teamDrawer, #profilePanel { transition: transform .27s cubic-bezier(.2,.8,.2,1), width .45s cubic-bezier(.2,.8,.2,1); }
+  #teamDrawer, #profilePanel { transition: transform .3s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1); }
+  @media (min-width: 761px) {
+    #teamDrawer.open, #profilePanel.open { transition: transform .5s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1); }
+  }
 
   .pc-body { padding: 14px; display: grid; gap: 12px; }
 
