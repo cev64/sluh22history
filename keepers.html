@@ -142,12 +142,6 @@
     /* ---- Toolbar ---- */
     main { width: min(1220px, calc(100% - 32px)); margin: 0 auto; padding: 22px 0 60px; }
     .page-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 14px 20px; flex-wrap: wrap; margin-bottom: 16px; }
-    .page-title h2 { margin: 0; position: relative; padding-left: 15px; }
-    .page-title h2::before {
-      content: ""; position: absolute; left: 0; top: .12em; bottom: .12em; width: 5px;
-      border-radius: 999px; background: var(--blue);
-    }
-    .page-title p { margin: 6px 0 0 15px; color: var(--muted); font-size: 13px; }
     .kp-filter { width: min(100%, 380px); --n: 3; }
 
     /* Phones: one team at a time, picked here. Wider screens show them all,
@@ -338,10 +332,6 @@
 
   <main>
     <div class="page-toolbar">
-      <div class="page-title">
-        <h2 id="pageTitle">Rosters</h2>
-        <p id="pageSub"></p>
-      </div>
       <label class="kp-team-pick">
         <select id="teamSelect" aria-label="Choose a team">
           <option value="all">All teams</option>
@@ -561,9 +551,6 @@
       document.getElementById("heroCounts").innerHTML = `
         <div class="hero-count"><strong>${inCount}</strong><span>eligible</span></div>
         <div class="hero-count"><strong>${outCount}</strong><span>not eligible</span></div>`;
-      document.getElementById("pageTitle").textContent = `Rosters · Week ${latest}`;
-      document.getElementById("pageSub").textContent =
-        `Every rostered player as of week ${latest} of ${SEASON}. Tap a name for his card.`;
       document.getElementById("note").innerHTML =
         `“Final year” players can be kept for ${KEEP_YEAR}, but it is their last: in ${KEEP_YEAR + 1} they go back into the draft. ` +
         `Tags under each name trace how he got here: the round he was drafted in (red if it was one of the first two open rounds), ` +
