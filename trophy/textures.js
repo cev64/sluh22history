@@ -9,7 +9,7 @@
 
 import * as THREE from "three";
 
-const DISPLAY_FONT = '"Space Grotesk", Inter, system-ui, sans-serif';
+const DISPLAY_FONT = '"Barlow Condensed", Inter, system-ui, sans-serif';
 const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
 
 /* Team logos, decoded up front. Every texture here is painted synchronously, so
@@ -894,9 +894,9 @@ export async function waitForFonts() {
   if (!document.fonts) return;
   try {
     await Promise.all([
-      document.fonts.load('800 100px "Space Grotesk"'),
-      document.fonts.load('600 100px "Space Grotesk"'),
-      document.fonts.load('500 100px "Space Grotesk"')
+      document.fonts.load('700 100px "Barlow Condensed"'),
+      document.fonts.load('600 100px "Barlow Condensed"'),
+      document.fonts.load('600 100px Inter')
     ]);
     await document.fonts.ready;
   } catch (error) {

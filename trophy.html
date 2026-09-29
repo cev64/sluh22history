@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="league-data.js"></script>
   <script src="team-logos.js"></script>
   <script src="pwa.js" defer></script>
@@ -26,7 +26,9 @@
       --dim: #93a6bd;
       --glass: rgba(10, 18, 30, .62);
       --edge: rgba(159, 194, 240, .16);
-      --font: 'Space Grotesk', Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      /* the record book's display face, for the names the room puts up in lights */
+      --display: "Barlow Condensed", "Arial Narrow", sans-serif;
       --pad-top: max(14px, env(safe-area-inset-top));
       --pad-bottom: max(14px, env(safe-area-inset-bottom));
       --pad-left: max(16px, env(safe-area-inset-left));
@@ -137,9 +139,10 @@
 
     .wordmark { text-align: right; line-height: 1.1; }
     .wordmark .mark {
-      font-size: clamp(15px, 2.4vw, 19px);
+      font-family: var(--display);
+      font-size: clamp(18px, 2.8vw, 23px);
       font-weight: 700;
-      letter-spacing: .3em;
+      letter-spacing: .16em;
       text-transform: uppercase;
       text-shadow: 0 2px 18px rgba(0,0,0,.7);
     }
@@ -313,9 +316,11 @@
       color: var(--accent);
     }
     .label-title {
-      font-size: clamp(19px, 4.6vw, 27px);
+      font-family: var(--display);
+      font-size: clamp(23px, 5.4vw, 32px);
       font-weight: 700;
-      letter-spacing: -.02em;
+      letter-spacing: .02em;
+      text-transform: uppercase;
       line-height: 1.1;
       max-width: min(78vw, 560px);
       overflow: hidden;
