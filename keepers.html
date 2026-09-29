@@ -470,7 +470,7 @@
           text: `Anyone taken in the first two open rounds of the ${SEASON} draft (rounds ${k + 1}–${k + 2}, after the keeper rounds) cannot be kept.` },
         { mark: "✕", out: true, title: "Three years, then back in the draft",
           text: `Kept in both ${SEASON - 1} and ${SEASON}? He goes back into the draft. The count follows the player through trades.` },
-        { last: true, popOnly: true, title: "Final year",
+        { last: true, popOnly: true, title: "1 More",
           text: `Kept in ${SEASON}, so he can be kept for ${KEEP_YEAR}, but it is his last year before he goes back into the draft.` },
       ];
     }
@@ -567,7 +567,7 @@
         <div class="hero-count"><strong>${inCount}</strong><span>eligible</span></div>
         <div class="hero-count"><strong>${outCount}</strong><span>not eligible</span></div>`;
       document.getElementById("note").innerHTML =
-        `“Final year” players can be kept for ${KEEP_YEAR}, but it is their last: in ${KEEP_YEAR + 1} they go back into the draft. ` +
+        `“1 More” players can be kept for ${KEEP_YEAR}, but it is their last: in ${KEEP_YEAR + 1} they go back into the draft. ` +
         `Tags under each name trace how he got here: the round he was drafted in (red if it was one of the first two open rounds), ` +
         `each year he was kept, or “Pickup” for a player added in season. A team named on a tag is the franchise that held him that year. ` +
         `Rosters update with each week posted to the ${SEASON} season.`;

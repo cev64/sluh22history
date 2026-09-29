@@ -113,7 +113,7 @@
     if (d && !d.keeper && d.round - drafts[SEASON].keepers <= 2) {
       return { level: "out", out: true, tag: `Round ${d.round} pick`, history };
     }
-    if (kept(SEASON)) return { level: "last", last: true, tag: "Final year", history };
+    if (kept(SEASON)) return { level: "last", last: true, tag: "1 More", history };
     return { level: "in", tag: "Eligible", history };
   }
 
