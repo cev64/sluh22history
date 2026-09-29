@@ -5190,12 +5190,18 @@
 
     let whyPop = null;
 
+    let whyFor = null;
+
     function closeWhy() {
       if (whyPop) { whyPop.remove(); whyPop = null; }
+      if (whyFor) { whyFor.classList.remove("open"); whyFor.setAttribute("aria-expanded", "false"); whyFor = null; }
     }
 
+    // A second tap on the same dot closes its popover instead of reopening it.
     function openWhy(button) {
+      const again = whyFor === button;
       closeWhy();
+      if (again) return;
       const info = whyStore[button.dataset.why];
       if (!info) return;
 
@@ -5224,6 +5230,9 @@
       pop.style.left = `${left}px`;
       pop.style.top = `${top}px`;
       whyPop = pop;
+      whyFor = button;
+      button.classList.add("open");
+      button.setAttribute("aria-expanded", "true");
     }
 
     document.addEventListener("click", (event) => {

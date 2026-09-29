@@ -5403,12 +5403,18 @@
 
     let whyPop = null;
 
+    let whyFor = null;
+
     function closeWhy() {
       if (whyPop) { whyPop.remove(); whyPop = null; }
+      if (whyFor) { whyFor.classList.remove("open"); whyFor.setAttribute("aria-expanded", "false"); whyFor = null; }
     }
 
+    // A second tap on the same dot closes its popover instead of reopening it.
     function openWhy(button) {
+      const again = whyFor === button;
       closeWhy();
+      if (again) return;
       const info = whyStore[button.dataset.why];
       if (!info) return;
 
@@ -5437,6 +5443,9 @@
       pop.style.left = `${left}px`;
       pop.style.top = `${top}px`;
       whyPop = pop;
+      whyFor = button;
+      button.classList.add("open");
+      button.setAttribute("aria-expanded", "true");
     }
 
     document.addEventListener("click", (event) => {
@@ -6202,24 +6211,39 @@
       const leader = season[BET_A] > season[BET_B] ? BET_A : season[BET_B] > season[BET_A] ? BET_B : null;
       const plural = (n) => (n === 1 ? "" : "s");
 
-      // Just the two divisions and their wins — the week-by-week table
-      // below carries the detail.
-      const sideCard = (division) => {
+      // One band: each division's wins facing the other across the middle,
+      // then a bar splitting the whole slate, decided games in each side's
+      // colour and the rest still to play.
+      const sideCard = (division, align) => {
         const bet = divisionBet.sides[division];
         return `
-          <div class="bet-side ${leader === division ? "leading" : ""}" style="--bet-color:${bet.color}; --bet-tint:${bet.tint}">
-            <small>${division}</small>
+          <div class="bet-side ${align} ${leader === division ? "leading" : ""}" style="--bet-color:${bet.color}">
             <span class="bet-wins">${season[division]}</span>
+            <span class="bet-who"><small>${division}</small><span>${bet.bettor}</span></span>
           </div>`;
       };
+      const share = (n) => (totalGames ? (n / totalGames) * 100 : 0);
+      const margin = Math.abs(season[BET_A] - season[BET_B]);
+      const left = totalGames - season.decided;
+      const status = leader
+        ? `${leader} leads by ${margin} · ${left} game${plural(left)} to play`
+        : season.decided ? `All square · ${left} game${plural(left)} to play` : `${totalGames} cross-division games to play`;
 
       const betCard = `
         <article class="card">
           ${cardHead(divisionBet.title, "versus", `${season.decided} of ${totalGames} games decided`)}
-          <div class="bet-scoreboard">
-            ${sideCard(BET_A)}
-            <span class="bet-versus">VS</span>
-            ${sideCard(BET_B)}
+          <div class="bet-board">
+            <div class="bet-scoreboard">
+              ${sideCard(BET_A, "a")}
+              <span class="bet-versus">vs</span>
+              ${sideCard(BET_B, "b")}
+            </div>
+            <div class="bet-bar" role="img" aria-label="${BET_A} ${season[BET_A]}, ${BET_B} ${season[BET_B]}, ${left} to play">
+              <i style="width:${share(season[BET_A])}%;background:${divisionBet.sides[BET_A].color}"></i>
+              <i class="rest"></i>
+              <i style="width:${share(season[BET_B])}%;background:${divisionBet.sides[BET_B].color}"></i>
+            </div>
+            <div class="bet-status">${status}</div>
           </div>
         </article>`;
 
@@ -6247,11 +6271,11 @@
                   const leadText = lead === 0 ? "Even" : `${lead > 0 ? BET_A : BET_B} +${Math.abs(lead)}`;
                   return `
                     <tr class="${pending ? "is-pending" : ""} ${r.week === week ? "is-current" : ""}">
-                      <td>Week ${r.week}${r.week === rivalryWeek ? " · Rivalry" : ""}</td>
+                      <td>Week ${r.week}${r.week === rivalryWeek ? ' <span class="bet-tag">Rivalry</span>' : ""}</td>
                       <td>${r.games.length}</td>
                       <td>${pending || r.weekly.decided === 0 ? "—" : betRecord(r.weekly)}</td>
                       <td>${pending ? "—" : betRecord(r.season)}</td>
-                      <td class="${pending ? "" : leadClass}">${pending ? "—" : leadText}</td>
+                      <td class="${pending ? "" : leadClass}">${pending ? "—" : lead === 0 ? leadText : `<span class="bet-dot"></span>${leadText}`}</td>
                     </tr>`;
                 }).join("")}
               </tbody>
@@ -6259,18 +6283,18 @@
           </div>
         </article>`;
 
-      const gameSide = (id, game, position) => {
+      // A cross-division game reads like a bracket matchup: one row per team,
+      // its division on the left in that division's colour, the winner
+      // tinted in it.
+      const betRow = (id, game) => {
         const t = teams[id];
         const won = game.played && game.winner === id;
-        const lost = game.played && game.winner !== id && game.winner !== "tie";
         return `
-          <span class="bet-game-side ${position} ${won ? "won" : ""} ${lost ? "lost" : ""}" style="--bet-color:${divisionBet.sides[t.division].color}">
-            ${miniTeam(id)}
-            <span class="bgs-copy">
-              <span class="bgs-name">${t.name}</span>
-              <span class="bgs-div">${t.division}${won ? " · Won" : ""}</span>
-            </span>
-          </span>`;
+          <div class="matchup-row${won ? " winner" : ""}" style="--bet-color:${divisionBet.sides[t.division].color}">
+            <span class="seed bet-div">${t.division}</span>
+            ${bkTeam(id)}
+            <span class="score">${game.played ? fmt(game.scoreOf[id]) : ""}</span>
+          </div>`;
       };
 
       // Week 0 has no slate of its own, so the preseason view lays out
@@ -6305,10 +6329,10 @@
                 ${cardHead(`Week ${week} Cross-Division Games`, "cross", row.weekly.decided ? `${BET_A} ${betRecord(row.weekly)} ${BET_B}` : "Not yet played")}
                 <div class="bet-games">
                   ${row.games.map((g) => `
-                    <div class="bet-game">
-                      ${gameSide(g.a, g, "")}
-                      <span class="bet-game-mid">${g.played ? `${fmt(g.scoreOf[g.a])} – ${fmt(g.scoreOf[g.b])}` : "VS"}</span>
-                      ${gameSide(g.b, g, "right")}
+                    <div class="matchup bet-match">
+                      <div class="matchup-kicker">${g.played ? (g.winner === "tie" ? "Tie" : `${teams[g.winner].division} win`) : "Not yet played"}</div>
+                      ${betRow(g.a, g)}
+                      ${betRow(g.b, g)}
                     </div>`).join("")}
                 </div>
               </article>`;
