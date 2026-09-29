@@ -17,5 +17,5 @@ at round `keepers + 1`.
 ## Next season
 
 After the 2027 draft: fetch `--year 2027`, then set `SEASON = 2027` in
-`keepers.html`. It then judges the 2028 keepers from the 2027 draft and the
+`keepers.js` (shared by the keeper page and the player card's keeper pill). It then judges the 2028 keepers from the 2027 draft and the
 2027 box scores.

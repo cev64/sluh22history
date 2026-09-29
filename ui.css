@@ -261,6 +261,25 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 .sn-clear:active { transform: scale(.9); }
 @media (hover: hover) { .sn-clear:hover { background: rgba(12, 28, 45, .14); } }
 
+/* ---- the keeper page's capsule: views, a magnifier, a search below ---- */
+/* The views stay while searching; the field folds down beneath them. */
+.find-drop.searching .sn-top .sn-seg { opacity: 1; filter: none; transform: none; pointer-events: auto; }
+.fd-fold { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 0fr; transition: grid-template-rows .35s var(--ease); }
+.fd-fold > div { min-height: 0; overflow: hidden; }
+.find-drop.searching .fd-fold { grid-template-rows: 1fr; transition: grid-template-rows .5s var(--spring); }
+.fd-fold .sn-find-bar {
+  display: flex; align-items: center; gap: 10px; height: 44px; margin-top: 8px; padding: 0 8px 0 13px;
+  border-radius: 12px; background: #fff; color: var(--muted, #637083);
+  box-shadow: inset 0 0 0 1.5px var(--blue, #1769e0);
+  opacity: 0; transform: translateY(-8px); transition: opacity .2s var(--ease), transform .45s var(--spring);
+}
+.find-drop.searching .fd-fold .sn-find-bar { opacity: 1; transform: none; }
+.find-drop.stuck .sn-cap { padding: 8px; }
+@media (max-width: 520px) {
+  .find-drop.stuck .sn-cap, .find-drop.searching .sn-cap { padding: 6px; }
+  .fd-fold .sn-find-bar { margin-top: 6px; }
+}
+
 /* ---- week wheel -------------------------------------------------- */
 /* sizes are registered so they can animate when the capsule pins */
 @property --sn-ring { syntax: '<length>'; inherits: true; initial-value: 38px; }

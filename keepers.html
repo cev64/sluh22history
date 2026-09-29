@@ -141,8 +141,11 @@
 
     /* ---- Toolbar ---- */
     main { width: min(1220px, calc(100% - 32px)); margin: 0 auto; padding: 22px 0 60px; }
-    .page-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 14px 20px; flex-wrap: wrap; margin-bottom: 16px; }
-    .kp-filter { width: min(100%, 380px); --n: 3; }
+    .kp-filter { --n: 3; }
+    /* The capsule sits inside main, which already sets the page's width. */
+    main .season-nav, main .sn-sentinel { width: 100%; }
+    main .sn-sentinel:first-child { height: 0; }
+    #kpNav { margin-bottom: 16px; }
 
     /* Phones: one team at a time, picked here. Wider screens show them all,
        so the picker and the hiding only exist inside the phone query. */
@@ -269,10 +272,10 @@
       .hero-inner { padding: 20px 0 22px; }
       .hero-count strong { font-size: 20px; }
       .rules li { font-size: 13px; padding: 10px 12px; }
-      .kp-filter { width: 100%; }
       .hero { display: none; }
       main { padding-top: 16px; }
       .kp-team-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+      #kpNav { margin-bottom: 12px; }
       .kp-team-pick { display: block; flex: 1 1 auto; min-width: 0; }
       .kp-team.kp-off { display: none; }
       .kp-row { padding: 10px 12px; gap: 4px 10px; }
@@ -360,37 +363,43 @@
     </div>
   </section>
 
-  <!-- The player search, as on the record book: a pill that pins under the
-       header, with results dropping out of it (ui.js, UI.findPill). -->
-  <nav class="season-nav find-pill" id="findPill" aria-label="Player search">
-    <div class="sn-cap">
-      <div class="sn-find-bar" role="search">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
-        <input id="playerSearch" type="search" autocomplete="off" spellcheck="false" autocapitalize="words" enterkeyhint="search"
-          placeholder="Search any player" aria-label="Search players" aria-controls="playerResults" />
-        <button type="button" class="sn-clear" aria-label="Clear search" hidden><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-      </div>
-      <div class="sn-drop"><div><div class="player-results" id="playerResults" role="listbox" aria-label="Players"></div></div></div>
-    </div>
-  </nav>
-
   <main>
-    <div class="page-toolbar">
-      <div class="kp-team-row">
-        <label class="kp-team-pick">
-          <select id="teamSelect" aria-label="Choose a team">
-            <option value="all">All teams</option>
-          </select>
-        </label>
-        <button type="button" class="why-btn" id="rulesBtn" aria-expanded="false" aria-label="Keeper rules">i</button>
-      </div>
-      <div class="sn-seg kp-filter" role="tablist" aria-label="Show players">
-        <span class="sn-seg-ind" aria-hidden="true"></span>
-        <button type="button" role="tab" data-filter="all" aria-selected="true">All</button>
-        <button type="button" role="tab" data-filter="in" aria-selected="false">Eligible</button>
-        <button type="button" role="tab" data-filter="out" aria-selected="false">Not eligible</button>
-      </div>
+    <!-- Phones: one team at a time, and the rules behind the "i". -->
+    <div class="kp-team-row">
+      <label class="kp-team-pick">
+        <select id="teamSelect" aria-label="Choose a team">
+          <option value="all">All teams</option>
+        </select>
+      </label>
+      <button type="button" class="why-btn" id="rulesBtn" aria-expanded="false" aria-label="Keeper rules">i</button>
     </div>
+
+    <!-- The views and the player search in one capsule that pins under the
+         header: the magnifier drops the search down out of it (ui.js,
+         UI.findDrop). -->
+    <nav class="season-nav" id="kpNav" aria-label="Filter and search">
+      <div class="sn-cap">
+        <div class="sn-top">
+          <div class="sn-seg kp-filter" role="tablist" aria-label="Show players">
+            <span class="sn-seg-ind" aria-hidden="true"></span>
+            <button type="button" role="tab" data-filter="all" aria-selected="true">All</button>
+            <button type="button" role="tab" data-filter="in" aria-selected="false">Eligible</button>
+            <button type="button" role="tab" data-filter="out" aria-selected="false">Not eligible</button>
+          </div>
+          <button class="sn-search" type="button" aria-label="Search players" aria-expanded="false" aria-controls="playerSearch" title="Search players (/)"><svg class="ic-find" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><svg class="ic-x" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div class="fd-fold"><div>
+          <div class="sn-find-bar" role="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+            <input id="playerSearch" type="search" autocomplete="off" spellcheck="false" autocapitalize="words" enterkeyhint="search" tabindex="-1"
+              placeholder="Search any player" aria-label="Search players" aria-controls="playerResults" />
+            <button type="button" class="sn-clear" aria-label="Clear search" hidden><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          </div>
+        </div></div>
+        <div class="sn-drop"><div><div class="player-results" id="playerResults" role="listbox" aria-label="Players"></div></div></div>
+      </div>
+    </nav>
+
     <div class="kp-grid" id="teams"><p class="kp-status">Loading rosters&hellip;</p></div>
     <p class="kp-note" id="note"></p>
   </main>
@@ -615,7 +624,7 @@
       if (target) window.location.href = target;
     });
 
-    if (window.UI && window.UI.findPill) window.UI.findPill("#findPill");
+    if (window.UI && window.UI.findDrop) window.UI.findDrop("#kpNav");
 
     main().catch((err) => {
       console.error(err);

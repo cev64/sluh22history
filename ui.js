@@ -963,6 +963,55 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(pin.measure);
   }
 
-  window.UI = { roll, measureRows, shuffleRows, haptic, findPill, reduced: () => REDUCE.matches };
+  /* ===============================================================
+     FIND DROP (the keeper page)
+
+     A page's own views as the capsule's segmented control, with the
+     magnifier at its end. The views stay put: the magnifier (then a
+     cross) drops a search field down out of the capsule, and the
+     results drop out of that, over the page. It pins under the header
+     like the other capsules. The markup is the page's; this wires the
+     search, and the page wires its own views.
+     =============================================================== */
+  function findDrop(el) {
+    const root = typeof el === "string" ? document.querySelector(el) : el;
+    if (!root) return;
+    root.classList.add("season-nav", "find-drop");
+    const btn = root.querySelector(".sn-search");
+    const input = root.querySelector(".fd-fold input");
+    const clear = root.querySelector(".sn-clear");
+    const pin = pinnable(root);
+    const finder = playerFinder(input, root.querySelector(".player-results"),
+      { onChange: (has) => root.classList.toggle("found", has) });
+    const sync = () => { clear.hidden = !input.value; };
+    function open(on) {
+      if (on === root.classList.contains("searching")) return;
+      root.classList.toggle("searching", on);
+      btn.setAttribute("aria-expanded", on);
+      btn.setAttribute("aria-label", on ? "Close search" : "Search players");
+      input.tabIndex = on ? 0 : -1;
+      if (on) input.focus({ preventScroll: true });
+      else { finder.clear(); sync(); if (root.contains(document.activeElement)) btn.focus({ preventScroll: true }); }
+    }
+    btn.addEventListener("click", () => { haptic("tap"); open(!root.classList.contains("searching")); });
+    input.addEventListener("input", sync);
+    clear.addEventListener("click", () => { finder.clear(); sync(); input.focus({ preventScroll: true }); });
+    document.addEventListener("click", (e) => {
+      if (!root.classList.contains("searching") || root.contains(e.target)) return;
+      if (e.target.closest && e.target.closest(".pc, .pc-backdrop")) return;   // a card opened from the results
+      open(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && root.classList.contains("searching") && !document.querySelector(".pc.open")) open(false);
+    });
+    slashOpens(() => open(true));
+    const layout = () => { pin.watch(); pin.measure(); };
+    raf2(layout);
+    let rz = 0;
+    window.addEventListener("resize", () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(layout); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(pin.measure);
+  }
+
+  window.UI = { roll, measureRows, shuffleRows, haptic, findPill, findDrop, reduced: () => REDUCE.matches };
   window.SeasonNav = SeasonNav;
 })();
