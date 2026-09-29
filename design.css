@@ -1384,3 +1384,7 @@ body:not(#_) .schedule-week { white-space: nowrap; letter-spacing: .03em; }
   body:not(#_) .roster-row.header > :nth-child(4) { display: none; }
   body:not(#_) .roster-row.header .roster-wk { height: auto; font-size: 8px; letter-spacing: -.02em; }
 }
+
+/* A season's team card lists its opponents by team alone, as the
+   standings do; each is a tap away from its own card. */
+body:not(#_) #drawerBody .schedule-row .schedule-opponent > span { display: none; }
