@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Who each team can keep for next season, and why the rest cannot be kept." />
+  <title>League History · Keepers</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#071827" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="League History" />
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <script src="pwa.js" defer></script>
+  <script src="player-card.js" defer></script>
+  <style>
+    @view-transition { navigation: auto; }
+
+    :root {
+      --ink: #0b1726;
+      --muted: #637083;
+      --line: #dce3eb;
+      --surface: #ffffff;
+      --surface-2: #f5f7fa;
+      --navy: #071827;
+      --navy-2: #102b43;
+      --blue: #1769e0;
+      --blue-2: #0f56bd;
+      --red: #d71920;
+      --gold: #f6b73c;
+      --green: #16834a;
+      --out: #b42318;
+      --out-soft: #fef3f2;
+      --last: #a15c07;
+      --last-soft: #fffaeb;
+      --ok-soft: #ecfdf3;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        repeating-linear-gradient(90deg, transparent 0 149px, rgba(11,23,38,.045) 149px 150px),
+        repeating-linear-gradient(90deg, transparent 0 29px, rgba(11,23,38,.018) 29px 30px),
+        #f0f4f9;
+    }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+
+    /* ---- Header: the same bar as the season pages ---- */
+    .topbar {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(7, 24, 39, .96);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: #fff;
+    }
+    .topbar-inner {
+      width: min(1220px, calc(100% - 32px)); margin: 0 auto; min-height: 72px;
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; color: inherit; text-decoration: none; }
+    .brand-mark { width: 46px; height: 46px; display: grid; place-items: center; flex: 0 0 auto; }
+    .brand-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .brand-copy { min-width: 0; }
+    .brand-kicker {
+      display: block; font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+      color: #9eb0c1; font-weight: 800; margin-bottom: 2px;
+    }
+    .brand-title { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 19px; font-weight: 800; }
+    .year-control { display: flex; align-items: center; gap: 10px; color: #c9d5df; font-size: 13px; font-weight: 700; }
+    .year-control select {
+      appearance: none; color: #fff; background: #16324a;
+      border: 1px solid rgba(255,255,255,.16); border-radius: 10px;
+      padding: 10px 38px 10px 14px; font-weight: 800; outline: none;
+      background-image: linear-gradient(45deg, transparent 50%, #fff 50%), linear-gradient(135deg, #fff 50%, transparent 50%);
+      background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px;
+      background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    }
+    .topbar-trophy {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+      padding: 9px 13px; border: 1px solid rgba(246, 183, 60, .45); border-radius: 10px;
+      background: rgba(246, 183, 60, .12); color: #fff; font-size: 13px; font-weight: 800;
+      text-decoration: none; white-space: nowrap;
+    }
+    .topbar-trophy:hover { background: rgba(246, 183, 60, .22); border-color: rgba(246, 183, 60, .7); }
+    .topbar-trophy + .year-control { margin-left: 0; }
+
+    /* ---- Hero: the field, carrying the rules ---- */
+    .hero {
+      position: relative; overflow: hidden; color: #fff; border-bottom: 4px solid var(--red);
+      background:
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.075) 28px 30px) 0 34% / 100% 7px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.075) 28px 30px) 0 68% / 100% 7px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 149px, rgba(255,255,255,.055) 149px 150px),
+        repeating-linear-gradient(90deg, transparent 0 29px, rgba(255,255,255,.022) 29px 30px),
+        rgba(7, 24, 39, .98);
+    }
+    .hero-inner {
+      position: relative; z-index: 1; width: min(1220px, calc(100% - 32px)); margin: 0 auto; padding: 26px 0 28px;
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px 32px; align-items: start;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+      padding: 5px 12px 5px 9px; border-radius: 999px;
+      background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .22);
+      font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .hero-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+    .hero-title { display: flex; flex-direction: column; gap: 12px; }
+    .hero h1 { margin: 0; font-size: clamp(34px, 5vw, 52px); }
+    .hero-title p { margin: 0; max-width: 40ch; color: rgba(255,255,255,.72); font-size: 14.5px; line-height: 1.45; }
+    .hero-counts { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-count {
+      flex: 1 1 0; min-width: 120px; padding: 10px 14px; border-radius: 12px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+    }
+    .hero-count strong { display: block; font-size: 24px; font-weight: 800; line-height: 1.1; }
+    .hero-count span { color: #aebdca; font-size: 12px; font-weight: 600; }
+
+    .rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .rules li {
+      display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start;
+      padding: 12px 14px; border-radius: 12px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+      font-size: 13.5px; line-height: 1.45; color: rgba(255,255,255,.82);
+    }
+    .rules li strong { color: #fff; display: block; font-size: 14px; margin-bottom: 1px; }
+    .rules .rule-mark {
+      width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+      font-size: 13px; font-weight: 900; background: rgba(255,255,255,.12);
+    }
+    .rules .rule-out .rule-mark { background: rgba(240, 68, 56, .28); color: #ffd7d3; }
+
+    /* ---- Toolbar ---- */
+    main { width: min(1220px, calc(100% - 32px)); margin: 0 auto; padding: 22px 0 60px; }
+    .page-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 14px 20px; flex-wrap: wrap; margin-bottom: 16px; }
+    .page-title h2 { margin: 0; position: relative; padding-left: 15px; }
+    .page-title h2::before {
+      content: ""; position: absolute; left: 0; top: .12em; bottom: .12em; width: 5px;
+      border-radius: 999px; background: var(--blue);
+    }
+    .page-title p { margin: 6px 0 0 15px; color: var(--muted); font-size: 13px; }
+    .kp-filter { width: min(100%, 380px); --n: 3; }
+
+    /* ---- Team cards ---- */
+    .kp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+    .kp-team { overflow: hidden; }
+    .kp-team .card-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+    .kp-team .card-head h3 { margin: 0; font-size: 20px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .kp-team .card-head .owner { display: block; color: var(--muted); font-size: 12px; font-weight: 600; margin-top: 3px; }
+    .kp-team .card-head > div { min-width: 0; flex: 1 1 auto; }
+    .kp-team .kp-tally { margin-left: auto; text-align: right; flex: 0 0 auto; font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.35; }
+    .kp-team .kp-tally strong { color: var(--green); font-size: 15px; }
+    .team-badge {
+      width: 38px; height: 38px; display: inline-grid; place-items: center; border-radius: 10px;
+      font-size: 18px; color: #fff; background: var(--team-color, var(--navy-2)); flex: 0 0 auto;
+    }
+    .team-badge:has(.team-logo) { background: #fff; box-shadow: inset 0 0 0 1.5px var(--team-color, #667); }
+    .team-badge .team-logo { width: 82%; height: 82%; object-fit: contain; }
+
+    .kp-group { margin: 0; padding: 0; list-style: none; }
+    .kp-group-head {
+      display: flex; justify-content: space-between; padding: 9px 16px 7px;
+      font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3, #8a94a6);
+      background: var(--surface-2); border-top: 1px solid var(--line);
+    }
+    .kp-row {
+      display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center;
+      padding: 10px 16px; border-top: 1px solid var(--line);
+    }
+    .kp-pos {
+      width: 34px; padding: 3px 0; border-radius: 6px; text-align: center;
+      font-size: 10.5px; font-weight: 800; letter-spacing: .03em; color: var(--ink-2, #475467); background: var(--surface-3, #eef1f5);
+    }
+    .kp-pos.QB { background: #fdf2fa; color: #9e165f; }
+    .kp-pos.RB { background: #ecfdf3; color: #067647; }
+    .kp-pos.WR { background: #eff8ff; color: #175cd3; }
+    .kp-pos.TE { background: #fef6ee; color: #b93815; }
+    .kp-who { min-width: 0; }
+    .kp-name { font-weight: 700; font-size: 14px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+    .kp-name[data-player] { text-decoration: underline dotted rgba(11, 31, 63, .3) 1.5px; text-underline-offset: 3px; }
+    @media (hover: hover) { .kp-name[data-player]:hover { color: var(--blue-2); text-decoration-color: currentColor; } }
+    .kp-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px; margin-top: 3px; font-size: 12px; color: var(--muted); }
+    .kp-sub img { width: 16px; height: 16px; object-fit: contain; }
+    .kp-hist { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+    .kp-step {
+      padding: 1px 6px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line);
+      font-size: 11px; font-weight: 600; color: var(--ink-2, #475467); white-space: nowrap;
+    }
+    .kp-step.kept { background: var(--accent-soft, #edf3ff); border-color: #c7d7fe; color: var(--accent-ink, #0f56bd); }
+    .kp-step.early { background: var(--out-soft); border-color: #fecdca; color: var(--out); }
+    .kp-right { display: flex; align-items: center; gap: 10px; justify-self: end; }
+    .kp-pts { text-align: right; font-weight: 700; font-size: 14px; min-width: 44px; }
+    .kp-pts small { display: block; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+    .kp-tag {
+      display: inline-block; min-width: 88px; text-align: center; padding: 4px 8px; border-radius: 999px;
+      font-size: 11px; font-weight: 800; white-space: nowrap;
+      background: var(--ok-soft); color: var(--green); border: 1px solid #abefc6;
+    }
+    .kp-row.last .kp-tag { background: var(--last-soft); color: var(--last); border-color: #fedf89; }
+    .kp-row.out .kp-tag { background: var(--out-soft); color: var(--out); border-color: #fecdca; }
+    .kp-row.out .kp-name, .kp-row.out .kp-pts { color: var(--muted); }
+    .kp-empty { padding: 14px 16px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+    .kp-note { margin: 20px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; max-width: 80ch; }
+    .kp-status { padding: 40px 0; text-align: center; color: var(--muted); }
+
+    body[data-filter="in"] .kp-group.is-out,
+    body[data-filter="out"] .kp-group.is-in { display: none; }
+
+    @media (max-width: 1100px) { .kp-grid { grid-template-columns: minmax(0, 1fr); } }
+
+    @media (max-width: 860px) {
+      .hero-inner { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .topbar-inner, .hero-inner, main { width: min(100% - 24px, 1220px); }
+      .topbar-inner { min-height: 56px; gap: 8px; }
+      .brand-mark { width: 36px; height: 36px; }
+      .brand-kicker { display: none; }
+      .year-control > span { display: none; }
+      .year-control select { padding: 7px 27px 7px 9px; font-size: 12px; background-position: calc(100% - 14px) 12px, calc(100% - 9px) 12px; }
+      .topbar-trophy { padding: 6px 9px; gap: 5px; font-size: 11.5px; border-radius: 9px; }
+      .hero-inner { padding: 20px 0 22px; }
+      .hero-count strong { font-size: 20px; }
+      .rules li { font-size: 13px; padding: 10px 12px; }
+      .kp-filter { width: 100%; }
+      .kp-row { padding: 10px 12px; gap: 4px 10px; }
+      .kp-team .card-head { padding: 12px; }
+      .kp-group-head { padding-left: 12px; padding-right: 12px; }
+      .kp-tag { min-width: 0; }
+    }
+    @media (max-width: 400px) {
+      .kp-pts { display: none; }
+    }
+    @media (max-width: 374px) {
+      .topbar-trophy { font-size: 0; gap: 0; padding: 6px 8px; }
+      .topbar-trophy span { font-size: 14px; }
+    }
+
+    /* ---- Desktop: the header and hero become the navy sidebar ---- */
+    @media (min-width: 1200px) {
+      :root { --side: 340px; --topbar-h: 124px; }
+      body { padding-left: var(--side); }
+      .topbar { position: fixed; top: 0; left: 0; width: var(--side); border-right: 4px solid var(--red); }
+      .topbar-inner {
+        width: auto; min-height: var(--topbar-h); padding: 14px 18px 14px 20px;
+        display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; row-gap: 12px; column-gap: 10px;
+      }
+      .topbar .brand { grid-column: 1; grid-row: 1; }
+      .topbar .year-control { grid-column: 2; grid-row: 1; }
+      .topbar .year-control > span { display: none; }
+      .topbar .brand-title { font-size: 17px; }
+      .topbar .brand-kicker { white-space: nowrap; letter-spacing: .16em; }
+      .topbar-trophy { grid-column: 1 / -1; grid-row: 2; margin: 0; justify-content: center; }
+      .hero {
+        position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 30;
+        width: var(--side); overflow-y: auto; overscroll-behavior: contain;
+        border-bottom: 0; border-right: 4px solid var(--red); scrollbar-width: none;
+      }
+      .hero::-webkit-scrollbar { display: none; }
+      .hero-inner { width: auto; margin: 0; padding: 26px 20px 28px; grid-template-columns: minmax(0, 1fr); }
+      .hero h1 { font-size: 38px; }
+      main { width: min(1220px, calc(100% - 48px)); padding-top: 26px; }
+    }
+  </style>
+  <link rel="stylesheet" href="ui.css" />
+  <link rel="stylesheet" href="design.css" />
+  <script src="ui.js"></script>
+  <script src="team-logos.js"></script>
+</head>
+<body data-filter="all">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="alltime.html" aria-label="League History home">
+        <div class="brand-mark"><img src="icons/crest.png" alt="" width="46" height="46" /></div>
+        <div class="brand-copy">
+          <span class="brand-kicker">Fantasy Football</span>
+          <span class="brand-title">League History</span>
+        </div>
+      </a>
+      <a class="topbar-trophy" href="trophy.html"><span aria-hidden="true">🏆</span>Trophy Room</a>
+      <label class="year-control">
+        <span>Season</span>
+        <select id="yearSelect" aria-label="Choose season">
+          <option value="home">All-Time</option>
+          <option value="keepers" selected>Keepers</option>
+          <option value="2026">2026</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-title">
+        <span class="hero-badge" id="heroBadge">Keeper list</span>
+        <h1 id="heroTitle">Keepers</h1>
+        <p id="heroSub"></p>
+        <div class="hero-counts" id="heroCounts"></div>
+      </div>
+      <ul class="rules" id="rules"></ul>
+    </div>
+  </section>
+
+  <main>
+    <div class="page-toolbar">
+      <div class="page-title">
+        <h2 id="pageTitle">Rosters</h2>
+        <p id="pageSub"></p>
+      </div>
+      <div class="sn-seg kp-filter" role="tablist" aria-label="Show players">
+        <span class="sn-seg-ind" aria-hidden="true"></span>
+        <button type="button" role="tab" data-filter="all" aria-selected="true">All</button>
+        <button type="button" role="tab" data-filter="in" aria-selected="false">Eligible</button>
+        <button type="button" role="tab" data-filter="out" aria-selected="false">Not eligible</button>
+      </div>
+    </div>
+    <div class="kp-grid" id="teams"><p class="kp-status">Loading rosters&hellip;</p></div>
+    <p class="kp-note" id="note"></p>
+  </main>
+
+  <script>
+    /* Keepers: who each team can carry into next season.
+
+       The league's rules, as the commissioner states them:
+         1. A team keeps up to `keepers` players (the draft's own setting).
+            Keepers are "drafted" into the first rounds of the next draft, so
+            the open draft starts the round after them.
+         2. A player taken in the first two OPEN rounds cannot be kept the
+            next year — rounds 1–2 of a draft with no keepers (2024), rounds
+            4–5 once three keeper rounds come first (2025 on).
+         3. Three straight years is the limit: drafted (or picked up), kept,
+            kept again, then he goes back into the draft. The count follows
+            the player, not the team — a keeper traded away and kept by his
+            new team is still on the same clock.
+
+       Everything here is read, nothing is typed in by hand:
+         drafts/<year>.json      each draft, from tools/drafts/fetch-draft.py
+         boxscores/<season>/     the weekly box scores; the newest week's
+                                 lineups (bench included) are the rosters
+         <season>.html           the teams block, for names, owners, colours
+
+       So the page follows the season on its own: every week posted there
+       moves the rosters here. Next year, move SEASON on once that season's
+       draft file is in drafts/. */
+    const SEASON = 2026;
+    const KEEP_YEAR = SEASON + 1;
+
+    /* ESPN's team id -> this site's team id, present day. The same table as
+       ESPN_TEAM in tools/boxscores/raw.mjs; ESPN ids are the franchise, so a
+       draft's `team` can be matched to a roster whatever either was named. */
+    const ESPN_TEAM = {
+      1: "game", 2: "kareem", 3: "hawaii", 4: "infinity", 5: "left",
+      6: "hamilton", 7: "jared", 8: "laporta", 9: "roll", 11: "first",
+    };
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const yy = (y) => `’${String(y).slice(2)}`;
+    const fmt = (n) => (Math.round(n * 10) / 10).toFixed(1);
+    const NFL = new Set(["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND",
+      "JAX", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SEA", "SF", "TB", "TEN", "WSH"]);
+    const POS_ORDER = { QB: 0, RB: 1, WR: 2, TE: 3, K: 4, DST: 5 };
+
+    const teamMark = (team) => {
+      const src = team && team.ownerId && window.TEAM_LOGOS && window.TEAM_LOGOS[team.ownerId];
+      return src ? `<img class="team-logo" src="${src}" alt="">` : esc((team && team.icon) || "");
+    };
+
+    const getJSON = (url) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`${url}: ${r.status}`))));
+    const getDraft = (year) => getJSON(`drafts/${year}.json`).catch(() => null);
+
+    /* The season page's `teams` literal, read the way alltime.html reads it. */
+    function loadTeams(year) {
+      return fetch(`${year}.html`).then((r) => r.text()).then((html) => {
+        const start = html.indexOf("const teams = {");
+        if (start < 0) throw new Error(`${year}.html has no teams block`);
+        let depth = 0, i = html.indexOf("{", start);
+        const open = i;
+        for (; i < html.length; i++) {
+          if (html[i] === "{") depth++;
+          else if (html[i] === "}" && --depth === 0) break;
+        }
+        return new Function(`return ${html.slice(open, i + 1)};`)();
+      });
+    }
+
+    /* Each team's roster as of the newest week it played, every player on it
+       (bench and IR too), and each player's points across the season. */
+    async function loadRosters(season) {
+      const weeks = await getJSON(`boxscores/${season}/index.json`).catch(() => []);
+      const boxes = await Promise.all(weeks.map((w) => getJSON(`boxscores/${season}/week-${w}.json`)));
+      const rosters = {}, asOf = {}, points = {};
+      for (const box of boxes) {
+        for (const game of box.games) {
+          for (const [teamId, lineup] of Object.entries(game.lineups)) {
+            rosters[teamId] = lineup;
+            asOf[teamId] = box.week;
+            for (const p of lineup) points[p.name] = (points[p.name] || 0) + (p.pts || 0);
+          }
+        }
+      }
+      return { weeks, rosters, asOf, points };
+    }
+
+    function judge(name, drafts) {
+      const at = (year) => drafts[year] && drafts[year].byName.get(name);
+      const kept = (year) => { const p = at(year); return !!(p && p.keeper); };
+
+      // Back through the years he has been kept, to how he first arrived.
+      let first = SEASON;
+      while (kept(first) && drafts[first - 1]) first--;
+      const history = [];
+      for (let y = first; y <= SEASON; y++) {
+        const p = at(y);
+        if (!drafts[y]) continue;
+        if (p && p.keeper) {
+          history.push({ cls: "kept", text: `${yy(y)} Kept`, team: p.team, year: y });
+        } else if (p) {
+          const open = p.round - drafts[y].keepers;
+          history.push({ cls: open <= 2 ? "early" : "", text: `${yy(y)} Rd ${p.round}`, team: p.team, year: y });
+        } else {
+          history.push({ cls: "", text: `${yy(y)} Pickup` });
+        }
+      }
+
+      const d = at(SEASON);
+      if (kept(SEASON) && kept(SEASON - 1)) {
+        return { out: true, tag: "3-year limit", history };
+      }
+      if (d && !d.keeper && d.round - drafts[SEASON].keepers <= 2) {
+        return { out: true, tag: `Round ${d.round} pick`, history };
+      }
+      if (kept(SEASON)) return { last: true, tag: "Final year", history };
+      return { tag: "Eligible", history };
+    }
+
+    function rowHTML(p, verdict, teamEspnId, drafts, points) {
+      const club = p.nfl && NFL.has(p.nfl) ? `<img src="nfl-logos/${p.nfl}.png" alt="">${p.nfl}` : esc(p.nfl || "FA");
+      const steps = verdict.history.map((h) => {
+        // A year spent on another franchise: say whose, since the clock came with him.
+        const elsewhere = h.team != null && h.team !== teamEspnId;
+        const by = elsewhere ? drafts[h.year].teams[h.team] : null;
+        const label = by ? `${h.text} · ${by.trim()}` : h.text;
+        return `<span class="kp-step ${h.cls}"${by ? ` title="${esc(by.trim())}"` : ""}>${esc(label)}</span>`;
+      }).join("");
+      const cls = verdict.out ? "out" : verdict.last ? "last" : "";
+      return `<li class="kp-row ${cls}">
+        <span class="kp-pos ${esc(p.pos)}">${esc(p.pos === "DST" ? "D/ST" : p.pos)}</span>
+        <div class="kp-who">
+          <span class="kp-name" data-player="${encodeURIComponent(p.name)}" role="button" tabindex="0">${esc(p.name)}</span>
+          <div class="kp-sub">${club}<span class="kp-hist">${steps}</span></div>
+        </div>
+        <div class="kp-right">
+          <div class="kp-pts">${fmt(points[p.name] || 0)}<small>${SEASON} pts</small></div>
+          <span class="kp-tag">${esc(verdict.tag)}</span>
+        </div>
+      </li>`;
+    }
+
+    function renderRules(drafts) {
+      const k = drafts[SEASON].keepers || 3;
+      const early = [k + 1, k + 2];
+      document.getElementById("rules").innerHTML = `
+        <li><span class="rule-mark">${k}</span><div><strong>Keep up to ${k}</strong>They take the first ${k} rounds of the ${KEEP_YEAR} draft.</div></li>
+        <li class="rule-out"><span class="rule-mark">✕</span><div><strong>No early picks</strong>Anyone taken in the first two open rounds of the ${SEASON} draft (rounds ${early[0]}–${early[1]}, after the keeper rounds) cannot be kept.</div></li>
+        <li class="rule-out"><span class="rule-mark">✕</span><div><strong>Three years, then back in the draft</strong>Kept in both ${SEASON - 1} and ${SEASON}? He goes back into the draft. The count follows the player through trades.</div></li>`;
+    }
+
+    async function main() {
+      const [teams, rosterData, ...draftList] = await Promise.all([
+        loadTeams(SEASON), loadRosters(SEASON), getDraft(SEASON - 2), getDraft(SEASON - 1), getDraft(SEASON),
+      ]);
+      const drafts = {};
+      draftList.forEach((d) => {
+        if (!d) return;
+        d.byName = new Map(d.picks.map((p) => [p.player, p]));
+        drafts[d.season] = d;
+      });
+      if (!drafts[SEASON]) throw new Error(`drafts/${SEASON}.json is missing`);
+
+      const { weeks, rosters, asOf, points } = rosterData;
+      const latest = weeks.length ? Math.max(...weeks) : 0;
+      document.getElementById("heroTitle").textContent = `${KEEP_YEAR} Keepers`;
+            document.getElementById("heroBadge").textContent = latest ? `Rosters through week ${latest}` : `${SEASON} draft`;
+      document.getElementById("heroSub").textContent =
+        `Who each team can carry into ${KEEP_YEAR}, judged from the ${SEASON} draft and the rosters as they stand.`;
+      renderRules(drafts);
+
+      if (!latest) {
+        document.getElementById("teams").innerHTML = `<p class="kp-status">Rosters appear here once week 1 of ${SEASON} is posted.</p>`;
+        return;
+      }
+
+      const espnOf = Object.fromEntries(Object.entries(ESPN_TEAM).map(([espn, id]) => [id, Number(espn)]));
+      let inCount = 0, outCount = 0;
+      const cards = Object.entries(teams).map(([id, t]) => {
+        const roster = (rosters[id] || []).map((p) => ({ p, v: judge(p.name, drafts) }));
+        const byPoints = (a, b) => (points[b.p.name] || 0) - (points[a.p.name] || 0)
+          || (POS_ORDER[a.p.pos] ?? 9) - (POS_ORDER[b.p.pos] ?? 9);
+        const ins = roster.filter((r) => !r.v.out).sort(byPoints);
+        const outs = roster.filter((r) => r.v.out).sort(byPoints);
+        inCount += ins.length;
+        outCount += outs.length;
+        const group = (list, cls, title) => `
+          <ul class="kp-group ${cls}">
+            <li class="kp-group-head"><span>${title}</span><span>${list.length}</span></li>
+            ${list.length ? list.map((r) => rowHTML(r.p, r.v, espnOf[id], drafts, points)).join("") : `<li class="kp-empty">None</li>`}
+          </ul>`;
+        const week = asOf[id] && asOf[id] !== latest ? ` · roster from week ${asOf[id]}` : "";
+        return `<article class="card kp-team" style="--team-color:${esc(t.color)}">
+          <div class="card-head">
+            <span class="team-badge">${teamMark(t)}</span>
+            <div><h3>${esc(t.name.trim())}</h3><span class="owner">${esc(t.owner)}${week}</span></div>
+            <div class="kp-tally"><strong>${ins.length}</strong> eligible<br>${outs.length} not</div>
+          </div>
+          ${group(ins, "is-in", "Eligible")}
+          ${group(outs, "is-out", "Not eligible")}
+        </article>`;
+      });
+      document.getElementById("teams").innerHTML = cards.join("");
+      document.getElementById("heroCounts").innerHTML = `
+        <div class="hero-count"><strong>${inCount}</strong><span>eligible</span></div>
+        <div class="hero-count"><strong>${outCount}</strong><span>not eligible</span></div>`;
+      document.getElementById("pageTitle").textContent = `Rosters · Week ${latest}`;
+      document.getElementById("pageSub").textContent =
+        `Every rostered player as of week ${latest} of ${SEASON}. Tap a name for his card.`;
+      document.getElementById("note").innerHTML =
+        `“Final year” players can be kept for ${KEEP_YEAR}, but it is their last: in ${KEEP_YEAR + 1} they go back into the draft. ` +
+        `Tags under each name trace how he got here: the round he was drafted in (red if it was one of the first two open rounds), ` +
+        `each year he was kept, or “Pickup” for a player added in season. A team named on a tag is the franchise that held him that year. ` +
+        `Rosters update with each week posted to the ${SEASON} season.`;
+    }
+
+    /* Filter: All / Eligible / Not eligible. */
+    const filter = document.querySelector(".kp-filter");
+    filter.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-filter]");
+      if (!btn) return;
+      const buttons = [...filter.querySelectorAll("button")];
+      buttons.forEach((b) => b.setAttribute("aria-selected", String(b === btn)));
+      filter.style.setProperty("--k", buttons.indexOf(btn));
+      document.body.dataset.filter = btn.dataset.filter;
+    });
+
+    document.getElementById("yearSelect").addEventListener("change", (event) => {
+      const files = {
+        home: "alltime.html",
+        keepers: "keepers.html",
+        2026: "2026.html",
+        2025: "2025.html",
+        2024: "2024.html",
+        2023: "2023.html",
+        2022: "2022.html",
+        2021: "2021.html"
+      };
+      const target = files[event.target.value];
+      if (target) window.location.href = target;
+    });
+
+    main().catch((err) => {
+      console.error(err);
+      document.getElementById("teams").innerHTML = `<p class="kp-status">Could not load the keeper list (${esc(err.message)}).</p>`;
+    });
+  </script>
+</body>
+</html>

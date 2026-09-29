@@ -72,6 +72,9 @@ The all-time page (`alltime.html`) counts the season too: it reads the `teams`
 and `results` blocks straight off `2026.html`, so its standings, head-to-head
 records and highlights pick up each posted week with no edit of their own.
 Keep both blocks as plain `const teams = {` / `const results = {` literals.
+The keeper page (`keepers.html`) reads `teams` the same way, and its rosters
+come from the newest week under `boxscores/2026/`, so it too updates with no
+edit of its own.
 
 The finished 2025 season (`2025.html`) is the reference for what a
 completed week looks like. Match it.
