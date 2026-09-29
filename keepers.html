@@ -150,14 +150,31 @@
     .page-title p { margin: 6px 0 0 15px; color: var(--muted); font-size: 13px; }
     .kp-filter { width: min(100%, 380px); --n: 3; }
 
+    /* Phones: one team at a time, picked here. Wider screens show them all,
+       so the picker and the hiding only exist inside the phone query. */
+    .kp-team-pick { display: none; }
+    .kp-team-pick select {
+      width: 100%; appearance: none; -webkit-appearance: none;
+      padding: 11px 40px 11px 14px; border-radius: 12px;
+      border: 1px solid var(--line-2, #d5dae1); background-color: #fff; color: var(--ink);
+      font-size: 15px; font-weight: 700; box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+      background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position: calc(100% - 19px) 50%, calc(100% - 14px) 50%;
+      background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    }
+    .kp-team-pick select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+
     /* ---- Team cards ---- */
     .kp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
     .kp-team { overflow: hidden; }
     .kp-team .card-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+    /* design.css lets a card head wrap on phones (and wins on specificity);
+       this one keeps the tally beside the name, which ellipses instead. */
+    body:not(#_) .kp-team .card-head { flex-wrap: nowrap; }
     .kp-team .card-head h3 { margin: 0; font-size: 20px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .kp-team .card-head .owner { display: block; color: var(--muted); font-size: 12px; font-weight: 600; margin-top: 3px; }
     .kp-team .card-head > div { min-width: 0; flex: 1 1 auto; }
-    .kp-team .kp-tally { margin-left: auto; text-align: right; flex: 0 0 auto; font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.35; }
+    .kp-team .kp-tally { margin-left: auto; text-align: right; flex: 0 0 auto; white-space: nowrap; font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.35; }
     .kp-team .kp-tally strong { color: var(--green); font-size: 15px; }
     .team-badge {
       width: 38px; height: 38px; display: inline-grid; place-items: center; border-radius: 10px;
@@ -233,8 +250,11 @@
       .hero-count strong { font-size: 20px; }
       .rules li { font-size: 13px; padding: 10px 12px; }
       .kp-filter { width: 100%; }
+      .kp-team-pick { display: block; width: 100%; }
+      .kp-team.kp-off { display: none; }
       .kp-row { padding: 10px 12px; gap: 4px 10px; }
       .kp-team .card-head { padding: 12px; }
+      body:not(#_) .kp-team .card-head h3 { font-size: 18px; }
       .kp-group-head { padding-left: 12px; padding-right: 12px; }
       .kp-tag { min-width: 0; }
     }
@@ -322,6 +342,11 @@
         <h2 id="pageTitle">Rosters</h2>
         <p id="pageSub"></p>
       </div>
+      <label class="kp-team-pick">
+        <select id="teamSelect" aria-label="Choose a team">
+          <option value="all">All teams</option>
+        </select>
+      </label>
       <div class="sn-seg kp-filter" role="tablist" aria-label="Show players">
         <span class="sn-seg-ind" aria-hidden="true"></span>
         <button type="button" role="tab" data-filter="all" aria-selected="true">All</button>
@@ -521,7 +546,7 @@
             ${list.length ? list.map((r) => rowHTML(r.p, r.v, espnOf[id], drafts, points)).join("") : `<li class="kp-empty">None</li>`}
           </ul>`;
         const week = asOf[id] && asOf[id] !== latest ? ` · roster from week ${asOf[id]}` : "";
-        return `<article class="card kp-team" style="--team-color:${esc(t.color)}">
+        return `<article class="card kp-team" data-team="${esc(id)}" style="--team-color:${esc(t.color)}">
           <div class="card-head">
             <span class="team-badge">${teamMark(t)}</span>
             <div><h3>${esc(t.name.trim())}</h3><span class="owner">${esc(t.owner)}${week}</span></div>
@@ -532,6 +557,7 @@
         </article>`;
       });
       document.getElementById("teams").innerHTML = cards.join("");
+      setupTeamPicker(teams);
       document.getElementById("heroCounts").innerHTML = `
         <div class="hero-count"><strong>${inCount}</strong><span>eligible</span></div>
         <div class="hero-count"><strong>${outCount}</strong><span>not eligible</span></div>`;
@@ -543,6 +569,31 @@
         `Tags under each name trace how he got here: the round he was drafted in (red if it was one of the first two open rounds), ` +
         `each year he was kept, or “Pickup” for a player added in season. A team named on a tag is the franchise that held him that year. ` +
         `Rosters update with each week posted to the ${SEASON} season.`;
+    }
+
+    /* The phone's team picker. Opens on the team in the URL (#team=<id>),
+       else the one this phone last picked, else all of them. */
+    const PICK_KEY = "keepers.team";
+    function setupTeamPicker(teams) {
+      const select = document.getElementById("teamSelect");
+      select.insertAdjacentHTML("beforeend", Object.entries(teams)
+        .map(([id, t]) => `<option value="${esc(id)}">${esc(t.name.trim())}</option>`).join(""));
+      const show = (id) => {
+        if (!teams[id]) id = "all";
+        select.value = id;
+        document.querySelectorAll(".kp-team").forEach((card) =>
+          card.classList.toggle("kp-off", id !== "all" && card.dataset.team !== id));
+      };
+      const fromHash = () => (location.hash.match(/^#team=(.+)$/) || [])[1];
+      let saved = null;
+      try { saved = localStorage.getItem(PICK_KEY); } catch (e) { /* storage blocked */ }
+      show(fromHash() || saved || "all");
+      select.addEventListener("change", () => {
+        show(select.value);
+        try { localStorage.setItem(PICK_KEY, select.value); } catch (e) { /* storage blocked */ }
+        history.replaceState(null, "", select.value === "all" ? location.pathname : `#team=${select.value}`);
+      });
+      window.addEventListener("hashchange", () => show(fromHash() || "all"));
     }
 
     /* Filter: All / Eligible / Not eligible. */
