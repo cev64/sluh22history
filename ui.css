@@ -45,6 +45,11 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 .topbar-trophy { transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease); }
 .topbar-trophy:active { transform: scale(.96); }
 .year-control select { transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .18s var(--ease); }
+/* Its open list is drawn by the browser. Without these, Chrome on Windows
+   paints that list in the light scheme: a white frame around the navy
+   options, spilling past them. */
+.year-control select { color-scheme: dark; }
+.year-control select option { background-color: #16324a; color: #fff; }
 .year-control select:active { transform: scale(.97); }
 @media (hover: hover) { .year-control select:hover { border-color: rgba(255, 255, 255, .32); } }
 .brand { transition: opacity .2s var(--ease), transform .18s var(--ease); }
