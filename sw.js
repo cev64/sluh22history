@@ -1,11 +1,12 @@
 /* Service worker for the League History record book.
    Strategy:
      - navigations (the season pages): network first, cached copy as fallback
+     - box score data (boxscores/*.json): network first, like the pages
      - same-origin assets: cache first, refreshed in the background
      - Google Fonts: stale-while-revalidate in a separate cache
    Bump CACHE_VERSION whenever the precache list or these rules change. */
 
-const CACHE_VERSION = 'v64';
+const CACHE_VERSION = 'v65';
 const SHELL_CACHE = `league-history-shell-${CACHE_VERSION}`;
 const FONT_CACHE = `league-history-fonts-${CACHE_VERSION}`;
 
@@ -83,7 +84,9 @@ async function networkFirst(request) {
     if (response && response.ok) cache.put(request, response.clone());
     return response;
   } catch (err) {
-    const cached = await cache.match(request) || await cache.match('./2026.html');
+    // Only a page falls back to the live season; a data file just misses.
+    const isPage = !new URL(request.url).pathname.includes('/boxscores/');
+    const cached = await cache.match(request) || (isPage ? await cache.match('./2026.html') : undefined);
     if (cached) return cached;
     throw err;
   }
@@ -132,6 +135,15 @@ self.addEventListener('fetch', (event) => {
   // reads one (the all-time page reads the live season's scores off its page),
   // so a posted week shows everywhere at once.
   if (request.mode === 'navigate' || url.pathname.endsWith('.html')) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  // Box scores change every week: index.json gains the new week, and the
+  // roster and player files are rebuilt. Cache-first kept serving last week's
+  // index, so a new week's scores never became tappable. Network first here
+  // too, with the cached copy for offline.
+  if (url.pathname.includes('/boxscores/')) {
     event.respondWith(networkFirst(request));
     return;
   }
