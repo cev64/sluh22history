@@ -1312,10 +1312,6 @@ body:not(#_) .pc-champ { font-weight: 700; letter-spacing: .08em; }
 body:not(#_) .bx-sb .bx-slot { background: transparent; }
 /* "Week 10" on one line in a team card's schedule */
 body:not(#_) .schedule-week { white-space: nowrap; letter-spacing: .03em; }
-@media (max-width: 700px) {
-  body:not(#_) .schedule-row { grid-template-columns: 52px 24px minmax(0, 1fr) auto; gap: 7px; padding: 9px 10px; }
-  body:not(#_) .schedule-row.post { grid-template-columns: 24px minmax(0, 1fr) auto; }
-  body:not(#_) .schedule-week { font-size: 9.5px; }
 }
 /* in the desktop sidebar the result line has about 275px to itself */
 @media (min-width: 1200px) {
@@ -1323,4 +1319,68 @@ body:not(#_) .schedule-week { white-space: nowrap; letter-spacing: .03em; }
   body:not(#_) .outcome-score strong { font-size: 20px; }
   body:not(#_) .outcome-status { padding: 3px 6px; }
   body:not(#_) .outcome-margin { padding: 3px 7px; font-size: 11px; }
+}
+
+/* ---------------------------------------------------------------
+   A team's card on a phone
+
+   Room first. The four numbers sit two by two instead of four abreast
+   (four across broke "Points Against" and its total over two lines).
+   A schedule row puts its week above the opponent, so a name gets the
+   row's width instead of losing a column to "Week 10". A starter takes
+   two lines: the name and his starts on top, his season's strip of weeks
+   the full width of the card underneath.
+   --------------------------------------------------------------- */
+@media (max-width: 700px) {
+  body:not(#_) .drawer-body { padding: 14px 12px 24px; }
+  body:not(#_) .drawer-stats-body { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0 0 18px; }
+  body:not(#_) .drawer-stats-body .drawer-stat { padding: 10px 12px; }
+  body:not(#_) .drawer-stats-body .drawer-stat small { font-size: 9.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body:not(#_) .drawer-stats-body .drawer-stat strong { display: block; margin-top: 2px; font-size: 20px; line-height: 1.1; }
+
+  body:not(#_) .schedule-section { margin-bottom: 18px; }
+  body:not(#_) .schedule-row,
+  body:not(#_) .schedule-row.post {
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    grid-template-areas: "pill week score" "pill team score";
+    column-gap: 11px;
+    row-gap: 1px;
+    padding: 10px 12px;
+  }
+  body:not(#_) .schedule-row > .schedule-week { grid-area: week; font-size: 9.5px; line-height: 1.2; }
+  body:not(#_) .schedule-row > .result-pill { grid-area: pill; width: 26px; height: 26px; font-size: 10px; }
+  body:not(#_) .schedule-row > .schedule-opponent { grid-area: team; }
+  body:not(#_) .schedule-row > .schedule-score { grid-area: score; align-self: center; }
+  body:not(#_) .schedule-opponent strong { font-size: 14px; line-height: 1.3; }
+  body:not(#_) .schedule-opponent span { font-size: 11.5px; }
+  body:not(#_) .schedule-score strong { font-size: 13px; font-weight: 600; }
+  body:not(#_) .schedule-score span { font-size: 11px; }
+  /* a game still to come says so once, without a dash over it */
+  body:not(#_) .schedule-score:has(> span) > strong { display: none; }
+  body:not(#_) .schedule-score > span { color: var(--ink-3); }
+
+  body:not(#_) .roster-row {
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    grid-template-areas: "club name gs" ". strip strip";
+    column-gap: 10px;
+    row-gap: 7px;
+    padding: 10px 12px;
+  }
+  body:not(#_) .roster-row > :nth-child(1) { grid-area: club; }
+  body:not(#_) .roster-row > :nth-child(2) { grid-area: name; }
+  body:not(#_) .roster-row > .roster-strip { grid-area: strip; gap: 2px; grid-template-columns: repeat(var(--reg), minmax(0, 1fr)) 5px repeat(var(--po), minmax(0, 1fr)); }
+  body:not(#_) .roster-row > :nth-child(4) { grid-area: gs; }
+  body:not(#_) .roster-row > :nth-child(5) { display: none; }
+  body:not(#_) .roster-row .bx-nfl-logo { width: 26px; height: 19px; }
+  body:not(#_) .roster-name { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+  body:not(#_) .roster-name strong { display: block; flex: 0 1 auto; min-width: 0; font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body:not(#_) .roster-name small { flex: none; color: var(--ink-3); font-size: 10.5px; font-weight: 600; white-space: nowrap; }
+  body:not(#_) .roster-row:not(.header) .roster-num strong { font-size: 14px; font-weight: 700; }
+  body:not(#_) .roster-row:not(.header) .roster-num strong::after { content: " GS"; color: var(--ink-3); font-size: 9.5px; font-weight: 700; letter-spacing: .06em; }
+  body:not(#_) .roster-wk { height: 15px; border-radius: 3px; }
+  /* the header: the week numbers over the strips, GS where the starts sit */
+  body:not(#_) .roster-row.header { padding-top: 8px; padding-bottom: 6px; row-gap: 3px; }
+  body:not(#_) .roster-row.header > :nth-child(2),
+  body:not(#_) .roster-row.header > :nth-child(4) { display: none; }
+  body:not(#_) .roster-row.header .roster-wk { height: auto; font-size: 8px; letter-spacing: -.02em; }
 }
