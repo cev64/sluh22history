@@ -1335,6 +1335,11 @@ body:not(#_) .schedule-week { white-space: nowrap; letter-spacing: .03em; }
   body:not(#_) .drawer-body { padding: 14px 12px 24px; }
   body:not(#_) .drawer-stats-body { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0 0 18px; }
   body:not(#_) .drawer-stats-body .drawer-stat { padding: 10px 12px; }
+  /* record and the season's standing along the top, the points under
+     them: Record | Final place (or Current seed), Points for | Points against */
+  body:not(#_) .drawer-stats-body .drawer-stat:nth-child(4) { order: 1; }
+  body:not(#_) .drawer-stats-body .drawer-stat:nth-child(2) { order: 2; }
+  body:not(#_) .drawer-stats-body .drawer-stat:nth-child(3) { order: 3; }
   body:not(#_) .drawer-stats-body .drawer-stat small { font-size: 9.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   body:not(#_) .drawer-stats-body .drawer-stat strong { display: block; margin-top: 2px; font-size: 20px; line-height: 1.1; }
 
