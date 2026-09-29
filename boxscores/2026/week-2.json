@@ -147,7 +147,7 @@
       "pts": 1.4,
       "proj": 9.96,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "De'Zhaun Stribling",
@@ -349,7 +349,7 @@
       "pts": 12.3,
       "proj": 17.14,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "CeeDee Lamb",
@@ -469,7 +469,7 @@
       "pts": 0.8,
       "proj": 18.18,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Jordyn Tyson",
@@ -591,7 +591,7 @@
       "pts": 14.8,
       "proj": 6.27,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Romeo Doubs",
@@ -661,7 +661,7 @@
       "pts": 7.72,
       "proj": 19.42,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Omarion Hampton",
@@ -681,7 +681,7 @@
       "pts": 3,
       "proj": 17.62,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Ladd McConkey",
@@ -701,7 +701,7 @@
       "pts": 1.1,
       "proj": 14.93,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "George Kittle",
@@ -721,7 +721,7 @@
       "pts": 14.6,
       "proj": 11.93,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Mike Evans",
@@ -791,7 +791,7 @@
       "pts": 0,
       "proj": 7.01,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Zay Flowers",
@@ -801,7 +801,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "game": [
@@ -853,7 +853,7 @@
       "pts": 8.5,
       "proj": 18.36,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Isaiah Likely",
@@ -883,7 +883,7 @@
       "pts": 5,
       "proj": 13.21,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "49ers D/ST",
@@ -993,7 +993,7 @@
       "pts": 7.1,
       "proj": 12.77,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1083,7 +1083,7 @@
       "pts": 6.4,
       "proj": 10.12,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Trevor Lawrence",
@@ -1103,7 +1103,7 @@
       "pts": 3.9,
       "proj": 9.4,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Michael Pittman Jr.",
@@ -1113,7 +1113,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "A.J. Brown",
@@ -1135,7 +1135,7 @@
       "pts": 40.82,
       "proj": 22.65,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Breece Hall",
@@ -1145,7 +1145,7 @@
       "pts": 14.2,
       "proj": 15.79,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jeremiyah Love",
@@ -1175,7 +1175,7 @@
       "pts": 2.1,
       "proj": 11.03,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Dalton Kincaid",
@@ -1235,7 +1235,7 @@
       "pts": 14.74,
       "proj": 19.79,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "KC Concepcion",
@@ -1265,7 +1265,7 @@
       "pts": 2.1,
       "proj": 8.65,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Puka Nacua",
@@ -1375,7 +1375,7 @@
       "pts": -0.1,
       "proj": 12.58,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Texans D/ST",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "RJ Harvey",
@@ -1445,7 +1445,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "kareem": [
@@ -1527,7 +1527,7 @@
       "pts": 1.4,
       "proj": 10.79,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Seahawks D/ST",
@@ -1577,7 +1577,7 @@
       "pts": 3.6,
       "proj": 12.63,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Quentin Johnston",

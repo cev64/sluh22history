@@ -37,7 +37,7 @@
       "pts": 7.8,
       "proj": 14.1,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Justin Jefferson",
@@ -47,7 +47,7 @@
       "pts": 31.2,
       "proj": 17.08,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Davante Adams",
@@ -179,7 +179,7 @@
       "pts": 10.6,
       "proj": 18.2,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "James Cook III",
@@ -259,7 +259,7 @@
       "pts": 26.6,
       "proj": 18.52,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Matthew Golden",
@@ -399,7 +399,7 @@
       "pts": 21,
       "proj": 11.57,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Parker Washington",
@@ -449,7 +449,7 @@
       "pts": 8.1,
       "proj": 8.47,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Matthew Stafford",
@@ -479,7 +479,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "infinity": [
@@ -511,7 +511,7 @@
       "pts": 14.8,
       "proj": 15.08,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -551,7 +551,7 @@
       "pts": 4.1,
       "proj": 12.5,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jaylen Waddle",
@@ -611,7 +611,7 @@
       "pts": 8.8,
       "proj": 12.31,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Woody Marks",
@@ -711,7 +711,7 @@
       "pts": 23.7,
       "proj": 10.93,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Terry McLaurin",
@@ -781,7 +781,7 @@
       "pts": 3.6,
       "proj": 9.53,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Rashid Shaheed",
@@ -803,7 +803,7 @@
       "pts": 37.26,
       "proj": 16.39,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Saquon Barkley",
@@ -813,7 +813,7 @@
       "pts": 9,
       "proj": 17.67,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Omarion Hampton",
@@ -843,7 +843,7 @@
       "pts": 12.9,
       "proj": 12.71,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "George Kittle",
@@ -863,7 +863,7 @@
       "pts": 26,
       "proj": 14.21,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Carnell Tate",
@@ -893,7 +893,7 @@
       "pts": 33.8,
       "proj": 9.2,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Mike Evans",
@@ -943,7 +943,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      }
     ]
    }
@@ -1255,7 +1255,7 @@
       "pts": 0,
       "proj": 4.14,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Zach Charbonnet",
@@ -1285,7 +1285,7 @@
       "pts": 35.66,
       "proj": 19.32,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Breece Hall",
@@ -1295,7 +1295,7 @@
       "pts": 19.8,
       "proj": 16.5,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jeremiyah Love",
@@ -1375,7 +1375,7 @@
       "pts": 17.66,
       "proj": 16.84,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Denzel Boston",
@@ -1395,7 +1395,7 @@
       "pts": 10.1,
       "proj": 9.7,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Jonathon Brooks",
@@ -1405,7 +1405,7 @@
       "pts": 7.2,
       "proj": 10.71,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Rachaad White",
@@ -1557,7 +1557,7 @@
       "pts": 5,
       "proj": 10.04,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Tyjae Spears",
