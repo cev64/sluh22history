@@ -180,6 +180,13 @@
     -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18);
     font-size: 10.5px; font-weight: 800; letter-spacing: .03em;
   }
+  /* Keeper status (keepers.js), for anyone on a roster now: solid, so it
+     reads on any club's colour, with a hairline of light to lift it off. */
+  .pc-tag.pc-keep { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35); }
+  .pc-tag.pc-keep[hidden] { display: none; }
+  .pc-keep.in { background: #17b26a; color: #fff; }
+  .pc-keep.last { background: #fdb022; color: #3b2a06; }
+  .pc-keep.out { background: #f04438; color: #fff; }
   /* A champion's name sits on gold, with the winning years above it. */
   .pc-id h2.pc-gold {
     display: inline-block; max-width: 100%; padding: 2px 10px 3px; border-radius: 10px;
@@ -578,6 +585,43 @@
   const fmt1 = (n) => Number(n).toFixed(1);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
+  /* Keeper pills come from keepers.js, fetched the first time a card needs
+     one (the keeper page already carries it). */
+  const KEEP_LABEL = { in: "Eligible", last: "1 More", out: "Not Eligible" };
+  let keepersScript = null;
+  function keepers() {
+    if (window.Keepers) return window.Keepers.statuses();
+    if (!keepersScript) {
+      keepersScript = new Promise((resolve) => {
+        const tag = document.createElement("script");
+        tag.src = "keepers.js";
+        tag.onload = () => resolve(window.Keepers ? window.Keepers.statuses() : new Map());
+        tag.onerror = () => resolve(new Map());
+        document.head.appendChild(tag);
+      });
+    }
+    return keepersScript;
+  }
+  function keepPill(name) {
+    const st = window.Keepers && window.Keepers.statusNow(name);
+    if (st === null) return "";                                    // on no roster
+    if (!st) {
+      // Not loaded yet: hold the pill's place and fill it when it is.
+      keepers().then((map) => {
+        const el = document.querySelector(`.pc .pc-keep[data-for="${encodeURIComponent(name)}"]`);
+        const v = map.get(name);
+        if (!el) return;
+        if (!v) { el.remove(); return; }
+        el.className = `pc-tag pc-keep ${v.level}`;
+        el.title = `${window.Keepers.KEEP_YEAR} keeper: ${v.tag}`;
+        el.textContent = KEEP_LABEL[v.level];
+        el.hidden = false;
+      });
+      return `<span class="pc-tag pc-keep" data-for="${encodeURIComponent(name)}" hidden></span>`;
+    }
+    return `<span class="pc-tag pc-keep ${st.level}" title="${esc(`${window.Keepers.KEEP_YEAR} keeper: ${st.tag}`)}">${KEEP_LABEL[st.level]}</span>`;
+  }
+
   function load() {
     if (!loading) {
       loading = fetch("boxscores/players.json")
@@ -585,6 +629,7 @@
         .then((json) => {
           if (json) json.byName = new Map(json.players.map((p) => [p.n, p]));
           data = json;
+          keepers();   // so a card's keeper pill is ready when it opens
           return json;
         })
         .catch(() => null);
@@ -849,6 +894,7 @@
             <h2 id="pcName" data-fold${s.titles.length ? ` class="pc-gold"` : ""}>${esc(p.n)}</h2>
             <div class="pc-tags" data-fold>
               <span class="pc-tag">${p.p}</span>
+              ${keepPill(p.n)}
               <span class="pc-tag">${s.managers.length} manager${s.managers.length === 1 ? "" : "s"}</span>
             </div>
           </div>
