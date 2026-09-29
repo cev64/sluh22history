@@ -76,9 +76,8 @@ Keep both blocks as plain `const teams = {` / `const results = {` literals.
 The finished 2025 season (`2025.html`) is the reference for what a
 completed week looks like. Match it.
 
-NEWSLETTERS — this task no longer builds them. Some earlier weeks still have a
-file in `newsletters/` and will keep showing a "Download PDF" card on their
-Weekly Summary tab; that is expected, not a bug. Leave `newsletters/`,
+NEWSLETTERS — this task no longer builds them, and the page no longer shows
+them. Leave `newsletters/`,
 `newsletters/index.json` and `tools/newsletter/` alone — do not build a sheet
 for the new week, and do not remove the old ones.
 
@@ -195,8 +194,8 @@ new, write no recap at all.
 STEP 6 — VERIFY
 - Extract the <script> block and run `node --check` on it.
 - Serve the repo and load 2026.html at the new week in a browser. Confirm no
-  console errors, and that Results, Standings, Playoff Picture, Weekly Summary
-  and Side Bets all render. Check the page at 390px wide too.
+  console errors, and that Results, Standings, Playoffs and Side Bets all
+  render. Check the page at 390px wide too.
 - Open a matchup's box score and confirm the lineups load.
 - Open a team's drawer (tap a team in Standings) and confirm the NEW week's
   score is underlined and opens its box score, like the weeks before it.
@@ -238,7 +237,8 @@ on and ending with the PR URL:
 Send one ONLY when there is something to act on:
   - you opened a PR, or
   - you STOPPED on a problem (no export in Drive, pairings disagreeing with the
-    schedule, a short export that would have dropped weeks). Say what blocked
+    schedule, a short export that would have dropped weeks, standings that
+    break the tiebreak rule in Step 6). Say what blocked
     it, not just that something did — a silent failed run and a quiet week look
     identical from a phone.
 
