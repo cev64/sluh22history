@@ -157,6 +157,31 @@
       background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
     }
     .kp-team-pick select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .kp-team-row { display: none; }
+
+    /* The rules behind an "i" dot, in the popover the standings use. */
+    /* The site's "i" dot (design.css), a size up beside a full-width menu,
+       with a finger-sized tap area around it. */
+    body:not(#_) .kp-team-row .why-btn {
+      position: relative; width: 22px; height: 22px; font-size: 12.5px; margin-right: 4px; padding: 0;
+      border-radius: 50%; display: inline-grid; place-items: center; flex: 0 0 auto;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .kp-team-row .why-btn::after { content: ""; position: absolute; inset: -11px; }
+    .why-pop {
+      position: fixed; z-index: 90; width: max-content; max-width: min(320px, calc(100vw - 24px));
+      background: var(--surface); border: 1px solid var(--line); border-radius: 13px;
+      box-shadow: 0 18px 44px rgba(7, 24, 39, .24); padding: 13px 15px;
+    }
+    .why-head {
+      font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+      padding-bottom: 9px; margin-bottom: 11px; border-bottom: 1px solid var(--line);
+    }
+    .why-entry + .why-entry { margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--line); }
+    .why-pop h4 { margin: 0 0 4px; font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--blue-2); }
+    .why-entry.out h4 { color: var(--out); }
+    .why-entry.last h4 { color: var(--last); }
+    .why-pop p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
 
     /* ---- Team cards ---- */
     .kp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
@@ -244,7 +269,10 @@
       .hero-count strong { font-size: 20px; }
       .rules li { font-size: 13px; padding: 10px 12px; }
       .kp-filter { width: 100%; }
-      .kp-team-pick { display: block; width: 100%; }
+      .hero { display: none; }
+      main { padding-top: 16px; }
+      .kp-team-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+      .kp-team-pick { display: block; flex: 1 1 auto; min-width: 0; }
       .kp-team.kp-off { display: none; }
       .kp-row { padding: 10px 12px; gap: 4px 10px; }
       .kp-team .card-head { padding: 12px; }
@@ -332,11 +360,14 @@
 
   <main>
     <div class="page-toolbar">
-      <label class="kp-team-pick">
-        <select id="teamSelect" aria-label="Choose a team">
-          <option value="all">All teams</option>
-        </select>
-      </label>
+      <div class="kp-team-row">
+        <label class="kp-team-pick">
+          <select id="teamSelect" aria-label="Choose a team">
+            <option value="all">All teams</option>
+          </select>
+        </label>
+        <button type="button" class="why-btn" id="rulesBtn" aria-expanded="false" aria-label="Keeper rules">i</button>
+      </div>
       <div class="sn-seg kp-filter" role="tablist" aria-label="Show players">
         <span class="sn-seg-ind" aria-hidden="true"></span>
         <button type="button" role="tab" data-filter="all" aria-selected="true">All</button>
@@ -486,14 +517,67 @@
       </li>`;
     }
 
-    function renderRules(drafts) {
+    /* The rules, once: the sidebar lists them, and on a phone (where the
+       sidebar is hidden) the "i" dot beside the team menu opens them. */
+    function keeperRules(drafts) {
       const k = drafts[SEASON].keepers || 3;
-      const early = [k + 1, k + 2];
-      document.getElementById("rules").innerHTML = `
-        <li><span class="rule-mark">${k}</span><div><strong>Keep up to ${k}</strong>They take the first ${k} rounds of the ${KEEP_YEAR} draft.</div></li>
-        <li class="rule-out"><span class="rule-mark">✕</span><div><strong>No early picks</strong>Anyone taken in the first two open rounds of the ${SEASON} draft (rounds ${early[0]}–${early[1]}, after the keeper rounds) cannot be kept.</div></li>
-        <li class="rule-out"><span class="rule-mark">✕</span><div><strong>Three years, then back in the draft</strong>Kept in both ${SEASON - 1} and ${SEASON}? He goes back into the draft. The count follows the player through trades.</div></li>`;
+      return [
+        { mark: String(k), title: `Keep up to ${k}`,
+          text: `They take the first ${k} rounds of the ${KEEP_YEAR} draft.` },
+        { mark: "✕", out: true, title: "No early picks",
+          text: `Anyone taken in the first two open rounds of the ${SEASON} draft (rounds ${k + 1}–${k + 2}, after the keeper rounds) cannot be kept.` },
+        { mark: "✕", out: true, title: "Three years, then back in the draft",
+          text: `Kept in both ${SEASON - 1} and ${SEASON}? He goes back into the draft. The count follows the player through trades.` },
+        { last: true, popOnly: true, title: "Final year",
+          text: `Kept in ${SEASON}, so he can be kept for ${KEEP_YEAR}, but it is his last year before he goes back into the draft.` },
+      ];
     }
+
+    let rulesHead = "Keeper rules";
+    function renderRules(drafts) {
+      document.getElementById("rules").innerHTML = keeperRules(drafts).filter((r) => !r.popOnly).map((r) =>
+        `<li class="${r.out ? "rule-out" : ""}"><span class="rule-mark">${r.mark}</span><div><strong>${esc(r.title)}</strong>${esc(r.text)}</div></li>`).join("");
+      const btn = document.getElementById("rulesBtn");
+      btn.dataset.rules = JSON.stringify(keeperRules(drafts));
+    }
+
+    let rulesPop = null;
+    function closeRules() {
+      if (!rulesPop) return;
+      rulesPop.remove();
+      rulesPop = null;
+      const btn = document.getElementById("rulesBtn");
+      btn.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    }
+    function openRules(btn) {
+      if (rulesPop) { closeRules(); return; }   // a second tap closes it
+      if (!btn.dataset.rules) return;
+      const pop = document.createElement("div");
+      pop.className = "why-pop";
+      pop.setAttribute("role", "dialog");
+      pop.setAttribute("aria-label", "Keeper rules");
+      pop.innerHTML = `<div class="why-head">${esc(rulesHead)}</div>` + JSON.parse(btn.dataset.rules).map((r) =>
+        `<div class="why-entry ${r.out ? "out" : r.last ? "last" : ""}"><h4>${esc(r.title)}</h4><p>${esc(r.text)}</p></div>`).join("");
+      document.body.appendChild(pop);
+      const anchor = btn.getBoundingClientRect(), box = pop.getBoundingClientRect(), margin = 12;
+      const left = Math.max(margin, Math.min(anchor.right - box.width, window.innerWidth - box.width - margin));
+      let top = anchor.bottom + 8;
+      if (top + box.height > window.innerHeight - margin) top = Math.max(margin, anchor.top - box.height - 8);
+      pop.style.left = `${left}px`;
+      pop.style.top = `${top}px`;
+      rulesPop = pop;
+      btn.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+    }
+    document.addEventListener("click", (event) => {
+      const btn = event.target.closest("#rulesBtn");
+      if (btn) { openRules(btn); return; }
+      if (rulesPop && !event.target.closest(".why-pop")) closeRules();
+    });
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeRules(); });
+    window.addEventListener("resize", closeRules);
+    window.addEventListener("scroll", closeRules, true);
 
     async function main() {
       const [teams, rosterData, ...draftList] = await Promise.all([
@@ -548,6 +632,7 @@
       });
       document.getElementById("teams").innerHTML = cards.join("");
       setupTeamPicker(teams);
+      rulesHead = `${KEEP_YEAR} keepers · ${inCount} eligible · ${outCount} not`;
       document.getElementById("heroCounts").innerHTML = `
         <div class="hero-count"><strong>${inCount}</strong><span>eligible</span></div>
         <div class="hero-count"><strong>${outCount}</strong><span>not eligible</span></div>`;
