@@ -853,7 +853,7 @@ function sectionLabelTexture(text, accent) {
   ctx.clearRect(0, 0, 1024, 92);
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = '700 46px "Space Grotesk", Inter, system-ui, sans-serif';
+  ctx.font = '700 46px "Barlow Condensed", Inter, system-ui, sans-serif';
   ctx.letterSpacing = "14px";
   ctx.fillStyle = "rgba(0,0,0,.6)";
   ctx.fillText(text, 512, 50);
