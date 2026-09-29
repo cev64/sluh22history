@@ -4394,7 +4394,9 @@
       return { w, l, t, played: w + l + t };
     }
 
-    // Head-to-head win percentage against everyone else in a tied group.
+    /* Head-to-head win percentage against everyone else in a tied group.
+       A team that has not played any of the others yet sits at .500, level
+       with an even split: 1–0 ranks above 0–0, which ranks above 0–1. */
     function groupH2HPct(id, group, week) {
       let w = 0, l = 0, t = 0;
       group.forEach((other) => {
@@ -4403,7 +4405,7 @@
         w += r.w; l += r.l; t += r.t;
       });
       const played = w + l + t;
-      return played ? (w + t * 0.5) / played : null;
+      return played ? (w + t * 0.5) / played : 0.5;
     }
 
     /* Rulebook 4.1.1 — two-team tie in the division standings:

@@ -28,9 +28,12 @@ without the other is how the two drift apart.
 
 Post the newest week of SLUH '22 fantasy football results to the league site.
 
-REPO: cev64/sluh22history — edit `2026.html`. Nothing else, EXCEPT on a team
-rename, which also touches `league-data.js` and `sw.js` — the tool handles all
-three, see Step 3.
+REPO: cev64/sluh22history — edit `2026.html`. The tools also rewrite the files
+under `boxscores/` (Steps 4 and 4b). Nothing else, EXCEPT on a team rename,
+which also touches `league-data.js` and `sw.js` — the tool handles all three,
+see Step 3. Box score files need no `sw.js` bump: the service worker fetches
+`boxscores/` from the network first, so a posted week's box scores are live as
+soon as the PR merges.
 
 DRIVE: the league's export is one file in Google Drive folder ID
 `1f3SBA28xP6DQ7VYkeH8_m8on-X3bh-8n`
@@ -42,22 +45,26 @@ score to transcribe by hand.
 
 HOW THE PAGE WORKS — read this before editing.
 
-`2026.html` is a live-season hub. A week rail across the top (Week 0 through
-Week 14, a dropdown on phones) picks a week; each week has five tabs:
-Results, Standings, Playoff Picture, Weekly Summary, Side Bets.
+`2026.html` is a live-season hub. A week wheel in the pinned capsule (at the
+bottom of the screen on phones) picks a week, Week 0 through Week 14; each week
+has four views: Results, Standings, Playoffs, Side Bets. Tapping a team opens
+its drawer: record, points, current seed, and the schedule, where every played
+score opens that game's box score.
 
 There are four blocks of data. Everything else on the page is COMPUTED from
 them and updates itself:
   - `teams`             franchise identity     <- the tool edits this on a rename
   - `results`           weekly scores          <- the tool writes this
   - `weeklySummaries`   the written recap      <- YOUR edit, the only one
+                          (kept as the league's record; the redesigned page
+                          has no Summary view, so it is not shown right now)
   - `divisionBet`       who bet on which side  <- set once, not a weekly edit
 
 Computed automatically, DO NOT hand-edit and DO NOT touch the engine:
 records, points for/against, games back, division order with the full
 rulebook tiebreakers, wild cards, clinch and elimination badges, the
 tiebreak explanations behind the info dots, the projected bracket, Toilet
-Bowl seeding, the "Storylines" panel in the header, and the Side Bets tab —
+Bowl seeding, each team drawer's current seed, and the Side Bets tab —
 the Xavier-vs-Ignatius ledger counts itself off `results` like everything
 else, so posting the week is all it needs.
 
@@ -69,9 +76,8 @@ Keep both blocks as plain `const teams = {` / `const results = {` literals.
 The finished 2025 season (`2025.html`) is the reference for what a
 completed week looks like. Match it.
 
-NEWSLETTERS — this task no longer builds them. Some earlier weeks still have a
-file in `newsletters/` and will keep showing a "Download PDF" card on their
-Weekly Summary tab; that is expected, not a bug. Leave `newsletters/`,
+NEWSLETTERS — this task no longer builds them, and the page no longer shows
+them. Leave `newsletters/`,
 `newsletters/index.json` and `tools/newsletter/` alone — do not build a sheet
 for the new week, and do not remove the old ones.
 
@@ -149,6 +155,17 @@ matchup's "Box score" button. It re-checks every game against the scores now on
 the page, so it also serves as an independent audit that Step 3 wrote the week
 correctly. It refuses the whole run rather than writing part of it.
 
+STEP 4b — REFRESH PLAYER PHOTOS
+    curl -sS https://api.sleeper.app/v1/players/nfl -o <scratch>/players_nfl.json
+    node tools/boxscores/headshots.mjs --sleeper <scratch>/players_nfl.json
+
+A player new to the league this week (a waiver pickup, a rookie) has no photo
+on his player card until this runs; it adds the new names to
+`boxscores/headshots.json` and rebuilds `boxscores/players.json`. It should end
+with "0 without a photo". Keep the Sleeper file in scratch — it is ~15 MB and
+never committed. If Sleeper cannot be reached, skip this step and say so in the
+report; the card falls back to the club logo, so nothing breaks.
+
 STEP 5 — WRITE THE RECAP
 This is the only part you write. Add to `weeklySummaries` in `2026.html`, keyed
 by the same week number. Weeks use BULLETS (the preseason entry at key 0 uses
@@ -177,10 +194,22 @@ new, write no recap at all.
 STEP 6 — VERIFY
 - Extract the <script> block and run `node --check` on it.
 - Serve the repo and load 2026.html at the new week in a browser. Confirm no
-  console errors, and that Results, Standings, Playoff Picture, Weekly Summary
-  and Side Bets all render. Check the page at 390px wide too.
+  console errors, and that Results, Standings, Playoffs and Side Bets all
+  render. Check the page at 390px wide too.
 - Open a matchup's box score and confirm the lineups load.
-- Open a tiebreak info dot if any appear, and confirm it reads sensibly.
+- Open a team's drawer (tap a team in Standings) and confirm the NEW week's
+  score is underlined and opens its box score, like the weeks before it.
+- Check the standings BY HAND wherever teams in a division share a record —
+  do not trust the page just because it rendered. The rule (rulebook 4.1.2 /
+  4.1.3): when three or more teams are tied, rank them on their combined
+  head-to-head record against the OTHER tied teams only. A team that has not
+  played any of them yet counts as .500, so 1–0 beats 0–0 beats 0–1. Whoever
+  separates out drops to the smaller-tie rules (two teams: head-to-head, then
+  points for, then division record). Two teams tied: head-to-head, then points
+  for. Open each tied team's info dot and confirm the order it states matches
+  the order on the table and the seed chips (X1/X2 and I1/I2 go to the top two of each
+  division; the wild cards come only from the teams below them). If the page
+  disagrees with the rule, STOP and report it — do not hand-edit the order.
 - ONLY if a rename was applied: also load `trophy.html`. Confirm the hall opens
   with no console errors, and that the renamed team reads correctly on its Hall
   of Fame nameplate and on its Team Locker flag.
@@ -208,7 +237,8 @@ on and ending with the PR URL:
 Send one ONLY when there is something to act on:
   - you opened a PR, or
   - you STOPPED on a problem (no export in Drive, pairings disagreeing with the
-    schedule, a short export that would have dropped weeks). Say what blocked
+    schedule, a short export that would have dropped weeks, standings that
+    break the tiebreak rule in Step 6). Say what blocked
     it, not just that something did — a silent failed run and a quiet week look
     identical from a phone.
 
