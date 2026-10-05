@@ -50,7 +50,7 @@
 //     the project's GEMINI_API_KEY is used, sharing its free-tier limits)
 //   supabase secrets set SLUH22_PASSCODE=…             (optional)
 // Optional: SLUH22_ALLOWED_ORIGINS, SLUH22_DAILY_QUESTIONS,
-// SLUH22_LEAGUE_DAILY, and the model settings shared with sluh22-chat:
+// SLUH22_LEAGUE_DAILY, and the model settings shared with league-chat:
 // AI_MODEL (default gemini-3.8-flash), AI_FALLBACK_MODEL (default
 // gemini-3.5-flash; "none" for no fallback), AI_THINKING (low, medium or
 // high; default low).
