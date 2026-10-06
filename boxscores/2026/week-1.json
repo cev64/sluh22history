@@ -37,7 +37,7 @@
       "pts": 7.8,
       "proj": 14.1,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Justin Jefferson",
@@ -47,7 +47,7 @@
       "pts": 31.2,
       "proj": 17.08,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Davante Adams",
@@ -209,7 +209,7 @@
       "pts": 9.9,
       "proj": 14.36,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Colston Loveland",
@@ -379,7 +379,7 @@
       "pts": 3.2,
       "proj": 19.95,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Kyle Pitts Sr.",
@@ -399,7 +399,7 @@
       "pts": 21,
       "proj": 11.57,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Parker Washington",
@@ -491,7 +491,7 @@
       "pts": 24.96,
       "proj": 19.13,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Kenneth Walker III",
@@ -511,7 +511,7 @@
       "pts": 14.8,
       "proj": 15.08,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -691,7 +691,7 @@
       "pts": 8.9,
       "proj": 12.96,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Sam LaPorta",
@@ -721,7 +721,7 @@
       "pts": 3.4,
       "proj": 12.23,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Seahawks D/ST",
@@ -813,7 +813,7 @@
       "pts": 9,
       "proj": 17.67,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Omarion Hampton",
@@ -833,7 +833,7 @@
       "pts": 19.2,
       "proj": 13.74,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Malik Nabers",
@@ -893,7 +893,7 @@
       "pts": 33.8,
       "proj": 9.2,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Mike Evans",
@@ -903,7 +903,7 @@
       "pts": 16.9,
       "proj": 10.65,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Kenyon Sadiq",
@@ -943,7 +943,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      }
     ]
    }
@@ -1003,7 +1003,7 @@
       "pts": 8.3,
       "proj": 14.83,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jake Ferguson",
@@ -1053,7 +1053,7 @@
       "pts": 20.4,
       "proj": 10.25,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jared Goff",
@@ -1155,7 +1155,7 @@
       "pts": 21.2,
       "proj": 15.59,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Tucker Kraft",
@@ -1285,7 +1285,7 @@
       "pts": 35.66,
       "proj": 19.32,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Breece Hall",
@@ -1295,7 +1295,7 @@
       "pts": 19.8,
       "proj": 16.5,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jeremiyah Love",
@@ -1305,7 +1305,7 @@
       "pts": 13,
       "proj": 13.86,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Puka Nacua",
@@ -1315,7 +1315,7 @@
       "pts": 12.4,
       "proj": 21.05,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Drake London",
@@ -1415,7 +1415,7 @@
       "pts": 4.7,
       "proj": 8.85,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Keaton Mitchell",
@@ -1557,7 +1557,7 @@
       "pts": 5,
       "proj": 10.04,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Tyjae Spears",

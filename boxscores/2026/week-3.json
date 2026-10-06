@@ -47,7 +47,7 @@
       "pts": 12.5,
       "proj": 15.62,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Emeka Egbuka",
@@ -157,7 +157,7 @@
       "pts": 3.1,
       "proj": 8.46,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      }
     ],
     "jared": [
@@ -199,7 +199,7 @@
       "pts": 24.8,
       "proj": 18.94,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Tetairoa McMillan",
@@ -269,7 +269,7 @@
       "pts": 12.7,
       "proj": 12.56,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "RJ Harvey",
@@ -339,7 +339,7 @@
       "pts": 9,
       "proj": 17.37,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Omarion Hampton",
@@ -359,7 +359,7 @@
       "pts": 10.6,
       "proj": 13.58,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Malik Nabers",
@@ -399,7 +399,7 @@
       "pts": 3.8,
       "proj": 13.78,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Eagles D/ST",
@@ -439,7 +439,7 @@
       "pts": 11.1,
       "proj": 9.3,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Caleb Williams",
@@ -469,7 +469,7 @@
       "pts": 0,
       "proj": 5.8,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Zay Flowers",
@@ -531,7 +531,7 @@
       "pts": 12.4,
       "proj": 12.48,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Trey McBride",
@@ -791,7 +791,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jonah Coleman",
@@ -823,7 +823,7 @@
       "pts": 17.46,
       "proj": 23.55,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Cam Skattebo",
@@ -843,7 +843,7 @@
       "pts": 8.5,
       "proj": 16.17,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Drake London",
@@ -883,7 +883,7 @@
       "pts": 21.9,
       "proj": 12.77,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Dalton Kincaid",
@@ -953,7 +953,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jayden Daniels",
@@ -1023,7 +1023,7 @@
       "pts": 21,
       "proj": 12.68,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Luther Burden III",
@@ -1093,7 +1093,7 @@
       "pts": 19.7,
       "proj": 11.81,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Quentin Johnston",
@@ -1205,7 +1205,7 @@
       "pts": 15.8,
       "proj": 12.73,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Josh Downs",
@@ -1315,7 +1315,7 @@
       "pts": 20.44,
       "proj": 21.08,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Kenneth Walker III",
@@ -1335,7 +1335,7 @@
       "pts": 9,
       "proj": 11.94,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1517,7 +1517,7 @@
       "pts": 5.2,
       "proj": 18.26,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Isaiah Likely",
@@ -1617,7 +1617,7 @@
       "pts": 1.2,
       "proj": 12.08,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      }
     ]
    }
