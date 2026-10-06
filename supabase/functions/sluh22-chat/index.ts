@@ -58,7 +58,18 @@
 // Google's free tier is sometimes overloaded ("This model is currently
 // experiencing high demand", a 503). A request that meets that, or a brief
 // rate limit, is tried again twice after a short wait, then on the fallback
-// model, before the visitor is told the AI is busy.
+// model.
+//
+// When Gemini still can't answer (most often: the free tier's daily allowance
+// is used up), the question goes to Claude Haiku 4.5 on Anthropic's API, if a
+// key is set:
+//   supabase secrets set SLUH22_ANTHROPIC_API_KEY=sk-ant-…   (or the project's
+//     ANTHROPIC_API_KEY)
+// CLAUDE_FALLBACK_MODEL picks another Claude model, or "none" to turn it off.
+// Unlike Gemini's free tier this one is billed, per question; the daily
+// allowances above still cap it. The browser's blocks are already Claude's
+// shape, so the turn goes over almost as it is, and a conversation can move
+// between the two from one turn to the next.
 //
 // On your own computer, with the site served locally:
 //   SLUH22_GEMINI_API_KEY=AIza… CHAT_OPEN=1 deno run --allow-net --allow-env \
@@ -66,6 +77,8 @@
 //   (http://localhost:8000; PORT=8001 to change it), then open the site with
 //   ?chat=http://localhost:8000 on the address once (chat.js remembers it
 //   for the tab). CHAT_OPEN=1 lets any origin in, so keep it on your machine.
+
+import Anthropic from "npm:@anthropic-ai/sdk@0.131.0";
 
 const env = (name: string) => (Deno.env.get(name) ?? "").trim();
 const OPEN = env("CHAT_OPEN") === "1";
@@ -83,6 +96,13 @@ const FALLBACK = (() => {
   return (v || "gemini-3.5-flash") === MODEL ? "" : (v || "gemini-3.5-flash");
 })();
 const THINKING = ["low", "medium", "high"].includes(env("AI_THINKING")) ? env("AI_THINKING") : "low";
+const ANTHROPIC_KEY = env("SLUH22_ANTHROPIC_API_KEY") || env("ANTHROPIC_API_KEY");
+const CLAUDE_MODEL = (() => {
+  const v = env("CLAUDE_FALLBACK_MODEL");
+  if (v.toLowerCase() === "none" || !ANTHROPIC_KEY) return "";
+  return v || "claude-haiku-4-5";
+})();
+const claude = CLAUDE_MODEL ? new Anthropic({ apiKey: ANTHROPIC_KEY, maxRetries: 2 }) : null;
 const DAILY = Math.max(1, Number(env("SLUH22_DAILY_QUESTIONS")) || 30);
 const LEAGUE_DAILY = Math.max(1, Number(env("SLUH22_LEAGUE_DAILY")) || 300);
 const GEMINI = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -473,6 +493,103 @@ async function askGemini(requestFor: (model: string) => unknown, signal: AbortSi
   return { res: null, model, status, detail };
 }
 
+/* ------------------------------------------------------------ Claude */
+
+// The tools as Claude takes them. chat.js checks every input itself, so a
+// tool's input streams in as it is written.
+const CLAUDE_TOOLS: Anthropic.Tool[] = TOOLS.map((t) => ({
+  name: t.name,
+  description: t.description,
+  input_schema: t.parametersJsonSchema as Anthropic.Tool.InputSchema,
+  eager_input_streaming: true,
+}));
+
+// A tool call's id as Claude accepts it (letters, digits, _ and -); a call
+// first made on Gemini may carry anything else. Its result maps the same way.
+const claudeId = (id: unknown) => String(id ?? "call").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 64) || "call";
+
+// The conversation as Claude's messages: the browser's blocks, less what only
+// Gemini reads (signatures), and less empty text, which Claude turns down.
+function claudeMessages(messages: Message[]): Anthropic.MessageParam[] {
+  return messages.map((m) => {
+    const content: Anthropic.ContentBlockParam[] = [];
+    for (const b of blocksOf(m)) {
+      if (b.type === "text" && typeof b.text === "string" && b.text.trim()) {
+        content.push({ type: "text", text: b.text });
+      } else if (b.type === "tool_use" && m.role === "assistant" && typeof b.name === "string") {
+        const input = b.input && typeof b.input === "object" && !Array.isArray(b.input) ? b.input as Record<string, unknown> : {};
+        content.push({ type: "tool_use", id: claudeId(b.id), name: b.name, input });
+      } else if (b.type === "tool_result" && m.role === "user") {
+        const text = typeof b.content === "string" ? b.content
+          : Array.isArray(b.content) ? b.content.map((c) => (c && typeof c.text === "string" ? c.text : "")).join("") : "";
+        content.push({ type: "tool_result", tool_use_id: claudeId(b.tool_use_id), content: text || "(nothing)", is_error: Boolean(b.is_error) });
+      }
+    }
+    if (!content.length) content.push({ type: "text", text: m.role === "user" ? "…" : "(no answer)" });
+    return { role: m.role, content };
+  });
+}
+
+/* Asking Claude, streaming the answer to the browser as it is written, in
+   the same events as Gemini's. Returns null once the answer is sent, or why
+   Claude couldn't answer. The instructions and the league go first and are
+   cached, so a follow-up (or another member's question within a few
+   minutes) reads them at a tenth of the price. */
+async function askClaude(messages: Message[], digest: string, send: (e: Record<string, unknown>) => void, signal: AbortSignal):
+  Promise<{ message: string; setup: boolean } | null> {
+  if (!claude) return { message: "", setup: false };
+  try {
+    const stream = claude.messages.stream({
+      model: CLAUDE_MODEL,
+      max_tokens: MAX_OUTPUT,
+      system: [{ type: "text", text: `${INSTRUCTIONS}\n\n${digest}`, cache_control: { type: "ephemeral" } }],
+      tools: CLAUDE_TOOLS,
+      messages: claudeMessages(messages),
+      // and the conversation so far, for the next tool round
+      cache_control: { type: "ephemeral" },
+    }, { signal });
+    for await (const event of stream) {
+      if (event.type === "content_block_start" && event.content_block.type === "tool_use") {
+        send({ t: "tool", name: event.content_block.name });
+      } else if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+        send({ t: "text", d: event.delta.text });
+      }
+    }
+    const final = await stream.finalMessage();
+    const content: Block[] = [];
+    for (const b of final.content) {
+      if (b.type === "text" && b.text) content.push({ type: "text", text: b.text });
+      else if (b.type === "tool_use") content.push({ type: "tool_use", id: b.id, name: b.name, input: b.input });
+    }
+    const stop = final.stop_reason === "refusal" ? "refusal"
+      : final.stop_reason === "max_tokens" ? "max_tokens"
+      : content.some((b) => b.type === "tool_use") ? "tool_use"
+      : "end_turn";
+    send({ t: "done", stop, content });
+    return null;
+  } catch (err) {
+    if (signal.aborted) return null;
+    if (err instanceof Anthropic.AuthenticationError || err instanceof Anthropic.PermissionDeniedError) {
+      console.error("sluh22-chat: Claude turned the key down,", err.message);
+      return { message: "The league AI isn't set up right yet: its Claude key was turned down. (Commissioner: the sluh22-chat function's logs say why.)", setup: true };
+    }
+    if (err instanceof Anthropic.NotFoundError) {
+      console.error("sluh22-chat: Claude model not found,", err.message);
+      return { message: "The league AI isn't set up right yet: its Claude model wasn't found. (Commissioner: check CLAUDE_FALLBACK_MODEL.)", setup: true };
+    }
+    if (err instanceof Anthropic.RateLimitError) {
+      console.error("sluh22-chat: Claude rate limit,", err.message);
+      return { message: "The league AI is getting a lot of questions right now. Try again in a minute.", setup: false };
+    }
+    if (err instanceof Anthropic.APIError) {
+      console.error("sluh22-chat: Claude answered", err.status, err.message);
+      return { message: "The league AI couldn't answer that. Try again in a minute.", setup: false };
+    }
+    console.error("sluh22-chat: Claude failed,", err);
+    return { message: "The league AI couldn't answer that. Try again.", setup: false };
+  }
+}
+
 // Finish reasons that mean Gemini declined to answer.
 const DECLINED = new Set(["SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION", "IMAGE_SAFETY"]);
 
@@ -484,7 +601,7 @@ async function handle(req: Request): Promise<Response> {
   // Only the league's own pages: a browser always says where a request
   // comes from, so no Origin means a script, not the site.
   if (!OPEN && (!origin || !ALLOWED.includes(origin))) return fail(403, "origin", "the league chat only answers the league's own site", origin);
-  if (!API_KEY) return fail(501, "not_set_up", "the league chat has no API key yet", origin);
+  if (!API_KEY && !claude) return fail(501, "not_set_up", "the league chat has no API key yet", origin);
   if (!passcodeOk(req.headers.get("x-league-passcode") ?? "")) return fail(401, "passcode", "the league chat needs the league's passcode", origin);
 
   const text = await req.text();
@@ -528,9 +645,19 @@ async function handle(req: Request): Promise<Response> {
         if (!abort.signal.aborted) controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
       };
       try {
-        const { res, model, status, detail } = await askGemini(requestFor, abort.signal);
+        const { res, model, status, detail } = API_KEY
+          ? await askGemini(requestFor, abort.signal)
+          : { res: null, model: MODEL, status: 0, detail: "" };
         if (!res || !res.body) {
-          if (!abort.signal.aborted) send({ t: "error", ...upstreamError(status, detail) });
+          if (abort.signal.aborted) return;
+          // Gemini can't answer: Claude takes the question, if it's set up.
+          if (claude) {
+            if (API_KEY) console.log(`sluh22-chat: Gemini answered ${status}; asking ${CLAUDE_MODEL}`);
+            const failed = await askClaude(convo.messages, digest, send, abort.signal);
+            if (!failed) return;
+            if (!API_KEY || failed.setup) { send({ t: "error", ...failed }); return; }
+          }
+          send({ t: "error", ...upstreamError(status, detail) });
           return;
         }
 
