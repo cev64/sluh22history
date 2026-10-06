@@ -29,7 +29,15 @@ root) calls. It runs in the same Supabase project as Pigskin Pantheon
 3. **Optional: a league passcode.** Save `SLUH22_PASSCODE` and the chat asks
    each device for it once (not case-sensitive). Share it in the group chat.
 
-4. **Apply the usage counter**: paste
+4. **Optional, recommended: a backup on Claude.** When Gemini can't answer
+   (the free tier's daily allowance used up, or Google overloaded), the
+   question goes to Claude Haiku 4.5 instead. Make a key at
+   platform.claude.com ▸ API keys and save it as `SLUH22_ANTHROPIC_API_KEY`
+   (or `ANTHROPIC_API_KEY`, shared with the project's other functions), then
+   redeploy the function. This one is billed: with the league summary cached,
+   a question costs about a cent or two, and the daily limits below cap it.
+
+5. **Apply the usage counter**: paste
    `migrations/20261005000000_sluh22_chat.sql` into SQL editor and run it.
    Until then the daily limits are counted in memory, which is looser.
 
@@ -43,9 +51,12 @@ root) calls. It runs in the same Supabase project as Pigskin Pantheon
 | `SLUH22_DAILY_QUESTIONS` | 30 | Questions per visitor per day |
 | `SLUH22_LEAGUE_DAILY` | 300 | Questions per day for everyone together |
 | `AI_MODEL`, `AI_FALLBACK_MODEL`, `AI_THINKING` | shared with league-chat | Which Gemini model, and how hard it thinks |
+| `SLUH22_ANTHROPIC_API_KEY` | `ANTHROPIC_API_KEY` | The Claude key for the backup; without one there is no backup |
+| `CLAUDE_FALLBACK_MODEL` | `claude-haiku-4-5` | The backup's model; `none` turns the backup off |
 
 On Gemini's free tier nobody can run up a bill: the worst case is the day's
-allowance running out. Free-tier prompts may be used by Google to improve its
+allowance running out. The Claude backup is billed, but only answers when
+Gemini can't, and only within the daily limits. Free-tier prompts may be used by Google to improve its
 products.
 
 ## Trying it on your own computer
