@@ -46,8 +46,8 @@ score to transcribe by hand.
 HOW THE PAGE WORKS — read this before editing.
 
 `2026.html` is a live-season hub. A week wheel in the pinned capsule (at the
-bottom of the screen on phones) picks a week, Week 0 through Week 14; each week
-has four views: Results, Standings, Playoffs, Side Bets. Tapping a team opens
+bottom of the screen on phones) picks a week, Week 0 through Week 14; each played
+week has five views: Results, Recap, Standings, Playoffs, Side Bets. Tapping a team opens
 its drawer: record, points, current seed, and the schedule, where every played
 score opens that game's box score.
 
@@ -56,8 +56,9 @@ them and updates itself:
   - `teams`             franchise identity     <- the tool edits this on a rename
   - `results`           weekly scores          <- the tool writes this
   - `weeklySummaries`   the written recap      <- YOUR edit, the only one
-                          (kept as the league's record; the redesigned page
-                          has no Summary view, so it is not shown right now)
+                          (kept as the league's record, and read by Ask the
+                          League; the page's Recap view does NOT show it — that
+                          view is computed, see below)
   - `divisionBet`       who bet on which side  <- set once, not a weekly edit
 
 Computed automatically, DO NOT hand-edit and DO NOT touch the engine:
@@ -67,6 +68,14 @@ tiebreak explanations behind the info dots, the projected bracket, Toilet
 Bowl seeding, each team drawer's current seed, and the Side Bets tab —
 the Xavier-vs-Ignatius ledger counts itself off `results` like everything
 else, so posting the week is all it needs.
+
+The Recap view is computed too, from `results`, the week's box scores
+(Step 4) and the league's history in `league-data.js`: the headline and
+storylines, every game's story, power rankings, all-play and luck, players of
+the week, lineup calls (bench blunders, games lost on the bench), the playoff
+race and next week's game of the week, plus the share-as-pictures sheet. A week
+gets it the moment its scores and box scores are posted; there is nothing to
+write for it.
 
 The all-time page (`alltime.html`) counts the season too: it reads the `teams`
 and `results` blocks straight off `2026.html`, so its standings, head-to-head
@@ -197,8 +206,10 @@ new, write no recap at all.
 STEP 6 — VERIFY
 - Extract the <script> block and run `node --check` on it.
 - Serve the repo and load 2026.html at the new week in a browser. Confirm no
-  console errors, and that Results, Standings, Playoffs and Side Bets all
-  render. Check the page at 390px wide too.
+  console errors, and that Results, Recap, Standings, Playoffs and Side Bets
+  all render. The Recap should show a headline, every game with its top
+  scorers, and Players of the Week (that last card needs Step 4's box scores).
+  Check the page at 390px wide too.
 - Open a matchup's box score and confirm the lineups load.
 - Open a team's drawer (tap a team in Standings) and confirm the NEW week's
   score is underlined and opens its box score, like the weeks before it.
