@@ -147,7 +147,7 @@
       "pts": 1.4,
       "proj": 9.96,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "De'Zhaun Stribling",
@@ -199,7 +199,7 @@
       "pts": 27.7,
       "proj": 13.96,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Emeka Egbuka",
@@ -299,7 +299,7 @@
       "pts": 7.8,
       "proj": 9.81,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Michael Wilson",
@@ -369,7 +369,7 @@
       "pts": 12.3,
       "proj": 15.04,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Colston Loveland",
@@ -631,7 +631,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Zach Charbonnet",
@@ -681,7 +681,7 @@
       "pts": 3,
       "proj": 17.62,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ladd McConkey",
@@ -691,7 +691,7 @@
       "pts": 6.5,
       "proj": 14.47,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Malik Nabers",
@@ -721,7 +721,7 @@
       "pts": 14.6,
       "proj": 11.93,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Mike Evans",
@@ -731,7 +731,7 @@
       "pts": 8.4,
       "proj": 12.99,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Eagles D/ST",
@@ -791,7 +791,7 @@
       "pts": 0,
       "proj": 7.01,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Zay Flowers",
@@ -853,7 +853,7 @@
       "pts": 8.5,
       "proj": 18.36,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Isaiah Likely",
@@ -883,7 +883,7 @@
       "pts": 5,
       "proj": 13.21,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "49ers D/ST",
@@ -973,7 +973,7 @@
       "pts": 14.8,
       "proj": 21.66,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Kenneth Walker III",
@@ -993,7 +993,7 @@
       "pts": 7.1,
       "proj": 12.77,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1135,7 +1135,7 @@
       "pts": 40.82,
       "proj": 22.65,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Breece Hall",
@@ -1145,7 +1145,7 @@
       "pts": 14.2,
       "proj": 15.79,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jeremiyah Love",
@@ -1155,7 +1155,7 @@
       "pts": 7.5,
       "proj": 12.88,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Drake London",
@@ -1275,7 +1275,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "TreVeyon Henderson",
@@ -1335,7 +1335,7 @@
       "pts": 26.5,
       "proj": 19.01,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Tetairoa McMillan",
@@ -1375,7 +1375,7 @@
       "pts": -0.1,
       "proj": 12.58,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Texans D/ST",
@@ -1487,7 +1487,7 @@
       "pts": 14.5,
       "proj": 12.32,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Luther Burden III",
@@ -1557,7 +1557,7 @@
       "pts": 7,
       "proj": 12.44,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Rashid Shaheed",
