@@ -153,6 +153,17 @@
   // the record book counts it among the championships, and so does this.
   const EARLIER_TITLES = { charlie_vonderheid: [2020] };
   const TITLE_PATH = new Set(["Quarterfinal", "Semifinal", "Championship"]);
+
+  // Two managers who left after 2021, Jack Figge ("Team Inactive") and
+  // Stephen Deves ("Kroenke Sucks"), are never brought up: nothing that names
+  // them reaches the AI, from the summary, a tool or a written recap. Their
+  // games still count in everyone else's records, playoff wins and streaks;
+  // only the lines about them are left out. As a last check, any line still
+  // naming them is dropped from whatever is sent (`unsaid`).
+  const UNSPOKEN = new Set(["jack_figge", "stephen_deves"]);
+  const UNSPOKEN_WORDS = /\b(figge|deves|kroenke|team inactive)\b/i;
+  const unspoken = (text) => UNSPOKEN_WORDS.test(String(text == null ? "" : text));
+  const unsaid = (text) => String(text).split("\n").filter((line) => !unspoken(line)).join("\n");
   const BENCH = new Set(["BE", "IR"]);
 
   /* ================================================================
@@ -271,11 +282,11 @@
 
     L.push(`Today is ${today}. League: ${LEAGUE}.`);
     L.push(`Seasons on record: ${seasons.map((s) => s.year).join(", ")}.${live ? ` The ${live.year} season is in progress (regular season through week ${live.throughWeek} of ${live.regularWeeks}).` : ""} 2020 was played too, but only its champion is kept: Charlie Vonderheid.`);
-    L.push("Format: ESPN (2022 was played on Sleeper). 12 teams in 2021, 10 since. Two divisions, Xavier and Ignatius. A 14-week regular season, then playoffs in weeks 15-17: six teams since 2022, two of them on a week-15 bye (the division champions, under the current rules; eight teams in 2021). The teams left out play the Toilet Bowl (the losers bracket), where winning keeps you out of last place; its loser finishes last. Lineup: QB, 2 RB, 2 WR, TE, FLEX, K, D/ST through 2023; QB, 2 RB, 2 WR, TE, 2 FLEX, D/ST (no kicker) from 2024. Keepers from 2025: up to 3 a team, kept in the first rounds of the next draft. Week 14 is the fixed rivalry week.");
+    L.push("Format: ESPN (2022 was played on Sleeper). 10 teams. Two divisions, Xavier and Ignatius. A 14-week regular season, then playoffs in weeks 15-17: six teams since 2022, two of them on a week-15 bye (the division champions, under the current rules; eight teams in 2021). The teams left out play the Toilet Bowl (the losers bracket), where winning keeps you out of last place; its loser finishes last. Lineup: QB, 2 RB, 2 WR, TE, FLEX, K, D/ST through 2023; QB, 2 RB, 2 WR, TE, 2 FLEX, D/ST (no kicker) from 2024. Keepers from 2025: up to 3 a team, kept in the first rounds of the next draft. Week 14 is the fixed rivalry week.");
 
     /* managers */
     L.push("", "## Managers (the people; team names change by season)");
-    Object.entries(owners).forEach(([oid, o]) => {
+    Object.entries(owners).filter(([oid]) => !UNSPOKEN.has(oid)).forEach(([oid, o]) => {
       const mine = seasons.filter((s) => Object.values(s.teams).some((t) => t.ownerId === oid));
       const teams = mine.map((s) => `${s.year} "${String(Object.values(s.teams).find((t) => t.ownerId === oid).name).trim()}"`);
       L.push(`- ${o.name}: ${plural(mine.length, "season")} (${teams.join(", ")})${o.departed ? ", no longer in the league" : ""}`);
@@ -315,7 +326,7 @@
       "Regular-season records and points are the official standings. Titles include 2020. Playoff record (and every playoff win or loss) counts only the main bracket on the road to the title: quarterfinals, semifinals and the championship. Placement games (3rd place, 5th place) and Toilet Bowl games are never playoff wins.",
       "manager | seasons | regular season W-L (win%) | PF | PA | PF/game | titles | runner-up | last place | playoff trips | playoff W-L | finishes | highest / lowest game");
     const winPctOf = (r) => (r.w + r.t / 2) / Math.max(1, r.w + r.l + r.t);
-    Object.entries(career).sort((a, b) => b[1].titles.length - a[1].titles.length || winPctOf(b[1]) - winPctOf(a[1]))
+    Object.entries(career).filter(([oid]) => !UNSPOKEN.has(oid)).sort((a, b) => b[1].titles.length - a[1].titles.length || winPctOf(b[1]) - winPctOf(a[1]))
       .forEach(([oid, r]) => {
         const dec = r.w + r.l + r.t;
         L.push([
@@ -341,7 +352,7 @@
       r.last = `${g.year} wk ${g.week}: ${name(g.aOwner)} ${f2(g.aScore)}–${f2(g.bScore)} ${name(g.bOwner)}`;
     });
     L.push("", "## Head-to-head, every meeting (regular season and every postseason game)");
-    Object.values(h2h).sort((p, q) => (q.xw + q.yw + q.t) - (p.xw + p.yw + p.t)).forEach((r) => {
+    Object.values(h2h).filter((r) => !UNSPOKEN.has(r.x) && !UNSPOKEN.has(r.y)).sort((p, q) => (q.xw + q.yw + q.t) - (p.xw + p.yw + p.t)).forEach((r) => {
       const playoff = r.pxw + r.pyw ? ` (playoff games ${r.pxw}-${r.pyw})` : "";
       L.push(`- ${name(r.x)} ${r.xw}-${r.yw}${r.t ? `-${r.t}` : ""} ${name(r.y)}${playoff}; points ${f2(r.xpf)}–${f2(r.ypf)}; last: ${r.last}`);
     });
@@ -352,22 +363,26 @@
       sides.push({ oid: g.aOwner, pts: g.aScore, opp: g.bOwner, oppPts: g.bScore, g });
       sides.push({ oid: g.bOwner, pts: g.bScore, opp: g.aOwner, oppPts: g.aScore, g });
     });
+    // the records name both sides, so only games between managers who are named
+    const said = (g) => !UNSPOKEN.has(g.aOwner) && !UNSPOKEN.has(g.bOwner);
+    const games2 = games.filter(said);
+    const sides2 = sides.filter((x) => said(x.g));
     const when = (g) => `${g.year} wk ${g.week}${g.label ? `, ${g.label}` : ""}`;
     const sideLine = (x) => `${name(x.oid)} ${f2(x.pts)} vs ${name(x.opp)} ${f2(x.oppPts)} (${when(x.g)})`;
     const gameLine = (g) => `${name(g.aOwner)} ${f2(g.aScore)}–${f2(g.bScore)} ${name(g.bOwner)} (${when(g)}, margin ${f2(Math.abs(g.aScore - g.bScore))})`;
     L.push("", "## League records (every game, playoffs included)");
-    L.push("Highest scores:", ...sides.slice().sort((p, q) => q.pts - p.pts).slice(0, 12).map((x, i) => `${i + 1}. ${sideLine(x)}`));
-    L.push("Lowest scores:", ...sides.filter((x) => x.pts > 0).sort((p, q) => p.pts - q.pts).slice(0, 10).map((x, i) => `${i + 1}. ${sideLine(x)}`));
-    L.push("Biggest blowouts:", ...games.slice().sort((p, q) => Math.abs(q.aScore - q.bScore) - Math.abs(p.aScore - p.bScore)).slice(0, 10).map((g, i) => `${i + 1}. ${gameLine(g)}`));
-    L.push("Closest games:", ...games.slice().sort((p, q) => Math.abs(p.aScore - p.bScore) - Math.abs(q.aScore - q.bScore)).slice(0, 10).map((g, i) => `${i + 1}. ${gameLine(g)}`));
-    L.push("Highest combined:", ...games.slice().sort((p, q) => (q.aScore + q.bScore) - (p.aScore + p.bScore)).slice(0, 5).map((g, i) => `${i + 1}. ${gameLine(g)} = ${f2(g.aScore + g.bScore)}`));
-    L.push("Highest scores in a loss:", ...sides.filter((x) => x.pts < x.oppPts).sort((p, q) => q.pts - p.pts).slice(0, 5).map((x, i) => `${i + 1}. ${sideLine(x)}`));
-    L.push("Lowest scores in a win:", ...sides.filter((x) => x.pts > x.oppPts).sort((p, q) => p.pts - q.pts).slice(0, 5).map((x, i) => `${i + 1}. ${sideLine(x)}`));
+    L.push("Highest scores:", ...sides2.slice().sort((p, q) => q.pts - p.pts).slice(0, 12).map((x, i) => `${i + 1}. ${sideLine(x)}`));
+    L.push("Lowest scores:", ...sides2.filter((x) => x.pts > 0).sort((p, q) => p.pts - q.pts).slice(0, 10).map((x, i) => `${i + 1}. ${sideLine(x)}`));
+    L.push("Biggest blowouts:", ...games2.slice().sort((p, q) => Math.abs(q.aScore - q.bScore) - Math.abs(p.aScore - p.bScore)).slice(0, 10).map((g, i) => `${i + 1}. ${gameLine(g)}`));
+    L.push("Closest games:", ...games2.slice().sort((p, q) => Math.abs(p.aScore - p.bScore) - Math.abs(q.aScore - q.bScore)).slice(0, 10).map((g, i) => `${i + 1}. ${gameLine(g)}`));
+    L.push("Highest combined:", ...games2.slice().sort((p, q) => (q.aScore + q.bScore) - (p.aScore + p.bScore)).slice(0, 5).map((g, i) => `${i + 1}. ${gameLine(g)} = ${f2(g.aScore + g.bScore)}`));
+    L.push("Highest scores in a loss:", ...sides2.filter((x) => x.pts < x.oppPts).sort((p, q) => q.pts - p.pts).slice(0, 5).map((x, i) => `${i + 1}. ${sideLine(x)}`));
+    L.push("Lowest scores in a win:", ...sides2.filter((x) => x.pts > x.oppPts).sort((p, q) => p.pts - q.pts).slice(0, 5).map((x, i) => `${i + 1}. ${sideLine(x)}`));
 
     const teamSeasons = [];
     seasons.forEach((s) => Object.values(s.teams).forEach((t) => {
       const gp = t.wins + t.losses + (t.ties || 0);
-      if (gp) teamSeasons.push({ s, t, gp });
+      if (gp && !UNSPOKEN.has(t.ownerId)) teamSeasons.push({ s, t, gp });
     }));
     const tsLine = (x) => `${name(x.t.ownerId)} ("${String(x.t.name).trim()}", ${x.s.year}${x.s.finished ? "" : " so far"}): ${record(x.t)}, PF ${f2(x.t.pf)}, PA ${f2(x.t.pa)}${x.s.finished && x.t.finalRank ? `, finished ${x.t.finalRank}` : ""}`;
     const tsPct = (x) => (x.t.wins + (x.t.ties || 0) / 2) / Math.max(1, x.gp);
@@ -391,13 +406,15 @@
       });
     });
     L.push("Longest streaks (regular season and winners bracket, across seasons):");
-    Object.entries(streak).sort((p, q) => ((q[1].bestW || {}).n || 0) - ((p[1].bestW || {}).n || 0)).forEach(([oid, r]) => {
+    Object.entries(streak).filter(([oid]) => !UNSPOKEN.has(oid)).sort((p, q) => ((q[1].bestW || {}).n || 0) - ((p[1].bestW || {}).n || 0)).forEach(([oid, r]) => {
       L.push(`- ${name(oid)}: longest winning ${r.bestW ? `${r.bestW.n} (${r.bestW.span})` : "0"}; longest losing ${r.bestL ? `${r.bestL.n} (${r.bestL.span})` : "0"}; current ${r.cur > 0 ? `W${r.cur}` : r.cur < 0 ? `L${-r.cur}` : "none"}`);
     });
 
     /* each season */
     seasons.forEach((s) => {
       const tm = (id) => (s.teams[id] ? name(s.teams[id].ownerId) : "?");
+      const hid = (id) => Boolean(s.teams[id] && UNSPOKEN.has(s.teams[id].ownerId));
+      const said = (g) => !hid(g.a) && !hid(g.b);
       const tn = (id) => (s.teams[id] ? `"${String(s.teams[id].name).trim()}"` : "");
       L.push("", `## ${s.year} season${s.finished ? "" : ` (in progress: through week ${s.throughWeek} of ${s.regularWeeks})`}`);
       if (s.champion) {
@@ -405,28 +422,28 @@
         if (final) {
           const loser = final.a === s.champion ? final.b : final.a;
           const ws = final.a === s.champion ? final.aScore : final.bScore, ls = final.a === s.champion ? final.bScore : final.aScore;
-          L.push(`Champion: ${tm(s.champion)} (${tn(s.champion)}), beat ${tm(loser)} ${f2(ws)}–${f2(ls)} in the final (week ${final.week}).`);
+          L.push(`Champion: ${tm(s.champion)} (${tn(s.champion)}), ${hid(loser) ? "won" : `beat ${tm(loser)}`} ${f2(ws)}–${f2(ls)} in the final (week ${final.week}).`);
         } else L.push(`Champion: ${tm(s.champion)} (${tn(s.champion)}).`);
       }
-      if (s.runnerUp) L.push(`Runner-up: ${tm(s.runnerUp)}. Third: ${s.third ? tm(s.third) : "?"}.`);
-      if (s.lastPlace) L.push(`Last place: ${tm(s.lastPlace)} (${tn(s.lastPlace)}).`);
+      if (s.runnerUp && !hid(s.runnerUp)) L.push(`Runner-up: ${tm(s.runnerUp)}.${s.third && !hid(s.third) ? ` Third: ${tm(s.third)}.` : ""}`);
+      if (s.lastPlace && !hid(s.lastPlace)) L.push(`Last place: ${tm(s.lastPlace)} (${tn(s.lastPlace)}).`);
       L.push(s.finished
         ? "Final standings (final place, after the playoffs and Toilet Bowl): team (manager) W-L, PF, PA [division]"
         : "Standings so far (by record, then points for; the season page applies the full tiebreakers): team (manager) W-L, PF, PA [division]");
-      standing(s).forEach((id, i) => {
+      standing(s).filter((id) => !hid(id)).forEach((id, i) => {
         const t = s.teams[id];
         const div = t.division ? ` [${t.division}${t.divRecord ? `, ${t.divRecord} in division` : t.divWins + t.divLosses ? `, ${t.divWins}-${t.divLosses} in division` : ""}]` : "";
         L.push(`${s.finished ? t.finalRank : i + 1}. ${tn(id)} (${tm(id)}) ${record(t)}, PF ${f2(t.pf)}, PA ${f2(t.pa)}${div}`);
       });
       L.push("Regular-season games (manager score–score manager):");
       const byWeek = {};
-      s.regular.forEach((g) => (byWeek[g.week] = byWeek[g.week] || []).push(g));
+      s.regular.filter(said).forEach((g) => (byWeek[g.week] = byWeek[g.week] || []).push(g));
       Object.keys(byWeek).map(Number).sort((a, b) => a - b).forEach((w) => {
         L.push(`Wk ${w}: ${byWeek[w].map((g) => `${tm(g.a)} ${f2(g.aScore)}–${f2(g.bScore)} ${tm(g.b)}`).join("; ")}`);
       });
-      if (s.post.length) {
+      if (s.post.some(said)) {
         L.push("Postseason:");
-        s.post.slice().sort((x, y) => x.week - y.week || (TITLE_PATH.has(y.label) - TITLE_PATH.has(x.label))).forEach((g) => {
+        s.post.filter(said).sort((x, y) => x.week - y.week || (TITLE_PATH.has(y.label) - TITLE_PATH.has(x.label))).forEach((g) => {
           const winner = g.aScore >= g.bScore ? g.a : g.b;
           const losers = /^Losers/i.test(g.label);
           L.push(`Wk ${g.week} ${g.label}: ${tm(g.a)} ${f2(g.aScore)}–${f2(g.bScore)} ${tm(g.b)} → ${tm(winner)} ${losers ? "wins (Toilet Bowl: the winner is spared)" : "wins"}${!TITLE_PATH.has(g.label) && !losers && g.label !== "Playoffs or Toilet Bowl" ? " (placement game: not a playoff win)" : ""}`);
@@ -453,7 +470,7 @@
         const recaps = Object.entries(s.recaps || {}).filter(([w]) => Number(w) > 0).sort((a, b) => a[0] - b[0]);
         if (recaps.length) {
           L.push("This season's weekly recap headlines:");
-          recaps.forEach(([w, r]) => L.push(`Wk ${w}: ${plain(r.headline)}`));
+          recaps.forEach(([w, r]) => { if (!unspoken(r.headline)) L.push(`Wk ${w}: ${plain(r.headline)}`); });
         }
       }
     });
@@ -463,13 +480,13 @@
       const st = await Promise.race([getJSON("boxscores/starters.json"), sleep(15000).then(() => null)]);
       if (st) {
         L.push("", "## Each manager's most-started players, all seasons");
-        Object.entries(st.owners).forEach(([oid, o]) => {
+        Object.entries(st.owners).filter(([oid]) => !UNSPOKEN.has(oid)).forEach(([oid, o]) => {
           L.push(`- ${name(oid)}: ${o.players.slice(0, 8).map((p) => `${p.name} (${p.pos}, ${p.starts} starts)`).join(", ")}`);
         });
       }
     } catch (err) { /* the tools still have it */ }
 
-    return L.join("\n");
+    return unsaid(L.join("\n"));
   }
 
   /* ================================================================
@@ -555,8 +572,8 @@
       return s;
     };
     const entries = [];
-    Object.entries(owners).forEach(([oid, o]) => entries.push([oid, norm(o.name)]));
-    model.seasons.forEach((s) => Object.values(s.teams).forEach((t) => entries.push([t.ownerId, norm(t.name)])));
+    Object.entries(owners).forEach(([oid, o]) => { if (!UNSPOKEN.has(oid)) entries.push([oid, norm(o.name)]); });
+    model.seasons.forEach((s) => Object.values(s.teams).forEach((t) => { if (!UNSPOKEN.has(t.ownerId)) entries.push([t.ownerId, norm(t.name)]); }));
     const findManager = (q) => {
       const n = norm(q);
       if (!n) return null;
@@ -566,10 +583,11 @@
     };
     const managerOf = (q) => {
       const oid = findManager(q);
-      if (!oid) throw new ToolError(`No manager or team called "${q}". Managers: ${Object.values(owners).map((o) => o.name).join(", ")}.`);
+      if (!oid) throw new ToolError(`No manager or team ${unspoken(q) ? "by that name" : `called "${q}"`}. Managers: ${Object.entries(owners).filter(([id]) => !UNSPOKEN.has(id)).map(([, o]) => o.name).join(", ")}.`);
       return oid;
     };
     const teamIn = (s, oid) => Object.keys(s.teams).find((id) => s.teams[id].ownerId === oid) || null;
+    const hidden = (s, id) => Boolean(s && s.teams[id] && UNSPOKEN.has(s.teams[id].ownerId));
     const who = (s, id) => (s.teams[id] ? `${name(s.teams[id].ownerId)} ("${String(s.teams[id].name).trim()}")` : `team ${id}`);
     const newest = () => model.seasons[model.seasons.length - 1];
     // A draft's ESPN team id -> the manager.
@@ -578,7 +596,12 @@
       const t = tid && newest().teams[tid];
       return t ? t.ownerId : null;
     };
-    const playersDb = () => getJSON("boxscores/players.json");
+    let playersJob = null;
+    const playersDb = () => (playersJob = playersJob || getJSON("boxscores/players.json").then((idx) => {
+      const out = (y, tid) => Boolean(idx.teams[y] && idx.teams[y][tid] && UNSPOKEN.has(idx.teams[y][tid][1]));
+      const players = idx.players.map((p) => ({ ...p, r: p.r.filter(([y, , tid]) => !out(y, tid)) })).filter((p) => p.r.length);
+      return { ...idx, players };
+    }).catch((err) => { playersJob = null; throw err; }));
     const draftFile = (y) => getJSON(`drafts/${y}.json`).catch(() => null);
     const draftYears = () => model.seasons.map((s) => s.year).filter((y) => y >= 2024);
     const keepers = () => loadScript("keepers.js", () => Boolean(window.Keepers)).then(() => window.Keepers);
@@ -588,7 +611,8 @@
       const weeks = await getJSON(`boxscores/${season}/index.json`).catch(() => []);
       if (!weeks.includes(week)) throw new ToolError(`No box scores for ${season} week ${week}. Weeks with box scores: ${weeks.join(", ") || "none"}.`);
       const box = await getJSON(`boxscores/${season}/week-${week}.json`);
-      let list = box.games;
+      let list = box.games.filter((g) => !hidden(s, g.home) && !hidden(s, g.away));
+      if (!list.length) throw new ToolError(`No box scores for ${season} week ${week}.`);
       if (manager) {
         const oid = managerOf(manager);
         const tid = teamIn(s, oid);
@@ -675,10 +699,11 @@
       const results = [];
       s.regular.slice().sort((a, b) => a.week - b.week).forEach((g) => {
         if (g.a !== tid && g.b !== tid) return;
+        if (hidden(s, g.a) || hidden(s, g.b)) return;
         const mine = g.a === tid ? g.aScore : g.bScore, theirs = g.a === tid ? g.bScore : g.aScore, opp = g.a === tid ? g.b : g.a;
         results.push(`wk ${g.week} ${mine > theirs ? "W" : mine < theirs ? "L" : "T"} ${f2(mine)}–${f2(theirs)} vs ${name(s.teams[opp].ownerId)}`);
       });
-      s.post.filter((g) => g.a === tid || g.b === tid).sort((a, b) => a.week - b.week).forEach((g) => {
+      s.post.filter((g) => (g.a === tid || g.b === tid) && !hidden(s, g.a) && !hidden(s, g.b)).sort((a, b) => a.week - b.week).forEach((g) => {
         const mine = g.a === tid ? g.aScore : g.bScore, theirs = g.a === tid ? g.bScore : g.aScore, opp = g.a === tid ? g.b : g.a;
         results.push(`wk ${g.week} ${g.label}: ${mine > theirs ? "W" : "L"} ${f2(mine)}–${f2(theirs)} vs ${s.teams[opp] ? name(s.teams[opp].ownerId) : "?"}`);
       });
@@ -690,9 +715,10 @@
       }
       try {
         const ls = await lineupSeason(season);
-        const row = ls.rows.find((r) => r.teamId === tid);
+        const named = ls.rows.filter((r) => !hidden(s, r.teamId));
+        const row = named.find((r) => r.teamId === tid);
         if (row) {
-          lines.push(`Lineup efficiency: ${pct(row.efficiency)} (${ls.rows.indexOf(row) + 1} of ${ls.rows.length}), ${f2(row.left)} pts left on the bench, ${row.perfect} of ${row.weeks} weeks perfect, ${plural(row.costGames, "game")} lost to lineup choices.`);
+          lines.push(`Lineup efficiency: ${pct(row.efficiency)} (${named.indexOf(row) + 1} of ${named.length}), ${f2(row.left)} pts left on the bench, ${row.perfect} of ${row.weeks} weeks perfect, ${plural(row.costGames, "game")} lost to lineup choices.`);
           const worst = ls.blunders.filter((b) => b.teamId === tid).slice(0, 3);
           if (worst.length) lines.push(`Worst benchings: ${worst.map((b) => `week ${b.week}: ${blunderText(b)}`).join("; ")}`);
         }
@@ -815,9 +841,9 @@
         const ls = await lineupSeason(season);
         if (!ls.rows.length) return `No lineups are recorded for ${season}.`;
         const lines = [`${season} lineup efficiency (points scored ÷ best possible lineup), weeks ${ls.weeks[0]}–${ls.weeks[ls.weeks.length - 1]}, playoffs and Toilet Bowl included:`];
-        ls.rows.forEach((r, i) => lines.push(`${i + 1}. ${s.teams[r.teamId] ? name(s.teams[r.teamId].ownerId) : r.teamId}: ${pct(r.efficiency)}, ${f2(r.left)} pts left on the bench, ${r.perfect} of ${r.weeks} weeks perfect, ${plural(r.costGames, "game")} lost to lineup choices`));
+        ls.rows.filter((r) => !hidden(s, r.teamId)).forEach((r, i) => lines.push(`${i + 1}. ${s.teams[r.teamId] ? name(s.teams[r.teamId].ownerId) : r.teamId}: ${pct(r.efficiency)}, ${f2(r.left)} pts left on the bench, ${r.perfect} of ${r.weeks} weeks perfect, ${plural(r.costGames, "game")} lost to lineup choices`));
         lines.push("Costliest benchings:");
-        ls.blunders.slice(0, 8).forEach((b) => lines.push(`- week ${b.week}, ${s.teams[b.teamId] ? name(s.teams[b.teamId].ownerId) : "?"}: ${blunderText(b)}`));
+        ls.blunders.filter((b) => !hidden(s, b.teamId)).slice(0, 8).forEach((b) => lines.push(`- week ${b.week}, ${s.teams[b.teamId] ? name(s.teams[b.teamId].ownerId) : "?"}: ${blunderText(b)}`));
         return lines.join("\n");
       }
       const all = {};
@@ -827,11 +853,11 @@
         if (!ls) continue;
         ls.rows.forEach((r) => {
           const o = s.teams[r.teamId] && s.teams[r.teamId].ownerId;
-          if (!o) return;
+          if (!o || UNSPOKEN.has(o)) return;
           const a = (all[o] = all[o] || { seasons: 0, weeks: 0, actual: 0, best: 0, costGames: 0 });
           a.seasons++; a.weeks += r.weeks; a.actual += r.actual; a.best += r.best; a.costGames += r.costGames;
         });
-        ls.blunders.slice(0, 5).forEach((b) => worst.push({ ...b, year: s.year, oid: s.teams[b.teamId] && s.teams[b.teamId].ownerId }));
+        ls.blunders.filter((b) => !hidden(s, b.teamId)).slice(0, 5).forEach((b) => worst.push({ ...b, year: s.year, oid: s.teams[b.teamId] && s.teams[b.teamId].ownerId }));
       }
       const rows = Object.entries(all).map(([o, a]) => ({ o, ...a, efficiency: a.best ? a.actual / a.best : 1 })).sort((a, b) => b.efficiency - a.efficiency);
       if (!rows.length) return "No lineups are recorded.";
@@ -849,8 +875,9 @@
       if (!weeks.length) return week == null ? `No written recaps on the ${season} page.` : `No recap for ${season} week ${week}. Recaps: weeks ${Object.keys(all).join(", ")}.`;
       return weeks.map((w) => {
         const r = all[w];
-        const body = (r.bullets || r.body || []).map((x) => `- ${plain(x)}`).join("\n");
-        return `${season} ${w === 0 ? "preseason" : `week ${w}`}: ${plain(r.headline)}\n${body}`;
+        const body = (r.bullets || r.body || []).filter((x) => !unspoken(plain(x))).map((x) => `- ${plain(x)}`).join("\n");
+        const head = unspoken(plain(r.headline)) ? "" : plain(r.headline);
+        return `${season} ${w === 0 ? "preseason" : `week ${w}`}${head ? `: ${head}` : ""}\n${body}`;
       }).join("\n\n");
     }
 
@@ -1318,11 +1345,11 @@
             try {
               if (!tools[u.name]) throw new ToolError(`There is no tool called ${u.name}.`);
               const out = await tools[u.name](checkInput(u.name, u.input));
-              return { type: "tool_result", tool_use_id: u.id, content: String(out).slice(0, 40000) };
+              return { type: "tool_result", tool_use_id: u.id, content: unsaid(out).slice(0, 40000) };
             } catch (err) {
               const known = err instanceof ToolError;
               if (!known) console.warn("Ask the League tool:", u.name, err);
-              return { type: "tool_result", tool_use_id: u.id, is_error: true, content: known ? err.message : "That couldn't be worked out from the league's files." };
+              return { type: "tool_result", tool_use_id: u.id, is_error: true, content: known ? unsaid(err.message) : "That couldn't be worked out from the league's files." };
             }
           }));
           history.push({ role: "user", content: results });
