@@ -1946,6 +1946,23 @@
               }
             }
           });
+
+          // Head-to-head counts every game a season's bracket shows: on top of
+          // the postseason above, the third-place game (kept apart in
+          // league-data.js) and, for the season being played, its playoff and
+          // Toilet Bowl games. They count there only, so records, streaks and
+          // the other marks stay as they were.
+          const h2hOnly = [
+            ...(LEAGUE_DATA.thirdPlaceGames || []).filter((g) => g.year === season.year)
+              .map((g) => ({ a: g.winner, aScore: g.winScore, b: g.loser, bScore: g.loseScore })),
+            ...(season.bracketGames || [])
+          ];
+          h2hOnly.forEach((game) => {
+            const aTeam = season.teams[game.a], bTeam = season.teams[game.b];
+            if (!aTeam || !bTeam) return;
+            addH2H(aTeam.ownerId, bTeam.ownerId, game.aScore, game.bScore);
+            addH2H(bTeam.ownerId, aTeam.ownerId, game.bScore, game.aScore);
+          });
         });
 
       Object.values(profiles).forEach((profile) => {
@@ -1987,7 +2004,9 @@
        there counts here too, with nothing else to update. It is the newest
        season in the menu that league-data.js does not have yet; once a season
        is finished and added to league-data.js, this reads nothing. Only the
-       regular season is read: playoff games count once the season is final. */
+       regular season counts toward records: playoff games count there once the
+       season is final. Its playoff and Toilet Bowl games do count in
+       head-to-head as soon as they are posted, as every bracket game does. */
     function loadLiveSeason() {
       const menu = [...document.querySelectorAll("#pageSelect option")].map((o) => Number(o.value)).filter(Boolean);
       const year = Math.max(...menu);
@@ -2008,11 +2027,16 @@
           };
           const teams = block("teams");
           const results = block("results");
+          const playoffResults = block("playoffResults") || {};
           if (!teams || !results) return null;
           const regularGames = [];
           Object.entries(results).forEach(([week, games]) => games.forEach(([a, aScore, b, bScore]) =>
             regularGames.push({ week: Number(week), a, aScore, b, bScore })));
           if (!regularGames.length) return null;
+          // Its playoff and Toilet Bowl games, for head-to-head only.
+          const bracketGames = [];
+          Object.values(playoffResults).forEach((games) => (games || []).forEach(([a, aScore, b, bScore]) =>
+            bracketGames.push({ a, aScore, b, bScore })));
           const standing = {};
           Object.entries(teams).forEach(([id, t]) => { standing[id] = { ...t, wins: 0, losses: 0, pf: 0, pa: 0 }; });
           regularGames.forEach((g) => {
@@ -2022,7 +2046,7 @@
             if (g.aScore > g.bScore) { a.wins++; b.losses++; } else if (g.bScore > g.aScore) { b.wins++; a.losses++; }
           });
           return { year, live: true, throughWeek: Math.max(...regularGames.map((g) => g.week)),
-            teams: standing, regularGames, postseasonGames: [] };
+            teams: standing, regularGames, postseasonGames: [], bracketGames };
         })
         .catch(() => null);
     }
