@@ -289,7 +289,7 @@
       "pts": 9.8,
       "proj": 11.97,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Kyle Monangai",
@@ -299,7 +299,7 @@
       "pts": 7.8,
       "proj": 9.81,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Michael Wilson",
@@ -359,7 +359,7 @@
       "pts": 35.3,
       "proj": 18,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rashee Rice",
@@ -459,7 +459,7 @@
       "pts": 6.5,
       "proj": 12.03,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jaxson Dart",
@@ -511,7 +511,7 @@
       "pts": 4.4,
       "proj": 14.2,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -521,7 +521,7 @@
       "pts": 42.5,
       "proj": 18.49,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Chris Godwin Jr.",
@@ -681,7 +681,7 @@
       "pts": 3,
       "proj": 17.62,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Ladd McConkey",
@@ -721,7 +721,7 @@
       "pts": 14.6,
       "proj": 11.93,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Mike Evans",
@@ -771,7 +771,7 @@
       "pts": 3.7,
       "proj": 8.1,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Josh Jacobs",
@@ -853,7 +853,7 @@
       "pts": 8.5,
       "proj": 18.36,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Isaiah Likely",
@@ -973,7 +973,7 @@
       "pts": 14.8,
       "proj": 21.66,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Kenneth Walker III",
@@ -1043,7 +1043,7 @@
       "pts": 4.1,
       "proj": 10.58,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Ravens D/ST",
@@ -1113,7 +1113,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "A.J. Brown",
@@ -1155,7 +1155,7 @@
       "pts": 7.5,
       "proj": 12.88,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Drake London",
@@ -1235,7 +1235,7 @@
       "pts": 14.74,
       "proj": 19.79,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "KC Concepcion",
@@ -1245,7 +1245,7 @@
       "pts": 8.2,
       "proj": 9.49,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Kayshon Boutte",
@@ -1285,7 +1285,7 @@
       "pts": 13.6,
       "proj": 9.31,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      }
     ]
    }
@@ -1335,7 +1335,7 @@
       "pts": 26.5,
       "proj": 19.01,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Tetairoa McMillan",
@@ -1375,7 +1375,7 @@
       "pts": -0.1,
       "proj": 12.58,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Texans D/ST",
@@ -1405,7 +1405,7 @@
       "pts": 21.7,
       "proj": 10.33,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jaylen Warren",
@@ -1487,7 +1487,7 @@
       "pts": 14.5,
       "proj": 12.32,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Luther Burden III",
@@ -1527,7 +1527,7 @@
       "pts": 1.4,
       "proj": 10.79,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Seahawks D/ST",
@@ -1557,7 +1557,7 @@
       "pts": 7,
       "proj": 12.44,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Rashid Shaheed",
@@ -1587,7 +1587,7 @@
       "pts": 2.4,
       "proj": 9.94,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jordan Mason",

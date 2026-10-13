@@ -47,7 +47,7 @@
       "pts": 31.2,
       "proj": 17.08,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Davante Adams",
@@ -199,7 +199,7 @@
       "pts": 15.4,
       "proj": 17.26,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rashee Rice",
@@ -379,7 +379,7 @@
       "pts": 3.2,
       "proj": 19.95,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Kyle Pitts Sr.",
@@ -399,7 +399,7 @@
       "pts": 21,
       "proj": 11.57,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Parker Washington",
@@ -429,7 +429,7 @@
       "pts": 15.5,
       "proj": 9.7,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jaylen Warren",
@@ -491,7 +491,7 @@
       "pts": 24.96,
       "proj": 19.13,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Kenneth Walker III",
@@ -611,7 +611,7 @@
       "pts": 8.8,
       "proj": 12.31,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Woody Marks",
@@ -631,7 +631,7 @@
       "pts": 0,
       "proj": 9.91,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      }
     ]
    }
@@ -691,7 +691,7 @@
       "pts": 8.9,
       "proj": 12.96,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Sam LaPorta",
@@ -711,7 +711,7 @@
       "pts": 23.7,
       "proj": 10.93,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Terry McLaurin",
@@ -721,7 +721,7 @@
       "pts": 3.4,
       "proj": 12.23,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Seahawks D/ST",
@@ -771,7 +771,7 @@
       "pts": 3.7,
       "proj": 10.35,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "J.K. Dobbins",
@@ -813,7 +813,7 @@
       "pts": 9,
       "proj": 17.67,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Omarion Hampton",
@@ -893,7 +893,7 @@
       "pts": 33.8,
       "proj": 9.2,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Mike Evans",
@@ -913,7 +913,7 @@
       "pts": 11.4,
       "proj": 5.09,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Khalil Shakir",
@@ -983,7 +983,7 @@
       "pts": 7,
       "proj": 13.15,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Emeka Egbuka",
@@ -1053,7 +1053,7 @@
       "pts": 20.4,
       "proj": 10.25,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jared Goff",
@@ -1135,7 +1135,7 @@
       "pts": 28.9,
       "proj": 12.67,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -1145,7 +1145,7 @@
       "pts": 26.2,
       "proj": 18.98,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Nico Collins",
@@ -1305,7 +1305,7 @@
       "pts": 13,
       "proj": 13.86,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Puka Nacua",
@@ -1355,7 +1355,7 @@
       "pts": 7.8,
       "proj": 9.08,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rams D/ST",
@@ -1375,7 +1375,7 @@
       "pts": 17.66,
       "proj": 16.84,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Denzel Boston",
@@ -1415,7 +1415,7 @@
       "pts": 4.7,
       "proj": 8.85,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Keaton Mitchell",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      }
     ],
     "left": [
