@@ -87,7 +87,7 @@
       "pts": 9.9,
       "proj": 13.72,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Steelers D/ST",
@@ -157,7 +157,7 @@
       "pts": 3.1,
       "proj": 8.46,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      }
     ],
     "jared": [
@@ -199,7 +199,7 @@
       "pts": 24.8,
       "proj": 18.94,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Tetairoa McMillan",
@@ -269,7 +269,7 @@
       "pts": 12.7,
       "proj": 12.56,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "RJ Harvey",
@@ -289,7 +289,7 @@
       "pts": 7.3,
       "proj": 10.81,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Makai Lemon",
@@ -309,7 +309,7 @@
       "pts": 3.1,
       "proj": 9.18,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      }
     ]
    }
@@ -339,7 +339,7 @@
       "pts": 9,
       "proj": 17.37,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Omarion Hampton",
@@ -399,7 +399,7 @@
       "pts": 3.8,
       "proj": 13.78,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Eagles D/ST",
@@ -439,7 +439,7 @@
       "pts": 11.1,
       "proj": 9.3,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Caleb Williams",
@@ -681,7 +681,7 @@
       "pts": 6.8,
       "proj": 12.01,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -691,7 +691,7 @@
       "pts": 35.36,
       "proj": 20.83,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rome Odunze",
@@ -883,7 +883,7 @@
       "pts": 21.9,
       "proj": 12.77,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Dalton Kincaid",
@@ -933,7 +933,7 @@
       "pts": 3.9,
       "proj": 10.5,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "KC Concepcion",
@@ -943,7 +943,7 @@
       "pts": 2.9,
       "proj": 10.97,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Puka Nacua",
@@ -963,7 +963,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Alec Pierce",
@@ -1023,7 +1023,7 @@
       "pts": 21,
       "proj": 12.68,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Luther Burden III",
@@ -1093,7 +1093,7 @@
       "pts": 19.7,
       "proj": 11.81,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Quentin Johnston",
@@ -1103,7 +1103,7 @@
       "pts": 7,
       "proj": 10.87,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "J.K. Dobbins",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jordan Mason",
@@ -1185,7 +1185,7 @@
       "pts": 20.2,
       "proj": 17.31,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Mark Andrews",
@@ -1255,7 +1255,7 @@
       "pts": 15.4,
       "proj": 12.33,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Colston Loveland",
@@ -1315,7 +1315,7 @@
       "pts": 20.44,
       "proj": 21.08,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Kenneth Walker III",
@@ -1385,7 +1385,7 @@
       "pts": 3.6,
       "proj": 11.34,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Bengals D/ST",
@@ -1405,7 +1405,7 @@
       "pts": 20,
       "proj": 10.57,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Trevor Lawrence",
@@ -1517,7 +1517,7 @@
       "pts": 5.2,
       "proj": 18.26,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Isaiah Likely",
