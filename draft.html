@@ -619,7 +619,7 @@
               const no = num(r, of);
               rows.push(`<li class="tp-row tier-${t.id}${via ? " via" : ""}">
                 <span class="tp-rd">Rd ${r}</span>
-                <div class="tp-what">${logo(of)}<span>${via ? `From ${esc(fullName(of))}<small>${esc(teamName(of))}</small>` : "Own pick"}</span></div>
+                <div class="tp-what">${logo(of)}<span>${via ? `From ${esc(fullName(of))}` : "Own pick"}</span></div>
                 <span class="tp-tag">${no ? no.label : r <= KEEPER_ROUNDS ? "Keeper" : via ? "Acquired" : "Own"}</span>
               </li>`);
             }
