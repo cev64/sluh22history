@@ -19,7 +19,7 @@
        works it out from boxscores/, drafts/ and the season pages, and sends
        it back.
    Both go to the sluh22-chat function (supabase/functions/sluh22-chat), which
-   holds the Gemini API key and streams the answer back. Nothing about the
+   holds the Claude API key and streams the answer back. Nothing about the
    league is stored anywhere but this browser: the conversation is kept in
    sessionStorage so it follows the visitor from page to page, and is gone
    when the tab is.
