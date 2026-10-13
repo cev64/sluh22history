@@ -51,6 +51,14 @@
   const ORDER = null;
 
   const TRADES = [
+    {
+      date: "2026-10-13",
+      picks: [
+        { round: 15, of: "hawaii", to: "game" },   // Matt's 15th to Charlie
+        { round: 6, of: "game", to: "hawaii" },    // Charlie's 6th to Matt
+      ],
+      note: "Jalen Coker went to Charlie in the same deal.",
+    },
   ];
 
   /* Rounds by what a player taken in them means for keeping him: the keeper
