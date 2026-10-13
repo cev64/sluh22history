@@ -291,8 +291,6 @@
     .dt-team .card-head .owner { display: block; color: var(--muted); font-size: 12px; font-weight: 600; margin-top: 3px; }
     .dt-tally { margin-left: auto; text-align: right; flex: 0 0 auto; white-space: nowrap; font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.35; }
     .dt-tally strong { color: var(--ink); font-size: 15px; }
-    .dt-tally .up { color: var(--blue-2); }
-    .dt-tally .down { color: var(--out); }
     .tp-group { margin: 0; padding: 0; list-style: none; }
     .tp-head {
       display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 16px 7px;
@@ -312,14 +310,11 @@
     .tp-what span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tp-what small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
     .tp-row.via .tp-what { color: var(--accent-ink, #0f56bd); }
-    .tp-row.gone .tp-what { color: var(--ink-3, #8a94a6); }
-    .tp-row.gone .pk-logo, .tp-row.gone .pk-emoji { opacity: .55; filter: grayscale(.4); }
     .tp-tag {
       display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; white-space: nowrap;
       background: var(--surface-2); color: var(--ink-2, #475467); border: 1px solid var(--line);
     }
     .tp-row.via .tp-tag { background: var(--accent-soft, #edf3ff); color: var(--accent-ink, #0f56bd); border-color: #c7d7fe; }
-    .tp-row.gone .tp-tag { background: transparent; color: var(--ink-3, #8a94a6); border-style: dashed; }
 
     /* ---- Trades ---- */
     .tr-list { display: grid; gap: 16px; }
@@ -615,14 +610,12 @@
     /* ---- Teams ---- */
     function renderTeams() {
       const cards = TEAMS.map((id) => {
-        let came = 0, went = 0;
         const groups = TIERS.map((t) => {
           const rows = [];
           for (let r = t.from; r <= t.to; r++) {
             const cell = book.held[id][r];
             for (const of of cell.picks) {
               const via = of !== id;
-              if (via) came++;
               const no = num(r, of);
               rows.push(`<li class="tp-row tier-${t.id}${via ? " via" : ""}">
                 <span class="tp-rd">Rd ${r}</span>
@@ -630,26 +623,16 @@
                 <span class="tp-tag">${no ? no.label : r <= KEEPER_ROUNDS ? "Keeper" : via ? "Acquired" : "Own"}</span>
               </li>`);
             }
-            for (const to of cell.gone) {
-              went++;
-              rows.push(`<li class="tp-row tier-${t.id} gone">
-                <span class="tp-rd">Rd ${r}</span>
-                <div class="tp-what">${logo(to)}<span>Traded to ${esc(fullName(to))}<small>${esc(teamName(to))}</small></span></div>
-                <span class="tp-tag">Traded</span>
-              </li>`);
-            }
           }
-          const held = rows.filter((x) => !x.includes(" gone\"")).length;
           return `<ul class="tp-group tier-${t.id}">
-            <li class="tp-head"><span><b>${esc(TIER_COPY[t.id].name)}</b> · Rounds ${range(t.from, t.to)}</span><span>${held}</span></li>
+            <li class="tp-head"><span><b>${esc(TIER_COPY[t.id].name)}</b> · Rounds ${range(t.from, t.to)}</span><span>${rows.length}</span></li>
             ${rows.join("")}
           </ul>`;
         }).join("");
-        const moves = [came ? `<span class="up">+${came} in</span>` : "", went ? `<span class="down">−${went} out</span>` : ""].filter(Boolean).join(" · ");
         const slot = order ? order.indexOf(id) + 1 : 0;
         const tally = slot
-          ? `<strong>${slot}${["th", "st", "nd", "rd"][slot % 100 > 10 && slot % 100 < 14 ? 0 : slot % 10] || "th"}</strong> pick · ${KEEPER_ROUNDS + 1}.${String(slot).padStart(2, "0")}<br>${[projection ? recordOf(id) : "", moves].filter(Boolean).join(" · ") || "Own picks"}`
-          : `<strong>${ROUNDS}</strong> picks<br>${moves || "All their own"}`;
+          ? `<strong>${slot}${["th", "st", "nd", "rd"][slot % 100 > 10 && slot % 100 < 14 ? 0 : slot % 10] || "th"}</strong> pick · ${KEEPER_ROUNDS + 1}.${String(slot).padStart(2, "0")}${projection ? `<br>${recordOf(id)}` : ""}`
+          : `<strong>${ROUNDS}</strong> picks`;
         return `<article class="card dt-team" data-team="${esc(id)}" style="--team-color:${esc(team(id).color)}">
           <div class="card-head">
             ${badge(id)}
