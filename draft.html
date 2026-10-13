@@ -245,9 +245,9 @@
       border-top: 1px solid var(--line); border-left: 1px solid var(--line); transition: background .2s ease, opacity .2s ease;
     }
 
-    /* A pick: the logo and first name of the team it started with. Its own
-       team's picks sit plain; one that came in a trade is blue; one that
-       went out is a dashed outline naming where it went. */
+    /* A pick: the logo and initials of the team it started with. Its own
+       team's picks sit plain; one that came in a trade is blue; a round a
+       team has traded away leaves its cell empty, as on the sheet. */
     .pk {
       min-width: 0; display: flex; align-items: center; gap: 5px; padding: 4px 5px; border-radius: 8px;
       border: 1px solid transparent; background: none; color: var(--ink); font-size: 12px; font-weight: 600; text-align: left;
@@ -265,8 +265,6 @@
     .pk.via .pk-no { color: inherit; opacity: .75; }
     .tr-gets .pk-no { margin-left: 4px; }
     .pk.via { background: var(--accent-soft, #edf3ff); border-color: #c7d7fe; color: var(--accent-ink, #0f56bd); font-weight: 700; }
-    .pk.gone { border: 1px dashed var(--line-2, #d5dae1); color: var(--ink-3, #8a94a6); font-weight: 600; }
-    .pk.gone .pk-logo, .pk.gone .pk-emoji { width: 18px; height: 18px; opacity: .6; filter: grayscale(.4); }
     .pk-arrow { flex: 0 0 auto; font-size: 11px; }
 
     /* One team picked out: its column lit, every pick it holds or started
@@ -388,7 +386,6 @@
       .db-cell { min-height: 38px; padding: 4px 1px; gap: 3px; align-items: center; }
       .db-grid .pk { padding: 3px; border-radius: 7px; }
       .db-grid .pk-logo { width: 21px; height: 21px; }
-      .db-grid .pk.gone .pk-logo, .db-grid .pk.gone .pk-emoji { width: 14px; height: 14px; }
 
       .dt-team .card-head { padding: 12px; }
       body:not(#_) .dt-team .card-head h3 { font-size: 18px; }
@@ -590,11 +587,6 @@
       return `<button type="button" class="pk ${cls}" data-r="${r}" data-of="${esc(of)}" data-to="${esc(holder)}" aria-label="${esc(label)}">
         ${logo(of)}<span class="pk-txt"><span class="pk-name">${esc(initials(of))}</span>${no ? `<span class="pk-no">${no.label}</span>` : ""}</span></button>`;
     }
-    function goneButton(r, of, to) {
-      const label = `Round ${r}: ${fullName(of)}’s pick, traded to ${fullName(to)}`;
-      return `<button type="button" class="pk gone" data-r="${r}" data-of="${esc(of)}" data-to="${esc(to)}" aria-label="${esc(label)}">
-        <span class="pk-arrow" aria-hidden="true">→</span>${logo(to)}<span class="pk-name">${esc(initials(to))}</span></button>`;
-    }
 
     function renderBoard() {
       const heads = TEAMS.map((id) => `
@@ -608,7 +600,7 @@
           rows.push(`<div class="db-round tier-${t.id}"><strong>${r}</strong>${dir ? `<small aria-label="${forward(r) ? "picks run left to right" : "picks run right to left"}">${dir}</small>` : ""}</div>`);
           for (const id of TEAMS) {
             const cell = book.held[id][r];
-            rows.push(`<div class="db-cell" data-team="${esc(id)}">${cell.picks.map((of) => pickButton(r, of, id)).join("")}${cell.gone.map((to, i) => goneButton(r, id, to)).join("")}</div>`);
+            rows.push(`<div class="db-cell" data-team="${esc(id)}">${cell.picks.map((of) => pickButton(r, of, id)).join("")}</div>`);
           }
         }
         return `<div class="db-tier tier-${t.id}"><b>${esc(TIER_COPY[t.id].name)}</b><span>Rounds ${range(t.from, t.to)}</span></div>${rows.join("")}`;
@@ -716,7 +708,7 @@
       return [
         ...TIERS.map((t) => ({ tier: t.id, mark: range(t.from, t.to), title: TIER_COPY[t.id].title, text: TIER_COPY[t.id].text })),
         { trade: true, mark: "⇄", title: "Traded picks",
-          text: "A pick in blue came over in a trade. A dashed one is gone, and shows who holds it now. Tap any pick for its story." },
+          text: "A pick in blue came over in a trade. A team with no pick in a round has traded it away. Tap any pick for its story." },
         ORDER
           ? { mark: "S", title: "Snake draft", text: `The worst team picks first in round ${KEEPER_ROUNDS + 1}, then it snakes: round ${KEEPER_ROUNDS + 2} runs right to left. A traded pick keeps the slot of the team it came from.` }
           : projection
