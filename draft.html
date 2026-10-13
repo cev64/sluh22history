@@ -536,9 +536,8 @@
     const num = (r, of) => pickNo(r, of, order);
     const initials = (id) => INITIALS[id] || fullName(id).split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
     const recordOf = (id) => {
-      const l = projection && projection.line[id];
-      if (!l) return "";
-      return l.ties ? `${l.wins}–${l.losses}–${l.ties}` : `${l.wins}–${l.losses}`;
+      const l = projection && projection.stats[id];
+      return l ? l.record : "";
     };
     const team = (id) => teams[id] || { name: id, owner: id, color: "#667", icon: "" };
     const firstName = (id) => team(id).owner.split(" ")[0];
@@ -557,21 +556,24 @@
       return `<span class="team-badge" style="--team-color:${esc(t.color)}">${src ? `<img class="team-logo" src="${src}" alt="">` : esc(t.icon || "")}</span>`;
     };
 
-    /* A literal from the season page (`teams`, `results`), read the way
-       keepers.html reads its teams. */
-    function literal(html, name, year) {
-      const start = html.indexOf(`const ${name} = {`);
-      if (start < 0) throw new Error(`${year}.html has no ${name} block`);
-      let depth = 0, i = html.indexOf("{", start);
-      const open = i;
+    /* The season page's teams and its playoff picture as it stands. Its
+       script, from the top through buildPicture, is only data and functions
+       (the teams, the results, the rulebook's standings and tiebreakers), so
+       it runs here without the page around it, and the seeds the draft order
+       is projected from are exactly the ones that page shows. */
+    function seasonPicture(html, year) {
+      const start = html.indexOf("const SEASON = ");
+      const fn = html.indexOf("function buildPicture(week)", start);
+      if (start < 0 || fn < 0) throw new Error(`${year}.html has no playoff picture`);
+      let depth = 0, i = html.indexOf("{", fn);
       for (; i < html.length; i++) {
         if (html[i] === "{") depth++;
         else if (html[i] === "}" && --depth === 0) break;
       }
-      return new Function(`return ${html.slice(open, i + 1)};`)();
+      return new Function(`${html.slice(start, i + 1)}
+        return { teams, picture: lastPlayedWeek ? buildPicture(lastPlayedWeek) : null };`)();
     }
-    const loadSeason = (year) => fetch(`${year}.html`).then((r) => r.text())
-      .then((html) => ({ teams: literal(html, "teams", year), results: literal(html, "results", year) }));
+    const loadSeason = (year) => fetch(`${year}.html`).then((r) => r.text()).then((html) => seasonPicture(html, year));
 
 
     /* ---- Board ---- */
@@ -695,7 +697,7 @@
         ORDER
           ? { mark: "S", title: "Snake draft", text: `The worst team picks first in round ${KEEPER_ROUNDS + 1}, then it snakes: round ${KEEPER_ROUNDS + 2} runs right to left. A traded pick keeps the slot of the team it came from.` }
           : projection
-            ? { mark: "S", title: "Projected order", text: `Until the order is set, the columns follow the standings through week ${projection.weeks}: fewest wins first, then fewest points. The worst team picks ${KEEPER_ROUNDS + 1}.01, then it snakes. A traded pick keeps its team’s slot.` }
+            ? { mark: "S", title: "Projected order", text: `Until the order is set, it follows the playoff picture through week ${projection.weeks}. Teams out of the playoffs pick 1–4 (fewest wins, then fewest points, first), then the wild cards 5–6, the 2 seeds 7–8 and the 1 seeds 9–10, the worse record first in each pair. It snakes from round ${KEEPER_ROUNDS + 1}, and a traded pick keeps its team’s slot.` }
             : { mark: "S", title: "Draft order to come", text: `The draft snakes from round ${KEEPER_ROUNDS + 1}, the worst team first. Once week 1 is posted, the board projects the order from the standings.` },
         { mark: range(1, KEEPER_ROUNDS), title: "No numbers in the keeper rounds",
           text: `Picks in rounds ${range(1, KEEPER_ROUNDS)} just hold each team’s keepers, so they have no pick number. The first real pick is ${KEEPER_ROUNDS + 1}.01.`, popOnly: true },
@@ -823,7 +825,7 @@
     async function main() {
       const season = await loadSeason(SEASON);
       teams = season.teams;
-      projection = projectOrder(season.results);
+      projection = projectOrder(season.picture);
       order = ORDER || (projection && projection.order);
       book = DraftPicks.book(order);
       TEAMS = book.teams;
@@ -845,7 +847,7 @@
         `Each column is a team and the picks it holds, round by round; a logo is the team the pick started with. ` +
         `Tap a team up top to pick out its picks, or any pick for where it has been. ` +
         (ORDER ? `The draft snakes from round ${KEEPER_ROUNDS + 1}, the worst team first.`
-          : projection ? `Pick numbers are a projection from the standings through week ${projection.weeks} (fewest wins, then fewest points, picks first) and move as each week is posted. Rounds ${range(1, KEEPER_ROUNDS)} hold the keepers, so they have no number.`
+          : projection ? `Pick numbers are a projection from the playoff picture through week ${projection.weeks}: teams out of the playoffs pick 1–4, then the wild cards, the 2 seeds and the 1 seeds, the worse record (then fewer points) first. They move as each week is posted. Rounds ${range(1, KEEPER_ROUNDS)} hold the keepers, so they have no number.`
           : `Pick numbers appear once week 1 is posted.`);
     }
 
