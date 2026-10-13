@@ -19,3 +19,10 @@ at round `keepers + 1`.
 After the 2027 draft: fetch `--year 2027`, then set `SEASON = 2027` in
 `keepers.js` (shared by the keeper page and the player card's keeper pill). It then judges the 2028 keepers from the 2027 draft and the
 2027 box scores.
+
+## Pick trades
+
+ESPN can't trade draft picks, so the next draft's pick book lives in
+`draft-picks.js` (drawn by `draft.html`). Post a trade by adding it to
+`TRADES` there; set `ORDER` once the draft order is known (the draft snakes).
+After the draft, move `DRAFT` on a year and empty `TRADES`.
