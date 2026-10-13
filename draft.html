@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Who holds every pick in next year's draft, after every pick trade." />
+  <title>League History · Draft</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#071827" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="League History" />
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <script src="pwa.js" defer></script>
+  <script src="chat.js" defer></script>
+  <script src="player-card.js" defer></script>
+  <style>
+    @view-transition { navigation: auto; }
+
+    :root {
+      --ink: #0b1726;
+      --muted: #637083;
+      --line: #dce3eb;
+      --surface: #ffffff;
+      --surface-2: #f5f7fa;
+      --navy: #071827;
+      --navy-2: #102b43;
+      --blue: #1769e0;
+      --blue-2: #0f56bd;
+      --red: #d71920;
+      --gold: #f6b73c;
+      --green: #16834a;
+      --out: #b42318;
+      --out-soft: #fef3f2;
+      --last: #a15c07;
+      --last-soft: #fffaeb;
+      --ok-soft: #ecfdf3;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        repeating-linear-gradient(90deg, transparent 0 149px, rgba(11,23,38,.045) 149px 150px),
+        repeating-linear-gradient(90deg, transparent 0 29px, rgba(11,23,38,.018) 29px 30px),
+        #f0f4f9;
+    }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+
+    /* ---- Header: the same bar as the season pages ---- */
+    .topbar {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(7, 24, 39, .96);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: #fff;
+    }
+    .topbar-inner {
+      width: min(1220px, calc(100% - 32px)); margin: 0 auto; min-height: 72px;
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; color: inherit; text-decoration: none; }
+    .brand-mark { width: 46px; height: 46px; display: grid; place-items: center; flex: 0 0 auto; }
+    .brand-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .brand-copy { min-width: 0; }
+    .brand-kicker {
+      display: block; font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+      color: #9eb0c1; font-weight: 800; margin-bottom: 2px;
+    }
+    .brand-title { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 19px; font-weight: 800; }
+    .year-control { display: flex; align-items: center; gap: 10px; color: #c9d5df; font-size: 13px; font-weight: 700; }
+    .year-control select {
+      appearance: none; color: #fff; background: #16324a;
+      border: 1px solid rgba(255,255,255,.16); border-radius: 10px;
+      padding: 10px 38px 10px 14px; font-weight: 800; outline: none;
+      background-image: linear-gradient(45deg, transparent 50%, #fff 50%), linear-gradient(135deg, #fff 50%, transparent 50%);
+      background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px;
+      background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    }
+    .topbar-trophy {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+      padding: 9px 13px; border: 1px solid rgba(246, 183, 60, .45); border-radius: 10px;
+      background: rgba(246, 183, 60, .12); color: #fff; font-size: 13px; font-weight: 800;
+      text-decoration: none; white-space: nowrap;
+    }
+    .topbar-trophy:hover { background: rgba(246, 183, 60, .22); border-color: rgba(246, 183, 60, .7); }
+    .topbar-trophy + .year-control { margin-left: 0; }
+
+    /* ---- Hero: the field, carrying the rules ---- */
+    .hero {
+      position: relative; overflow: hidden; color: #fff; border-bottom: 4px solid var(--red);
+      background:
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.075) 28px 30px) 0 34% / 100% 7px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.075) 28px 30px) 0 68% / 100% 7px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 149px, rgba(255,255,255,.055) 149px 150px),
+        repeating-linear-gradient(90deg, transparent 0 29px, rgba(255,255,255,.022) 29px 30px),
+        rgba(7, 24, 39, .98);
+    }
+    .hero-inner {
+      position: relative; z-index: 1; width: min(1220px, calc(100% - 32px)); margin: 0 auto; padding: 26px 0 28px;
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px 32px; align-items: start;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+      padding: 5px 12px 5px 9px; border-radius: 999px;
+      background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .22);
+      font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .hero-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+    .hero-title { display: flex; flex-direction: column; gap: 12px; }
+    .hero h1 { margin: 0; font-size: clamp(34px, 5vw, 52px); }
+    .hero-title p { margin: 0; max-width: 40ch; color: rgba(255,255,255,.72); font-size: 14.5px; line-height: 1.45; }
+    .hero-counts { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-count {
+      flex: 1 1 0; min-width: 120px; padding: 10px 14px; border-radius: 12px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+    }
+    .hero-count strong { display: block; font-size: 24px; font-weight: 800; line-height: 1.1; }
+    .hero-count span { color: #aebdca; font-size: 12px; font-weight: 600; }
+
+    .rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .rules li {
+      display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start;
+      padding: 12px 14px; border-radius: 12px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+      font-size: 13.5px; line-height: 1.45; color: rgba(255,255,255,.82);
+    }
+    .rules li strong { color: #fff; display: block; font-size: 14px; margin-bottom: 1px; }
+    .rules .rule-mark {
+      width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+      font-size: 13px; font-weight: 900; background: rgba(255,255,255,.12);
+    }
+    .rules .rule-out .rule-mark { background: rgba(240, 68, 56, .28); color: #ffd7d3; }
+
+    /* ---- Toolbar ---- */
+    main { width: min(1220px, calc(100% - 32px)); margin: 0 auto; padding: 22px 0 60px; }
+    /* The capsule sits inside main, which already sets the page's width. */
+    main .season-nav, main .sn-sentinel { width: 100%; }
+    main .sn-sentinel:first-child { height: 0; }
+    #dtNav { margin-bottom: 16px; }
+
+    /* Phones: one team at a time, picked here. Wider screens show them all,
+       so the picker and the hiding only exist inside the phone query. */
+    .kp-team-pick { display: none; }
+    .kp-team-pick select {
+      width: 100%; appearance: none; -webkit-appearance: none;
+      padding: 11px 40px 11px 14px; border-radius: 12px;
+      border: 1px solid var(--line-2, #d5dae1); background-color: #fff; color: var(--ink);
+      font-size: 15px; font-weight: 700; box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+      background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position: calc(100% - 19px) 50%, calc(100% - 14px) 50%;
+      background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    }
+    .kp-team-pick select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .kp-team-row { display: none; }
+
+    /* The rules behind an "i" dot, in the popover the standings use. */
+    /* The site's "i" dot (design.css), a size up beside a full-width menu,
+       with a finger-sized tap area around it. */
+    body:not(#_) .kp-team-row .why-btn {
+      position: relative; width: 22px; height: 22px; font-size: 12.5px; margin-right: 4px; padding: 0;
+      border-radius: 50%; display: inline-grid; place-items: center; flex: 0 0 auto;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .kp-team-row .why-btn::after { content: ""; position: absolute; inset: -11px; }
+    .why-pop {
+      position: fixed; z-index: 90; width: max-content; max-width: min(320px, calc(100vw - 24px));
+      background: var(--surface); border: 1px solid var(--line); border-radius: 13px;
+      box-shadow: 0 18px 44px rgba(7, 24, 39, .24); padding: 13px 15px;
+    }
+    .why-head {
+      font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+      padding-bottom: 9px; margin-bottom: 11px; border-bottom: 1px solid var(--line);
+    }
+    .why-entry + .why-entry { margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--line); }
+    .why-pop h4 { margin: 0 0 4px; font-size: 10px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--blue-2); }
+    .why-entry.out h4 { color: var(--out); }
+    .why-entry.last h4 { color: var(--last); }
+    .why-pop p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
+
+    /* ---- Rounds, by what a pick there means for keeping the player ---- */
+    .tier-keeper { --tier-soft: var(--last-soft); --tier-ink: var(--last); --tier-edge: #fedf89; }
+    .tier-early  { --tier-soft: var(--out-soft);  --tier-ink: var(--out);  --tier-edge: #fecdca; }
+    .tier-open   { --tier-soft: var(--ok-soft);   --tier-ink: var(--green); --tier-edge: #abefc6; }
+    .rules li[class*="tier-"] .rule-mark { width: auto; min-width: 28px; padding: 0 7px; background: var(--tier-soft); color: var(--tier-ink); }
+    .rules .rule-trade .rule-mark { background: rgba(23, 105, 224, .3); color: #d6e4ff; }
+
+    .team-badge {
+      width: 38px; height: 38px; display: inline-grid; place-items: center; border-radius: 10px;
+      font-size: 18px; color: #fff; background: var(--team-color, var(--navy-2)); flex: 0 0 auto;
+    }
+    .team-badge:has(.team-logo) { background: #fff; box-shadow: inset 0 0 0 1.5px var(--team-color, #667); }
+    .team-badge .team-logo { width: 82%; height: 82%; object-fit: contain; }
+
+    .dt-view[hidden] { display: none; }
+    .dt-status { padding: 40px 0; text-align: center; color: var(--muted); }
+    .dt-note { margin: 18px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; max-width: 80ch; }
+
+    /* ---- The board: a column per team, a row per round, and in each cell
+       the picks that team holds in that round. ---- */
+    .dt-board { overflow: hidden; container-type: inline-size; }
+    .db-grid { display: grid; grid-template-columns: 58px repeat(var(--cols, 10), minmax(0, 1fr)); }
+    .db-corner {
+      display: grid; place-items: end center; padding-bottom: 12px;
+      font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3, #8a94a6);
+    }
+    .db-head {
+      position: relative; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 15px 5px 12px; border: 0; border-left: 1px solid var(--line); background: #fff;
+      text-align: center; color: var(--ink); transition: background .2s ease;
+    }
+    .db-head::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: var(--team-color, var(--navy-2)); }
+    @media (hover: hover) { .db-head:hover { background: var(--surface-2); } }
+    .db-head:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    .db-head .team-badge { width: 40px; height: 40px; }
+    .db-head-init { font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1; letter-spacing: .04em; }
+    .db-head-rec { margin-top: -3px; font-size: 11px; font-weight: 600; color: var(--muted); }
+
+    .db-tier {
+      grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; padding: 8px 14px 7px;
+      background: var(--surface-2); border-top: 1px solid var(--line);
+      font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3, #8a94a6);
+    }
+    .db-tier::before { content: ""; width: 8px; height: 8px; border-radius: 3px; background: var(--tier-ink); flex: 0 0 auto; }
+    .db-tier b { color: var(--tier-ink); font-weight: 800; }
+    .db-tier span:last-child { margin-left: auto; letter-spacing: .04em; }
+
+    .db-round {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+      border-top: 1px solid var(--tier-edge); background: var(--tier-soft); color: var(--tier-ink);
+      box-shadow: inset 3px 0 0 var(--tier-ink);
+    }
+    .db-round strong { font-size: 17px; font-weight: 800; line-height: 1; }
+    .db-round small { font-size: 9.5px; font-weight: 800; letter-spacing: .08em; opacity: .8; }
+    .db-cell {
+      min-width: 0; min-height: 48px; padding: 5px 4px; display: flex; flex-direction: column; justify-content: center; gap: 4px;
+      border-top: 1px solid var(--line); border-left: 1px solid var(--line); transition: background .2s ease, opacity .2s ease;
+    }
+
+    /* A pick: the logo and first name of the team it started with. Its own
+       team's picks sit plain; one that came in a trade is blue; one that
+       went out is a dashed outline naming where it went. */
+    .pk {
+      min-width: 0; display: flex; align-items: center; gap: 5px; padding: 4px 5px; border-radius: 8px;
+      border: 1px solid transparent; background: none; color: var(--ink); font-size: 12px; font-weight: 600; text-align: left;
+      transition: background .2s ease, border-color .2s ease, opacity .2s ease, transform .15s ease;
+    }
+    .pk:active { transform: scale(.96); }
+    .pk:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+    @media (hover: hover) { .pk.own:hover { background: var(--surface-2); border-color: var(--line); } }
+    .pk-logo { width: 21px; height: 21px; object-fit: contain; flex: 0 0 auto; }
+    .pk-emoji { width: 22px; flex: 0 0 auto; text-align: center; font-size: 15px; line-height: 22px; }
+    .pk-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .db-grid .pk-name { font-weight: 800; letter-spacing: .04em; }
+    .pk-txt { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
+    .pk-no { font-size: 10px; font-weight: 700; letter-spacing: .02em; color: var(--ink-3, #8a94a6); }
+    .pk.via .pk-no { color: inherit; opacity: .75; }
+    .tr-gets .pk-no { margin-left: 4px; }
+    .pk.via { background: var(--accent-soft, #edf3ff); border-color: #c7d7fe; color: var(--accent-ink, #0f56bd); font-weight: 700; }
+    .pk.gone { border: 1px dashed var(--line-2, #d5dae1); color: var(--ink-3, #8a94a6); font-weight: 600; }
+    .pk.gone .pk-logo, .pk.gone .pk-emoji { width: 18px; height: 18px; opacity: .6; filter: grayscale(.4); }
+    .pk-arrow { flex: 0 0 auto; font-size: 11px; }
+
+    /* One team picked out: its column lit, every pick it holds or started
+       with lit wherever it is, the rest faded back. */
+    .db-grid.focused .db-cell .pk:not(.hl) { opacity: .32; }
+    .db-grid.focused .db-head:not(.hl) { opacity: .5; }
+    .db-grid.focused .db-cell.hl { background: rgba(23, 105, 224, .045); }
+    .db-grid .db-head.hl { background: var(--accent-soft, #edf3ff); opacity: 1; }
+
+    /* Phone-width boards: logos alone, centred, so ten columns still fit. */
+    @container (max-width: 600px) {
+      .db-grid .pk { justify-content: center; padding: 4px 2px; }
+      .db-grid .pk-name, .db-grid .pk-arrow { display: none; }
+      .db-grid .pk-no { display: none; }
+    }
+
+    /* ---- Teams: each team's picks, round by round ---- */
+    .dt-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+    .dt-team { overflow: hidden; }
+    .dt-team .card-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+    body:not(#_) .dt-team .card-head { flex-wrap: nowrap; }
+    .dt-team .card-head > div { min-width: 0; flex: 1 1 auto; }
+    .dt-team .card-head h3 { margin: 0; font-size: 20px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dt-team .card-head .owner { display: block; color: var(--muted); font-size: 12px; font-weight: 600; margin-top: 3px; }
+    .dt-tally { margin-left: auto; text-align: right; flex: 0 0 auto; white-space: nowrap; font-size: 12px; color: var(--muted); font-weight: 600; line-height: 1.35; }
+    .dt-tally strong { color: var(--ink); font-size: 15px; }
+    .dt-tally .up { color: var(--blue-2); }
+    .dt-tally .down { color: var(--out); }
+    .tp-group { margin: 0; padding: 0; list-style: none; }
+    .tp-head {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 16px 7px;
+      background: var(--surface-2); border-top: 1px solid var(--line);
+      font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3, #8a94a6);
+    }
+    .tp-head b { color: var(--tier-ink); font-weight: 800; }
+    .tp-row {
+      display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 12px; align-items: center;
+      padding: 8px 16px; border-top: 1px solid var(--line);
+    }
+    .tp-rd {
+      padding: 3px 0; border-radius: 6px; text-align: center; font-size: 11px; font-weight: 800; letter-spacing: .02em;
+      background: var(--tier-soft); color: var(--tier-ink); box-shadow: inset 0 0 0 1px var(--tier-edge);
+    }
+    .tp-what { min-width: 0; display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; }
+    .tp-what span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tp-what small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
+    .tp-row.via .tp-what { color: var(--accent-ink, #0f56bd); }
+    .tp-row.gone .tp-what { color: var(--ink-3, #8a94a6); }
+    .tp-row.gone .pk-logo, .tp-row.gone .pk-emoji { opacity: .55; filter: grayscale(.4); }
+    .tp-tag {
+      display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; white-space: nowrap;
+      background: var(--surface-2); color: var(--ink-2, #475467); border: 1px solid var(--line);
+    }
+    .tp-row.via .tp-tag { background: var(--accent-soft, #edf3ff); color: var(--accent-ink, #0f56bd); border-color: #c7d7fe; }
+    .tp-row.gone .tp-tag { background: transparent; color: var(--ink-3, #8a94a6); border-style: dashed; }
+
+    /* ---- Trades ---- */
+    .tr-list { display: grid; gap: 16px; }
+    .tr-card { overflow: hidden; }
+    .tr-card .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 14px 16px; }
+    .tr-card .card-head h3 { margin: 0; font-size: 20px; }
+    .tr-date { color: var(--muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+    .tr-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); border-top: 1px solid var(--line); }
+    .tr-side { padding: 12px 16px 14px; border-left: 1px solid var(--line); margin-left: -1px; }
+    .tr-who { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .tr-who .team-badge { width: 32px; height: 32px; font-size: 15px; border-radius: 9px; }
+    .tr-who strong { display: block; font-size: 14px; }
+    .tr-who small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
+    .tr-gets { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tr-gets .pk { cursor: default; }
+    .tr-gets .pk b { font-weight: 800; margin-right: 1px; }
+    .tr-note { margin: 0; padding: 11px 16px 13px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2, #475467); background: var(--surface-2); }
+    .tr-empty { padding: 34px 20px; text-align: center; }
+    .tr-empty-mark {
+      width: 46px; height: 46px; margin: 0 auto 12px; border-radius: 14px; display: grid; place-items: center;
+      background: var(--accent-soft, #edf3ff); color: var(--accent-ink, #0f56bd); font-size: 22px; font-weight: 800;
+    }
+    .tr-empty h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 22px; text-transform: uppercase; letter-spacing: .03em; }
+    .tr-empty p { margin: 0 auto; max-width: 44ch; color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+
+    /* The pick popover reuses the rules' box. */
+    .why-pop .pp-row { display: flex; align-items: center; gap: 9px; margin-top: 8px; font-size: 13px; }
+    .why-pop .pp-row:first-of-type { margin-top: 0; }
+    .why-pop .pp-row .pk-logo, .why-pop .pp-row .pk-emoji { width: 24px; height: 24px; }
+    .why-pop .pp-row small { display: block; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+    .why-pop .pp-tier { margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--tier-ink); font-weight: 600; }
+
+    @media (max-width: 1100px) { .dt-grid { grid-template-columns: minmax(0, 1fr); } }
+
+    @media (max-width: 860px) {
+      .hero-inner { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .topbar-inner, .hero-inner { width: min(100% - 24px, 1220px); }
+      main { width: min(100% - 32px, 1220px); }
+      .topbar-inner { min-height: 56px; gap: 8px; }
+      .brand-mark { width: 36px; height: 36px; }
+      .brand-kicker { display: none; }
+      .year-control > span { display: none; }
+      .year-control select { padding: 7px 27px 7px 9px; font-size: 12px; background-position: calc(100% - 14px) 12px, calc(100% - 9px) 12px; }
+      .topbar-trophy { padding: 6px 9px; gap: 5px; font-size: 11.5px; border-radius: 9px; }
+      .hero { display: none; }
+      main { padding-top: 16px; }
+      .kp-team-row { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 0; }
+      #dtNav { margin-bottom: 12px; }
+      .kp-team-pick { display: block; flex: 1 1 auto; min-width: 0; }
+      .dt-team.kp-off { display: none; }
+
+      /* The whole board on one screen: logos only, a sliver for the round. */
+      .db-grid { grid-template-columns: 26px repeat(var(--cols, 10), minmax(0, 1fr)); }
+      .db-corner { padding-bottom: 8px; font-size: 8.5px; letter-spacing: .04em; }
+      .db-head { padding: 9px 0 7px; gap: 0; }
+      .db-head .team-badge { width: 28px; height: 28px; border-radius: 8px; font-size: 14px; }
+      .db-head-init, .db-head-rec { display: none; }
+      .db-tier { padding: 6px 8px 5px; font-size: 10px; letter-spacing: .05em; }
+      .db-round strong { font-size: 13px; }
+      .db-round small { display: none; }
+      .db-cell { min-height: 38px; padding: 4px 1px; gap: 3px; align-items: center; }
+      .db-grid .pk { padding: 3px; border-radius: 7px; }
+      .db-grid .pk-logo { width: 21px; height: 21px; }
+      .db-grid .pk.gone .pk-logo, .db-grid .pk.gone .pk-emoji { width: 14px; height: 14px; }
+
+      .dt-team .card-head { padding: 12px; }
+      body:not(#_) .dt-team .card-head h3 { font-size: 18px; }
+      .tp-head { padding-left: 12px; padding-right: 12px; }
+      .tp-row { padding: 8px 12px; gap: 10px; grid-template-columns: 42px minmax(0, 1fr) auto; }
+      .tr-side { padding: 12px; }
+    }
+    @media (max-width: 374px) {
+      .topbar-trophy { font-size: 0; gap: 0; padding: 6px 8px; }
+      .topbar-trophy span { font-size: 14px; }
+      .db-grid { grid-template-columns: 22px repeat(var(--cols, 10), minmax(0, 1fr)); }
+      .db-head .team-badge, .db-grid .pk-logo { width: 24px; height: 24px; }
+      .db-grid .pk-logo { width: 20px; height: 20px; }
+    }
+
+    /* ---- Desktop: the header and hero become the navy sidebar ---- */
+    @media (min-width: 1200px) {
+      :root { --side: 340px; --topbar-h: 124px; }
+      body { padding-left: var(--side); }
+      .topbar { position: fixed; top: 0; left: 0; width: var(--side); border-right: 4px solid var(--red); }
+      .topbar-inner {
+        width: auto; min-height: var(--topbar-h); padding: 14px 18px 14px 20px;
+        display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; row-gap: 12px; column-gap: 10px;
+      }
+      .topbar .brand { grid-column: 1; grid-row: 1; }
+      .topbar .year-control { grid-column: 2; grid-row: 1; }
+      .topbar .year-control > span { display: none; }
+      .topbar .brand-title { font-size: 17px; }
+      .topbar .brand-kicker { white-space: nowrap; letter-spacing: .16em; }
+      .topbar-trophy { grid-column: 1 / -1; grid-row: 2; margin: 0; justify-content: center; }
+      .hero {
+        position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 30;
+        width: var(--side); overflow-y: auto; overscroll-behavior: contain;
+        border-bottom: 0; border-right: 4px solid var(--red); scrollbar-width: none;
+      }
+      .hero::-webkit-scrollbar { display: none; }
+      .hero-inner { width: auto; margin: 0; padding: 26px 20px 28px; grid-template-columns: minmax(0, 1fr); }
+      .hero h1 { font-size: 38px; }
+      main { width: min(1220px, calc(100% - 48px)); padding-top: 26px; }
+    }
+  </style>
+  <link rel="stylesheet" href="ui.css" />
+  <link rel="stylesheet" href="design.css" />
+  <link rel="stylesheet" href="chat.css" />
+  <script src="ui.js"></script>
+  <script src="team-logos.js"></script>
+  <script src="draft-picks.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="alltime.html" aria-label="League History home">
+        <div class="brand-mark"><img src="icons/crest.png" alt="" width="46" height="46" /></div>
+        <div class="brand-copy">
+          <span class="brand-kicker">Fantasy Football</span>
+          <span class="brand-title">League History</span>
+        </div>
+      </a>
+      <a class="topbar-trophy" href="trophy.html"><span aria-hidden="true">🏆</span>Trophy Room</a>
+      <label class="year-control">
+        <span>Season</span>
+        <select id="yearSelect" aria-label="Choose season">
+          <option value="home">All-Time</option>
+          <option value="keepers">Keepers</option>
+          <option value="draft" selected>Draft</option>
+          <option value="2026">2026</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-title">
+        <span class="hero-badge" id="heroBadge">Pick board</span>
+        <h1 id="heroTitle">Draft</h1>
+        <p id="heroSub"></p>
+        <div class="hero-counts" id="heroCounts"></div>
+      </div>
+      <ul class="rules" id="rules"></ul>
+    </div>
+  </section>
+
+  <main>
+    <!-- Phones: one team at a time, and the colour guide behind the "i". -->
+    <div class="kp-team-row">
+      <label class="kp-team-pick">
+        <select id="teamSelect" aria-label="Choose a team">
+          <option value="all">All teams</option>
+        </select>
+      </label>
+      <button type="button" class="why-btn" id="rulesBtn" aria-expanded="false" aria-label="What the colours mean">i</button>
+    </div>
+
+    <!-- The views and the player search in one capsule that pins under the
+         header, as on the keeper page (ui.js, UI.findDrop). -->
+    <nav class="season-nav" id="dtNav" aria-label="Views and search">
+      <div class="sn-cap">
+        <div class="sn-top">
+          <div class="sn-seg dt-views" role="tablist" aria-label="Views" style="--n: 3">
+            <span class="sn-seg-ind" aria-hidden="true"></span>
+            <button type="button" role="tab" data-view="board" aria-selected="true">Board</button>
+            <button type="button" role="tab" data-view="teams" aria-selected="false">Teams</button>
+            <button type="button" role="tab" data-view="trades" aria-selected="false">Trades</button>
+          </div>
+          <button class="sn-search" type="button" aria-label="Search players" aria-expanded="false" aria-controls="playerSearch" title="Search players (/)"><svg class="ic-find" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><svg class="ic-x" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div class="fd-fold"><div>
+          <div class="sn-find-bar" role="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+            <input id="playerSearch" type="search" autocomplete="off" spellcheck="false" autocapitalize="words" enterkeyhint="search" tabindex="-1"
+              placeholder="Search any player" aria-label="Search players" aria-controls="playerResults" />
+            <button type="button" class="sn-clear" aria-label="Clear search" hidden><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          </div>
+        </div></div>
+        <div class="sn-drop"><div><div class="player-results" id="playerResults" role="listbox" aria-label="Players"></div></div></div>
+      </div>
+    </nav>
+
+    <section class="dt-view" id="viewBoard" data-view="board"><p class="dt-status">Loading the pick board&hellip;</p></section>
+    <section class="dt-view" id="viewTeams" data-view="teams" hidden></section>
+    <section class="dt-view" id="viewTrades" data-view="trades" hidden></section>
+    <p class="dt-note" id="note"></p>
+  </main>
+
+  <script>
+    /* The draft page. Who holds which pick lives in draft-picks.js (the
+       starting board and every trade since); this draws it, with names,
+       owners, logos and colours from the season page. */
+    const { DRAFT, SEASON, ROUNDS, KEEPER_ROUNDS, INITIALS, ORDER, TIERS, tier, forward, projectOrder, pickNo } = window.DraftPicks;
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const range = (a, b) => (a === b ? `${a}` : `${a}–${b}`);
+
+    const TIER_COPY = {
+      keeper: { name: "Keeper rounds", title: "Keeper rounds",
+        text: `Rounds ${range(1, KEEPER_ROUNDS)} are where the keepers from ${SEASON} go.` },
+      early: { name: "Can’t be kept", title: `Can’t be kept in ${DRAFT + 1}`,
+        text: `Anyone taken in rounds ${range(KEEPER_ROUNDS + 1, KEEPER_ROUNDS + 2)}, the first two open rounds, can’t be kept the next year.` },
+      open: { name: "Keeper eligible", title: "Keeper eligible",
+        text: `Anyone taken from round ${KEEPER_ROUNDS + 3} on can be kept for ${DRAFT + 1}.` },
+    };
+
+    let teams = {}, book = null, TEAMS = [];
+    /* The draft order: the official one once it is set, else projected from
+       the standings (worst first). `projection` carries the records. */
+    let order = null, projection = null;
+    const num = (r, of) => pickNo(r, of, order);
+    const initials = (id) => INITIALS[id] || fullName(id).split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    const recordOf = (id) => {
+      const l = projection && projection.line[id];
+      if (!l) return "";
+      return l.ties ? `${l.wins}–${l.losses}–${l.ties}` : `${l.wins}–${l.losses}`;
+    };
+    const team = (id) => teams[id] || { name: id, owner: id, color: "#667", icon: "" };
+    const firstName = (id) => team(id).owner.split(" ")[0];
+    const fullName = (id) => team(id).owner;
+    const teamName = (id) => team(id).name.trim();
+
+    /* The team's logo, else its emoji: the season page's own fallback. */
+    const logo = (id) => {
+      const t = team(id);
+      const src = t.ownerId && window.TEAM_LOGOS && window.TEAM_LOGOS[t.ownerId];
+      return src ? `<img class="pk-logo" src="${src}" alt="">` : `<span class="pk-emoji" aria-hidden="true">${esc(t.icon || "")}</span>`;
+    };
+    const badge = (id) => {
+      const t = team(id);
+      const src = t.ownerId && window.TEAM_LOGOS && window.TEAM_LOGOS[t.ownerId];
+      return `<span class="team-badge" style="--team-color:${esc(t.color)}">${src ? `<img class="team-logo" src="${src}" alt="">` : esc(t.icon || "")}</span>`;
+    };
+
+    /* A literal from the season page (`teams`, `results`), read the way
+       keepers.html reads its teams. */
+    function literal(html, name, year) {
+      const start = html.indexOf(`const ${name} = {`);
+      if (start < 0) throw new Error(`${year}.html has no ${name} block`);
+      let depth = 0, i = html.indexOf("{", start);
+      const open = i;
+      for (; i < html.length; i++) {
+        if (html[i] === "{") depth++;
+        else if (html[i] === "}" && --depth === 0) break;
+      }
+      return new Function(`return ${html.slice(open, i + 1)};`)();
+    }
+    const loadSeason = (year) => fetch(`${year}.html`).then((r) => r.text())
+      .then((html) => ({ teams: literal(html, "teams", year), results: literal(html, "results", year) }));
+
+
+    /* ---- Board ---- */
+    function pickButton(r, of, holder) {
+      const no = num(r, of);
+      const cls = of === holder ? "own" : "via";
+      const label = `Round ${r}${no ? `, pick ${no.label}` : ""}: ${fullName(of)}’s pick${cls === "via" ? `, held by ${fullName(holder)}` : ""}`;
+      return `<button type="button" class="pk ${cls}" data-r="${r}" data-of="${esc(of)}" data-to="${esc(holder)}" aria-label="${esc(label)}">
+        ${logo(of)}<span class="pk-txt"><span class="pk-name">${esc(initials(of))}</span>${no ? `<span class="pk-no">${no.label}</span>` : ""}</span></button>`;
+    }
+    function goneButton(r, of, to) {
+      const label = `Round ${r}: ${fullName(of)}’s pick, traded to ${fullName(to)}`;
+      return `<button type="button" class="pk gone" data-r="${r}" data-of="${esc(of)}" data-to="${esc(to)}" aria-label="${esc(label)}">
+        <span class="pk-arrow" aria-hidden="true">→</span>${logo(to)}<span class="pk-name">${esc(initials(to))}</span></button>`;
+    }
+
+    function renderBoard() {
+      const heads = TEAMS.map((id) => `
+        <button type="button" class="db-head" data-team="${esc(id)}" style="--team-color:${esc(team(id).color)}" title="${esc(`${teamName(id)} · ${fullName(id)}`)}" aria-label="${esc(`${teamName(id)}, ${fullName(id)}`)}">
+          ${badge(id)}<span class="db-head-init">${esc(initials(id))}</span>${projection ? `<span class="db-head-rec">${esc(recordOf(id))}</span>` : ""}
+        </button>`).join("");
+      const body = TIERS.map((t) => {
+        const rows = [];
+        for (let r = t.from; r <= t.to; r++) {
+          const dir = order && r > KEEPER_ROUNDS ? (forward(r) ? "→" : "←") : "";
+          rows.push(`<div class="db-round tier-${t.id}"><strong>${r}</strong>${dir ? `<small aria-label="${forward(r) ? "picks run left to right" : "picks run right to left"}">${dir}</small>` : ""}</div>`);
+          for (const id of TEAMS) {
+            const cell = book.held[id][r];
+            rows.push(`<div class="db-cell" data-team="${esc(id)}">${cell.picks.map((of) => pickButton(r, of, id)).join("")}${cell.gone.map((to, i) => goneButton(r, id, to)).join("")}</div>`);
+          }
+        }
+        return `<div class="db-tier tier-${t.id}"><b>${esc(TIER_COPY[t.id].name)}</b><span>Rounds ${range(t.from, t.to)}</span></div>${rows.join("")}`;
+      }).join("");
+      document.getElementById("viewBoard").innerHTML = `
+        <div class="card dt-board"><div class="db-grid" id="board" style="--cols:${TEAMS.length}">
+          <div class="db-corner">Rd</div>${heads}${body}
+        </div></div>`;
+      applyFocus();
+    }
+
+    /* ---- Teams ---- */
+    function renderTeams() {
+      const cards = TEAMS.map((id) => {
+        let came = 0, went = 0;
+        const groups = TIERS.map((t) => {
+          const rows = [];
+          for (let r = t.from; r <= t.to; r++) {
+            const cell = book.held[id][r];
+            for (const of of cell.picks) {
+              const via = of !== id;
+              if (via) came++;
+              const no = num(r, of);
+              rows.push(`<li class="tp-row tier-${t.id}${via ? " via" : ""}">
+                <span class="tp-rd">Rd ${r}</span>
+                <div class="tp-what">${logo(of)}<span>${via ? `From ${esc(fullName(of))}<small>${esc(teamName(of))}</small>` : "Own pick"}</span></div>
+                <span class="tp-tag">${no ? no.label : r <= KEEPER_ROUNDS ? "Keeper" : via ? "Acquired" : "Own"}</span>
+              </li>`);
+            }
+            for (const to of cell.gone) {
+              went++;
+              rows.push(`<li class="tp-row tier-${t.id} gone">
+                <span class="tp-rd">Rd ${r}</span>
+                <div class="tp-what">${logo(to)}<span>Traded to ${esc(fullName(to))}<small>${esc(teamName(to))}</small></span></div>
+                <span class="tp-tag">Traded</span>
+              </li>`);
+            }
+          }
+          const held = rows.filter((x) => !x.includes(" gone\"")).length;
+          return `<ul class="tp-group tier-${t.id}">
+            <li class="tp-head"><span><b>${esc(TIER_COPY[t.id].name)}</b> · Rounds ${range(t.from, t.to)}</span><span>${held}</span></li>
+            ${rows.join("")}
+          </ul>`;
+        }).join("");
+        const moves = [came ? `<span class="up">+${came} in</span>` : "", went ? `<span class="down">−${went} out</span>` : ""].filter(Boolean).join(" · ");
+        const slot = order ? order.indexOf(id) + 1 : 0;
+        const tally = slot
+          ? `<strong>${slot}${["th", "st", "nd", "rd"][slot % 100 > 10 && slot % 100 < 14 ? 0 : slot % 10] || "th"}</strong> pick · ${KEEPER_ROUNDS + 1}.${String(slot).padStart(2, "0")}<br>${[projection ? recordOf(id) : "", moves].filter(Boolean).join(" · ") || "Own picks"}`
+          : `<strong>${ROUNDS}</strong> picks<br>${moves || "All their own"}`;
+        return `<article class="card dt-team" data-team="${esc(id)}" style="--team-color:${esc(team(id).color)}">
+          <div class="card-head">
+            ${badge(id)}
+            <div><h3>${esc(teamName(id))}</h3><span class="owner">${esc(fullName(id))}</span></div>
+            <div class="dt-tally">${tally}</div>
+          </div>
+          ${groups}
+        </article>`;
+      }).join("");
+      document.getElementById("viewTeams").innerHTML = `<div class="dt-grid">${cards}</div>`;
+      applyFocus();
+    }
+
+    /* ---- Trades ---- */
+    const dateText = (d) => {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || "");
+      if (!m) return d || "";
+      return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    };
+    function renderTrades() {
+      const el = document.getElementById("viewTrades");
+      if (!book.trades.length) {
+        el.innerHTML = `<div class="card tr-empty">
+          <div class="tr-empty-mark" aria-hidden="true">⇄</div>
+          <h3>No picks traded yet</h3>
+          <p>Every team holds its own ${ROUNDS} picks in the ${DRAFT} draft. Trades show up here, newest first, once they’re posted.</p>
+        </div>`;
+        return;
+      }
+      const cards = [...book.trades].reverse().map((trade) => {
+        const by = new Map();
+        for (const m of trade.moves) {
+          if (!by.has(m.to)) by.set(m.to, []);
+          by.get(m.to).push(m);
+        }
+        const sides = [...by.entries()].map(([to, moves]) => `
+          <div class="tr-side">
+            <div class="tr-who">${badge(to)}<div><strong>${esc(fullName(to))} gets</strong><small>${esc(teamName(to))}</small></div></div>
+            <div class="tr-gets">${moves.sort((a, b) => a.round - b.round).map((m) => {
+              const no = num(m.round, m.of);
+              return `<span class="pk via" title="${esc(`From ${fullName(m.from)}`)}">${logo(m.of)}<span class="pk-name"><b>Rd ${m.round}</b> ${esc(firstName(m.of))}’s</span>${no ? `<span class="pk-no">${no.label}</span>` : ""}</span>`;
+            }).join("")}</div>
+          </div>`).join("");
+        const who = [...new Set(trade.moves.flatMap((m) => [m.from, m.to]))].map(firstName);
+        return `<article class="card tr-card">
+          <div class="card-head"><h3>${esc(who.join(" ⇄ "))}</h3><span class="tr-date">${esc(dateText(trade.date))}</span></div>
+          <div class="tr-sides">${sides}</div>
+          ${trade.note ? `<p class="tr-note">${esc(trade.note)}</p>` : ""}
+        </article>`;
+      }).join("");
+      el.innerHTML = `<div class="tr-list">${cards}</div>`;
+    }
+
+    /* ---- The colour guide: the sidebar lists it, the "i" opens it ---- */
+    function guide() {
+      return [
+        ...TIERS.map((t) => ({ tier: t.id, mark: range(t.from, t.to), title: TIER_COPY[t.id].title, text: TIER_COPY[t.id].text })),
+        { trade: true, mark: "⇄", title: "Traded picks",
+          text: "A pick in blue came over in a trade. A dashed one is gone, and shows who holds it now. Tap any pick for its story." },
+        ORDER
+          ? { mark: "S", title: "Snake draft", text: `The worst team picks first in round ${KEEPER_ROUNDS + 1}, then it snakes: round ${KEEPER_ROUNDS + 2} runs right to left. A traded pick keeps the slot of the team it came from.` }
+          : projection
+            ? { mark: "S", title: "Projected order", text: `Until the order is set, the columns follow the standings through week ${projection.weeks}: fewest wins first, then fewest points. The worst team picks ${KEEPER_ROUNDS + 1}.01, then it snakes. A traded pick keeps its team’s slot.` }
+            : { mark: "S", title: "Draft order to come", text: `The draft snakes from round ${KEEPER_ROUNDS + 1}, the worst team first. Once week 1 is posted, the board projects the order from the standings.` },
+        { mark: range(1, KEEPER_ROUNDS), title: "No numbers in the keeper rounds",
+          text: `Picks in rounds ${range(1, KEEPER_ROUNDS)} just hold each team’s keepers, so they have no pick number. The first real pick is ${KEEPER_ROUNDS + 1}.01.`, popOnly: true },
+      ];
+    }
+    function renderGuide() {
+      document.getElementById("rules").innerHTML = guide().filter((g) => !g.popOnly).map((g) =>
+        `<li class="${g.tier ? `tier-${g.tier}` : g.trade ? "rule-trade" : ""}"><span class="rule-mark">${esc(g.mark)}</span><div><strong>${esc(g.title)}</strong>${esc(g.text)}</div></li>`).join("");
+    }
+
+    /* ---- Popovers: the guide, and one pick's story ---- */
+    let pop = null, popBtn = null;
+    function closePop() {
+      if (!pop) return;
+      pop.remove();
+      pop = null;
+      if (popBtn) { popBtn.classList.remove("open"); popBtn.setAttribute("aria-expanded", "false"); }
+      popBtn = null;
+    }
+    function openPop(btn, label, html) {
+      const same = popBtn === btn;
+      closePop();
+      if (same) return;   // a second tap closes it
+      pop = document.createElement("div");
+      pop.className = "why-pop";
+      pop.setAttribute("role", "dialog");
+      pop.setAttribute("aria-label", label);
+      pop.innerHTML = html;
+      document.body.appendChild(pop);
+      const anchor = btn.getBoundingClientRect(), box = pop.getBoundingClientRect(), margin = 12;
+      const left = Math.max(margin, Math.min(anchor.left + anchor.width / 2 - box.width / 2, window.innerWidth - box.width - margin));
+      let top = anchor.bottom + 8;
+      if (top + box.height > window.innerHeight - margin) top = Math.max(margin, anchor.top - box.height - 8);
+      pop.style.left = `${left}px`;
+      pop.style.top = `${top}px`;
+      popBtn = btn;
+      btn.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+    }
+    function guidePop(btn) {
+      const traded = book ? book.trades.length : 0;
+      const head = `${DRAFT} draft · ${traded ? `${traded} trade${traded === 1 ? "" : "s"}` : "no trades yet"}`;
+      openPop(btn, "What the colours mean", `<div class="why-head">${esc(head)}</div>` + guide().map((g) =>
+        `<div class="why-entry${g.tier === "early" ? " out" : g.tier === "keeper" ? " last" : ""}"><h4>${esc(g.title)}</h4><p>${esc(g.text)}</p></div>`).join(""));
+    }
+    function pickPop(btn) {
+      const r = Number(btn.dataset.r), of = btn.dataset.of;
+      const holder = book.owner.get(`${r}:${of}`);
+      const no = num(r, of);
+      const moves = book.trades.flatMap((t) => t.moves.filter((m) => m.round === r && m.of === of).map((m) => ({ ...m, date: t.date })));
+      const t = tier(r);
+      const who = (id, small) => `<div class="pp-row">${logo(id)}<div><small>${small}</small>${esc(fullName(id))} · ${esc(teamName(id))}</div></div>`;
+      const trail = moves.map((m) => `<div class="pp-row"><span class="pk-arrow" aria-hidden="true">⇄</span><div><small>${esc(dateText(m.date) || "Traded")}</small>${esc(firstName(m.from))} to ${esc(firstName(m.to))}</div></div>`).join("");
+      openPop(btn, `Round ${r} pick`, `
+        <div class="why-head">Round ${r}${no ? ` · ${ORDER ? "" : "Projected "}pick ${no.label}` : r <= KEEPER_ROUNDS ? " · Keeper slot" : ""}</div>
+        ${who(of, holder === of ? "Their own pick" : "Originally")}
+        ${holder !== of ? who(holder, "Held by") : ""}
+        ${trail}
+        <div class="pp-tier tier-${t}">${esc(TIER_COPY[t].text)}</div>`);
+    }
+
+    document.addEventListener("click", (event) => {
+      const rules = event.target.closest("#rulesBtn");
+      if (rules) { guidePop(rules); return; }
+      const pk = event.target.closest(".db-grid .pk");
+      if (pk) { pickPop(pk); return; }
+      const head = event.target.closest(".db-head");
+      if (head) { closePop(); setFocus(focus === head.dataset.team ? "all" : head.dataset.team, true); return; }
+      if (pop && !event.target.closest(".why-pop")) closePop();
+    });
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closePop(); });
+    window.addEventListener("resize", closePop);
+    window.addEventListener("scroll", closePop, true);
+
+    /* ---- One team picked out: the phone's menu, or a tap on a column's
+       head. The board lights that team's picks; on a phone the Teams view
+       shows only its card, as the keeper page does. ---- */
+    const PICK_KEY = "draft.team";
+    let focus = "all";
+    function applyFocus() {
+      const grid = document.getElementById("board");
+      if (grid) {
+        grid.classList.toggle("focused", focus !== "all");
+        grid.querySelectorAll(".db-head, .db-cell").forEach((el) => el.classList.toggle("hl", el.dataset.team === focus));
+        grid.querySelectorAll(".pk").forEach((el) => el.classList.toggle("hl", el.dataset.of === focus || el.dataset.to === focus));
+        grid.querySelectorAll(".db-head").forEach((el) => el.setAttribute("aria-pressed", String(el.dataset.team === focus)));
+      }
+      document.querySelectorAll(".dt-team").forEach((card) => card.classList.toggle("kp-off", focus !== "all" && card.dataset.team !== focus));
+    }
+    function setFocus(id, save) {
+      focus = TEAMS.includes(id) ? id : "all";
+      document.getElementById("teamSelect").value = focus;
+      applyFocus();
+      if (save) { try { localStorage.setItem(PICK_KEY, focus); } catch (e) { /* storage blocked */ } }
+    }
+    function setupTeamPicker() {
+      const select = document.getElementById("teamSelect");
+      select.insertAdjacentHTML("beforeend", TEAMS.map((id) => `<option value="${esc(id)}">${esc(teamName(id))} · ${esc(firstName(id))}</option>`).join(""));
+      let saved = null;
+      try { saved = localStorage.getItem(PICK_KEY); } catch (e) { /* storage blocked */ }
+      setFocus(saved || "all");
+      select.addEventListener("change", () => setFocus(select.value, true));
+    }
+
+    /* ---- Views: Board, Teams, Trades, kept in the URL (#teams, #trades) ---- */
+    const VIEWS = ["board", "teams", "trades"];
+    const views = document.querySelector(".dt-views");
+    function showView(view, write) {
+      if (!VIEWS.includes(view)) view = "board";
+      const buttons = [...views.querySelectorAll("button")];
+      buttons.forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === view)));
+      views.style.setProperty("--k", VIEWS.indexOf(view));
+      document.querySelectorAll(".dt-view").forEach((s) => { s.hidden = s.dataset.view !== view; });
+      closePop();
+      if (write) history.replaceState(null, "", view === "board" ? location.pathname : `#${view}`);
+    }
+    views.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-view]");
+      if (btn) showView(btn.dataset.view, true);
+    });
+    window.addEventListener("hashchange", () => showView(location.hash.slice(1)));
+    showView(location.hash.slice(1));
+    requestAnimationFrame(() => requestAnimationFrame(() => views.querySelector(".sn-seg-ind").classList.add("ready")));
+
+    async function main() {
+      const season = await loadSeason(SEASON);
+      teams = season.teams;
+      projection = projectOrder(season.results);
+      order = ORDER || (projection && projection.order);
+      book = DraftPicks.book(order);
+      TEAMS = book.teams;
+      const moved = [...book.owner].filter(([key, holder]) => key.split(":")[1] !== holder).length;
+      document.getElementById("heroTitle").textContent = `${DRAFT} Draft`;
+      document.getElementById("heroBadge").textContent = ORDER ? "Official order"
+        : projection ? `Projected through week ${projection.weeks}` : "Order to come";
+      document.getElementById("heroSub").textContent =
+        `Who holds every pick in the ${DRAFT} draft. ESPN can’t trade picks, so the league keeps the book here.`;
+      document.getElementById("heroCounts").innerHTML = `
+        <div class="hero-count"><strong>${book.trades.length}</strong><span>trade${book.trades.length === 1 ? "" : "s"}</span></div>
+        <div class="hero-count"><strong>${moved}</strong><span>picks moved</span></div>`;
+      renderGuide();
+      renderBoard();
+      renderTeams();
+      renderTrades();
+      setupTeamPicker();
+      document.getElementById("note").textContent =
+        `Each column is a team and the picks it holds, round by round; a logo is the team the pick started with. ` +
+        `Tap a team up top to pick out its picks, or any pick for where it has been. ` +
+        (ORDER ? `The draft snakes from round ${KEEPER_ROUNDS + 1}, the worst team first.`
+          : projection ? `Pick numbers are a projection from the standings through week ${projection.weeks} (fewest wins, then fewest points, picks first) and move as each week is posted. Rounds ${range(1, KEEPER_ROUNDS)} hold the keepers, so they have no number.`
+          : `Pick numbers appear once week 1 is posted.`);
+    }
+
+    document.getElementById("yearSelect").addEventListener("change", (event) => {
+      const files = {
+        home: "alltime.html",
+        keepers: "keepers.html",
+        draft: "draft.html",
+        2026: "2026.html",
+        2025: "2025.html",
+        2024: "2024.html",
+        2023: "2023.html",
+        2022: "2022.html",
+        2021: "2021.html"
+      };
+      const target = files[event.target.value];
+      if (target) window.location.href = target;
+    });
+
+    if (window.UI && window.UI.findDrop) window.UI.findDrop("#dtNav");
+
+    main().catch((err) => {
+      console.error(err);
+      document.getElementById("viewBoard").innerHTML = `<p class="dt-status">Could not load the pick board (${esc(err.message)}).</p>`;
+    });
+  </script>
+</body>
+</html>
