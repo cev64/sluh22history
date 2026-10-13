@@ -221,13 +221,8 @@
     @media (hover: hover) { .db-head:hover { background: var(--surface-2); } }
     .db-head:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
     .db-head .team-badge { width: 40px; height: 40px; }
-    .db-head-name {
-      max-width: 100%; min-height: 2.2em; overflow: hidden;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-      font-family: var(--font-display); font-weight: 700; font-size: 13.5px; line-height: 1.1;
-      letter-spacing: .03em; text-transform: uppercase; overflow-wrap: anywhere;
-    }
-    .db-head-owner { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 600; color: var(--muted); }
+    .db-head-init { font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1; letter-spacing: .04em; }
+    .db-head-rec { margin-top: -3px; font-size: 11px; font-weight: 600; color: var(--muted); }
 
     .db-tier {
       grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; padding: 8px 14px 7px;
@@ -249,15 +244,6 @@
       min-width: 0; min-height: 48px; padding: 5px 4px; display: flex; flex-direction: column; justify-content: center; gap: 4px;
       border-top: 1px solid var(--line); border-left: 1px solid var(--line); transition: background .2s ease, opacity .2s ease;
     }
-    .db-foot {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 9px 4px;
-      border-top: 1px solid var(--line); border-left: 1px solid var(--line); background: var(--surface-2);
-      font-size: 15px; font-weight: 800; line-height: 1.15;
-    }
-    .db-foot small { font-size: 10.5px; font-weight: 700; color: var(--muted); }
-    .db-foot .up { color: var(--blue-2); }
-    .db-foot .down { color: var(--out); }
-    .db-corner.db-foot-label { place-items: center; padding: 0; border-top: 1px solid var(--line); background: var(--surface-2); }
 
     /* A pick: the logo and first name of the team it started with. Its own
        team's picks sit plain; one that came in a trade is blue; one that
@@ -273,6 +259,7 @@
     .pk-logo { width: 21px; height: 21px; object-fit: contain; flex: 0 0 auto; }
     .pk-emoji { width: 22px; flex: 0 0 auto; text-align: center; font-size: 15px; line-height: 22px; }
     .pk-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .db-grid .pk-name { font-weight: 800; letter-spacing: .04em; }
     .pk-txt { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
     .pk-no { font-size: 10px; font-weight: 700; letter-spacing: .02em; color: var(--ink-3, #8a94a6); }
     .pk.via .pk-no { color: inherit; opacity: .75; }
@@ -289,8 +276,8 @@
     .db-grid.focused .db-cell.hl { background: rgba(23, 105, 224, .045); }
     .db-grid .db-head.hl { background: var(--accent-soft, #edf3ff); opacity: 1; }
 
-    /* Narrower boards: logos alone, centred, so ten columns still fit. */
-    @container (max-width: 880px) {
+    /* Phone-width boards: logos alone, centred, so ten columns still fit. */
+    @container (max-width: 600px) {
       .db-grid .pk { justify-content: center; padding: 4px 2px; }
       .db-grid .pk-name, .db-grid .pk-arrow { display: none; }
       .db-grid .pk-no { display: none; }
@@ -394,7 +381,7 @@
       .db-corner { padding-bottom: 8px; font-size: 8.5px; letter-spacing: .04em; }
       .db-head { padding: 9px 0 7px; gap: 0; }
       .db-head .team-badge { width: 28px; height: 28px; border-radius: 8px; font-size: 14px; }
-      .db-head-name, .db-head-owner { display: none; }
+      .db-head-init, .db-head-rec { display: none; }
       .db-tier { padding: 6px 8px 5px; font-size: 10px; letter-spacing: .05em; }
       .db-round strong { font-size: 13px; }
       .db-round small { display: none; }
@@ -402,9 +389,6 @@
       .db-grid .pk { padding: 3px; border-radius: 7px; }
       .db-grid .pk-logo { width: 21px; height: 21px; }
       .db-grid .pk.gone .pk-logo, .db-grid .pk.gone .pk-emoji { width: 14px; height: 14px; }
-      .db-foot { padding: 7px 0; font-size: 12.5px; }
-      .db-foot small { font-size: 9px; }
-      .db-corner.db-foot-label { font-size: 8.5px; }
 
       .dt-team .card-head { padding: 12px; }
       body:not(#_) .dt-team .card-head h3 { font-size: 18px; }
@@ -539,7 +523,7 @@
     /* The draft page. Who holds which pick lives in draft-picks.js (the
        starting board and every trade since); this draws it, with names,
        owners, logos and colours from the season page. */
-    const { DRAFT, SEASON, ROUNDS, KEEPER_ROUNDS, TEAMS, ORDER, TIERS, tier, pickNo } = window.DraftPicks;
+    const { DRAFT, SEASON, ROUNDS, KEEPER_ROUNDS, INITIALS, ORDER, TIERS, tier, forward, projectOrder, pickNo } = window.DraftPicks;
 
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     const range = (a, b) => (a === b ? `${a}` : `${a}–${b}`);
@@ -553,7 +537,17 @@
         text: `Anyone taken from round ${KEEPER_ROUNDS + 3} on can be kept for ${DRAFT + 1}.` },
     };
 
-    let teams = {}, book = null;
+    let teams = {}, book = null, TEAMS = [];
+    /* The draft order: the official one once it is set, else projected from
+       the standings (worst first). `projection` carries the records. */
+    let order = null, projection = null;
+    const num = (r, of) => pickNo(r, of, order);
+    const initials = (id) => INITIALS[id] || fullName(id).split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    const recordOf = (id) => {
+      const l = projection && projection.line[id];
+      if (!l) return "";
+      return l.ties ? `${l.wins}–${l.losses}–${l.ties}` : `${l.wins}–${l.losses}`;
+    };
     const team = (id) => teams[id] || { name: id, owner: id, color: "#667", icon: "" };
     const firstName = (id) => team(id).owner.split(" ")[0];
     const fullName = (id) => team(id).owner;
@@ -571,53 +565,47 @@
       return `<span class="team-badge" style="--team-color:${esc(t.color)}">${src ? `<img class="team-logo" src="${src}" alt="">` : esc(t.icon || "")}</span>`;
     };
 
-    /* The season page's `teams` literal, read the way keepers.html reads it. */
-    function loadTeams(year) {
-      return fetch(`${year}.html`).then((r) => r.text()).then((html) => {
-        const start = html.indexOf("const teams = {");
-        if (start < 0) throw new Error(`${year}.html has no teams block`);
-        let depth = 0, i = html.indexOf("{", start);
-        const open = i;
-        for (; i < html.length; i++) {
-          if (html[i] === "{") depth++;
-          else if (html[i] === "}" && --depth === 0) break;
-        }
-        return new Function(`return ${html.slice(open, i + 1)};`)();
-      });
+    /* A literal from the season page (`teams`, `results`), read the way
+       keepers.html reads its teams. */
+    function literal(html, name, year) {
+      const start = html.indexOf(`const ${name} = {`);
+      if (start < 0) throw new Error(`${year}.html has no ${name} block`);
+      let depth = 0, i = html.indexOf("{", start);
+      const open = i;
+      for (; i < html.length; i++) {
+        if (html[i] === "{") depth++;
+        else if (html[i] === "}" && --depth === 0) break;
+      }
+      return new Function(`return ${html.slice(open, i + 1)};`)();
     }
+    const loadSeason = (year) => fetch(`${year}.html`).then((r) => r.text())
+      .then((html) => ({ teams: literal(html, "teams", year), results: literal(html, "results", year) }));
 
-    /* How many picks a team holds, against the ROUNDS it started with. */
-    function tally(id) {
-      let n = 0;
-      for (let r = 1; r <= ROUNDS; r++) n += book.held[id][r].picks.length;
-      return n;
-    }
-    const diff = (n) => (n > ROUNDS ? `<small class="up">+${n - ROUNDS}</small>` : n < ROUNDS ? `<small class="down">−${ROUNDS - n}</small>` : "");
 
     /* ---- Board ---- */
     function pickButton(r, of, holder) {
-      const no = pickNo(r, of);
+      const no = num(r, of);
       const cls = of === holder ? "own" : "via";
       const label = `Round ${r}${no ? `, pick ${no.label}` : ""}: ${fullName(of)}’s pick${cls === "via" ? `, held by ${fullName(holder)}` : ""}`;
       return `<button type="button" class="pk ${cls}" data-r="${r}" data-of="${esc(of)}" data-to="${esc(holder)}" aria-label="${esc(label)}">
-        ${logo(of)}<span class="pk-txt"><span class="pk-name">${esc(firstName(of))}</span>${no ? `<span class="pk-no">${no.label}</span>` : ""}</span></button>`;
+        ${logo(of)}<span class="pk-txt"><span class="pk-name">${esc(initials(of))}</span>${no ? `<span class="pk-no">${no.label}</span>` : ""}</span></button>`;
     }
     function goneButton(r, of, to) {
       const label = `Round ${r}: ${fullName(of)}’s pick, traded to ${fullName(to)}`;
       return `<button type="button" class="pk gone" data-r="${r}" data-of="${esc(of)}" data-to="${esc(to)}" aria-label="${esc(label)}">
-        <span class="pk-arrow" aria-hidden="true">→</span>${logo(to)}<span class="pk-name">${esc(firstName(to))}</span></button>`;
+        <span class="pk-arrow" aria-hidden="true">→</span>${logo(to)}<span class="pk-name">${esc(initials(to))}</span></button>`;
     }
 
     function renderBoard() {
       const heads = TEAMS.map((id) => `
-        <button type="button" class="db-head" data-team="${esc(id)}" style="--team-color:${esc(team(id).color)}" aria-label="${esc(`${teamName(id)}, ${fullName(id)}`)}">
-          ${badge(id)}<span class="db-head-name">${esc(teamName(id))}</span><span class="db-head-owner">${esc(fullName(id))}</span>
+        <button type="button" class="db-head" data-team="${esc(id)}" style="--team-color:${esc(team(id).color)}" title="${esc(`${teamName(id)} · ${fullName(id)}`)}" aria-label="${esc(`${teamName(id)}, ${fullName(id)}`)}">
+          ${badge(id)}<span class="db-head-init">${esc(initials(id))}</span>${projection ? `<span class="db-head-rec">${esc(recordOf(id))}</span>` : ""}
         </button>`).join("");
       const body = TIERS.map((t) => {
         const rows = [];
         for (let r = t.from; r <= t.to; r++) {
-          const dir = ORDER ? (r % 2 ? "→" : "←") : "";
-          rows.push(`<div class="db-round tier-${t.id}"><strong>${r}</strong>${dir ? `<small aria-label="${r % 2 ? "picks run left to right" : "picks run right to left"}">${dir}</small>` : ""}</div>`);
+          const dir = order && r > KEEPER_ROUNDS ? (forward(r) ? "→" : "←") : "";
+          rows.push(`<div class="db-round tier-${t.id}"><strong>${r}</strong>${dir ? `<small aria-label="${forward(r) ? "picks run left to right" : "picks run right to left"}">${dir}</small>` : ""}</div>`);
           for (const id of TEAMS) {
             const cell = book.held[id][r];
             rows.push(`<div class="db-cell" data-team="${esc(id)}">${cell.picks.map((of) => pickButton(r, of, id)).join("")}${cell.gone.map((to, i) => goneButton(r, id, to)).join("")}</div>`);
@@ -625,13 +613,9 @@
         }
         return `<div class="db-tier tier-${t.id}"><b>${esc(TIER_COPY[t.id].name)}</b><span>Rounds ${range(t.from, t.to)}</span></div>${rows.join("")}`;
       }).join("");
-      const foot = `<div class="db-corner db-foot-label">Picks</div>` + TEAMS.map((id) => {
-        const n = tally(id);
-        return `<div class="db-foot">${n}${diff(n)}</div>`;
-      }).join("");
       document.getElementById("viewBoard").innerHTML = `
         <div class="card dt-board"><div class="db-grid" id="board" style="--cols:${TEAMS.length}">
-          <div class="db-corner">Rd</div>${heads}${body}${foot}
+          <div class="db-corner">Rd</div>${heads}${body}
         </div></div>`;
       applyFocus();
     }
@@ -639,7 +623,6 @@
     /* ---- Teams ---- */
     function renderTeams() {
       const cards = TEAMS.map((id) => {
-        const n = tally(id);
         let came = 0, went = 0;
         const groups = TIERS.map((t) => {
           const rows = [];
@@ -648,11 +631,11 @@
             for (const of of cell.picks) {
               const via = of !== id;
               if (via) came++;
-              const no = pickNo(r, of);
+              const no = num(r, of);
               rows.push(`<li class="tp-row tier-${t.id}${via ? " via" : ""}">
                 <span class="tp-rd">Rd ${r}</span>
                 <div class="tp-what">${logo(of)}<span>${via ? `From ${esc(fullName(of))}<small>${esc(teamName(of))}</small>` : "Own pick"}</span></div>
-                <span class="tp-tag">${no ? no.label : via ? "Acquired" : "Own"}</span>
+                <span class="tp-tag">${no ? no.label : r <= KEEPER_ROUNDS ? "Keeper" : via ? "Acquired" : "Own"}</span>
               </li>`);
             }
             for (const to of cell.gone) {
@@ -671,11 +654,15 @@
           </ul>`;
         }).join("");
         const moves = [came ? `<span class="up">+${came} in</span>` : "", went ? `<span class="down">−${went} out</span>` : ""].filter(Boolean).join(" · ");
+        const slot = order ? order.indexOf(id) + 1 : 0;
+        const tally = slot
+          ? `<strong>${slot}${["th", "st", "nd", "rd"][slot % 100 > 10 && slot % 100 < 14 ? 0 : slot % 10] || "th"}</strong> pick · ${KEEPER_ROUNDS + 1}.${String(slot).padStart(2, "0")}<br>${[projection ? recordOf(id) : "", moves].filter(Boolean).join(" · ") || "Own picks"}`
+          : `<strong>${ROUNDS}</strong> picks<br>${moves || "All their own"}`;
         return `<article class="card dt-team" data-team="${esc(id)}" style="--team-color:${esc(team(id).color)}">
           <div class="card-head">
             ${badge(id)}
             <div><h3>${esc(teamName(id))}</h3><span class="owner">${esc(fullName(id))}</span></div>
-            <div class="dt-tally"><strong>${n}</strong> picks<br>${moves || "All their own"}</div>
+            <div class="dt-tally">${tally}</div>
           </div>
           ${groups}
         </article>`;
@@ -710,7 +697,7 @@
           <div class="tr-side">
             <div class="tr-who">${badge(to)}<div><strong>${esc(fullName(to))} gets</strong><small>${esc(teamName(to))}</small></div></div>
             <div class="tr-gets">${moves.sort((a, b) => a.round - b.round).map((m) => {
-              const no = pickNo(m.round, m.of);
+              const no = num(m.round, m.of);
               return `<span class="pk via" title="${esc(`From ${fullName(m.from)}`)}">${logo(m.of)}<span class="pk-name"><b>Rd ${m.round}</b> ${esc(firstName(m.of))}’s</span>${no ? `<span class="pk-no">${no.label}</span>` : ""}</span>`;
             }).join("")}</div>
           </div>`).join("");
@@ -731,12 +718,16 @@
         { trade: true, mark: "⇄", title: "Traded picks",
           text: "A pick in blue came over in a trade. A dashed one is gone, and shows who holds it now. Tap any pick for its story." },
         ORDER
-          ? { mark: "S", title: "Snake draft", text: "Odd rounds run left to right, even rounds right to left. A traded pick keeps the slot of the team it came from." }
-          : { mark: "S", title: "Draft order to come", text: "The draft snakes. Once the order is set, the columns follow it and every pick gets its number." },
+          ? { mark: "S", title: "Snake draft", text: `The worst team picks first in round ${KEEPER_ROUNDS + 1}, then it snakes: round ${KEEPER_ROUNDS + 2} runs right to left. A traded pick keeps the slot of the team it came from.` }
+          : projection
+            ? { mark: "S", title: "Projected order", text: `Until the order is set, the columns follow the standings through week ${projection.weeks}: fewest wins first, then fewest points. The worst team picks ${KEEPER_ROUNDS + 1}.01, then it snakes. A traded pick keeps its team’s slot.` }
+            : { mark: "S", title: "Draft order to come", text: `The draft snakes from round ${KEEPER_ROUNDS + 1}, the worst team first. Once week 1 is posted, the board projects the order from the standings.` },
+        { mark: range(1, KEEPER_ROUNDS), title: "No numbers in the keeper rounds",
+          text: `Picks in rounds ${range(1, KEEPER_ROUNDS)} just hold each team’s keepers, so they have no pick number. The first real pick is ${KEEPER_ROUNDS + 1}.01.`, popOnly: true },
       ];
     }
     function renderGuide() {
-      document.getElementById("rules").innerHTML = guide().map((g) =>
+      document.getElementById("rules").innerHTML = guide().filter((g) => !g.popOnly).map((g) =>
         `<li class="${g.tier ? `tier-${g.tier}` : g.trade ? "rule-trade" : ""}"><span class="rule-mark">${esc(g.mark)}</span><div><strong>${esc(g.title)}</strong>${esc(g.text)}</div></li>`).join("");
     }
 
@@ -778,13 +769,13 @@
     function pickPop(btn) {
       const r = Number(btn.dataset.r), of = btn.dataset.of;
       const holder = book.owner.get(`${r}:${of}`);
-      const no = pickNo(r, of);
+      const no = num(r, of);
       const moves = book.trades.flatMap((t) => t.moves.filter((m) => m.round === r && m.of === of).map((m) => ({ ...m, date: t.date })));
       const t = tier(r);
       const who = (id, small) => `<div class="pp-row">${logo(id)}<div><small>${small}</small>${esc(fullName(id))} · ${esc(teamName(id))}</div></div>`;
       const trail = moves.map((m) => `<div class="pp-row"><span class="pk-arrow" aria-hidden="true">⇄</span><div><small>${esc(dateText(m.date) || "Traded")}</small>${esc(firstName(m.from))} to ${esc(firstName(m.to))}</div></div>`).join("");
       openPop(btn, `Round ${r} pick`, `
-        <div class="why-head">Round ${r}${no ? ` · Pick ${no.label} · ${no.overall} overall` : ""}</div>
+        <div class="why-head">Round ${r}${no ? ` · ${ORDER ? "" : "Projected "}pick ${no.label}` : r <= KEEPER_ROUNDS ? " · Keeper slot" : ""}</div>
         ${who(of, holder === of ? "Their own pick" : "Originally")}
         ${holder !== of ? who(holder, "Held by") : ""}
         ${trail}
@@ -820,7 +811,7 @@
       document.querySelectorAll(".dt-team").forEach((card) => card.classList.toggle("kp-off", focus !== "all" && card.dataset.team !== focus));
     }
     function setFocus(id, save) {
-      focus = teams[id] && TEAMS.includes(id) ? id : "all";
+      focus = TEAMS.includes(id) ? id : "all";
       document.getElementById("teamSelect").value = focus;
       applyFocus();
       if (save) { try { localStorage.setItem(PICK_KEY, focus); } catch (e) { /* storage blocked */ } }
@@ -855,17 +846,21 @@
     requestAnimationFrame(() => requestAnimationFrame(() => views.querySelector(".sn-seg-ind").classList.add("ready")));
 
     async function main() {
-      teams = await loadTeams(SEASON);
-      book = DraftPicks.book();
+      const season = await loadSeason(SEASON);
+      teams = season.teams;
+      projection = projectOrder(season.results);
+      order = ORDER || (projection && projection.order);
+      book = DraftPicks.book(order);
+      TEAMS = book.teams;
       const moved = [...book.owner].filter(([key, holder]) => key.split(":")[1] !== holder).length;
       document.getElementById("heroTitle").textContent = `${DRAFT} Draft`;
-      document.getElementById("heroBadge").textContent = book.trades.length
-        ? `${book.trades.length} trade${book.trades.length === 1 ? "" : "s"} posted` : "No trades yet";
+      document.getElementById("heroBadge").textContent = ORDER ? "Official order"
+        : projection ? `Projected through week ${projection.weeks}` : "Order to come";
       document.getElementById("heroSub").textContent =
         `Who holds every pick in the ${DRAFT} draft. ESPN can’t trade picks, so the league keeps the book here.`;
       document.getElementById("heroCounts").innerHTML = `
-        <div class="hero-count"><strong>${ROUNDS * TEAMS.length}</strong><span>picks · ${ROUNDS} rounds</span></div>
-        <div class="hero-count"><strong>${moved}</strong><span>traded</span></div>`;
+        <div class="hero-count"><strong>${book.trades.length}</strong><span>trade${book.trades.length === 1 ? "" : "s"}</span></div>
+        <div class="hero-count"><strong>${moved}</strong><span>picks moved</span></div>`;
       renderGuide();
       renderBoard();
       renderTeams();
@@ -873,8 +868,10 @@
       setupTeamPicker();
       document.getElementById("note").textContent =
         `Each column is a team and the picks it holds, round by round; a logo is the team the pick started with. ` +
-        `Tap a team’s logo up top to pick out its picks, or any pick for where it has been. ` +
-        (ORDER ? `The draft snakes, so even rounds run right to left.` : `Pick numbers appear once the ${DRAFT} draft order is set; the draft snakes.`);
+        `Tap a team up top to pick out its picks, or any pick for where it has been. ` +
+        (ORDER ? `The draft snakes from round ${KEEPER_ROUNDS + 1}, the worst team first.`
+          : projection ? `Pick numbers are a projection from the standings through week ${projection.weeks} (fewest wins, then fewest points, picks first) and move as each week is posted. Rounds ${range(1, KEEPER_ROUNDS)} hold the keepers, so they have no number.`
+          : `Pick numbers appear once week 1 is posted.`);
     }
 
     document.getElementById("yearSelect").addEventListener("change", (event) => {

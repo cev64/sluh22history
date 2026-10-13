@@ -1105,6 +1105,90 @@
     document.body.appendChild(fab);
     requestAnimationFrame(() => fab.classList.add("in"));
 
+    /* ---- moving it: press and drag puts the button anywhere on the
+       screen; a plain tap still opens the chat. Where it was left is kept
+       for every page, as the share of the screen across and down to its
+       centre, so it stays in the same spot on a wider or narrower window.
+       Dropped back near its corner, it goes home and follows the page
+       again (the season capsule lifts it on a phone). ---- */
+    const POS_KEY = "sluh22-chat-pos";
+    const EDGE = 10;
+    let spot = null;
+    try {
+      const saved = JSON.parse(localStorage.getItem(POS_KEY) || "null");
+      if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) spot = saved;
+    } catch (err) { /* nothing saved, or storage blocked */ }
+    function place() {
+      if (!spot) { fab.style.left = fab.style.top = fab.style.right = fab.style.bottom = ""; return; }
+      const w = fab.offsetWidth, h = fab.offsetHeight;
+      const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+      const left = Math.min(Math.max(EDGE, spot.x * vw - w / 2), vw - w - EDGE);
+      const top = Math.min(Math.max(EDGE, spot.y * vh - h / 2), vh - h - EDGE);
+      Object.assign(fab.style, { left: `${left}px`, top: `${top}px`, right: "auto", bottom: "auto" });
+    }
+    place();
+    window.addEventListener("resize", place);
+    PHONE.addEventListener("change", () => requestAnimationFrame(place));   // the button changes size
+
+    let drag = null, dragged = false;
+    fab.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 || opened) return;
+      const r = fab.getBoundingClientRect();
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, moving: false };
+      dragged = false;
+    });
+    // Followed on the window, so a quick flick that leaves the button
+    // before it counts as a drag still carries it.
+    window.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (!drag.moving) {
+        if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+        drag.moving = true;
+        fab.setPointerCapture(e.pointerId);
+        fab.classList.add("lhc-dragging");
+      }
+      e.preventDefault();
+      const w = fab.offsetWidth, h = fab.offsetHeight;
+      const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+      spot = { x: (e.clientX - drag.dx + w / 2) / vw, y: (e.clientY - drag.dy + h / 2) / vh };
+      place();
+    });
+    const drop = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const moved = drag.moving;
+      drag = null;
+      if (!moved) return;
+      dragged = true;   // the click that follows a drag doesn't open the chat
+      fab.classList.remove("lhc-dragging");
+      // Near the corner it started in: home again.
+      const r = fab.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+      if (vw - r.right < 48 && vh - r.bottom < 48) spot = null;
+      place();
+      try {
+        if (spot) localStorage.setItem(POS_KEY, JSON.stringify({ x: +spot.x.toFixed(4), y: +spot.y.toFixed(4) }));
+        else localStorage.removeItem(POS_KEY);
+      } catch (err) { /* storage blocked: it stays put for this page */ }
+    };
+    window.addEventListener("pointerup", drop);
+    window.addEventListener("pointercancel", drop);
+
+    /* On a desktop the window opens beside the button, wherever it is: on
+       the side of the screen with room, its nearer corner on the button's. */
+    function anchorPanel() {
+      const keys = ["left", "top", "right", "bottom", "transform-origin"];
+      keys.forEach((k) => panel.style.removeProperty(k));
+      if (!spot || PHONE.matches) return;
+      const r = fab.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+      const pw = panel.offsetWidth, ph = panel.offsetHeight, m = 18;
+      const left = r.left + r.width / 2 < vw / 2 ? r.left : r.right - pw;
+      const top = r.top + r.height / 2 < vh / 2 ? r.top : r.bottom - ph;
+      const x = Math.min(Math.max(m, left), vw - pw - m), y = Math.min(Math.max(m, top), vh - ph - m);
+      Object.assign(panel.style, { left: `${x}px`, top: `${y}px`, right: "auto", bottom: "auto" });
+      panel.style.transformOrigin = `${r.left + r.width / 2 - x}px ${r.top + r.height / 2 - y}px`;
+    }
+
     /* ---- the panel ---- */
     const panel = document.createElement("section");
     panel.className = "lhc-panel";
@@ -1147,6 +1231,7 @@
       opened = true;
       draw();
       panel.hidden = false;
+      anchorPanel();
       fab.setAttribute("aria-expanded", "true");
       document.documentElement.classList.add("lhc-open");
       const r = fab.getBoundingClientRect();
@@ -1166,7 +1251,10 @@
       if (REDUCE.matches) done(); else setTimeout(done, 380);
       fab.focus({ preventScroll: true });
     }
-    fab.addEventListener("click", () => (opened ? close() : open()));
+    fab.addEventListener("click", () => {
+      if (dragged) { dragged = false; return; }
+      if (opened) close(); else open();
+    });
     panel.querySelector('[data-act="close"]').addEventListener("click", close);
     panel.querySelector('[data-act="fresh"]').addEventListener("click", () => {
       if (busy) busy.abort();

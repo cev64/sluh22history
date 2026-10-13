@@ -44,9 +44,16 @@
   cursor: pointer; isolation: isolate;
   opacity: 0; transform: translateY(24px) scale(.86);
   transition: opacity .5s var(--lhc-ease), transform .6s var(--lhc-spring), box-shadow .3s var(--lhc-ease);
-  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; -webkit-user-select: none;
 }
 .lhc-fab.in { opacity: 1; transform: none; }
+/* picked up and moving (chat.js): it lifts, and follows the finger at once */
+body:not(#_) .lhc-fab.lhc-dragging {
+  cursor: grabbing; transform: scale(1.07);
+  box-shadow: 0 24px 50px rgba(7, 24, 39, .42), 0 0 0 6px rgba(246, 183, 60, .18);
+  transition: transform .2s var(--lhc-ease), box-shadow .2s var(--lhc-ease);
+}
+.lhc-fab-icon, .lhc-fab-label { pointer-events: none; }
 /* a slow gold-and-blue light running round its edge */
 .lhc-fab-ring {
   position: absolute; inset: -2px; z-index: -1; border-radius: inherit; padding: 2px;
