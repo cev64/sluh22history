@@ -22,7 +22,7 @@
      },
 
    Until ORDER is set, the board projects the draft order from the season
-   page's standings, so it moves on its own as each week is posted.
+   page's playoff picture, so it moves on its own as each week is posted.
 
    After the draft, move DRAFT on a year, empty TRADES and reset ORDER. */
 (function () {
@@ -42,8 +42,8 @@
   };
 
   /* The draft order once it is official, the team picking first first;
-     null until then, and the board projects one from the standings
-     (projectOrder). The first three rounds are keepers, so the worst team
+     null until then, and the board projects one from the season page's
+     playoff picture (projectOrder). The first three rounds are keepers, so the worst team
      makes the first real pick, 4.01; rounds 1-3 run in round 4's order and
      hold the keepers. From round 4 the draft snakes: round 5 runs back from
      10 to 1, round 6 forward again. A traded pick keeps the slot of the team
@@ -75,28 +75,28 @@
     { id: "open", from: KEEPER_ROUNDS + 3, to: ROUNDS },
   ];
 
-  /* The projected order: the regular-season standings so far, worst
-     first. Fewest wins (a tie is half a win), then fewest points for.
-     `results` is the season page's: week -> [[teamA, scoreA, teamB, scoreB]]. */
-  function projectOrder(results) {
-    const line = {};
-    for (const t of SHEET_ORDER) line[t] = { wins: 0, losses: 0, ties: 0, pf: 0 };
-    let weeks = 0;
-    for (const games of Object.values(results || {})) {
-      if (!games || !games.length) continue;
-      weeks++;
-      for (const [a, as, b, bs] of games) {
-        if (!line[a] || !line[b]) continue;
-        line[a].pf += as; line[b].pf += bs;
-        if (as > bs) { line[a].wins++; line[b].losses++; }
-        else if (bs > as) { line[b].wins++; line[a].losses++; }
-        else { line[a].ties++; line[b].ties++; }
-      }
+  /* The projected order, worst first, from the playoff picture as it
+     stands: the four teams missing the playoffs pick 1-4, then the two wild
+     cards 5-6, the two division runners-up (2 seeds) 7-8 and the two
+     division winners (1 seeds) 9-10. Inside each group, fewest wins and
+     then fewest points for picks first. `picture` is the season page's own
+     (its buildPicture), so the seeds are always the ones its standings show:
+     { week, stats, champs, runnersUp, wildcards, toiletSeeds }. */
+  function projectOrder(picture) {
+    if (!picture || !picture.week) return null;
+    const { stats } = picture;
+    const worstFirst = (ids) => [...ids].sort((a, b) => stats[a].wins - stats[b].wins || stats[a].pf - stats[b].pf);
+    const order = [
+      ...worstFirst(picture.toiletSeeds),
+      ...worstFirst(picture.wildcards),
+      ...worstFirst(picture.runnersUp.map((r) => r.id)),
+      ...worstFirst(picture.champs.map((c) => c.id)),
+    ];
+    if (order.length !== SHEET_ORDER.length || SHEET_ORDER.some((t) => !order.includes(t))) {
+      console.warn("draft-picks.js: the playoff picture doesn't cover every team", order);
+      return null;
     }
-    if (!weeks) return null;
-    const won = (t) => line[t].wins + line[t].ties / 2;
-    const order = [...SHEET_ORDER].sort((x, y) => won(x) - won(y) || line[x].pf - line[y].pf);
-    return { order, weeks, line };
+    return { order, weeks: picture.week, stats };
   }
 
   /* Does this round run 1 to 10 (else 10 to 1)? Round 4 and the keeper
