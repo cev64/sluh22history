@@ -59,6 +59,22 @@
       ],
       note: "Jalen Coker went to Charlie in the same deal.",
     },
+    {
+      date: "2026-10-14",
+      picks: [
+        { round: 11, of: "first", to: "jared" },   // Ted's 11th to Jared
+        { round: 7, of: "jared", to: "first" },    // Jared's 7th to Ted
+      ],
+      note: "",
+    },
+    {
+      date: "2026-10-14",
+      picks: [
+        { round: 6, of: "hamilton", to: "hawaii" },   // Niko's 6th to Matt
+        { round: 8, of: "hawaii", to: "hamilton" },    // Matt's 8th to Niko
+      ],
+      note: "",
+    },
   ];
 
   /* Rounds by what a player taken in them means for keeping him: the keeper
