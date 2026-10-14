@@ -67,6 +67,14 @@
       ],
       note: "",
     },
+    {
+      date: "2026-10-14",
+      picks: [
+        { round: 6, of: "hamilton", to: "hawaii" },   // Niko's 6th to Matt
+        { round: 8, of: "hawaii", to: "hamilton" },    // Matt's 8th to Niko
+      ],
+      note: "",
+    },
   ];
 
   /* Rounds by what a player taken in them means for keeping him: the keeper
