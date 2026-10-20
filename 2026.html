@@ -4985,13 +4985,21 @@
       e: { label: "e", title: "Eliminated from playoff contention" }
     };
 
+    /* Two teams level on record. Every team has played the same number of
+       games once a week is posted, so this is the rulebook's "games won";
+       it matters only while a what-if week is partly picked, when a team
+       with its game picked has one more on the books than a team without
+       and comparing wins alone would let a picked loss count as a gain. */
+    const sameRecord = (p, c) => p.wins === c.wins && p.losses === c.losses && p.ties === c.ties;
+    const byRecord = (p, c) => (c.pct - p.pct) || (c.wins - p.wins);
+
     /* Wild cards and division-runner-up ordering: games won, then points for,
        then a coin flip. */
     function orderByRecordThenPoints(ids, stats, flips, reasons, race) {
-      const ordered = ids.slice().sort((a, b) => (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf));
+      const ordered = ids.slice().sort((a, b) => byRecord(stats[a], stats[b]) || (stats[b].pf - stats[a].pf));
       for (let i = 1; i < ordered.length; i++) {
         const p = stats[ordered[i - 1]], c = stats[ordered[i]];
-        if (p.wins === c.wins && p.pf === c.pf) flips.push([ordered[i - 1], ordered[i]]);
+        if (sameRecord(p, c) && p.pf === c.pf) flips.push([ordered[i - 1], ordered[i]]);
       }
       // This race spans both divisions, so teams that never tied inside their
       // own division can still be separated here.
@@ -5009,7 +5017,7 @@
       let i = 0;
       while (i < ordered.length) {
         let j = i;
-        while (j + 1 < ordered.length && stats[ordered[j + 1]].wins === stats[ordered[i]].wins) j += 1;
+        while (j + 1 < ordered.length && sameRecord(stats[ordered[j + 1]], stats[ordered[i]])) j += 1;
         if (j > i) {
           const group = ordered.slice(i, j + 1);
           const { criterion, detail } = describe(group);
@@ -5024,7 +5032,7 @@
     /* Toilet Bowl reseeding: games won, points for, head-to-head, coin flip. */
     function orderToilet(ids, week, stats, flips, reasons) {
       const ordered = ids.slice().sort((a, b) => {
-        if (stats[b].wins !== stats[a].wins) return stats[b].wins - stats[a].wins;
+        if (!sameRecord(stats[a], stats[b])) return byRecord(stats[a], stats[b]);
         if (stats[b].pf !== stats[a].pf) return stats[b].pf - stats[a].pf;
         const h = headToHead(a, b, week);
         if (h.played && h.w !== h.l) return h.l - h.w;
@@ -5033,7 +5041,7 @@
       for (let i = 1; i < ordered.length; i++) {
         const a = ordered[i - 1], b = ordered[i];
         const h = headToHead(a, b, week);
-        if (stats[a].wins === stats[b].wins && stats[a].pf === stats[b].pf && (!h.played || h.w === h.l)) flips.push([a, b]);
+        if (sameRecord(stats[a], stats[b]) && stats[a].pf === stats[b].pf && (!h.played || h.w === h.l)) flips.push([a, b]);
       }
       recordWinGroupTies(ordered, stats, reasons, "Toilet Bowl seeding", (group) => {
         const ladder = group.map((id) => `${teams[id].name} ${fmt(stats[id].pf)}`).join(", ");
@@ -5071,7 +5079,7 @@
       const worseRunner = runnersUp.find((r) => r.id === runnerOrder[1]);
 
       if (betterRunner && worseRunner && wildcards.length === 2 &&
-          stats[betterRunner.id].wins === stats[worseRunner.id].wins) {
+          sameRecord(stats[betterRunner.id], stats[worseRunner.id])) {
         const detail = `Both division runners-up finished ${stats[betterRunner.id].record}, so points for decides which wild card each one draws: ${teams[betterRunner.id].name} ${fmt(stats[betterRunner.id].pf)}, ${teams[worseRunner.id].name} ${fmt(stats[worseRunner.id].pf)}. The better runner-up plays WC2, the worse plays WC1.`;
         addReason(reasons, betterRunner.id, { race: "Wild-card matchup", criterion: "Points for", detail,
           note: `Draws WC2 · ${teams[wildcards[1]].name}.` });
@@ -6195,7 +6203,7 @@
 
     /* The projected winner's bracket, any pending coin flips and the Toilet
        Bowl ladder for a picture, as one run of cards. */
-    function pictureCards(picture, note) {
+    function pictureCards(picture, note, { flips = true } = {}) {
       const stats = picture.stats;
       const [sideA, sideB] = picture.sides;
       const opener = (side) => bkGame([bkRow(picture.seedLabels[side.three].chip.replace(/^WC/, "WC #"), side.three, stats), bkRow("#2", side.two, stats)]);
@@ -6230,7 +6238,7 @@
         ],
       });
 
-      const flipNote = picture.flips.length
+      const flipNote = flips && picture.flips.length
         ? `<div class="tag-row" style="padding:0">${picture.flips.map(([a, b]) =>
             `<span class="rule-tag flip">Coin flip pending · ${teams[a].name} / ${teams[b].name}</span>`).join("")}</div>`
         : "";
@@ -6249,8 +6257,9 @@
        points-for order exactly where the real standings have it. A game
        left unpicked does not count yet.
 
-       Picks are kept in this browser only, and a week's picks are dropped
-       once its real scores are posted (the pickable week moves on).
+       Picks are kept in this browser only. Once a week's real scores are
+       posted the pickable week moves on, and the old week's picks are
+       cleared the next time the panel opens.
        ================================================================= */
 
     const pickWeek = () => (lastPlayedWeek < REGULAR_WEEKS ? lastPlayedWeek + 1 : null);
@@ -6258,7 +6267,10 @@
 
     // Odds under picks rerun on every tap, so they take a lighter simulation
     // than the Standings card's, and run a beat after the seeds have moved.
-    const WHATIF_ITERATIONS = 4000;
+    // Two separate simulations of the same race differ by a point now and
+    // then, so a move that small is not called a move.
+    const WHATIF_ITERATIONS = 5000;
+    const ODDS_NOISE = 1;
 
     let picks = {};            // slate index → the team picked to win
     let picksWeek = null;
@@ -6269,6 +6281,7 @@
       picksWeek = week;
       picks = {};
       try {
+        for (let w = 1; w < week; w++) localStorage.removeItem(picksKey(w));
         const saved = JSON.parse(localStorage.getItem(picksKey(week)) || "{}");
         (schedule[week] || []).forEach(([a, b], i) => {
           if (saved[i] === a || saved[i] === b) picks[i] = saved[i];
@@ -6337,7 +6350,7 @@
         <div class="panel-stack">
           <div class="wi-layout">
             <article class="card wi-card">
-              ${cardHead(`Week ${week} What-If`, "versus", `<span class="wi-count"></span>`)}
+              ${cardHead(`Week ${week} What-If`, "versus", `<span class="wi-count" aria-live="polite"></span>`)}
               <p class="wi-lede">Tap who you think wins each game. The seeds, odds and bracket redraw as if Week ${week} were final. Tap a pick again to clear it.</p>
               <div class="wi-games">${(schedule[week] || []).map(game).join("")}</div>
               <div class="wi-foot">
@@ -6345,7 +6358,7 @@
                 <button type="button" class="wi-btn primary" data-wi="seeds">Where they'd land<span aria-hidden="true"> ↓</span></button>
               </div>
             </article>
-            <article class="card wi-seeds-card" aria-live="polite">
+            <article class="card wi-seeds-card">
               ${cardHead("Where They'd Land", "standings", `<span class="wi-seeds-meta"></span>`)}
               <div class="table-wrap">
                 <table class="wi-seeds">
@@ -6367,8 +6380,10 @@
       const asOf = asOfWeek(week);
       const games = pickedGames(week);
       const count = games.length, total = (schedule[week] || []).length;
-      const base = buildPicture(asOf);
-      const picture = count ? withPicks(games, () => buildPicture(week)) : base;
+      // Before Week 1 every team is 0–0, so the order picks would move teams
+      // from is only a coin flip: no arrows, no coin-flip notes.
+      const base = asOf ? buildPicture(asOf) : null;
+      const picture = count ? withPicks(games, () => buildPicture(week)) : base || buildPicture(0);
 
       // The pick buttons, each carrying where its team would now be seeded.
       panel.querySelectorAll(".wi-side").forEach((btn) => {
@@ -6409,7 +6424,7 @@
 
       // The bracket and the Toilet Bowl ladder, as the Playoffs tab draws them.
       const note = count ? `With your Week ${week} picks` : asOf ? `Projected · through Week ${asOf}` : "Preseason · everyone 0–0";
-      panel.querySelector(".wi-bracket").innerHTML = pictureCards(picture, note);
+      panel.querySelector(".wi-bracket").innerHTML = pictureCards(picture, note, { flips: Boolean(asOf) });
 
       // The odds land a beat later so a tap never waits on the simulation.
       const run = ++whatIfRun;
@@ -6425,7 +6440,8 @@
           const p = flag === "z" || flag === "x" ? 1 : flag === "e" ? 0 : now ? now[id].playoff : null;
           if (p === null) return;
           const settled = flag === "z" || flag === "x" || flag === "e";
-          const delta = count && was ? Math.round(p * 100) - Math.round(was[id].playoff * 100) : 0;
+          let delta = count && was ? Math.round(p * 100) - Math.round(was[id].playoff * 100) : 0;
+          if (Math.abs(delta) <= ODDS_NOISE && !settled) delta = 0;
           cell.innerHTML = `<span class="wi-pct${settled ? " settled" : ""}">${settled ? `${Math.round(p * 100)}%` : oddsText(p)}</span>${delta
             ? `<span class="wi-delta ${delta > 0 ? "up" : "down"}">${delta > 0 ? "+" : "−"}${Math.abs(delta)}</span>` : ""}`;
         });
@@ -6437,7 +6453,7 @@
 
     // An arrow beside a seed that a pick has moved, pointing the way it went.
     function seedMoveTag(base, picture, id) {
-      if (base === picture || base.seedLabels[id].chip === picture.seedLabels[id].chip) return "";
+      if (!base || base === picture || base.seedLabels[id].chip === picture.seedLabels[id].chip) return "";
       const up = seedTier(picture, id) < seedTier(base, id);
       return `<span class="wi-move ${up ? "up" : "down"}" title="Was ${base.seedLabels[id].chip}">${up ? "▲" : "▼"}</span>`;
     }
