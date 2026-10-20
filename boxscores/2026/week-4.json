@@ -127,7 +127,7 @@
       "pts": 5,
       "proj": 8.53,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Terry McLaurin",
@@ -137,7 +137,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Dallas Goedert",
@@ -189,7 +189,7 @@
       "pts": 6.5,
       "proj": 15.55,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Puka Nacua",
@@ -219,7 +219,7 @@
       "pts": 9.1,
       "proj": 13.05,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Drake London",
@@ -269,7 +269,7 @@
       "pts": 11.4,
       "proj": 9.45,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "TreVeyon Henderson",
@@ -279,7 +279,7 @@
       "pts": 4.2,
       "proj": 9.52,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Kalif Raymond",
@@ -449,7 +449,7 @@
       "pts": 21.6,
       "proj": 12.47,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "DK Metcalf",
@@ -479,7 +479,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "infinity": [
@@ -511,7 +511,7 @@
       "pts": 7,
       "proj": 11.13,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -551,7 +551,7 @@
       "pts": 9.1,
       "proj": 14.79,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Dontayvion Wicks",
@@ -611,7 +611,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Adonai Mitchell",
@@ -641,7 +641,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": "QUESTIONABLE"
      }
     ]
    }
@@ -681,7 +681,7 @@
       "pts": 4.3,
       "proj": 13.47,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Nico Collins",
@@ -701,7 +701,7 @@
       "pts": 12.6,
       "proj": 21.86,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Tucker Kraft",
@@ -751,7 +751,7 @@
       "pts": 23.8,
       "proj": 9.77,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Alvin Kamara",
@@ -883,7 +883,7 @@
       "pts": 12.6,
       "proj": 11.8,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Malik Washington",
@@ -1033,7 +1033,7 @@
       "pts": 7.2,
       "proj": 15.63,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Travis Kelce",
@@ -1275,7 +1275,7 @@
       "pts": 8.5,
       "proj": 12.8,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Makai Lemon",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Rachaad White",
@@ -1455,7 +1455,7 @@
       "pts": 0,
       "proj": 9.87,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Caleb Williams",
@@ -1465,7 +1465,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "first": [
@@ -1507,7 +1507,7 @@
       "pts": 41.3,
       "proj": 16.9,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Christian Watson",
@@ -1547,7 +1547,7 @@
       "pts": 0,
       "proj": 14.9,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Ravens D/ST",
@@ -1597,7 +1597,7 @@
       "pts": 13.52,
       "proj": 17.62,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Matthew Golden",

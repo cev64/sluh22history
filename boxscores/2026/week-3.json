@@ -47,7 +47,7 @@
       "pts": 12.5,
       "proj": 15.62,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Emeka Egbuka",
@@ -87,7 +87,7 @@
       "pts": 9.9,
       "proj": 13.72,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Steelers D/ST",
@@ -289,7 +289,7 @@
       "pts": 7.3,
       "proj": 10.81,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Makai Lemon",
@@ -399,7 +399,7 @@
       "pts": 3.8,
       "proj": 13.78,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Eagles D/ST",
@@ -449,7 +449,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Josh Jacobs",
@@ -531,7 +531,7 @@
       "pts": 12.4,
       "proj": 12.48,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Trey McBride",
@@ -681,7 +681,7 @@
       "pts": 6.8,
       "proj": 12.01,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -691,7 +691,7 @@
       "pts": 35.36,
       "proj": 20.83,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Rome Odunze",
@@ -761,7 +761,7 @@
       "pts": 7.9,
       "proj": 11.52,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Chris Godwin Jr.",
@@ -873,7 +873,7 @@
       "pts": 14.7,
       "proj": 12.32,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jeremiyah Love",
@@ -883,7 +883,7 @@
       "pts": 21.9,
       "proj": 12.77,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Dalton Kincaid",
@@ -923,7 +923,7 @@
       "pts": 5.7,
       "proj": 8.77,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "TreVeyon Henderson",
@@ -933,7 +933,7 @@
       "pts": 3.9,
       "proj": 10.5,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "KC Concepcion",
@@ -943,7 +943,7 @@
       "pts": 2.9,
       "proj": 10.97,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Puka Nacua",
@@ -1093,7 +1093,7 @@
       "pts": 19.7,
       "proj": 11.81,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Quentin Johnston",
@@ -1103,7 +1103,7 @@
       "pts": 7,
       "proj": 10.87,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "J.K. Dobbins",
@@ -1145,7 +1145,7 @@
       "pts": 12.62,
       "proj": 19.8,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "James Cook III",
@@ -1185,7 +1185,7 @@
       "pts": 20.2,
       "proj": 17.31,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Mark Andrews",
@@ -1205,7 +1205,7 @@
       "pts": 15.8,
       "proj": 12.73,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Josh Downs",
@@ -1405,7 +1405,7 @@
       "pts": 20,
       "proj": 10.57,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Trevor Lawrence",
@@ -1425,7 +1425,7 @@
       "pts": 5.3,
       "proj": 8.77,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Rico Dowdle",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Caleb Douglas",
@@ -1445,7 +1445,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Adonai Mitchell",
@@ -1465,7 +1465,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": "QUESTIONABLE"
      }
     ],
     "game": [
@@ -1537,7 +1537,7 @@
       "pts": 20.7,
       "proj": 15.62,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Travis Kelce",
