@@ -4129,6 +4129,241 @@
       .rc-vs em { font-size: 11px; }
       .rc-foot, .rc-more { padding-left: 12px; padding-right: 12px; }
     }
+
+    /* What-if picks ------------------------------------------------- */
+    /* A slim card above the brackets with a switch; on, it slides open the
+       week's games. A pick is a matchup box like the Results tab's: the
+       side picked to win is tinted and ruled in blue, the other side steps
+       back. */
+
+    .wi-bar-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .wi-bar-head .division-chip { flex: 0 0 auto; }
+    .wi-bar-copy { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+    .wi-bar-copy strong { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: .02em; line-height: 1; text-transform: uppercase; }
+    .wi-bar-copy span { color: var(--ink-3); font-size: 12px; font-weight: 500; }
+
+    .wi-switch {
+      position: relative;
+      flex: 0 0 auto;
+      width: 46px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: var(--line-2);
+      transition: background .25s var(--ease);
+    }
+    .wi-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(16, 24, 40, .22);
+      transition: transform .4s var(--spring);
+    }
+    .wi-bar.on .wi-switch { background: var(--accent); }
+    .wi-bar.on .wi-knob { transform: translateX(18px); }
+    .wi-switch:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .wi-bar-head:active .wi-knob { width: 25px; }
+    .wi-bar.on .wi-bar-head:active .wi-knob { transform: translateX(15px); }
+
+    .wi-drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s var(--ease); }
+    .wi-bar.on .wi-drawer { grid-template-rows: 1fr; }
+    .wi-drawer-inner { min-height: 0; overflow: hidden; }
+    .wi-bar.on .wi-drawer-inner { border-top: 1px solid var(--line); }
+
+    /* Phones and narrow windows swipe through the games; wide ones lay all
+       five in a row. */
+    .wi-games {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px 4px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding: 0 16px;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+    }
+    .wi-games::-webkit-scrollbar { display: none; }
+    .wi-game { flex: 0 0 min(232px, 76%); scroll-snap-align: start; }
+    @media (min-width: 1200px) {
+      .wi-games { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: visible; }
+    }
+
+    .wi-game {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .wi-game-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-3);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .wi-state { font-weight: 600; letter-spacing: .06em; transition: color .2s ease; }
+    .wi-state.done { color: var(--accent-ink); }
+
+    .wi-side {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 50px;
+      padding: 7px 10px;
+      border: 0;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      transition: background .18s ease, box-shadow .25s var(--ease);
+    }
+    .wi-side + .wi-side { border-top: 1px solid var(--line); }
+    .wi-side:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    @media (hover: hover) { .wi-side:hover { background: var(--surface-2); } }
+    .wi-side:active { background: var(--surface-3); }
+
+    .wi-side .mini-badge { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px; transition: opacity .2s ease, filter .2s ease; }
+    .wi-team { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+    .wi-team strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; letter-spacing: -.005em; transition: color .2s ease; }
+    .wi-meta { display: flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+    .wi-seed { display: inline-flex; align-items: center; gap: 3px; }
+    body:not(#_) .wi-seed .seed-tag { min-width: 0; padding: 1px 5px; font-size: 9.5px; }
+    .wi-seed.bump { animation: wiBump .5s var(--spring); }
+    @keyframes wiBump { 0% { transform: scale(.7); opacity: .3; } 100% { transform: none; opacity: 1; } }
+
+    .wi-check {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line-2);
+      background: #fff;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .wi-check svg { width: 12px; height: 12px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 14; stroke-dashoffset: 14; transition: stroke-dashoffset .25s var(--ease); }
+
+    .wi-side.picked { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+    @media (hover: hover) { .wi-side.picked:hover { background: #e3edff; } }
+    .wi-side.picked .wi-team strong { color: var(--accent-ink); font-weight: 700; }
+    .wi-side.picked .wi-check { background: var(--accent); border-color: var(--accent); animation: wiCheck .4s var(--spring); }
+    .wi-side.picked .wi-check svg { stroke-dashoffset: 0; transition-delay: .06s; }
+    @keyframes wiCheck { 0% { transform: scale(.6); } 100% { transform: none; } }
+
+    .wi-side.passed .wi-team strong { color: var(--ink-2); font-weight: 500; }
+    .wi-side.passed .mini-badge { opacity: .5; filter: saturate(.6); }
+    .wi-side.passed .wi-check { border-color: var(--line); }
+    /* Five across, the tint and rule say which side is picked; the names
+       get the check's room. */
+    @media (min-width: 1200px) { .wi-check { display: none; } .wi-side { padding-right: 8px; } }
+
+    .wi-move { font-size: 9px; line-height: 1; }
+    .wi-move.up { color: #15803d; }
+    .wi-move.down { color: #dc2626; }
+
+    .wi-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 16px 12px;
+    }
+    .wi-count { color: var(--ink-3); font-size: 12px; font-weight: 500; }
+    .wi-btn {
+      min-height: 32px;
+      padding: 0 13px;
+      border: 1px solid var(--line-2);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 600;
+      transition: background .15s ease, opacity .15s ease, transform .18s var(--ease);
+    }
+    .wi-btn:active:not(:disabled) { transform: scale(.96); }
+    .wi-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .wi-btn:disabled { opacity: .45; cursor: default; }
+    @media (hover: hover) { .wi-btn:hover:not(:disabled) { background: var(--surface-2); } }
+
+    /* A bracket redrawn by a pick settles in rather than snapping. */
+    .wi-redraw .matchup-row.projected { animation: wiSettle .45s var(--ease); }
+    @keyframes wiSettle { from { opacity: .35; } to { opacity: 1; } }
+
+    /* Where they'd land: the standings table's look, cut below the field. */
+    .wi-seeds { width: 100%; min-width: 0; table-layout: fixed; }
+    .wi-seeds .wi-seed-col { width: 74px; }
+    .wi-seeds .wi-rec-col { width: 56px; }
+    .wi-seeds .wi-odds-col { width: 96px; }
+    .wi-seeds th.wi-odds, .wi-seeds td.wi-odds, .wi-seeds th.wi-rec, .wi-seeds td.wi-rec { text-align: right; }
+    body:not(#_) .wi-seeds td { padding-top: 7px; padding-bottom: 7px; }
+    .wi-seed-cell { white-space: nowrap; }
+    .wi-seed-cell .wi-move { margin-left: 4px; }
+    .wi-team-cell > div { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .wi-seeds tr.wi-cut > td { border-top: 1px dashed var(--line-2); }
+    .wi-teamlink {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: left;
+    }
+    .wi-teamlink > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wi-teamlink .mini-badge { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px; }
+    @media (hover: hover) { .wi-teamlink:hover > span:last-child { color: var(--accent-ink); } }
+    .wi-seeds td.wi-odds { white-space: nowrap; }
+    .wi-pct { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity .2s ease; }
+    .wi-pct.settled { color: var(--ink-2); }
+    .wi-delta { display: inline-block; min-width: 28px; margin-left: 5px; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+    .wi-delta.up { color: #15803d; }
+    .wi-delta.down { color: #dc2626; }
+    .wi-seeds.odds-pending .wi-odds > * { opacity: .4; }
+
+    @media (max-width: 700px) {
+      .wi-bar-head { padding: 10px 12px; gap: 10px; }
+      .wi-bar-copy strong { font-size: 18px; }
+      .wi-bar-copy span { font-size: 11.5px; }
+      .wi-games { padding: 10px 12px 2px; scroll-padding: 0 12px; }
+      .wi-foot { padding: 8px 12px 10px; }
+      body:not(#_) .wi-seeds :is(th, td) { padding-left: 6px; padding-right: 6px; }
+      body:not(#_) .wi-seeds :is(th, td):first-child { padding-left: 12px; }
+      body:not(#_) .wi-seeds :is(th, td):last-child { padding-right: 12px; }
+      .wi-seeds th.wi-rec, .wi-seeds td.wi-rec { padding-left: 2px; }
+      /* the fixed columns give the team names as much room as a phone has */
+      .wi-seeds .wi-seed-col { width: 62px; }
+      .wi-seeds .wi-rec-col { width: 38px; }
+      .wi-seeds .wi-odds-col { width: 76px; }
+      .wi-delta { min-width: 0; margin-left: 4px; }
+      .wi-teamlink { gap: 7px; }
+    }
   </style>
   <link rel="stylesheet" href="ui.css" />
   <link rel="stylesheet" href="design.css" />
@@ -4470,7 +4705,25 @@
       playedWeeks.filter((w) => w <= week).forEach((w) => {
         results[w].forEach(([a, as, b, bs]) => out.push({ week: w, a, as, b, bs }));
       });
+      whatIfGames.forEach((g) => { if (g.week <= week) out.push(g); });
       return out;
+    }
+
+    /* Which side took a game: above zero for `a`, below for `b`. A picked
+       game (see WHAT-IF PICKS) names its winner outright, since its scores
+       are only stand-ins for the points-for tiebreakers. */
+    const edgeOf = (g) => (g.win ? (g.win === g.a ? 1 : -1) : g.as - g.bs);
+
+    /* Hypothetical games folded into every record while `withPicks` runs, so
+       the standings, tiebreakers, clinch flags and odds all read a what-if
+       week exactly as they would read a posted one. Empty the rest of the
+       time; nothing else on the page ever sees a pick. */
+    let whatIfGames = [];
+
+    function withPicks(games, fn) {
+      const saved = whatIfGames;
+      whatIfGames = games;
+      try { return fn(); } finally { whatIfGames = saved; }
     }
 
     function blankLine(id) {
@@ -4490,13 +4743,14 @@
 
       gamesThrough(week).forEach((g) => {
         const sameDivision = teams[g.a].division === teams[g.b].division;
-        [[g.a, g.as, g.b, g.bs], [g.b, g.bs, g.a, g.as]].forEach(([id, own, oppId, opp]) => {
+        const edge = edgeOf(g);
+        [[g.a, g.as, g.bs, edge], [g.b, g.bs, g.as, -edge]].forEach(([id, own, opp, won]) => {
           const line = stats[id];
           line.gp += 1;
           line.pf += own;
           line.pa += opp;
-          if (own > opp) { line.wins += 1; if (sameDivision) line.divWins += 1; line.form.push("W"); }
-          else if (own < opp) { line.losses += 1; if (sameDivision) line.divLosses += 1; line.form.push("L"); }
+          if (won > 0) { line.wins += 1; if (sameDivision) line.divWins += 1; line.form.push("W"); }
+          else if (won < 0) { line.losses += 1; if (sameDivision) line.divLosses += 1; line.form.push("L"); }
           else { line.ties += 1; if (sameDivision) line.divTies += 1; line.form.push("T"); }
         });
       });
@@ -4542,11 +4796,11 @@
     function headToHead(a, b, week) {
       let w = 0, l = 0, t = 0;
       gamesThrough(week).forEach((g) => {
-        let own, opp;
-        if (g.a === a && g.b === b) { own = g.as; opp = g.bs; }
-        else if (g.b === a && g.a === b) { own = g.bs; opp = g.as; }
+        let won;
+        if (g.a === a && g.b === b) won = edgeOf(g);
+        else if (g.b === a && g.a === b) won = -edgeOf(g);
         else return;
-        if (own > opp) w += 1; else if (own < opp) l += 1; else t += 1;
+        if (won > 0) w += 1; else if (won < 0) l += 1; else t += 1;
       });
       return { w, l, t, played: w + l + t };
     }
@@ -4767,13 +5021,21 @@
       e: { label: "e", title: "Eliminated from playoff contention" }
     };
 
+    /* Two teams level on record. Every team has played the same number of
+       games once a week is posted, so this is the rulebook's "games won";
+       it matters only while a what-if week is partly picked, when a team
+       with its game picked has one more on the books than a team without
+       and comparing wins alone would let a picked loss count as a gain. */
+    const sameRecord = (p, c) => p.wins === c.wins && p.losses === c.losses && p.ties === c.ties;
+    const byRecord = (p, c) => (c.pct - p.pct) || (c.wins - p.wins);
+
     /* Wild cards and division-runner-up ordering: games won, then points for,
        then a coin flip. */
     function orderByRecordThenPoints(ids, stats, flips, reasons, race) {
-      const ordered = ids.slice().sort((a, b) => (stats[b].wins - stats[a].wins) || (stats[b].pf - stats[a].pf));
+      const ordered = ids.slice().sort((a, b) => byRecord(stats[a], stats[b]) || (stats[b].pf - stats[a].pf));
       for (let i = 1; i < ordered.length; i++) {
         const p = stats[ordered[i - 1]], c = stats[ordered[i]];
-        if (p.wins === c.wins && p.pf === c.pf) flips.push([ordered[i - 1], ordered[i]]);
+        if (sameRecord(p, c) && p.pf === c.pf) flips.push([ordered[i - 1], ordered[i]]);
       }
       // This race spans both divisions, so teams that never tied inside their
       // own division can still be separated here.
@@ -4791,7 +5053,7 @@
       let i = 0;
       while (i < ordered.length) {
         let j = i;
-        while (j + 1 < ordered.length && stats[ordered[j + 1]].wins === stats[ordered[i]].wins) j += 1;
+        while (j + 1 < ordered.length && sameRecord(stats[ordered[j + 1]], stats[ordered[i]])) j += 1;
         if (j > i) {
           const group = ordered.slice(i, j + 1);
           const { criterion, detail } = describe(group);
@@ -4806,7 +5068,7 @@
     /* Toilet Bowl reseeding: games won, points for, head-to-head, coin flip. */
     function orderToilet(ids, week, stats, flips, reasons) {
       const ordered = ids.slice().sort((a, b) => {
-        if (stats[b].wins !== stats[a].wins) return stats[b].wins - stats[a].wins;
+        if (!sameRecord(stats[a], stats[b])) return byRecord(stats[a], stats[b]);
         if (stats[b].pf !== stats[a].pf) return stats[b].pf - stats[a].pf;
         const h = headToHead(a, b, week);
         if (h.played && h.w !== h.l) return h.l - h.w;
@@ -4815,7 +5077,7 @@
       for (let i = 1; i < ordered.length; i++) {
         const a = ordered[i - 1], b = ordered[i];
         const h = headToHead(a, b, week);
-        if (stats[a].wins === stats[b].wins && stats[a].pf === stats[b].pf && (!h.played || h.w === h.l)) flips.push([a, b]);
+        if (sameRecord(stats[a], stats[b]) && stats[a].pf === stats[b].pf && (!h.played || h.w === h.l)) flips.push([a, b]);
       }
       recordWinGroupTies(ordered, stats, reasons, "Toilet Bowl seeding", (group) => {
         const ladder = group.map((id) => `${teams[id].name} ${fmt(stats[id].pf)}`).join(", ");
@@ -4853,7 +5115,7 @@
       const worseRunner = runnersUp.find((r) => r.id === runnerOrder[1]);
 
       if (betterRunner && worseRunner && wildcards.length === 2 &&
-          stats[betterRunner.id].wins === stats[worseRunner.id].wins) {
+          sameRecord(stats[betterRunner.id], stats[worseRunner.id])) {
         const detail = `Both division runners-up finished ${stats[betterRunner.id].record}, so points for decides which wild card each one draws: ${teams[betterRunner.id].name} ${fmt(stats[betterRunner.id].pf)}, ${teams[worseRunner.id].name} ${fmt(stats[worseRunner.id].pf)}. The better runner-up plays WC2, the worse plays WC1.`;
         addReason(reasons, betterRunner.id, { race: "Wild-card matchup", criterion: "Points for", detail,
           note: `Draws WC2 · ${teams[wildcards[1]].name}.` });
@@ -5121,10 +5383,18 @@
 
     const oddsCache = {};
 
-    function playoffOdds(week) {
-      if (oddsCache[week]) return oddsCache[week];
+    // A what-if week is cached under its picks, apart from the real week.
+    // It runs on the posted week's footing (`basis`): how much own form
+    // counts and how far early odds fade, so that the picks are the only
+    // thing that differs from the odds on the Standings tab.
+    function playoffOdds(week, { iterations = ODDS_ITERATIONS, basis = week } = {}) {
+      const key = [week, basis, iterations, ...whatIfGames.map((g) => g.win)].join("|");
+      if (oddsCache[key]) return oddsCache[key];
 
       const played = gamesThrough(week);
+      // A picked game's scores are stand-ins, so they stay out of the
+      // scoring pools the future is drawn from.
+      const posted = played.filter((g) => !g.win);
 
       // Base state carried into every simulation.
       const base = {};
@@ -5137,15 +5407,21 @@
       played.forEach((g) => {
         const sameDiv = teams[g.a].division === teams[g.b].division;
         base[g.a].pf += g.as; base[g.b].pf += g.bs;
-        const [win, lose] = g.as >= g.bs ? [g.a, g.b] : [g.b, g.a];
+        const [win, lose] = edgeOf(g) >= 0 ? [g.a, g.b] : [g.b, g.a];
         base[win].wins += 1; base[lose].losses += 1;
         baseH2H[win][lose] += 1;
         if (sameDiv) { base[win].divWins += 1; base[lose].divLosses += 1; }
       });
 
+      // Every game not yet on record, which for a what-if week includes the
+      // games of that week left unpicked.
+      const pairKey = (w, a, b) => `${w}|${[a, b].sort().join("|")}`;
+      const onRecord = new Set(played.map((g) => pairKey(g.week, g.a, g.b)));
       const remaining = [];
-      for (let w = week + 1; w <= REGULAR_WEEKS; w++) {
-        (schedule[w] || []).forEach(([a, b]) => remaining.push([a, b]));
+      for (let w = 1; w <= REGULAR_WEEKS; w++) {
+        (schedule[w] || []).forEach(([a, b]) => {
+          if (w > week || !onRecord.has(pairKey(w, a, b))) remaining.push([a, b]);
+        });
       }
 
       const tally = {};
@@ -5159,13 +5435,13 @@
       // that with it. Drawing real scores also carries the points along,
       // which matters because points for is the second tiebreaker — freezing
       // it at today's value made every future tie resolve with certainty.
-      const rand = mulberry32(week * 7919 + 13);
-      const pool = played.flatMap((g) => [g.as, g.bs]);
+      const rand = mulberry32(basis * 7919 + 13);
+      const pool = posted.flatMap((g) => [g.as, g.bs]);
       const ownPool = {};
       TEAM_IDS.forEach((id) => { ownPool[id] = []; });
-      played.forEach((g) => { ownPool[g.a].push(g.as); ownPool[g.b].push(g.bs); });
+      posted.forEach((g) => { ownPool[g.a].push(g.as); ownPool[g.b].push(g.bs); });
 
-      const ownShare = ownFormWeight(week);
+      const ownShare = ownFormWeight(basis);
       const leagueDraw = pool.length >= 10
         ? () => pool[Math.floor(rand() * pool.length)]
         : () => 100 + rand() * 40;
@@ -5180,7 +5456,7 @@
         return score + (rand() - 0.5) * TIE_NUDGE;
       };
 
-      for (let iter = 0; iter < ODDS_ITERATIONS; iter++) {
+      for (let iter = 0; iter < iterations; iter++) {
         const sim = {};
         TEAM_IDS.forEach((id) => { sim[id] = Object.assign({}, base[id]); });
         const h2h = {};
@@ -5216,7 +5492,7 @@
       }
 
       const out = {};
-      const pull = earlyShrink(week);
+      const pull = earlyShrink(basis);
 
       // A unanimous simulation is left alone: those line up with the
       // clinched and eliminated proofs, which no amount of fading applies to.
@@ -5226,12 +5502,12 @@
 
       TEAM_IDS.forEach((id) => {
         out[id] = {
-          playoff: settle(tally[id].playoff / ODDS_ITERATIONS, ODDS_BASE_RATE.playoff),
-          division: settle(tally[id].division / ODDS_ITERATIONS, ODDS_BASE_RATE.division),
-          toilet: settle(tally[id].toilet / ODDS_ITERATIONS, ODDS_BASE_RATE.toilet)
+          playoff: settle(tally[id].playoff / iterations, ODDS_BASE_RATE.playoff),
+          division: settle(tally[id].division / iterations, ODDS_BASE_RATE.division),
+          toilet: settle(tally[id].toilet / iterations, ODDS_BASE_RATE.toilet)
         };
       });
-      oddsCache[week] = out;
+      oddsCache[key] = out;
       return out;
     }
 
@@ -5752,6 +6028,9 @@
                 <div class="pg-side">${miniTeam(b)}<span class="pg-name">${teams[b].name}</span><span class="pg-rec">${stats[b].record}</span></div>
               </div>`).join("")}
           </div>
+          ${week === pickWeek() ? `<div class="recap-bar">
+            <button type="button" class="recap-link" data-goto-whatif>Pick the winners and watch the brackets move →</button>
+          </div>` : ""}
         </article>`;
     }
 
@@ -5907,39 +6186,32 @@
     }
 
     function renderPicturePanel(week) {
-      const asOf = asOfWeek(week);
       const panel = document.getElementById("panel-picture");
 
-      if (asOf === 0) {
+      // From the latest results on, the tab carries the What If switch.
+      const pick = whatIfWeekFor(week);
+      if (pick) {
+        loadPicks(pick);
         panel.innerHTML = `
           <div class="panel-stack">
-            ${emptyState("The bracket opens after Week 1",
-              "Six teams make the playoffs: each division champion (with a Week 15 bye), each division runner-up, and two league-wide wild cards taken on record with points for as the first tiebreaker. The better wild card draws the weaker runner-up. The remaining four teams are reseeded 7 through 10 for the Toilet Bowl ladder. Once results are posted, this tab shows exactly where every team would land if the season ended that day.")}
-            <article class="card">
-              ${cardHead("How the field is set", "rulebook", "League rulebook, Sections 4 and 5")}
-              <div class="projected-matchups">
-                <div class="projected-game">
-                  <div class="pg-head">Week 15</div>
-                  <div class="pg-bye">Both division champions rest. The two runners-up host the wild cards, and the Toilet Bowl opens with #7 vs #8 and #9 vs #10.</div>
-                </div>
-                <div class="projected-game">
-                  <div class="pg-head">Week 16</div>
-                  <div class="pg-bye">Semifinals on each side of the bracket. In the Toilet Bowl, the loser of Game 1 plays the winner of Game 2.</div>
-                </div>
-                <div class="projected-game">
-                  <div class="pg-head">Week 17</div>
-                  <div class="pg-bye">Fantasy Bowl and the third-place game. The Toilet Bowl Championship pits the loser of Game 3 against the loser of Game 2.</div>
-                </div>
-              </div>
-            </article>
+            ${whatIfBar(pick)}
+            <div class="panel-stack wi-picture"></div>
           </div>`;
+        updateWhatIf(pick, { first: true });
         return;
       }
 
-      const picture = buildPicture(asOf);
-      const stats = picture.stats;
+      const asOf = asOfWeek(week);
+      panel.innerHTML = `
+        <div class="panel-stack">
+          ${asOf ? pictureCards(buildPicture(asOf), asOf === REGULAR_WEEKS ? "Final seeding" : `Projected · through Week ${asOf}`) : preseasonPicture()}
+        </div>`;
+    }
 
-      const note = asOf === REGULAR_WEEKS ? "Final seeding" : `Projected · through Week ${asOf}`;
+    /* The projected winner's bracket, any pending coin flips and the Toilet
+       Bowl ladder for a picture, as one run of cards. */
+    function pictureCards(picture, note, { flips = true } = {}) {
+      const stats = picture.stats;
       const [sideA, sideB] = picture.sides;
       const opener = (side) => bkGame([bkRow(picture.seedLabels[side.three].chip.replace(/^WC/, "WC #"), side.three, stats), bkRow("#2", side.two, stats)]);
       const semi = (side) => bkGame([bkRow("#1", side.one, stats), bkTbd(`${side.division} Round 1 winner`)]);
@@ -5973,18 +6245,310 @@
         ],
       });
 
-      const flipNote = picture.flips.length
+      const flipNote = flips && picture.flips.length
         ? `<div class="tag-row" style="padding:0">${picture.flips.map(([a, b]) =>
             `<span class="rule-tag flip">Coin flip pending · ${teams[a].name} / ${teams[b].name}</span>`).join("")}</div>`
         : "";
 
-      panel.innerHTML = `
-        <div class="panel-stack">
-          ${bracketCard}
-          ${flipNote}
-          ${toiletCard}
-        </div>`;
+      return `${bracketCard}${flipNote}${toiletCard}`;
     }
+
+    /* =================================================================
+       WHAT-IF PICKS
+
+       From the latest results on, the Playoffs tab carries a What If
+       switch. Turned on, it opens the week up next above the brackets: tap
+       the winner of each game and both brackets, the clinch flags and the
+       odds redraw as if that week had been posted. A pick says only who
+       won. Points for is the first tiebreaker, so each side is credited its
+       own season scoring average, which leaves every points-for order
+       exactly where the real standings have it. A game left unpicked does
+       not count yet.
+
+       The switch and the picks are kept in this browser only. Once a week's
+       real scores are posted the pickable week moves on, and the old week's
+       picks are cleared the next time the tab opens.
+       ================================================================= */
+
+    const pickWeek = () => (lastPlayedWeek < REGULAR_WEEKS ? lastPlayedWeek + 1 : null);
+    const picksKey = (week) => `sluh22-whatif-${SEASON}-w${week}`;
+    const WHATIF_ON_KEY = `sluh22-whatif-${SEASON}-on`;
+
+    // The week a tab's switch would pick: only where the tab is showing the
+    // latest results (a week already behind them has its own picture).
+    const whatIfWeekFor = (week) => (pickWeek() && week <= REGULAR_WEEKS && asOfWeek(week) === lastPlayedWeek ? pickWeek() : null);
+
+    // Odds under picks rerun on every tap, so they take a lighter simulation
+    // than the Standings card's, and run a beat after the brackets have
+    // moved (long enough that a run of quick taps simulates only the last).
+    // Two separate simulations of the same race differ by a point now and
+    // then, so a move that small is not called a move.
+    const WHATIF_ITERATIONS = 5000;
+    const ODDS_NOISE = 1;
+
+    let picks = {};            // slate index → the team picked to win
+    let picksWeek = null;
+    let whatIfRun = 0;         // drops odds work a newer tap has overtaken
+    let whatIfOn = (() => { try { return localStorage.getItem(WHATIF_ON_KEY) === "1"; } catch (_) { return false; } })();
+
+    function setWhatIfOn(on) {
+      whatIfOn = on;
+      try { if (on) localStorage.setItem(WHATIF_ON_KEY, "1"); else localStorage.removeItem(WHATIF_ON_KEY); } catch (_) { /* storage blocked */ }
+    }
+
+    function loadPicks(week) {
+      if (picksWeek === week) return;
+      picksWeek = week;
+      picks = {};
+      try {
+        for (let w = 1; w < week; w++) localStorage.removeItem(picksKey(w));
+        const saved = JSON.parse(localStorage.getItem(picksKey(week)) || "{}");
+        (schedule[week] || []).forEach(([a, b], i) => {
+          if (saved[i] === a || saved[i] === b) picks[i] = saved[i];
+        });
+      } catch (_) { /* storage blocked: the picks last for this visit */ }
+    }
+
+    function savePicks(week) {
+      try {
+        if (Object.keys(picks).length) localStorage.setItem(picksKey(week), JSON.stringify(picks));
+        else localStorage.removeItem(picksKey(week));
+      } catch (_) { /* storage blocked */ }
+    }
+
+    // The picked games as records, each side scoring its own season average.
+    function pickedGames(week) {
+      const stats = computeStats(asOfWeek(week));
+      return (schedule[week] || []).flatMap(([a, b], i) => (picks[i]
+        ? [{ week, a, as: stats[a].pfg, b, bs: stats[b].pfg, win: picks[i] }]
+        : []));
+    }
+
+    // The ten teams in seed order: both division leaders, both runners-up,
+    // the wild cards, then the Toilet Bowl.
+    const seedOrder = (picture) => [
+      ...picture.champs.map((c) => c.id),
+      ...picture.runnersUp.map((r) => r.id),
+      ...picture.wildcards,
+      ...picture.toiletSeeds
+    ];
+
+    // How high a seed sits, for the up/down arrows. The two leaders share a
+    // tier, as do the two runners-up: neither outranks the other.
+    function seedTier(picture, id) {
+      if (picture.champs.some((c) => c.id === id)) return 0;
+      if (picture.runnersUp.some((r) => r.id === id)) return 1;
+      const wc = picture.wildcards.indexOf(id);
+      return wc >= 0 ? 2 + wc : 4 + picture.toiletSeeds.indexOf(id);
+    }
+
+    // An arrow beside a seed that a pick has moved, pointing the way it went.
+    function seedMoveTag(base, picture, id) {
+      if (!base || !picture || base === picture || base.seedLabels[id].chip === picture.seedLabels[id].chip) return "";
+      const up = seedTier(picture, id) < seedTier(base, id);
+      return `<span class="wi-move ${up ? "up" : "down"}" title="Was ${base.seedLabels[id].chip}">${up ? "▲" : "▼"}</span>`;
+    }
+
+    const CHECK_ICON = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.6 8.3 6.6 11.3 12.4 5"/></svg>';
+
+    /* The switch, and the week's games it opens. Each game is a matchup box
+       like the Results tab's: the side picked to win is tinted and ruled in
+       blue, the other side steps back. */
+    function whatIfBar(week) {
+      const stats = computeStats(asOfWeek(week));
+      const side = (id, i) => `
+        <button type="button" class="wi-side" data-pick="${i}" data-id="${id}" aria-pressed="false">
+          ${miniTeam(id)}
+          <span class="wi-team"><strong>${teams[id].name}</strong><span class="wi-meta">${stats[id].record}<span class="wi-seed"></span></span></span>
+          <span class="wi-check">${CHECK_ICON}</span>
+        </button>`;
+      const game = ([a, b], i) => {
+        const kind = week === rivalryWeek ? "Rivalry"
+          : teams[a].division === teams[b].division ? teams[a].division : "Cross-division";
+        return `<div class="wi-game" role="group" aria-label="${esc(plain(a))} versus ${esc(plain(b))}">
+          <div class="wi-game-head"><span>${kind}</span><span class="wi-state" data-state="${i}"></span></div>
+          ${side(a, i)}${side(b, i)}
+        </div>`;
+      };
+      return `
+        <section class="card wi-bar">
+          <div class="wi-bar-head" data-wi="toggle">
+            <span class="division-chip">${chipMark("versus")}</span>
+            <span class="wi-bar-copy"><strong>What If</strong><span>Pick the Week ${week} winners and watch the brackets move</span></span>
+            <button type="button" class="wi-switch" role="switch" aria-checked="false" aria-label="What if: pick the Week ${week} winners"><span class="wi-knob"></span></button>
+          </div>
+          <div class="wi-drawer">
+            <div class="wi-drawer-inner">
+              <div class="wi-games">${(schedule[week] || []).map(game).join("")}</div>
+              <div class="wi-foot">
+                <span class="wi-count" aria-live="polite"></span>
+                <button type="button" class="wi-btn" data-wi="clear">Clear picks</button>
+              </div>
+            </div>
+          </div>
+        </section>`;
+    }
+
+    // Before Week 1 there is no bracket to show, only how one is made.
+    function preseasonPicture() {
+      return `
+        ${emptyState("The bracket opens after Week 1",
+          "Six teams make the playoffs: each division champion (with a Week 15 bye), each division runner-up, and two league-wide wild cards taken on record with points for as the first tiebreaker. The better wild card draws the weaker runner-up. The remaining four teams are reseeded 7 through 10 for the Toilet Bowl ladder. Once results are posted, this tab shows exactly where every team would land if the season ended that day.")}
+        <article class="card">
+          ${cardHead("How the field is set", "rulebook", "League rulebook, Sections 4 and 5")}
+          <div class="projected-matchups">
+            <div class="projected-game">
+              <div class="pg-head">Week 15</div>
+              <div class="pg-bye">Both division champions rest. The two runners-up host the wild cards, and the Toilet Bowl opens with #7 vs #8 and #9 vs #10.</div>
+            </div>
+            <div class="projected-game">
+              <div class="pg-head">Week 16</div>
+              <div class="pg-bye">Semifinals on each side of the bracket. In the Toilet Bowl, the loser of Game 1 plays the winner of Game 2.</div>
+            </div>
+            <div class="projected-game">
+              <div class="pg-head">Week 17</div>
+              <div class="pg-bye">Fantasy Bowl and the third-place game. The Toilet Bowl Championship pits the loser of Game 3 against the loser of Game 2.</div>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    // Where everyone would land, with their odds; it follows both brackets.
+    function whatIfSeedsCard(picture, base, count, asOf) {
+      return `
+        <article class="card wi-seeds-card">
+          ${cardHead("Where They'd Land", "standings", count ? `With your pick${count === 1 ? "" : "s"}` : `As of Week ${asOf}`)}
+          <div class="table-wrap">
+            <table class="wi-seeds">
+              <colgroup><col class="wi-seed-col"><col><col class="wi-rec-col"><col class="wi-odds-col"></colgroup>
+              <thead><tr><th>Seed</th><th>Team</th><th class="wi-rec">W–L</th><th class="wi-odds">Playoff</th></tr></thead>
+              <tbody>${seedOrder(picture).map((id, n) => `
+                <tr class="${seedRowClass(picture, id, true)}${n === 6 ? " wi-cut" : ""}">
+                  <td class="wi-seed-cell">${seedTag(picture, id)}${seedMoveTag(base, picture, id)}</td>
+                  <td class="wi-team-cell"><div><button type="button" class="wi-teamlink" data-team="${id}" aria-label="${esc(plain(id))}: season and schedule">${miniTeam(id)}<span>${teams[id].name}</span></button>${clinchTag(picture, id)}</div></td>
+                  <td class="wi-rec">${picture.stats[id].record}</td>
+                  <td class="wi-odds" data-odds="${id}"><span class="wi-pct">—</span></td>
+                </tr>`).join("")}
+              </tbody>
+            </table>
+          </div>
+        </article>`;
+    }
+
+    function updateWhatIf(week, { first = false } = {}) {
+      const panel = document.getElementById("panel-picture");
+      const area = panel.querySelector(".wi-picture");
+      if (!area) return;
+      const on = whatIfOn;
+      const asOf = asOfWeek(week);
+      const games = on ? pickedGames(week) : [];
+      const count = games.length, total = (schedule[week] || []).length;
+      // Before Week 1 every team is 0–0, so there is no order for picks to
+      // move anyone from: no arrows and no coin-flip notes.
+      const base = asOf ? buildPicture(asOf) : null;
+      const picture = count ? withPicks(games, () => buildPicture(week)) : base;
+
+      // The switch and the drawer it opens.
+      const bar = panel.querySelector(".wi-bar");
+      bar.classList.toggle("on", on);
+      bar.querySelector(".wi-switch").setAttribute("aria-checked", String(on));
+      bar.querySelector(".wi-drawer").inert = !on;
+
+      // The pick buttons, each carrying where its team would now be seeded.
+      bar.querySelectorAll(".wi-side").forEach((btn) => {
+        const i = btn.dataset.pick, id = btn.dataset.id;
+        const picked = picks[i] === id;
+        btn.classList.toggle("picked", picked);
+        btn.classList.toggle("passed", Boolean(picks[i]) && !picked);
+        btn.setAttribute("aria-pressed", String(picked));
+        btn.setAttribute("aria-label", `${plain(id)} ${picked ? "picked to win" : "to win"}${picture ? `, ${picture.seedLabels[id].note}` : ""}`);
+        const seed = btn.querySelector(".wi-seed");
+        const html = picture ? seedTag(picture, id) + seedMoveTag(base, picture, id) : "";
+        if (seed.innerHTML !== html) {
+          seed.innerHTML = html;
+          if (!first) { seed.classList.remove("bump"); void seed.offsetWidth; seed.classList.add("bump"); }
+        }
+      });
+      bar.querySelectorAll(".wi-state").forEach((el) => {
+        const winner = picks[el.dataset.state];
+        el.textContent = winner ? "Picked" : "Pick";
+        el.classList.toggle("done", Boolean(winner));
+      });
+      bar.querySelector(".wi-count").textContent = `${count} of ${total} picked`;
+      bar.querySelector('[data-wi="clear"]').disabled = !count;
+
+      // Both brackets, then where everyone lands, each row sliding from its
+      // old place in the seeds table.
+      const before = first ? null : UI.measureRows(area);
+      if (!picture) {
+        area.innerHTML = preseasonPicture();
+        return;
+      }
+      const note = count ? `With your Week ${week} picks` : asOf === REGULAR_WEEKS ? "Final seeding" : `Projected · through Week ${asOf}`;
+      area.innerHTML = pictureCards(picture, note, { flips: Boolean(asOf) }) + (on ? whatIfSeedsCard(picture, base, count, asOf) : "");
+      if (before) UI.shuffleRows(area, before);
+      if (!first && on) { area.classList.remove("wi-redraw"); void area.offsetWidth; area.classList.add("wi-redraw"); }
+      if (!on) return;
+
+      // The odds land a beat later so a tap never waits on the simulation.
+      const table = area.querySelector(".wi-seeds");
+      const run = ++whatIfRun;
+      table.classList.add("odds-pending");
+      const fill = () => {
+        if (run !== whatIfRun || !area.contains(table)) return;
+        const was = asOf ? playoffOdds(asOf) : null;
+        const now = count ? withPicks(games, () => playoffOdds(week, { iterations: WHATIF_ITERATIONS, basis: asOf || week })) : was;
+        seedOrder(picture).forEach((id) => {
+          const cell = table.querySelector(`[data-odds="${id}"]`);
+          const flag = picture.flags[id];
+          const settled = flag === "z" || flag === "x" || flag === "e";
+          const p = flag === "z" || flag === "x" ? 1 : flag === "e" ? 0 : now ? now[id].playoff : null;
+          if (!cell || p === null) return;
+          let delta = count && was ? Math.round(p * 100) - Math.round(was[id].playoff * 100) : 0;
+          if (Math.abs(delta) <= ODDS_NOISE && !settled) delta = 0;
+          cell.innerHTML = `<span class="wi-pct${settled ? " settled" : ""}">${settled ? `${Math.round(p * 100)}%` : oddsText(p)}</span>${delta
+            ? `<span class="wi-delta ${delta > 0 ? "up" : "down"}">${delta > 0 ? "+" : "−"}${Math.abs(delta)}</span>` : ""}`;
+        });
+        table.classList.remove("odds-pending");
+      };
+      if (!count) fill();
+      else setTimeout(fill, first ? 0 : 160);
+    }
+
+    document.addEventListener("click", (event) => {
+      const pick = event.target.closest(".wi-side[data-pick]");
+      if (pick) {
+        const i = pick.dataset.pick, id = pick.dataset.id;
+        if (picks[i] === id) delete picks[i]; else picks[i] = id;
+        savePicks(picksWeek);
+        UI.haptic("tap");
+        updateWhatIf(picksWeek);
+        return;
+      }
+      const action = event.target.closest("[data-wi]");
+      if (action && action.dataset.wi === "toggle") {
+        setWhatIfOn(!whatIfOn);
+        UI.haptic("tap");
+        updateWhatIf(picksWeek);
+        return;
+      }
+      if (action && action.dataset.wi === "clear") {
+        picks = {};
+        savePicks(picksWeek);
+        UI.haptic("tap");
+        updateWhatIf(picksWeek);
+        return;
+      }
+      // The Matchups tab's way in: the Playoffs tab with the switch on.
+      const go = event.target.closest("[data-goto-whatif]");
+      if (go) {
+        setWhatIfOn(true);
+        state.view = "picture";
+        renderAll();
+        writeHash();
+        window.scrollTo({ top: 0, behavior: UI.reduced() ? "auto" : "smooth" });
+      }
+    });
 
     /* =================================================================
        PLAYOFF WEEKS — Weeks 15 to 17
