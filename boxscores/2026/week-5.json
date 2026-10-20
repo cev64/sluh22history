@@ -87,7 +87,7 @@
       "pts": 8,
       "proj": 14.63,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Steelers D/ST",
@@ -137,7 +137,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Xavier Worthy",
@@ -269,7 +269,7 @@
       "pts": 8.3,
       "proj": 10.25,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Kenyon Sadiq",
@@ -279,7 +279,7 @@
       "pts": 0.3,
       "proj": 9.43,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Ladd McConkey",
@@ -319,7 +319,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Caleb Williams",
@@ -329,7 +329,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ]
    }
@@ -379,7 +379,7 @@
       "pts": 22.8,
       "proj": 20.48,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Nico Collins",
@@ -449,7 +449,7 @@
       "pts": 2.6,
       "proj": 12.16,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Alvin Kamara",
@@ -469,7 +469,7 @@
       "pts": 1.1,
       "proj": 11.87,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Patrick Mahomes",
@@ -571,7 +571,7 @@
       "pts": 22.1,
       "proj": 15.51,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Roman Wilson",
@@ -581,7 +581,7 @@
       "pts": 0,
       "proj": 10.19,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Commanders D/ST",
@@ -741,7 +741,7 @@
       "pts": 12.2,
       "proj": 12.79,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Rashid Shaheed",
@@ -801,7 +801,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Chuba Hubbard",
@@ -893,7 +893,7 @@
       "pts": 26.3,
       "proj": 12.77,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Malik Washington",
@@ -1093,7 +1093,7 @@
       "pts": 14.2,
       "proj": 8.93,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Lamar Jackson",
@@ -1133,7 +1133,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Adonai Mitchell",
@@ -1153,7 +1153,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": "QUESTIONABLE"
      }
     ],
     "jared": [
@@ -1305,7 +1305,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ]
    }
@@ -1345,7 +1345,7 @@
       "pts": 2.2,
       "proj": 14.37,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Puka Nacua",
@@ -1375,7 +1375,7 @@
       "pts": 21.4,
       "proj": 11.85,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Denzel Boston",
@@ -1425,7 +1425,7 @@
       "pts": 4.8,
       "proj": 10.54,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Dalton Kincaid",
@@ -1445,7 +1445,7 @@
       "pts": 1.5,
       "proj": 10.52,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Breece Hall",
@@ -1487,7 +1487,7 @@
       "pts": 13,
       "proj": 16.04,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "James Cook III",
@@ -1527,7 +1527,7 @@
       "pts": 2.9,
       "proj": 19.13,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Colston Loveland",
@@ -1617,7 +1617,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Bryce Young",

@@ -199,7 +199,7 @@
       "pts": 27.7,
       "proj": 13.96,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Emeka Egbuka",
@@ -289,7 +289,7 @@
       "pts": 9.8,
       "proj": 11.97,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Kyle Monangai",
@@ -329,7 +329,7 @@
       "pts": 16.16,
       "proj": 19.95,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "James Cook III",
@@ -359,7 +359,7 @@
       "pts": 35.3,
       "proj": 18,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Rashee Rice",
@@ -369,7 +369,7 @@
       "pts": 12.3,
       "proj": 15.04,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Colston Loveland",
@@ -511,7 +511,7 @@
       "pts": 4.4,
       "proj": 14.2,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -521,7 +521,7 @@
       "pts": 42.5,
       "proj": 18.49,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Chris Godwin Jr.",
@@ -601,7 +601,7 @@
       "pts": 12.6,
       "proj": 10.59,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Tyler Allgeier",
@@ -661,7 +661,7 @@
       "pts": 7.72,
       "proj": 19.42,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Omarion Hampton",
@@ -721,7 +721,7 @@
       "pts": 14.6,
       "proj": 11.93,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Mike Evans",
@@ -731,7 +731,7 @@
       "pts": 8.4,
       "proj": 12.99,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Eagles D/ST",
@@ -771,7 +771,7 @@
       "pts": 3.7,
       "proj": 8.1,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Josh Jacobs",
@@ -873,7 +873,7 @@
       "pts": 39.5,
       "proj": 15.5,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jadarian Price",
@@ -1033,7 +1033,7 @@
       "pts": 5.8,
       "proj": 10.18,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Jordan Addison",
@@ -1043,7 +1043,7 @@
       "pts": 4.1,
       "proj": 10.58,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ravens D/ST",
@@ -1083,7 +1083,7 @@
       "pts": 6.4,
       "proj": 10.12,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Trevor Lawrence",
@@ -1103,7 +1103,7 @@
       "pts": 3.9,
       "proj": 9.4,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Michael Pittman Jr.",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": "QUESTIONABLE"
      }
     ],
     "hamilton": [
@@ -1155,7 +1155,7 @@
       "pts": 7.5,
       "proj": 12.88,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Drake London",
@@ -1195,7 +1195,7 @@
       "pts": 14.4,
       "proj": 11.38,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Cam Skattebo",
@@ -1245,7 +1245,7 @@
       "pts": 8.2,
       "proj": 9.49,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Kayshon Boutte",
@@ -1285,7 +1285,7 @@
       "pts": 13.6,
       "proj": 9.31,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      }
     ]
    }
@@ -1405,7 +1405,7 @@
       "pts": 21.7,
       "proj": 10.33,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jaylen Warren",
@@ -1557,7 +1557,7 @@
       "pts": 7,
       "proj": 12.44,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Rashid Shaheed",
@@ -1587,7 +1587,7 @@
       "pts": 2.4,
       "proj": 9.94,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jordan Mason",
