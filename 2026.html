@@ -4678,7 +4678,7 @@
 
     /* Which side took a game: above zero for `a`, below for `b`. A picked
        game (see WHAT-IF PICKS) names its winner outright, since its scores
-       are only stand-ins for the points-for tiebreakers. */
+       are each side's season average, not a result. */
     const edgeOf = (g) => (g.win ? (g.win === g.a ? 1 : -1) : g.as - g.bs);
 
     /* Hypothetical games folded into every record while `withPicks` runs, so
@@ -5359,8 +5359,8 @@
       if (oddsCache[key]) return oddsCache[key];
 
       const played = gamesThrough(week);
-      // A picked game's scores are stand-ins, so they stay out of the
-      // scoring pools the future is drawn from.
+      // A picked game's scores are season averages, not results, so they
+      // stay out of the scoring pools the future is drawn from.
       const posted = played.filter((g) => !g.win);
 
       // Base state carried into every simulation.
@@ -5786,10 +5786,8 @@
         aria-label="Tiebreakers involving ${teams[id].name}">i</button>`;
     }
 
-    // A what-if table leaves out the tiebreak dot: its points-for figures
-    // carry the picks' stand-in scores, which the table itself never shows.
-    function teamFlags(picture, id, scope, { why = true } = {}) {
-      const inner = seedTag(picture, id) + clinchTag(picture, id) + (why ? whyButton(picture, id, scope) : "");
+    function teamFlags(picture, id, scope) {
+      const inner = seedTag(picture, id) + clinchTag(picture, id) + whyButton(picture, id, scope);
       return inner ? `<span class="team-flags">${inner}</span>` : "";
     }
 
@@ -6055,10 +6053,8 @@
         </div>`;
     }
 
-    /* Both division tables and their legend. A what-if picture hands in the
-       posted weeks' stats as `points`: a picked game has a winner but no
-       score, so points for and against stay what has actually been scored. */
-    function standingsCards(picture, { live, scope, points = picture.stats, why = true }) {
+    /* Both division tables and their legend. */
+    function standingsCards(picture, { live, scope }) {
       const stats = picture.stats;
 
       const divisionCards = DIVISION_NAMES.map((division) => {
@@ -6076,20 +6072,20 @@
                   return `<tr class="${seedRowClass(picture, id, live)}">
                     <td class="rank">${live ? i + 1 : "–"}</td>
                     <td class="team-cell">
-                      ${teamButton(id)}${live ? teamFlags(picture, id, scope, { why }) : ""}
+                      ${teamButton(id)}${live ? teamFlags(picture, id, scope) : ""}
                       <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
                         <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
                         <span class="mobile-stat"><small>GB</small><strong>${gb}</strong></span>
-                        <span class="mobile-stat"><small>PF</small><strong>${fmt(points[id].pf)}</strong></span>
-                        <span class="mobile-stat"><small>PA</small><strong>${fmt(points[id].pa)}</strong></span>
+                        <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
+                        <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
                         <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
                       </div>
                     </td>
                     <td class="record">${t.record}</td>
                     <td class="gb">${gb}</td>
                     <td>${pctText(t.pct)}</td>
-                    <td>${fmt(points[id].pf)}</td>
-                    <td>${fmt(points[id].pa)}</td>
+                    <td>${fmt(t.pf)}</td>
+                    <td>${fmt(t.pa)}</td>
                     <td>${t.divRecord}</td>
                   </tr>`;
                 }).join("")}
@@ -6261,11 +6257,12 @@
        What If switch. Turned on, it opens the week up next above the
        brackets or the tables: tap the winner of each game and the brackets,
        the standings, the clinch flags and the odds redraw as if that week
-       had been posted. A pick says only who
-       won. Points for is the first tiebreaker, so each side is credited its
-       own season scoring average, which leaves every points-for order
-       exactly where the real standings have it. A game left unpicked does
-       not count yet.
+       had been posted. A pick says only who won. Points for is the first
+       tiebreaker, so each side is credited its own season scoring average
+       for the game: the likeliest score, and one that leaves every
+       points-for order where the real standings have it. The tables and
+       the tiebreak dots both read those projected totals. A game left
+       unpicked does not count yet.
 
        The switch and the picks are kept in this browser only. Once a week's
        real scores are posted the pickable week moves on, and the old week's
@@ -6477,13 +6474,11 @@
         return;
       }
       const note = count
-        ? `<p class="wi-note">Records include your ${count === s.total ? "" : `${count} `}Week ${week} pick${count === 1 ? "" : "s"}. Points for and against are from posted games only.</p>`
+        ? `<p class="wi-note">Records include your ${count === s.total ? "" : `${count} `}Week ${week} pick${count === 1 ? "" : "s"}. Points for and against add each team's season scoring average for a picked game.</p>`
         : "";
       area.innerHTML = `${note}${standingsCards(picture, {
         live: true,
         scope: count ? "wi" : `w${asOf}`,
-        points: count ? computeStats(asOf) : picture.stats,
-        why: !count,
       })}<div class="wi-odds-slot">${count ? held : asOf ? oddsCard(asOf) : ""}</div>`;
       if (before) UI.shuffleRows(area, before);
       if (!count) return;
