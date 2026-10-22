@@ -676,8 +676,10 @@ function rivalryHTML(r) {
   const stakes = r.stakes.length
     ? `<ol class="rv-stakes">${r.stakes.map((x, i) => {
         const s = sideOf(x.side);
-        const tag = x.hit == null ? (s ? miniTeam(s.teamId) : "")
-          : `<span class="rv-tag ${x.hit ? "rv-hit" : "rv-miss"}">${x.hit ? "Happened" : "Didn’t"}</span>`;
+        // Whose line it is, by logo; a played game's adds whether it happened.
+        const badge = s ? miniTeam(s.teamId) : "";
+        const tag = x.hit == null ? badge
+          : `<span class="rv-stake-end">${badge}<span class="rv-tag ${x.hit ? "rv-hit" : "rv-miss"}">${x.hit ? "Happened" : "Didn’t"}</span></span>`;
         return `<li class="rv-stake rv-tone-${x.tone}" style="--rv-i:${i}">
           <span class="rv-ico" aria-hidden="true">${x.icon}</span>
           <p>${rvEsc(x.text)}</p>

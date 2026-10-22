@@ -2,11 +2,13 @@
    Strategy:
      - navigations (the season pages): network first, cached copy as fallback
      - box score data (boxscores/*.json): network first, like the pages
-     - same-origin assets: cache first, refreshed in the background
+     - the site's own stylesheets and scripts: network first as well, so a
+       new page never runs with last version's CSS or JS
+     - other same-origin assets: cache first, refreshed in the background
      - Google Fonts: stale-while-revalidate in a separate cache
    Bump CACHE_VERSION whenever the precache list or these rules change. */
 
-const CACHE_VERSION = 'v91';
+const CACHE_VERSION = 'v92';
 const SHELL_CACHE = `league-history-shell-${CACHE_VERSION}`;
 const FONT_CACHE = `league-history-fonts-${CACHE_VERSION}`;
 
@@ -27,13 +29,13 @@ const PRECACHE = [
   './draft-picks.js',
   './league-data.js',
   './team-logos.js',
-  './player-card.js',
-  './rivalry.js',
-  './rivalry.css',
+  './player-card.js?v=2',
+  './rivalry.js?v=2',
+  './rivalry.css?v=2',
   './pwa.js',
   './ui.js',
-  './ui.css',
-  './design.css',
+  './ui.css?v=2',
+  './design.css?v=2',
   './chat.js',
   './chat.css',
   // The trophy room's modules and its copy of three.js. Precaching them keeps
@@ -93,8 +95,9 @@ async function networkFirst(request) {
     if (response && response.ok) cache.put(request, response.clone());
     return response;
   } catch (err) {
-    // Only a page falls back to the live season; a data file just misses.
-    const isPage = !new URL(request.url).pathname.includes('/boxscores/');
+    // Only a page falls back to the live season; a data file, stylesheet or
+    // script just misses.
+    const isPage = request.mode === 'navigate' || new URL(request.url).pathname.endsWith('.html');
     const cached = await cache.match(request) || (isPage ? await cache.match('./2026.html') : undefined);
     if (cached) return cached;
     throw err;
@@ -153,6 +156,16 @@ self.addEventListener('fetch', (event) => {
   // index, so a new week's scores never became tappable. Network first here
   // too, with the cached copy for offline.
   if (url.pathname.includes('/boxscores/')) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  // The site's own CSS and JS go with the pages: served from the cache first,
+  // a page fresh off the network ran with the last version's stylesheets
+  // until a second load (a back button drawn as a bare grey box). Network
+  // first, with the cached copy for offline. (The ?v= on the shared files'
+  // links gets past a worker installed before this rule.)
+  if (/\.(css|js)$/.test(url.pathname)) {
     event.respondWith(networkFirst(request));
     return;
   }

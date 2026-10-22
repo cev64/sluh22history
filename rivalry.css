@@ -65,6 +65,9 @@
 .rv-ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 15px; background: var(--rv-soft, #eef1f5); }
 .rv-stake p { margin: 0; font-size: 13.5px; line-height: 1.35; color: var(--ink); }
 .rv-stake .mini-badge { width: 20px; height: 20px; border-radius: 6px; font-size: 10px; }
+.rv-stake-end { display: flex; align-items: center; gap: 8px; }
+/* one width for both tags, so the logos line up down the card */
+.rv-stake-end .rv-tag { box-sizing: border-box; min-width: 78px; text-align: center; }
 .rv-stake .rv-tag { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; white-space: nowrap; }
 .rv-tag.rv-hit { background: #e7f6ee; color: var(--green); }
 .rv-tag.rv-miss { background: var(--surface-2); color: var(--ink-3, var(--muted)); }
