@@ -87,7 +87,7 @@
       "pts": 11.8,
       "proj": 8.13,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Seahawks D/ST",
@@ -157,7 +157,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ],
     "roll": [
@@ -309,7 +309,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Zach Charbonnet",
@@ -349,7 +349,7 @@
       "pts": 30.7,
       "proj": 21.22,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bucky Irving",
@@ -379,7 +379,7 @@
       "pts": 6.9,
       "proj": 16.04,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Isaiah Likely",
@@ -399,7 +399,7 @@
       "pts": 15.7,
       "proj": 13.93,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Woody Marks",
@@ -571,7 +571,7 @@
       "pts": 12.4,
       "proj": 14.86,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "49ers D/ST",
@@ -611,7 +611,7 @@
       "pts": 1.8,
       "proj": 8.74,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Chase Brown",
@@ -701,7 +701,7 @@
       "pts": 6.4,
       "proj": 9.46,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "A.J. Brown",
@@ -711,7 +711,7 @@
       "pts": 5.7,
       "proj": 12.71,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Harold Fannin Jr.",
@@ -771,7 +771,7 @@
       "pts": 4.4,
       "proj": 8.66,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Lamar Jackson",
@@ -791,7 +791,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jordan Addison",
@@ -801,7 +801,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Adonai Mitchell",
@@ -811,7 +811,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Travis Etienne Jr.",
@@ -973,7 +973,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jalen Hurts",
@@ -1215,7 +1215,7 @@
       "pts": 22.4,
       "proj": 15.66,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaylen Warren",
@@ -1295,7 +1295,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      }
     ]
    }
@@ -1375,7 +1375,7 @@
       "pts": 17.8,
       "proj": 10.98,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Xavier Worthy",
@@ -1405,7 +1405,7 @@
       "pts": 20.5,
       "proj": 13.5,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Keon Coleman",
@@ -1425,7 +1425,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jahmyr Gibbs",
@@ -1445,7 +1445,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jared Goff",
@@ -1497,7 +1497,7 @@
       "pts": 0,
       "proj": 8.99,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Malik Nabers",
@@ -1617,7 +1617,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Alec Pierce",
