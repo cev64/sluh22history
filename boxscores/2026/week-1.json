@@ -27,7 +27,7 @@
       "pts": 13.8,
       "proj": 18.52,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jadarian Price",
@@ -57,7 +57,7 @@
       "pts": 5.6,
       "proj": 13.82,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Isaiah Likely",
@@ -269,7 +269,7 @@
       "pts": 15.5,
       "proj": 11,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bhayshul Tuten",
@@ -289,7 +289,7 @@
       "pts": 7.3,
       "proj": 7.71,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Josh Downs",
@@ -399,7 +399,7 @@
       "pts": 21,
       "proj": 11.57,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Parker Washington",
@@ -521,7 +521,7 @@
       "pts": 28.7,
       "proj": 18.82,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "A.J. Brown",
@@ -531,7 +531,7 @@
       "pts": 5.6,
       "proj": 14.18,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Harold Fannin Jr.",
@@ -561,7 +561,7 @@
       "pts": 1.2,
       "proj": 12.24,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ravens D/ST",
@@ -591,7 +591,7 @@
       "pts": 15.3,
       "proj": 7.3,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jacory Croskey-Merritt",
@@ -631,7 +631,7 @@
       "pts": 0,
       "proj": 9.91,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      }
     ]
    }
@@ -751,7 +751,7 @@
       "pts": 11.9,
       "proj": 9.6,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Bo Nix",
@@ -791,7 +791,7 @@
       "pts": 1.4,
       "proj": 8.97,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      }
     ],
     "hawaii": [
@@ -813,7 +813,7 @@
       "pts": 9,
       "proj": 17.67,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Omarion Hampton",
@@ -893,7 +893,7 @@
       "pts": 33.8,
       "proj": 9.2,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Mike Evans",
@@ -903,7 +903,7 @@
       "pts": 16.9,
       "proj": 10.65,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Kenyon Sadiq",
@@ -983,7 +983,7 @@
       "pts": 7,
       "proj": 13.15,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Emeka Egbuka",
@@ -993,7 +993,7 @@
       "pts": 11.3,
       "proj": 14.04,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "DeVonta Smith",
@@ -1003,7 +1003,7 @@
       "pts": 8.3,
       "proj": 14.83,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jake Ferguson",
@@ -1093,7 +1093,7 @@
       "pts": 10,
       "proj": 10.42,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Xavier Worthy",
@@ -1255,7 +1255,7 @@
       "pts": 0,
       "proj": 4.14,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Zach Charbonnet",
@@ -1345,7 +1345,7 @@
       "pts": 14.1,
       "proj": 13.71,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "KC Concepcion",
@@ -1567,7 +1567,7 @@
       "pts": 4.4,
       "proj": 9.36,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Courtland Sutton",

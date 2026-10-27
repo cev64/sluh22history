@@ -117,7 +117,7 @@
       "pts": 9,
       "proj": 8.65,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "MarShawn Lloyd",
@@ -199,7 +199,7 @@
       "pts": 27.7,
       "proj": 13.96,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Emeka Egbuka",
@@ -209,7 +209,7 @@
       "pts": 10.3,
       "proj": 13.8,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jake Ferguson",
@@ -229,7 +229,7 @@
       "pts": 10.5,
       "proj": 14.15,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "DK Metcalf",
@@ -289,7 +289,7 @@
       "pts": 9.8,
       "proj": 11.97,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Kyle Monangai",
@@ -449,7 +449,7 @@
       "pts": 9.8,
       "proj": 10.85,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Deebo Samuel Sr.",
@@ -591,7 +591,7 @@
       "pts": 14.8,
       "proj": 6.27,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Romeo Doubs",
@@ -681,7 +681,7 @@
       "pts": 3,
       "proj": 17.62,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ladd McConkey",
@@ -721,7 +721,7 @@
       "pts": 14.6,
       "proj": 11.93,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Mike Evans",
@@ -731,7 +731,7 @@
       "pts": 8.4,
       "proj": 12.99,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Eagles D/ST",
@@ -823,7 +823,7 @@
       "pts": 22.6,
       "proj": 21.48,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bucky Irving",
@@ -873,7 +873,7 @@
       "pts": 39.5,
       "proj": 15.5,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Jadarian Price",
@@ -1003,7 +1003,7 @@
       "pts": 35.2,
       "proj": 20.39,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaylen Waddle",
@@ -1013,7 +1013,7 @@
       "pts": 21.8,
       "proj": 12.18,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1043,7 +1043,7 @@
       "pts": 4.1,
       "proj": 10.58,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Ravens D/ST",
@@ -1063,7 +1063,7 @@
       "pts": 12.4,
       "proj": 8.62,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Woody Marks",
@@ -1103,7 +1103,7 @@
       "pts": 3.9,
       "proj": 9.4,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Michael Pittman Jr.",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      }
     ],
     "hamilton": [
@@ -1205,7 +1205,7 @@
       "pts": 9.5,
       "proj": 12.83,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rams D/ST",
@@ -1375,7 +1375,7 @@
       "pts": -0.1,
       "proj": 12.58,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Texans D/ST",
@@ -1567,7 +1567,7 @@
       "pts": 6.9,
       "proj": 8.61,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "J.K. Dobbins",
@@ -1597,7 +1597,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ]
    }

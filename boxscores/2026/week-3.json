@@ -47,7 +47,7 @@
       "pts": 12.5,
       "proj": 15.62,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Emeka Egbuka",
@@ -57,7 +57,7 @@
       "pts": 11.2,
       "proj": 12.37,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Juwan Johnson",
@@ -77,7 +77,7 @@
       "pts": 14.2,
       "proj": 13.64,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Quinshon Judkins",
@@ -87,7 +87,7 @@
       "pts": 9.9,
       "proj": 13.72,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Steelers D/ST",
@@ -269,7 +269,7 @@
       "pts": 12.7,
       "proj": 12.56,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "RJ Harvey",
@@ -309,7 +309,7 @@
       "pts": 3.1,
       "proj": 9.18,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      }
     ]
    }
@@ -339,7 +339,7 @@
       "pts": 9,
       "proj": 17.37,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Omarion Hampton",
@@ -399,7 +399,7 @@
       "pts": 3.8,
       "proj": 13.78,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Eagles D/ST",
@@ -531,7 +531,7 @@
       "pts": 12.4,
       "proj": 12.48,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Trey McBride",
@@ -631,7 +631,7 @@
       "pts": 0.5,
       "proj": 9.72,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "De'Zhaun Stribling",
@@ -801,7 +801,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Zach Charbonnet",
@@ -833,7 +833,7 @@
       "pts": 13,
       "proj": 14.02,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Breece Hall",
@@ -923,7 +923,7 @@
       "pts": 5.7,
       "proj": 8.77,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "TreVeyon Henderson",
@@ -1063,7 +1063,7 @@
       "pts": 3.4,
       "proj": 10.95,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Seahawks D/ST",
@@ -1133,7 +1133,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ],
     "first": [
@@ -1235,7 +1235,7 @@
       "pts": 21,
       "proj": 11.41,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bhayshul Tuten",
@@ -1345,7 +1345,7 @@
       "pts": 11.9,
       "proj": 19.86,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaylen Waddle",
@@ -1355,7 +1355,7 @@
       "pts": 6.4,
       "proj": 13.09,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1375,7 +1375,7 @@
       "pts": 5.2,
       "proj": 9.9,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Michael Pittman Jr.",
@@ -1405,7 +1405,7 @@
       "pts": 20,
       "proj": 10.57,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Trevor Lawrence",
@@ -1445,7 +1445,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Adonai Mitchell",
@@ -1455,7 +1455,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "A.J. Brown",
@@ -1465,7 +1465,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      }
     ],
     "game": [
@@ -1487,7 +1487,7 @@
       "pts": 21.6,
       "proj": 20.9,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bucky Irving",
@@ -1537,7 +1537,7 @@
       "pts": 20.7,
       "proj": 15.62,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Travis Kelce",

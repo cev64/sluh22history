@@ -87,7 +87,7 @@
       "pts": 12.3,
       "proj": 8.53,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Seahawks D/ST",
@@ -157,7 +157,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ],
     "hamilton": [
@@ -179,7 +179,7 @@
       "pts": 7.6,
       "proj": 16.12,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jeremiyah Love",
@@ -379,7 +379,7 @@
       "pts": 3.3,
       "proj": 11.2,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Juwan Johnson",
@@ -399,7 +399,7 @@
       "pts": 16.8,
       "proj": 18.02,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Darren Waller",
@@ -449,7 +449,7 @@
       "pts": 21.6,
       "proj": 12.47,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "DK Metcalf",
@@ -479,7 +479,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      }
     ],
     "infinity": [
@@ -521,7 +521,7 @@
       "pts": 15.5,
       "proj": 20.15,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaylen Waddle",
@@ -531,7 +531,7 @@
       "pts": 14.5,
       "proj": 11.91,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Harold Fannin Jr.",
@@ -551,7 +551,7 @@
       "pts": 9.1,
       "proj": 14.79,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Dontayvion Wicks",
@@ -561,7 +561,7 @@
       "pts": 4.8,
       "proj": 11.24,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Vikings D/ST",
@@ -621,7 +621,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Keenan Allen",
@@ -641,7 +641,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      }
     ]
    }
@@ -801,7 +801,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Zach Charbonnet",
@@ -883,7 +883,7 @@
       "pts": 12.6,
       "proj": 11.8,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Malik Washington",
@@ -953,7 +953,7 @@
       "pts": 1.6,
       "proj": 8.02,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Courtland Sutton",
@@ -1003,7 +1003,7 @@
       "pts": 16,
       "proj": 20.26,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bucky Irving",
@@ -1033,7 +1033,7 @@
       "pts": 7.2,
       "proj": 15.63,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Travis Kelce",
@@ -1245,7 +1245,7 @@
       "pts": 24.9,
       "proj": 9.05,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "RJ Harvey",
@@ -1295,7 +1295,7 @@
       "pts": 2.7,
       "proj": 12.98,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      }
     ]
    }
@@ -1335,7 +1335,7 @@
       "pts": 2,
       "proj": 14.32,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Zay Flowers",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rachaad White",
@@ -1607,7 +1607,7 @@
       "pts": 11.7,
       "proj": 12.89,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Braelon Allen",
