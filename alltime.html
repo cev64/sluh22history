@@ -18,6 +18,7 @@
   <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <script src="league-data.js"></script>
+  <script src="allplay.js"></script>
   <script src="team-logos.js"></script>
   <script src="pwa.js" defer></script>
   <script src="chat.js" defer></script>
@@ -871,6 +872,22 @@
       .mobile-stat-strip {
         display: grid;
       }
+      #allTimeBody .mobile-stat-strip {
+        display: flex !important;
+        gap: 3px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent);
+        mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent);
+        padding-right: 14px;
+      }
+      #allTimeBody .mobile-stat-strip::-webkit-scrollbar { display: none; }
+      #allTimeBody .mobile-stat { flex: 0 0 52px; min-width: 52px; }
+      #allTimeBody .mobile-stat.wide { flex-basis: 58px; min-width: 58px; }
+      #allTimeBody .mobile-stat.wider { flex-basis: 84px; min-width: 84px; }
+      #allTimeBody .mobile-stat strong { overflow: visible; text-overflow: clip; }
       .mobile-sort-control {
         display: inline-flex;
         margin-left: auto;
@@ -1472,6 +1489,13 @@
     .starters-total small { color: var(--muted); font-size: 8px; }
     .empty-state { padding: 24px; color: var(--muted); font-size: 12px; text-align: center; }
 
+    @media (min-width: 701px) {
+      .scroll-table th, .scroll-table td { padding-left: 8px; padding-right: 8px; }
+      .scroll-table .team-cell { min-width: 0; }
+    }
+    @media (min-width: 701px) and (max-width: 1439px) {
+      .scroll-table .team-name { display: block; max-width: 125px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
     @media (max-width: 700px) {
       .division-grid { grid-template-columns: 1fr; gap: 9px; }
       .titles-table th, .titles-table td { padding-left: 8px; padding-right: 8px; }
@@ -1709,7 +1733,7 @@
     </section>
 
     <section id="standings" class="standings-section">
-      <div class="card compact-table">
+      <div class="card compact-table scroll-table">
         <div class="card-head">
           <h3><span class="division-chip"><svg class="chip-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.8 4.3h10.4M2.8 8h7.2M2.8 11.7h4"/></svg></span>Standings</h3>
           <div class="mobile-sort-control">
@@ -1721,6 +1745,9 @@
               <option value="pa">Points Against</option>
               <option value="pfg">PF per Game</option>
               <option value="diff">Point Differential</option>
+              <option value="allplay">All-Play</option>
+              <option value="luck">Luck</option>
+              <option value="xwins">Expected Wins</option>
               <option value="team">Team</option>
             </select>
             <button type="button" class="mobile-sort-direction" id="allTimeMobileDirection" data-mobile-direction="allTime" aria-label="Sort descending">↓</button>
@@ -1738,6 +1765,9 @@
                 <th><button class="sort-button" data-table="allTime" data-sort="pa">PA <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-table="allTime" data-sort="pfg">PF/G <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-table="allTime" data-sort="diff">Diff <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="allplay">All-Play <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="luck" title="Wins above or below expected" aria-label="Luck: wins above or below expected">Luck <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="xwins">Exp W–L <span class="sort-indicator"></span></button></th>
               </tr>
             </thead>
             <tbody id="allTimeBody"></tbody>
@@ -1809,6 +1839,7 @@
           ownerId,
           ...owner,
           seasons: [],
+          apLines: [],
           wins: 0,
           losses: 0,
           pf: 0,
@@ -1897,6 +1928,8 @@
       [...seasons]
         .sort((a, b) => a.year - b.year)
         .forEach((season) => {
+          // All-play over every team in the season, departed ones included.
+          const ap = AllPlay.allPlay(season.regularGames);
           Object.entries(season.teams).forEach(([teamId, team]) => {
             const profile = profiles[team.ownerId];
             if (!profile || team.excludeFromHome) return;
@@ -1911,6 +1944,7 @@
               finalRank: team.finalRank,
               live: Boolean(season.live)
             });
+            if (ap[teamId]) profile.apLines.push(ap[teamId]);
             profile.wins += team.wins;
             profile.losses += team.losses;
             profile.pf += team.pf;
@@ -1972,6 +2006,7 @@
         profile.diff = profile.pf - profile.pa;
         profile.games = profile.wins + profile.losses;
         profile.pct = profile.games ? profile.wins / profile.games : 0;
+        profile.ap = AllPlay.combine(profile.apLines);
         profile.pfg = profile.games ? profile.pf / profile.games : 0;
         profile.bestFinish = Math.min(...Object.values(profile.finishes));
         profile.worstFinish = Math.max(...Object.values(profile.finishes));
@@ -1997,6 +2032,9 @@
         profiles.charlie_vonderheid.championshipYears.unshift(2020);
       }
       profileList = Object.values(profiles);
+      // All-play must cover exactly the games the Record column counts.
+      const apBad = profileList.filter((p) => p.ap.wins !== p.wins || p.ap.losses !== p.losses);
+      if (apBad.length) console.warn("All-play record mismatch:", apBad.map((p) => p.ownerId));
     }
     buildProfiles();
 
@@ -2086,11 +2124,14 @@
     }
 
     /* ---- All-time standings ---- */
-    const allTimeDefaults = { team: "asc", wins: "desc", pct: "desc", pf: "desc", pa: "asc", diff: "desc", pfg: "desc" };
+    const allTimeDefaults = { team: "asc", wins: "desc", pct: "desc", pf: "desc", pa: "asc", diff: "desc", pfg: "desc", allplay: "desc", luck: "desc", xwins: "desc" };
     let allTimeSort = { key: "wins", direction: "desc" };
 
     function allTimeValue(profile, key) {
       if (key === "team") return profile.currentTeam.toLowerCase();
+      if (key === "allplay") return profile.ap.apPct;
+      if (key === "luck") return profile.ap.luck;
+      if (key === "xwins") return profile.ap.xWins;
       return profile[key];
     }
 
@@ -2129,9 +2170,12 @@
             <div class="mobile-stat-strip" aria-label="${profile.currentTeam} all-time statistics">
               <span class="mobile-stat"><small>W–L</small><strong>${profile.wins}–${profile.losses}</strong></span>
               <span class="mobile-stat"><small>PCT</small><strong>${pct(profile.wins, profile.losses)}</strong></span>
-              <span class="mobile-stat"><small>PF</small><strong>${fmt(profile.pf)}</strong></span>
-              <span class="mobile-stat"><small>PA</small><strong>${fmt(profile.pa)}</strong></span>
+              <span class="mobile-stat wide"><small>PF</small><strong>${fmt(profile.pf)}</strong></span>
+              <span class="mobile-stat wide"><small>PA</small><strong>${fmt(profile.pa)}</strong></span>
               <span class="mobile-stat"><small>Diff</small><strong class="${profile.diff >= 0 ? "positive" : "negative"}">${signed(profile.diff)}</strong></span>
+              <span class="mobile-stat wider"><small>All-Play</small><strong>${profile.ap.apRecord}</strong></span>
+              <span class="mobile-stat"><small title="Wins above or below expected">Luck</small><strong class="${AllPlay.luckClass(profile.ap.luck)}">${AllPlay.luckText(profile.ap.luck)}</strong></span>
+              <span class="mobile-stat"><small>Exp W–L</small><strong>${profile.ap.xRecord}</strong></span>
             </div>
           </td>
           <td class="record">${profile.wins}–${profile.losses}</td>
@@ -2140,8 +2184,12 @@
           <td>${fmt(profile.pa)}</td>
           <td>${profile.pfg.toFixed(1)}</td>
           <td class="${profile.diff >= 0 ? "positive" : "negative"}">${signed(profile.diff)}</td>
+          <td class="record">${profile.ap.apRecord}</td>
+          <td class="${AllPlay.luckClass(profile.ap.luck)}">${AllPlay.luckText(profile.ap.luck)}</td>
+          <td class="record">${profile.ap.xRecord}</td>
         </tr>`).join("");
       markSort("allTime", allTimeSort, "allTimeMobileSort", "allTimeMobileDirection");
+      AllPlay.linkStrips(document.getElementById("allTimeBody"));
     }
 
 

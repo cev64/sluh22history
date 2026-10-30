@@ -1410,3 +1410,16 @@ body:not(#_) :is(.mini-badge, .team-badge, .profile-logo) > img.team-logo {
   border-radius: 0;
   object-fit: contain;
 }
+
+/* Standings tables (any table whose rows carry a team cell): every column
+   centred under its header except Team, which stays left beside its logo.
+   On phones each stat in the strip under the name is centred in its slot. */
+body:not(#_) table:has(td.team-cell) :is(th, td) { text-align: center; }
+body:not(#_) table:has(td.team-cell) td.team-cell,
+body:not(#_) table:has(td.team-cell) th:nth-child(2) { text-align: left; }
+body:not(#_) table:has(td.team-cell) th .sort-button { justify-content: center; }
+body:not(#_) table:has(td.team-cell) th:nth-child(2) .sort-button { justify-content: flex-start; }
+body:not(#_) table:has(td.team-cell) .mobile-stat-strip .mobile-stat { text-align: center; align-items: center; }
+@media (min-width: 901px) {
+  body:not(#_) table:has(td.team-cell) td.team-cell:not(:has(> .team-flags)) { padding-right: 16px; }
+}
