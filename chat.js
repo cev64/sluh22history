@@ -177,6 +177,7 @@
 
   async function buildModel() {
     await loadScript("league-data.js", () => Boolean(window.LEAGUE_DATA));
+    await loadScript("allplay.js", () => Boolean(window.AllPlay));
     const LD = window.LEAGUE_DATA;
     const owners = {};
     Object.entries(LD.owners).forEach(([id, o]) => { owners[id] = { name: o.name, currentTeam: o.currentTeam }; });
@@ -341,6 +342,22 @@
         ].join(" | "));
       });
 
+    /* all-play and luck */
+    // Every season's all-play is worked out on its own and the seasons
+    // added up, the same way the record book's standings columns do it.
+    const AP = window.AllPlay;
+    const apBySeason = new Map(seasons.map((s) => [s, AP.allPlay(s.regular)]));
+    const apCareer = {};
+    seasons.forEach((s) => Object.entries(apBySeason.get(s)).forEach(([id, line]) => {
+      const t = s.teams[id];
+      if (t && !UNSPOKEN.has(t.ownerId)) (apCareer[t.ownerId] = apCareer[t.ownerId] || []).push(line);
+    }));
+    L.push("", "## All-play and luck, by manager (regular season, every season added up)",
+      "All-play: each week a team's score is set against every other score that week, a win for each team it outscored, a loss for each that outscored it. Expected wins = all-play win% × games played, per season, added up; the expected record rounds that to whole games. Luck = actual wins − expected wins (positive = lucky, has won more than its scoring earned; negative = unlucky). These are the same numbers as the All-Play, Luck and Exp columns in every standings table on the site.",
+      "manager | all-play W-L(-T) (win%) | expected W-L | luck (wins above expected)");
+    Object.entries(apCareer).map(([oid, lines]) => [oid, AP.combine(lines)]).sort((a, b) => b[1].luck - a[1].luck)
+      .forEach(([oid, c]) => L.push(`${name(oid)} | ${c.apRecord} (${pct(c.apPct)}) | ${c.xRecord} | ${AP.luckText(c.luck)}`));
+
     /* head-to-head */
     const h2h = {};
     games.forEach((g) => {
@@ -428,12 +445,14 @@
       if (s.runnerUp && !hid(s.runnerUp)) L.push(`Runner-up: ${tm(s.runnerUp)}.${s.third && !hid(s.third) ? ` Third: ${tm(s.third)}.` : ""}`);
       if (s.lastPlace && !hid(s.lastPlace)) L.push(`Last place: ${tm(s.lastPlace)} (${tn(s.lastPlace)}).`);
       L.push(s.finished
-        ? "Final standings (final place, after the playoffs and Toilet Bowl): team (manager) W-L, PF, PA [division]"
-        : "Standings so far (by record, then points for; the season page applies the full tiebreakers): team (manager) W-L, PF, PA [division]");
+        ? "Final standings (final place, after the playoffs and Toilet Bowl): team (manager) W-L, PF, PA, all-play, expected record, luck [division]"
+        : "Standings so far (by record, then points for; the season page applies the full tiebreakers): team (manager) W-L, PF, PA, all-play, expected record, luck [division]");
       standing(s).filter((id) => !hid(id)).forEach((id, i) => {
         const t = s.teams[id];
         const div = t.division ? ` [${t.division}${t.divRecord ? `, ${t.divRecord} in division` : t.divWins + t.divLosses ? `, ${t.divWins}-${t.divLosses} in division` : ""}]` : "";
-        L.push(`${s.finished ? t.finalRank : i + 1}. ${tn(id)} (${tm(id)}) ${record(t)}, PF ${f2(t.pf)}, PA ${f2(t.pa)}${div}`);
+        const ap = apBySeason.get(s)[id];
+        const apText = ap ? `, all-play ${ap.apRecord}, expected ${ap.xRecord}, luck ${AP.luckText(ap.luck)}` : "";
+        L.push(`${s.finished ? t.finalRank : i + 1}. ${tn(id)} (${tm(id)}) ${record(t)}, PF ${f2(t.pf)}, PA ${f2(t.pa)}${apText}${div}`);
       });
       L.push("Regular-season games (manager score–score manager):");
       const byWeek = {};
