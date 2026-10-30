@@ -4373,9 +4373,9 @@
       body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(6),
       body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(7) { width: 70px; }
       body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(8) { width: 48px; }
-      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(9) { width: 70px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(9) { width: 64px; }
       body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(10) { width: 52px; }
-      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(11) { width: 80px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(11) { width: 60px; }
       body:not(#_) .live-panel .division-grid .standings-ap td.team-cell:has(> .team-flags) { padding-right: 78px; }
       body:not(#_) .live-panel .division-grid .standings-ap td.team-cell .team-name { white-space: nowrap; }
       body:not(#_) .live-panel .division-grid .standings-ap td.ap-col { font-variant-numeric: tabular-nums; }
@@ -4413,6 +4413,8 @@
       body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(8) { min-width: 32px; }
       body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(9) { min-width: 50px; }
     }
+    /* EXPR reads like W–L: bold ink, in the phone strips too. */
+    body:not(#_) td.team-cell > .mobile-stat-strip .mobile-stat.exp strong { color: var(--ink); font-weight: 700; }
   </style>
   <link rel="stylesheet" href="ui.css?v=2" />
   <link rel="stylesheet" href="design.css?v=2" />
@@ -6256,16 +6258,16 @@
       const ap = apWeek > 0 ? allPlayThrough(apWeek) : {};
       const apCells = (id) => {
         const a = ap[id];
-        if (!a) return `<td class="ap-col">0–0</td><td class="ap-col">0.0</td><td class="ap-col">0–0</td>`;
+        if (!a) return `<td class="ap-col">0–0</td><td class="ap-col">0.0</td><td class="ap-col record">0–0</td>`;
         const cls = AllPlay.luckClass(a.luck);
-        return `<td class="ap-col">${a.apRecord}</td><td class="ap-col${cls ? ` ${cls}` : ""}">${AllPlay.luckText(a.luck)}</td><td class="ap-col">${a.xRecord}</td>`;
+        return `<td class="ap-col">${a.apRecord}</td><td class="ap-col${cls ? ` ${cls}` : ""}">${AllPlay.luckText(a.luck)}</td><td class="ap-col record">${a.xRecord}</td>`;
       };
       const apStrip = (id) => {
         const a = ap[id];
         const cls = a ? AllPlay.luckClass(a.luck) : "";
         return `<span class="mobile-stat"><small>All-Play</small><strong>${a ? a.apRecord : "0–0"}</strong></span>`
-          + `<span class="mobile-stat" title="Wins above or below expected"><small>Luck</small><strong${cls ? ` class="${cls}"` : ""}>${a ? AllPlay.luckText(a.luck) : "0.0"}</strong></span>`
-          + `<span class="mobile-stat"><small>Exp W–L</small><strong>${a ? a.xRecord : "0–0"}</strong></span>`;
+          + `<span class="mobile-stat" title="Wins above expected"><small>WAE</small><strong${cls ? ` class="${cls}"` : ""}>${a ? AllPlay.luckText(a.luck) : "0.0"}</strong></span>`
+          + `<span class="mobile-stat exp"><small>EXPR</small><strong>${a ? a.xRecord : "0–0"}</strong></span>`;
       };
 
       const divisionCards = DIVISION_NAMES.map((division) => {
@@ -6275,7 +6277,7 @@
           ${cardHead(division, "shield")}
           <div class="table-wrap standings-ap">
             <table>
-              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th class="ap-col" title="All-play record: each week's score against every other score that week">All-Play</th><th class="ap-col" title="Wins above or below expected" aria-label="Wins above or below expected">Luck</th><th class="ap-col" title="Expected record from all-play">Exp W–L</th></tr></thead>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th class="ap-col" title="All-play record: each week's score against every other score that week">All-Play</th><th class="ap-col" title="Wins above expected" aria-label="Wins above expected">WAE</th><th class="ap-col" title="Expected record" aria-label="Expected record">EXPR</th></tr></thead>
               <tbody>
                 ${ids.map((id, i) => {
                   const t = stats[id];
@@ -6689,7 +6691,7 @@
         return;
       }
       const note = count
-        ? `<p class="wi-note">Records include your ${count === s.total ? "" : `${count} `}Week ${week} pick${count === 1 ? "" : "s"}. Points for and against add each team's season scoring average for a picked game; all-play, luck and expected record count posted results only.</p>`
+        ? `<p class="wi-note">Records include your ${count === s.total ? "" : `${count} `}Week ${week} pick${count === 1 ? "" : "s"}. Points for and against add each team's season scoring average for a picked game; all-play, WAE and EXPR count posted results only.</p>`
         : "";
       area.innerHTML = `${note}${standingsCards(picture, {
         live: true,

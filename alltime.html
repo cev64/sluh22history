@@ -1494,7 +1494,7 @@
       .scroll-table .team-cell { min-width: 0; }
     }
     @media (min-width: 701px) and (max-width: 1439px) {
-      .scroll-table .team-name { display: block; max-width: 125px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .scroll-table .team-name { display: block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     }
     @media (max-width: 700px) {
       .division-grid { grid-template-columns: 1fr; gap: 9px; }
@@ -1640,6 +1640,8 @@
       .topbar .year-control { grid-column: 2; grid-row: 1; }
       .topbar-trophy { grid-column: 1 / -1; grid-row: 2; margin: 0; justify-content: center; }
     }
+    /* EXPR reads like W–L: bold ink, in the phone strips too. */
+    body:not(#_) td.team-cell > .mobile-stat-strip .mobile-stat.exp strong { color: var(--ink); font-weight: 700; }
   </style>
   <link rel="stylesheet" href="ui.css?v=2" />
   <link rel="stylesheet" href="design.css?v=2" />
@@ -1744,10 +1746,9 @@
               <option value="pf">Points For</option>
               <option value="pa">Points Against</option>
               <option value="pfg">PF per Game</option>
-              <option value="diff">Point Differential</option>
               <option value="allplay">All-Play</option>
-              <option value="luck">Luck</option>
-              <option value="xwins">Expected Wins</option>
+              <option value="luck">WAE</option>
+              <option value="xwins">EXPR</option>
               <option value="team">Team</option>
             </select>
             <button type="button" class="mobile-sort-direction" id="allTimeMobileDirection" data-mobile-direction="allTime" aria-label="Sort descending">↓</button>
@@ -1764,10 +1765,9 @@
                 <th><button class="sort-button" data-table="allTime" data-sort="pf">PF <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-table="allTime" data-sort="pa">PA <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-table="allTime" data-sort="pfg">PF/G <span class="sort-indicator"></span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="diff">Diff <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-table="allTime" data-sort="allplay">All-Play <span class="sort-indicator"></span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="luck" title="Wins above or below expected" aria-label="Luck: wins above or below expected">Luck <span class="sort-indicator"></span></button></th>
-                <th><button class="sort-button" data-table="allTime" data-sort="xwins">Exp W–L <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="luck" title="Wins above expected" aria-label="WAE: wins above expected">WAE <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-table="allTime" data-sort="xwins" title="Expected record" aria-label="Expected record">EXPR <span class="sort-indicator"></span></button></th>
               </tr>
             </thead>
             <tbody id="allTimeBody"></tbody>
@@ -2124,7 +2124,7 @@
     }
 
     /* ---- All-time standings ---- */
-    const allTimeDefaults = { team: "asc", wins: "desc", pct: "desc", pf: "desc", pa: "asc", diff: "desc", pfg: "desc", allplay: "desc", luck: "desc", xwins: "desc" };
+    const allTimeDefaults = { team: "asc", wins: "desc", pct: "desc", pf: "desc", pa: "asc", pfg: "desc", allplay: "desc", luck: "desc", xwins: "desc" };
     let allTimeSort = { key: "wins", direction: "desc" };
 
     function allTimeValue(profile, key) {
@@ -2172,10 +2172,9 @@
               <span class="mobile-stat"><small>PCT</small><strong>${pct(profile.wins, profile.losses)}</strong></span>
               <span class="mobile-stat wide"><small>PF</small><strong>${fmt(profile.pf)}</strong></span>
               <span class="mobile-stat wide"><small>PA</small><strong>${fmt(profile.pa)}</strong></span>
-              <span class="mobile-stat"><small>Diff</small><strong class="${profile.diff >= 0 ? "positive" : "negative"}">${signed(profile.diff)}</strong></span>
               <span class="mobile-stat wider"><small>All-Play</small><strong>${profile.ap.apRecord}</strong></span>
-              <span class="mobile-stat"><small title="Wins above or below expected">Luck</small><strong class="${AllPlay.luckClass(profile.ap.luck)}">${AllPlay.luckText(profile.ap.luck)}</strong></span>
-              <span class="mobile-stat"><small>Exp W–L</small><strong>${profile.ap.xRecord}</strong></span>
+              <span class="mobile-stat"><small title="Wins above expected">WAE</small><strong class="${AllPlay.luckClass(profile.ap.luck)}">${AllPlay.luckText(profile.ap.luck)}</strong></span>
+              <span class="mobile-stat exp"><small>EXPR</small><strong>${profile.ap.xRecord}</strong></span>
             </div>
           </td>
           <td class="record">${profile.wins}–${profile.losses}</td>
@@ -2183,8 +2182,7 @@
           <td>${fmt(profile.pf)}</td>
           <td>${fmt(profile.pa)}</td>
           <td>${profile.pfg.toFixed(1)}</td>
-          <td class="${profile.diff >= 0 ? "positive" : "negative"}">${signed(profile.diff)}</td>
-          <td class="record">${profile.ap.apRecord}</td>
+          <td>${profile.ap.apRecord}</td>
           <td class="${AllPlay.luckClass(profile.ap.luck)}">${AllPlay.luckText(profile.ap.luck)}</td>
           <td class="record">${profile.ap.xRecord}</td>
         </tr>`).join("");
