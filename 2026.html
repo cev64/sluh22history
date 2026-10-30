@@ -2732,6 +2732,28 @@
     .projected-game .pg-side .pg-rec { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
     .projected-game .pg-bye { padding: 9px 12px; font-size: 11.5px; color: var(--muted); font-weight: 700; }
 
+    /* Playoff odds now / with a win / with a loss, beside the record. */
+    .pg-odds { display: inline-flex; gap: 4px; flex: 0 0 auto; }
+    .pg-odds-chip {
+      display: inline-flex; align-items: baseline; gap: 4px;
+      padding: 2px 7px; border: 1px solid var(--line); border-radius: 999px;
+      background: var(--surface); font-size: 10.5px; line-height: 1.35;
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    .pg-odds-chip i { font-style: normal; font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .pg-odds-chip b { font-weight: 800; color: var(--ink); min-width: 3ch; text-align: right; transition: opacity .2s ease; }
+    .pg-odds-chip.win { border-color: rgba(22, 131, 74, .28); background: rgba(22, 131, 74, .07); }
+    .pg-odds-chip.win b { color: var(--green); }
+    .pg-odds-chip.loss { border-color: rgba(215, 25, 32, .24); background: rgba(215, 25, 32, .06); }
+    .pg-odds-chip.loss b { color: var(--red); }
+    .pg-odds.odds-pending b { opacity: .35; }
+    /* Narrow cards: the chips take their own line under the name. */
+    @media (max-width: 560px) {
+      .projected-game .pg-side:has(.pg-odds) { flex-wrap: wrap; row-gap: 5px; }
+      .projected-game .pg-side:has(.pg-odds) .pg-rec { order: 1; }
+      .projected-game .pg-side .pg-odds { order: 2; flex-basis: 100%; padding-left: 33px; }
+    }
+
     /* Weekly summary ------------------------------------------------ */
 
     .summary-card .summary-body {
@@ -5687,8 +5709,23 @@
       : week > REGULAR_WEEKS ? ["bracket", ...((playoffResults[week] || []).length ? ["recap"] : []), "standings"]
       : VIEWS.filter((v) => v !== "sos" && (v !== "recap" || isPlayed(week))));
 
+    /* Weeks run Thu-Mon and results post Tuesday, so the page opens on the
+       latest results through Tuesday and on the upcoming week's matchups
+       from Wednesday on (league time). Preseason and the weeks after the
+       regular season keep the latest week. */
+    function defaultWeek() {
+      if (lastPlayedWeek < 1 || lastPlayedWeek >= REGULAR_WEEKS) return lastPlayedWeek;
+      let tuesday;
+      try {
+        tuesday = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", weekday: "short" }).format(new Date()) === "Tue";
+      } catch (e) {
+        tuesday = new Date().getDay() === 2;
+      }
+      return tuesday ? lastPlayedWeek : lastPlayedWeek + 1;
+    }
+
     const state = {
-      week: lastPlayedWeek,
+      week: defaultWeek(),
       view: "results"
     };
 
@@ -6030,6 +6067,10 @@
       }
 
       const stats = computeStats(asOfWeek(week));
+      // Playoff odds now / with a win / with a loss, for the next week only:
+      // a later week would rest on games before it that are still unplayed.
+      const withOdds = week === pickWeek();
+      const side = (id) => `<div class="pg-side">${miniTeam(id)}<span class="pg-name">${teams[id].name}</span>${withOdds ? matchupOddsChips(id) : ""}<span class="pg-rec">${stats[id].record}</span></div>`;
       panel.innerHTML = `
         <article class="card">
           ${cardHead(`Week ${week} Matchups`, "versus", week === rivalryWeek ? "Rivalry Week · not yet played" : "Not yet played")}
@@ -6037,15 +6078,63 @@
             ${(schedule[week] || []).map(([a, b]) => `
               <div class="projected-game" data-rv-week="${week}" data-rv-a="${a}" data-rv-b="${b}">
                 <div class="pg-head">Week ${week}</div>
-                <div class="pg-side">${miniTeam(a)}<span class="pg-name">${teams[a].name}</span><span class="pg-rec">${stats[a].record}</span></div>
-                <div class="pg-side">${miniTeam(b)}<span class="pg-name">${teams[b].name}</span><span class="pg-rec">${stats[b].record}</span></div>
+                ${side(a)}
+                ${side(b)}
                 ${rivalryButton(week, a, b)}
               </div>`).join("")}
           </div>
-          ${week === pickWeek() ? `<div class="recap-bar">
+          ${withOdds ? `<div class="recap-bar">
             <button type="button" class="recap-link" data-goto-whatif>Pick the winners and watch the brackets move →</button>
           </div>` : ""}
         </article>`;
+      if (withOdds) fillMatchupOdds(panel, week, stats);
+    }
+
+    // Each side's chips: playoff odds as they stand, then with a win and
+    // with a loss this week. Drawn empty, filled once the simulations land.
+    function matchupOddsChips(id, odds) {
+      const chip = (kind, label, p) => `<span class="pg-odds-chip ${kind}"><i>${label}</i><b>${p == null ? "–" : oddsText(p)}</b></span>`;
+      if (odds && oddsText(odds.win) === oddsText(odds.loss)) {
+        return `<span class="pg-odds" data-pg-odds="${id}">${chip("now", "Odds", odds.now)}</span>`;
+      }
+      return `<span class="pg-odds${odds ? "" : " odds-pending"}" data-pg-odds="${id}">${chip("now", "Now", odds && odds.now)}${chip("win", "Win", odds && odds.win)}${chip("loss", "Loss", odds && odds.loss)}</span>`;
+    }
+
+    // Two what-if simulations per game (either side winning), each on the
+    // posted week's footing, after the cards have painted. A newer render
+    // drops the work of an older one.
+    let matchupOddsRun = 0;
+    function fillMatchupOdds(panel, week, stats) {
+      const run = ++matchupOddsRun;
+      const asOf = asOfWeek(week);
+      const games = schedule[week] || [];
+      const scenario = (a, b, win) => withPicks(
+        [{ week, a, as: stats[a].pfg, b, bs: stats[b].pfg, win }],
+        () => playoffOdds(week, { iterations: WHATIF_ITERATIONS, basis: asOf })
+      );
+      const live = () => run === matchupOddsRun && panel.querySelector("[data-pg-odds]");
+      const paint = (id, odds) => {
+        const el = panel.querySelector(`[data-pg-odds="${id}"]`);
+        if (el) el.outerHTML = matchupOddsChips(id, odds);
+      };
+      // One simulation per slice, so the page stays responsive while they run.
+      const jobs = [() => playoffOdds(asOf)]; // the Standings odds card's numbers
+      games.forEach(([a, b]) => jobs.push(() => scenario(a, b, a), () => scenario(a, b, b)));
+      const done = [];
+      const step = () => {
+        if (!live() || done.length >= jobs.length) return;
+        done.push(jobs[done.length]());
+        const n = done.length;
+        if (n > 1 && n % 2 === 1) {
+          const [now, aWins, bWins] = [done[0], done[n - 2], done[n - 1]];
+          const [a, b] = games[(n - 3) / 2];
+          paint(a, { now: now[a].playoff, win: aWins[a].playoff, loss: bWins[a].playoff });
+          paint(b, { now: now[b].playoff, win: bWins[b].playoff, loss: aWins[b].playoff });
+        }
+        setTimeout(step, 0);
+      };
+      // Let the cards paint first.
+      requestAnimationFrame(() => setTimeout(step, 0));
     }
 
     /* =================================================================
