@@ -82,5 +82,32 @@
   // A page's own [week, a, aScore, b, bScore] arrays, in the shared shape.
   const fromTuples = (rows) => rows.map(([week, a, aScore, b, bScore]) => ({ week, a, aScore, b, bScore }));
 
-  window.AllPlay = { allPlay, combine, luckText, luckClass, fromTuples };
+  /* Phone standings keep each row's team block as it is and put the stats
+     in a strip underneath that scrolls sideways. Every strip under `root`
+     moves together, so the columns stay lined up down the table. Call it
+     after each render: it is installed once per root, and freshly drawn
+     strips pick up where the last ones were. */
+  const linked = new WeakMap();
+  function linkStrips(root, selector = ".mobile-stat-strip") {
+    if (!root) return;
+    let state = linked.get(root);
+    if (!state) {
+      state = { left: 0, syncing: false };
+      linked.set(root, state);
+      // Scroll does not bubble, so listen in the capture phase.
+      root.addEventListener("scroll", (event) => {
+        const strip = event.target;
+        if (state.syncing || !(strip instanceof Element) || !strip.matches(selector)) return;
+        state.left = strip.scrollLeft;
+        state.syncing = true;
+        root.querySelectorAll(selector).forEach((other) => {
+          if (other !== strip && other.scrollLeft !== state.left) other.scrollLeft = state.left;
+        });
+        requestAnimationFrame(() => { state.syncing = false; });
+      }, { capture: true, passive: true });
+    }
+    root.querySelectorAll(selector).forEach((strip) => { strip.scrollLeft = state.left; });
+  }
+
+  window.AllPlay = { allPlay, combine, luckText, luckClass, fromTuples, linkStrips };
 })();
