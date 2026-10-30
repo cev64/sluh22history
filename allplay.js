@@ -87,26 +87,35 @@
      moves together, so the columns stay lined up down the table. Call it
      after each render: it is installed once per root, and freshly drawn
      strips pick up where the last ones were. */
+  /* The strip under the finger (or mouse, or wheel) leads and the rest
+     follow it. Only the leader's scrolling is ever copied, and the leader
+     itself is never written to: a phone rounds a copied position to its
+     own pixels, and copying that back used to cut short the leader's
+     momentum, which read as lag and swipes that stopped dead. */
   const linked = new WeakMap();
   function linkStrips(root, selector = ".mobile-stat-strip") {
     if (!root) return;
     let state = linked.get(root);
     if (!state) {
-      state = { left: 0, syncing: false };
+      state = { left: 0, leader: null, strips: [] };
       linked.set(root, state);
+      const lead = (event) => {
+        const strip = event.target instanceof Element ? event.target.closest(selector) : null;
+        if (strip && root.contains(strip)) state.leader = strip;
+      };
+      ["touchstart", "pointerdown", "wheel"].forEach((type) => root.addEventListener(type, lead, { capture: true, passive: true }));
       // Scroll does not bubble, so listen in the capture phase.
       root.addEventListener("scroll", (event) => {
         const strip = event.target;
-        if (state.syncing || !(strip instanceof Element) || !strip.matches(selector)) return;
+        if (strip !== state.leader) return;
         state.left = strip.scrollLeft;
-        state.syncing = true;
-        root.querySelectorAll(selector).forEach((other) => {
-          if (other !== strip && other.scrollLeft !== state.left) other.scrollLeft = state.left;
-        });
-        requestAnimationFrame(() => { state.syncing = false; });
+        state.strips.forEach((other) => { if (other !== strip) other.scrollLeft = state.left; });
       }, { capture: true, passive: true });
     }
-    root.querySelectorAll(selector).forEach((strip) => { strip.scrollLeft = state.left; });
+    // Re-read after every render, and line the fresh strips up.
+    state.strips = Array.from(root.querySelectorAll(selector));
+    if (state.leader && !state.leader.isConnected) state.leader = null;
+    state.strips.forEach((strip) => { strip.scrollLeft = state.left; });
   }
 
   window.AllPlay = { allPlay, combine, luckText, luckClass, fromTuples, linkStrips };
