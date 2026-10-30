@@ -1427,3 +1427,12 @@ body:not(#_) table:has(td.team-cell) .mobile-stat-strip .mobile-stat { text-alig
 /* Phone stat strips that scroll sideways: a swipe stays in the strip (no
    page back-gesture, no rubber-banding the page) and either axis can start. */
 body:not(#_) .mobile-stat-strip { overscroll-behavior-x: contain; touch-action: pan-x pan-y; }
+
+/* The space kept clear for the markers follows how many there are, so a
+   row with one seed tag doesn't give up a three-marker gap to its name.
+   (Extra :not()s outrank the pages' own fixed reservations.) */
+@media (min-width: 901px) {
+  body:not(#_):not(#__):not(#___) td.team-cell:has(> .team-flags) { padding-right: 90px; }
+  body:not(#_):not(#__):not(#___) td.team-cell:has(> .team-flags > :nth-child(2):last-child) { padding-right: 72px; }
+  body:not(#_):not(#__):not(#___) td.team-cell:has(> .team-flags > :only-child) { padding-right: 46px; }
+}

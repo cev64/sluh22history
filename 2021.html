@@ -489,12 +489,9 @@
     .muted { color: var(--muted); }
 
     .final-card .card-head { padding-bottom: 15px; }
-    .final-table { min-width: 0; }
-    .final-table .place { width: 44px; }
-    @media (min-width: 901px) {
-      body:not(#_) #final .final-table th.place, body:not(#_) #final .final-table td.rank { padding-left: 10px; padding-right: 6px; }
-    }
-    .final-table .team-cell { min-width: 205px; }
+    .final-table { min-width: 900px; }
+    .final-table .place { width: 56px; }
+    .final-table .team-cell { min-width: 300px; }
     .champion-row { background: rgba(246,183,60,.12); }
     .champion-row:hover { background: rgba(246,183,60,.16); }
     .place-medal { font-size: 17px; margin-right: 4px; }
@@ -3628,40 +3625,77 @@
 
     /* Sortable headers line up with their column: numbers sit right, so
        their headers do too. */
-    /* Phone strips: every stat in full, scrolling sideways together (see
-       AllPlay.linkStrips). Only the strip moves; the team block stays put. */
+    /* Phone and tablet rows: the numbers under each team scroll sideways (all
+       the strips in a table together, see AllPlay.linkStrips), each stat at
+       a fixed width so the columns line up from row to row. */
     @media (max-width: 900px) {
-      body:not(#_) table td.team-cell > .mobile-stat-strip {
+      body:not(#_) #regular td.team-cell > .mobile-stat-strip,
+      body:not(#_) #panel-standings td.team-cell > .mobile-stat-strip,
+      body:not(#_) #final td.team-cell > .mobile-stat-strip {
         display: flex;
         grid-template-columns: none;
-        gap: 0 14px;
+        gap: 0 4px;
         max-width: none;
+        min-width: 0;
         overflow-x: auto;
         overscroll-behavior-x: contain;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        white-space: nowrap;
-        touch-action: pan-x pan-y;
+        background:
+          linear-gradient(to left, var(--surface) 30%, rgba(255,255,255,0)) 100% 0 / 26px 100% no-repeat local,
+          linear-gradient(to left, rgba(7,24,39,.13), rgba(7,24,39,0)) 100% 0 / 10px 100% no-repeat scroll;
       }
-      body:not(#_) table td.team-cell > .mobile-stat-strip::-webkit-scrollbar { display: none; }
-      body:not(#_) table td.team-cell > .mobile-stat-strip .mobile-stat { flex: 0 0 auto; min-width: 56px; }
-      body:not(#_) table td.team-cell > .mobile-stat-strip .mobile-stat strong { overflow: visible; text-overflow: clip; }
+      body:not(#_) #regular td.team-cell > .mobile-stat-strip::-webkit-scrollbar,
+      body:not(#_) #panel-standings td.team-cell > .mobile-stat-strip::-webkit-scrollbar,
+      body:not(#_) #final td.team-cell > .mobile-stat-strip::-webkit-scrollbar { display: none; }
+      body:not(#_) #regular td.team-cell > .mobile-stat-strip .mobile-stat,
+      body:not(#_) #panel-standings td.team-cell > .mobile-stat-strip .mobile-stat,
+      body:not(#_) #final td.team-cell > .mobile-stat-strip .mobile-stat {
+        flex: 0 0 auto;
+        min-width: 62px;
+        white-space: nowrap;
+      }
+      body:not(#_) #regular td.team-cell > .mobile-stat-strip .mobile-stat strong,
+      body:not(#_) #panel-standings td.team-cell > .mobile-stat-strip .mobile-stat strong,
+      body:not(#_) #final td.team-cell > .mobile-stat-strip .mobile-stat strong { overflow: visible; text-overflow: clip; white-space: nowrap; }
     }
-    /* Eleven columns beside the desktop sidebar: tighter gutters, and a long
-       name gives way (ellipsis) so every column stays on screen. */
-    @media (min-width: 901px) and (max-width: 1439px) {
-      body:not(#_) :is(#final, #regular, #panel-standings) .table-wrap :is(th, td) { padding-left: 6px; padding-right: 6px; }
-      body:not(#_) :is(#final, #regular, #panel-standings) .table-wrap td.team-cell { min-width: 0; width: 210px; max-width: 210px; }
-      body:not(#_) :is(#final, #regular, #panel-standings) .table-wrap td.team-cell .team-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
-    }
-    @media (min-width: 1440px) { body:not(#_) :is(#final, #regular, #panel-standings) .table-wrap :is(th, td) { padding-left: 8px; padding-right: 8px; } }
-    /* design.css fixes the column widths of an eight-column division table;
-       these standings have eleven, so let the browser size them. */
+
+    /* Ten columns in the final table: tighter gutters and a capped team
+       column so it fits the main pane beside the sidebar without scrolling. */
     @media (min-width: 901px) {
-      body:not(#_) #regular .division-grid:has(.mobile-stat-strip) table { table-layout: auto; min-width: 0; }
-      body:not(#_) #regular .division-grid:has(.mobile-stat-strip) th { width: auto; }
-      body:not(#_) #regular .division-grid:has(.mobile-stat-strip) th:nth-child(1) { width: 44px; }
-      body:not(#_) #regular .division-grid:has(.mobile-stat-strip) td.team-cell:has(> .team-flags) { padding-right: 12px; }
+      body:not(#_) .final-table { min-width: 0; }
+      body:not(#_) .final-table :is(th, td) { padding-left: 7px; padding-right: 7px; }
+      body:not(#_) .final-table :is(th, td):first-child { padding-left: 12px; }
+      body:not(#_) .final-table :is(th, td):last-child { padding-right: 12px; }
+      body:not(#_) .final-table .place { width: 52px; }
+      body:not(#_) .final-table td.team-cell { min-width: 0; max-width: 260px; }
+      body:not(#_) .final-table td.team-cell .team-name { display: block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      body:not(#_) .final-table td.team-cell .team-meta { min-width: 0; }
+    }
+
+
+    /* Standings tables beside the sidebar: fixed numeric columns so the figures
+       line up row to row, and the team column takes what is left. The name
+       ellipsizes and the seed / tiebreak chips (placed at the cell's right
+       edge by design.css) sit in the padding, never over the name. These
+       override design.css's eight-column widths, which no longer line up. */
+    @media (min-width: 901px) {
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap table { table-layout: fixed; min-width: 0; width: 100%; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(1) { width: 40px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(3) { width: 52px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(4) { width: 42px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(5) { width: 52px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(6),
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(7) { width: 70px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(8) { width: 48px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(9) { width: 70px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(10) { width: 52px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap th:nth-child(11) { width: 80px; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap td.team-cell { min-width: 0; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap td.team-cell .team-button { max-width: 100%; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap td.team-cell .team-meta { min-width: 0; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap td.team-cell .team-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      body:not(#_) :is(#regular, #panel-standings) .table-wrap td:not(.team-cell) { font-variant-numeric: tabular-nums; }
     }
 
     th .sort-button { justify-content: flex-end; }
@@ -3781,6 +3815,8 @@
     .schedule-score.bx-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
     body:has(#teamDrawer.open) #bxBackdrop { z-index: 90; }
     body:has(#teamDrawer.open) #bxModal { z-index: 91; }
+    /* EXPR reads like W–L: bold ink, in the phone strips too. */
+    body:not(#_) td.team-cell > .mobile-stat-strip .mobile-stat.exp strong { color: var(--ink); font-weight: 700; }
   </style>
   <link rel="stylesheet" href="ui.css?v=2" />
   <link rel="stylesheet" href="design.css?v=2" />
@@ -3880,10 +3916,9 @@
               <option value="pf">Points For</option>
               <option value="pa">Points Against</option>
               <option value="pfg">PF per Game</option>
-              <option value="diff">Point Differential</option>
               <option value="allplay">All-Play</option>
-              <option value="luck">Luck (wins above expected)</option>
-              <option value="xwins">Expected Wins</option>
+              <option value="luck">WAE</option>
+              <option value="xwins">EXPR</option>
             </select>
             <button type="button" class="mobile-sort-direction" id="mobileFinalDirection" aria-label="Sort ascending">↑</button>
           </div>
@@ -3899,10 +3934,9 @@
                 <th><button class="sort-button" data-sort="pa">PA <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-sort="pfg">PF/G <span class="sort-indicator"></span></button></th>
                 <th>PA/G</th>
-                <th><button class="sort-button" data-sort="diff">Diff <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-sort="allplay" title="All-play record: each week's score against every team's score that week">All-Play <span class="sort-indicator"></span></button></th>
-                <th><button class="sort-button" data-sort="luck" title="Wins above or below expected" aria-label="Luck: wins above or below expected">Luck <span class="sort-indicator"></span></button></th>
-                <th><button class="sort-button" data-sort="xwins" title="Expected record, from the all-play record">Exp <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-sort="luck" title="Wins above expected" aria-label="WAE: wins above expected">WAE <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-sort="xwins" title="Expected record" aria-label="Expected record">EXPR <span class="sort-indicator"></span></button></th>
               </tr>
             </thead>
             <tbody id="finalStandingsBody"></tbody>
@@ -4212,7 +4246,6 @@
 
     const fmt = (n) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const pct = (t) => (t.wins / (t.wins + t.losses)).toFixed(3).replace(/^0/, "");
-    const diffPerGame = (t) => (t.pf / 14) - (t.pa / 14);
 
     function teamButton(id) {
       const t = teams[id];
@@ -4252,7 +4285,7 @@
     }
     const NO_ALLPLAY = { apRecord: "0–0", luck: 0, xRecord: "0–0" };
     function allPlayCells(l) {
-      return `<td>${l.apRecord}</td><td class="${AllPlay.luckClass(l.luck)}">${AllPlay.luckText(l.luck)}</td><td>${l.xRecord}</td>`;
+      return `<td>${l.apRecord}</td><td class="${AllPlay.luckClass(l.luck)}">${AllPlay.luckText(l.luck)}</td><td class="record">${l.xRecord}</td>`;
     }
 
     let finalSort = { key: "finalRank", direction: "asc" };
@@ -4265,7 +4298,6 @@
       pa: "asc",
       pfg: "desc",
       pag: "asc",
-      diff: "desc",
       allplay: "desc",
       luck: "desc",
       xwins: "desc"
@@ -4277,7 +4309,6 @@
       if (key === "record") return t.wins;
       if (key === "pfg") return t.pf / 14;
       if (key === "pag") return t.pa / 14;
-      if (key === "diff") return diffPerGame(t);
       if (key === "allplay") return (allPlayThrough(Infinity)[id] || {}).apPct || 0;
       if (key === "luck") return (allPlayThrough(Infinity)[id] || {}).luck || 0;
       if (key === "xwins") return (allPlayThrough(Infinity)[id] || {}).xWins || 0;
@@ -4311,7 +4342,6 @@
       document.getElementById("finalStandingsBody").innerHTML = sortedIds.map((id) => {
         const ap = allPlayThrough(Infinity)[id] || NO_ALLPLAY;
         const t = teams[id];
-        const d = diffPerGame(t);
         const medal = medals[t.finalRank - 1] || "";
         return `<tr class="${t.finalRank === 1 ? "champion-row" : ""}">
           <td class="rank"><span class="place-medal">${medal}</span>${t.finalRank}</td>
@@ -4322,10 +4352,9 @@
               <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
               <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
               <span class="mobile-stat"><small>PF/G</small><strong>${(t.pf / 14).toFixed(1)}</strong></span>
-              <span class="mobile-stat"><small>DIFF</small><strong class="${d >= 0 ? "positive" : "negative"}">${d >= 0 ? "+" : ""}${d.toFixed(1)}</strong></span>
               <span class="mobile-stat"><small>All-Play</small><strong>${ap.apRecord}</strong></span>
-              <span class="mobile-stat"><small>Luck</small><strong class="${AllPlay.luckClass(ap.luck)}">${AllPlay.luckText(ap.luck)}</strong></span>
-              <span class="mobile-stat"><small>Exp</small><strong>${ap.xRecord}</strong></span>
+              <span class="mobile-stat"><small>WAE</small><strong class="${AllPlay.luckClass(ap.luck)}">${AllPlay.luckText(ap.luck)}</strong></span>
+              <span class="mobile-stat exp"><small>EXPR</small><strong>${ap.xRecord}</strong></span>
             </div>
           </td>
           <td class="record">${t.record}</td>
@@ -4333,7 +4362,6 @@
           <td>${fmt(t.pa)}</td>
           <td>${(t.pf / 14).toFixed(1)}</td>
           <td>${(t.pa / 14).toFixed(1)}</td>
-          <td class="${d >= 0 ? "positive" : "negative"}">${d >= 0 ? "+" : ""}${d.toFixed(1)}</td>
           ${allPlayCells(ap)}
         </tr>`;
       }).join("");
@@ -5197,14 +5225,12 @@
       return `
         <div class="table-wrap">
           <table>
-            <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th>All-Play</th><th title="Wins above or below expected" aria-label="Wins above or below expected">Luck</th><th title="Expected record, from the all-play record">Exp</th></tr></thead>
+            <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th>All-Play</th><th title="Wins above expected" aria-label="Wins above expected">WAE</th><th title="Expected record" aria-label="Expected record">EXPR</th></tr></thead>
             <tbody>
               ${order.map((id, i) => {
                 const t = stats[id];
                 const l = ap[id] || NO_ALLPLAY;
                 const gb = gbText(stats[order[0]], t);
-                const d = t.diff;
-                const dClass = d > 0 ? "positive" : d < 0 ? "negative" : "";
                 return `<tr class="${seedRowClass(picture, id)}">
                   <td class="rank">${i + 1}</td>
                   <td class="team-cell">
@@ -5216,8 +5242,8 @@
                       <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
                       <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
                       <span class="mobile-stat"><small>All-Play</small><strong>${l.apRecord}</strong></span>
-                      <span class="mobile-stat"><small>Luck</small><strong class="${AllPlay.luckClass(l.luck)}">${AllPlay.luckText(l.luck)}</strong></span>
-                      <span class="mobile-stat"><small>Exp</small><strong>${l.xRecord}</strong></span>
+                      <span class="mobile-stat"><small>WAE</small><strong class="${AllPlay.luckClass(l.luck)}">${AllPlay.luckText(l.luck)}</strong></span>
+                      <span class="mobile-stat exp"><small>EXPR</small><strong>${l.xRecord}</strong></span>
                     </div>
                   </td>
                   <td class="record">${t.record}</td>

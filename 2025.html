@@ -3255,7 +3255,7 @@
       body:not(#_) #final td.team-cell > .mobile-stat-strip .mobile-stat strong { overflow: visible; text-overflow: clip; white-space: nowrap; }
     }
 
-    /* Eleven columns in the final table: tighter gutters and a capped team
+    /* Ten columns in the final table: tighter gutters and a capped team
        column so it fits the main pane beside the sidebar without scrolling. */
     @media (min-width: 901px) {
       body:not(#_) .final-table { min-width: 0; }
@@ -3263,8 +3263,8 @@
       body:not(#_) .final-table :is(th, td):first-child { padding-left: 12px; }
       body:not(#_) .final-table :is(th, td):last-child { padding-right: 12px; }
       body:not(#_) .final-table .place { width: 52px; }
-      body:not(#_) .final-table td.team-cell { min-width: 0; max-width: 190px; }
-      body:not(#_) .final-table td.team-cell .team-name { display: block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      body:not(#_) .final-table td.team-cell { min-width: 0; max-width: 260px; }
+      body:not(#_) .final-table td.team-cell .team-name { display: block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       body:not(#_) .final-table td.team-cell .team-meta { min-width: 0; }
     }
 
@@ -3751,6 +3751,26 @@
     .schedule-score.bx-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
     body:has(#teamDrawer.open) #bxBackdrop { z-index: 90; }
     body:has(#teamDrawer.open) #bxModal { z-index: 91; }
+    /* EXPR reads like W–L: bold ink, in the phone strips too. */
+    body:not(#_) td.team-cell > .mobile-stat-strip .mobile-stat.exp strong { color: var(--ink); font-weight: 700; }
+    /* Division standings, eleven columns at fixed widths (same as 2026): the
+       team column takes what is left and a long name ellipsizes. */
+    @media (min-width: 901px) {
+      body:not(#_) :is(#regular, #panel-standings) .division-grid table { min-width: 0; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(1) { width: 40px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(3) { width: 52px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(4) { width: 42px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(5) { width: 52px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(6),
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(7) { width: 70px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(8) { width: 48px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(9) { width: 64px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(10) { width: 52px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid th:nth-child(11) { width: 60px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid td.team-cell:has(> .team-flags) { padding-right: 78px; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid td.team-cell .team-name { white-space: nowrap; }
+      body:not(#_) :is(#regular, #panel-standings) .division-grid td { font-variant-numeric: tabular-nums; }
+    }
   </style>
   <link rel="stylesheet" href="ui.css?v=2" />
   <link rel="stylesheet" href="design.css?v=2" />
@@ -3867,10 +3887,9 @@
               <option value="pf">Points For</option>
               <option value="pa">Points Against</option>
               <option value="pfg">PF per Game</option>
-              <option value="diff">Point Differential</option>
               <option value="allplay">All-Play</option>
-              <option value="luck">Luck</option>
-              <option value="xwins">Expected Record</option>
+              <option value="luck">WAE</option>
+              <option value="xwins">EXPR</option>
             </select>
             <button type="button" class="mobile-sort-direction" id="mobileFinalDirection" aria-label="Sort ascending">↑</button>
           </div>
@@ -3886,10 +3905,9 @@
                 <th><button class="sort-button" data-sort="pa">PA <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-sort="pfg">PF/G <span class="sort-indicator"></span></button></th>
                 <th>PA/G</th>
-                <th><button class="sort-button" data-sort="diff">Diff <span class="sort-indicator"></span></button></th>
                 <th><button class="sort-button" data-sort="allplay">All-Play <span class="sort-indicator"></span></button></th>
-                <th><button class="sort-button" data-sort="luck" title="Wins above or below expected" aria-label="Luck: wins above or below expected">Luck <span class="sort-indicator"></span></button></th>
-                <th><button class="sort-button" data-sort="xwins" title="Expected record from all-play" aria-label="Expected record">Exp <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-sort="luck" title="Wins above expected" aria-label="WAE: wins above expected">WAE <span class="sort-indicator"></span></button></th>
+                <th><button class="sort-button" data-sort="xwins" title="Expected record" aria-label="Expected record">EXPR <span class="sort-indicator"></span></button></th>
               </tr>
             </thead>
             <tbody id="finalStandingsBody"></tbody>
@@ -4268,7 +4286,6 @@
 
     const fmt = (n) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const pct = (t) => (t.wins / (t.wins + t.losses)).toFixed(3).replace(/^0/, "");
-    const diffPerGame = (t) => (t.pf / 14) - (t.pa / 14);
 
     function teamButton(id) {
       const t = teams[id];
@@ -4295,7 +4312,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th>All-Play</th><th title="Wins above or below expected" aria-label="Wins above or below expected">Luck</th><th>Exp</th></tr></thead>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th>All-Play</th><th title="Wins above expected" aria-label="Wins above expected">WAE</th><th title="Expected record" aria-label="Expected record">EXPR</th></tr></thead>
               <tbody>
                 ${ids.map((id, i) => {
                   const t = stats[id];
@@ -4311,8 +4328,8 @@
                         <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
                         <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
                         <span class="mobile-stat"><small>All-Play</small><strong>${AP[id].apRecord}</strong></span>
-                        <span class="mobile-stat"><small>Luck</small><strong class="${AllPlay.luckClass(AP[id].luck)}">${AllPlay.luckText(AP[id].luck)}</strong></span>
-                        <span class="mobile-stat"><small>Exp</small><strong>${AP[id].xRecord}</strong></span>
+                        <span class="mobile-stat"><small>WAE</small><strong class="${AllPlay.luckClass(AP[id].luck)}">${AllPlay.luckText(AP[id].luck)}</strong></span>
+                        <span class="mobile-stat exp"><small>EXPR</small><strong>${AP[id].xRecord}</strong></span>
                       </div>
                     </td>
                     <td class="record">${t.record}</td>
@@ -4351,7 +4368,6 @@
       pa: "asc",
       pfg: "desc",
       pag: "asc",
-      diff: "desc",
       allplay: "desc",
       luck: "desc",
       xwins: "desc"
@@ -4363,7 +4379,6 @@
       if (key === "record") return t.wins;
       if (key === "pfg") return t.pf / 14;
       if (key === "pag") return t.pa / 14;
-      if (key === "diff") return diffPerGame(t);
       if (key === "allplay") return ALLPLAY[id].apPct;
       if (key === "luck") return ALLPLAY[id].luck;
       if (key === "xwins") return ALLPLAY[id].xWins;
@@ -4396,7 +4411,6 @@
 
       document.getElementById("finalStandingsBody").innerHTML = sortedIds.map((id) => {
         const t = teams[id];
-        const d = diffPerGame(t);
         const medal = medals[t.finalRank - 1] || "";
         return `<tr class="${t.finalRank === 1 ? "champion-row" : ""}">
           <td class="rank"><span class="place-medal">${medal}</span>${t.finalRank}</td>
@@ -4407,10 +4421,9 @@
               <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
               <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
               <span class="mobile-stat"><small>PF/G</small><strong>${(t.pf / 14).toFixed(1)}</strong></span>
-              <span class="mobile-stat"><small>DIFF</small><strong class="${d >= 0 ? "positive" : "negative"}">${d >= 0 ? "+" : ""}${d.toFixed(1)}</strong></span>
               <span class="mobile-stat"><small>All-Play</small><strong>${ALLPLAY[id].apRecord}</strong></span>
-              <span class="mobile-stat"><small>Luck</small><strong class="${AllPlay.luckClass(ALLPLAY[id].luck)}">${AllPlay.luckText(ALLPLAY[id].luck)}</strong></span>
-              <span class="mobile-stat"><small>Exp</small><strong>${ALLPLAY[id].xRecord}</strong></span>
+              <span class="mobile-stat"><small>WAE</small><strong class="${AllPlay.luckClass(ALLPLAY[id].luck)}">${AllPlay.luckText(ALLPLAY[id].luck)}</strong></span>
+              <span class="mobile-stat exp"><small>EXPR</small><strong>${ALLPLAY[id].xRecord}</strong></span>
             </div>
           </td>
           <td class="record">${t.record}</td>
@@ -4418,7 +4431,6 @@
           <td>${fmt(t.pa)}</td>
           <td>${(t.pf / 14).toFixed(1)}</td>
           <td>${(t.pa / 14).toFixed(1)}</td>
-          <td class="${d >= 0 ? "positive" : "negative"}">${d >= 0 ? "+" : ""}${d.toFixed(1)}</td>
           <td>${ALLPLAY[id].apRecord}</td>
           <td class="${AllPlay.luckClass(ALLPLAY[id].luck)}">${AllPlay.luckText(ALLPLAY[id].luck)}</td>
           <td class="record">${ALLPLAY[id].xRecord}</td>
@@ -6017,7 +6029,7 @@
           ${cardHead(division, "shield")}
           <div class="table-wrap">
             <table>
-              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th>All-Play</th><th title="Wins above or below expected" aria-label="Wins above or below expected">Luck</th><th>Exp</th></tr></thead>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th>All-Play</th><th title="Wins above expected" aria-label="Wins above expected">WAE</th><th title="Expected record" aria-label="Expected record">EXPR</th></tr></thead>
               <tbody>
                 ${ids.map((id, i) => {
                   const t = stats[id];
@@ -6032,8 +6044,8 @@
                         <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
                         <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
                         <span class="mobile-stat"><small>All-Play</small><strong>${AP[id].apRecord}</strong></span>
-                        <span class="mobile-stat"><small>Luck</small><strong class="${AllPlay.luckClass(AP[id].luck)}">${AllPlay.luckText(AP[id].luck)}</strong></span>
-                        <span class="mobile-stat"><small>Exp</small><strong>${AP[id].xRecord}</strong></span>
+                        <span class="mobile-stat"><small>WAE</small><strong class="${AllPlay.luckClass(AP[id].luck)}">${AllPlay.luckText(AP[id].luck)}</strong></span>
+                        <span class="mobile-stat exp"><small>EXPR</small><strong>${AP[id].xRecord}</strong></span>
                       </div>
                     </td>
                     <td class="record">${t.record}</td>

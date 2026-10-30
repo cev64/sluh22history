@@ -353,8 +353,8 @@
       if (t && !UNSPOKEN.has(t.ownerId)) (apCareer[t.ownerId] = apCareer[t.ownerId] || []).push(line);
     }));
     L.push("", "## All-play and luck, by manager (regular season, every season added up)",
-      "All-play: each week a team's score is set against every other score that week, a win for each team it outscored, a loss for each that outscored it. Expected wins = all-play win% × games played, per season, added up; the expected record rounds that to whole games. Luck = actual wins − expected wins (positive = lucky, has won more than its scoring earned; negative = unlucky). These are the same numbers as the All-Play, Luck and Exp columns in every standings table on the site.",
-      "manager | all-play W-L(-T) (win%) | expected W-L | luck (wins above expected)");
+      "All-play: each week a team's score is set against every other score that week, a win for each team it outscored, a loss for each that outscored it. Expected wins = all-play win% × games played, per season, added up; the expected record rounds that to whole games. Luck = actual wins − expected wins (positive = lucky, has won more than its scoring earned; negative = unlucky). These are the same numbers as the All-Play, WAE (wins above expected, i.e. luck) and EXPR (expected record) columns in every standings table on the site.",
+      "manager | all-play W-L(-T) (win%) | EXPR (expected record) | WAE (wins above expected, luck)");
     Object.entries(apCareer).map(([oid, lines]) => [oid, AP.combine(lines)]).sort((a, b) => b[1].luck - a[1].luck)
       .forEach(([oid, c]) => L.push(`${name(oid)} | ${c.apRecord} (${pct(c.apPct)}) | ${c.xRecord} | ${AP.luckText(c.luck)}`));
 
