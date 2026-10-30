@@ -4358,6 +4358,61 @@
       .wi-games { padding: 10px 12px 2px; scroll-padding: 0 12px; }
       .wi-foot { padding: 8px 12px 10px; }
     }
+    /* Division standings with the all-play columns ----------------------
+       Desktop: eleven columns at fixed widths, so the numbers line up from
+       one division to the next and the team column takes what is left
+       (a long name ellipsizes rather than pushing the table past its card).
+       The `.live-panel .standings-ap` in each selector outranks design.css's
+       eight-column rules, which load later. */
+    @media (min-width: 901px) {
+      body:not(#_) .live-panel .division-grid .standings-ap table { min-width: 0; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(1) { width: 40px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(3) { width: 52px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(4) { width: 42px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(5) { width: 52px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(6),
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(7) { width: 70px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(8) { width: 48px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(9) { width: 70px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(10) { width: 52px; }
+      body:not(#_) .live-panel .division-grid .standings-ap th:nth-child(11) { width: 80px; }
+      body:not(#_) .live-panel .division-grid .standings-ap td.team-cell:has(> .team-flags) { padding-right: 78px; }
+      body:not(#_) .live-panel .division-grid .standings-ap td.team-cell .team-name { white-space: nowrap; }
+      body:not(#_) .live-panel .division-grid .standings-ap td.ap-col { font-variant-numeric: tabular-nums; }
+    }
+
+    /* Phones: the team line stays as it is, and the nine numbers under it
+       run in one strip that scrolls sideways, every row's strip together
+       (AllPlay.linkStrips), with each stat at a fixed width so the columns
+       hold down the card. The right edge fades while there is more. */
+    @media (max-width: 900px) {
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip {
+        display: flex;
+        gap: 0 12px;
+        max-width: none;
+        min-width: 0;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
+        mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
+      }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip::-webkit-scrollbar { display: none; }
+      /* room at the end, so the last stat clears the fade once scrolled to */
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip::after { content: ""; flex: 0 0 6px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat { flex: 0 0 auto; min-width: 38px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat strong { overflow: visible; text-overflow: clip; font-variant-numeric: tabular-nums; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(1) { min-width: 34px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(2) { min-width: 22px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(3) { min-width: 34px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(4),
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(5) { min-width: 62px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(6) { min-width: 30px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(7) { min-width: 50px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(8) { min-width: 32px; }
+      body:not(#_) .live-panel td.team-cell > .mobile-stat-strip .mobile-stat:nth-child(9) { min-width: 50px; }
+    }
   </style>
   <link rel="stylesheet" href="ui.css?v=2" />
   <link rel="stylesheet" href="design.css?v=2" />
@@ -4365,6 +4420,7 @@
   <link rel="stylesheet" href="chat.css" />
   <script src="league-data.js"></script>
   <script src="ui.js"></script>
+  <script src="allplay.js"></script>
   <script src="team-logos.js"></script>
   <script src="rivalry.js?v=2"></script>
 </head>
@@ -6171,23 +6227,55 @@
       const live = asOf > 0;
       panel.innerHTML = `
         <div class="panel-stack">
-          ${standingsCards(buildPicture(asOf), { live, scope: `w${asOf}` })}
+          ${standingsCards(buildPicture(asOf), { live, scope: `w${asOf}`, apWeek: asOf })}
           ${live && odds ? oddsCard(asOf) : ""}
         </div>`;
+      AllPlay.linkStrips(panel);
     }
 
-    /* Both division tables and their legend. */
-    function standingsCards(picture, { live, scope }) {
+    /* All-play, luck and expected record through a week, from posted
+       results only. A What-If pick is never fed in: its scores are season
+       averages, not a result, so under picks these columns hold the
+       posted-week values while W–L moves. */
+    const allPlayCache = {};
+    function allPlayThrough(week) {
+      if (!allPlayCache[week]) {
+        const rows = [];
+        playedWeeks.filter((w) => w <= week).forEach((w) => {
+          results[w].forEach(([a, as, b, bs]) => rows.push([w, a, as, b, bs]));
+        });
+        allPlayCache[week] = AllPlay.allPlay(AllPlay.fromTuples(rows), { throughWeek: week });
+      }
+      return allPlayCache[week];
+    }
+
+    /* Both division tables and their legend. `apWeek` is the posted week
+       the all-play columns read; before Week 1 every team is 0–0 there too. */
+    function standingsCards(picture, { live, scope, apWeek = 0 }) {
       const stats = picture.stats;
+      const ap = apWeek > 0 ? allPlayThrough(apWeek) : {};
+      const apCells = (id) => {
+        const a = ap[id];
+        if (!a) return `<td class="ap-col">0–0</td><td class="ap-col">0.0</td><td class="ap-col">0–0</td>`;
+        const cls = AllPlay.luckClass(a.luck);
+        return `<td class="ap-col">${a.apRecord}</td><td class="ap-col${cls ? ` ${cls}` : ""}">${AllPlay.luckText(a.luck)}</td><td class="ap-col">${a.xRecord}</td>`;
+      };
+      const apStrip = (id) => {
+        const a = ap[id];
+        const cls = a ? AllPlay.luckClass(a.luck) : "";
+        return `<span class="mobile-stat"><small>All-Play</small><strong>${a ? a.apRecord : "0–0"}</strong></span>`
+          + `<span class="mobile-stat" title="Wins above or below expected"><small>Luck</small><strong${cls ? ` class="${cls}"` : ""}>${a ? AllPlay.luckText(a.luck) : "0.0"}</strong></span>`
+          + `<span class="mobile-stat"><small>Exp W–L</small><strong>${a ? a.xRecord : "0–0"}</strong></span>`;
+      };
 
       const divisionCards = DIVISION_NAMES.map((division) => {
         const ids = live ? picture.divisions[division] : divisionOrder[division];
         return `
         <article class="card">
           ${cardHead(division, "shield")}
-          <div class="table-wrap">
+          <div class="table-wrap standings-ap">
             <table>
-              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th></tr></thead>
+              <thead><tr><th>RK</th><th>Team</th><th>W–L</th><th class="gb">GB</th><th>PCT</th><th>PF</th><th>PA</th><th>DIV</th><th class="ap-col" title="All-play record: each week's score against every other score that week">All-Play</th><th class="ap-col" title="Wins above or below expected" aria-label="Wins above or below expected">Luck</th><th class="ap-col" title="Expected record from all-play">Exp W–L</th></tr></thead>
               <tbody>
                 ${ids.map((id, i) => {
                   const t = stats[id];
@@ -6199,9 +6287,11 @@
                       <div class="mobile-stat-strip" aria-label="${teams[id].name} statistics">
                         <span class="mobile-stat"><small>W–L</small><strong>${t.record}</strong></span>
                         <span class="mobile-stat"><small>GB</small><strong>${gb}</strong></span>
+                        <span class="mobile-stat"><small>PCT</small><strong>${pctText(t.pct)}</strong></span>
                         <span class="mobile-stat"><small>PF</small><strong>${fmt(t.pf)}</strong></span>
                         <span class="mobile-stat"><small>PA</small><strong>${fmt(t.pa)}</strong></span>
                         <span class="mobile-stat"><small>DIV</small><strong>${t.divRecord}</strong></span>
+                        ${apStrip(id)}
                       </div>
                     </td>
                     <td class="record">${t.record}</td>
@@ -6210,6 +6300,7 @@
                     <td>${fmt(t.pf)}</td>
                     <td>${fmt(t.pa)}</td>
                     <td>${t.divRecord}</td>
+                    ${apCells(id)}
                   </tr>`;
                 }).join("")}
               </tbody>
@@ -6594,15 +6685,19 @@
 
       if (!picture) {
         area.innerHTML = standingsCards(buildPicture(0), { live: false, scope: "w0" });
+        AllPlay.linkStrips(area.closest(".live-panel"));
         return;
       }
       const note = count
-        ? `<p class="wi-note">Records include your ${count === s.total ? "" : `${count} `}Week ${week} pick${count === 1 ? "" : "s"}. Points for and against add each team's season scoring average for a picked game.</p>`
+        ? `<p class="wi-note">Records include your ${count === s.total ? "" : `${count} `}Week ${week} pick${count === 1 ? "" : "s"}. Points for and against add each team's season scoring average for a picked game; all-play, luck and expected record count posted results only.</p>`
         : "";
       area.innerHTML = `${note}${standingsCards(picture, {
         live: true,
         scope: count ? "wi" : `w${asOf}`,
+        apWeek: asOf,
       })}<div class="wi-odds-slot">${count ? held : asOf ? oddsCard(asOf) : ""}</div>`;
+      // A pick redraws the rows; the phone strips keep where they were scrolled to.
+      AllPlay.linkStrips(area.closest(".live-panel"));
       if (before) UI.shuffleRows(area, before);
       if (!count) return;
 
