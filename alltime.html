@@ -872,6 +872,22 @@
       .mobile-stat-strip {
         display: grid;
       }
+      #allTimeBody .mobile-stat-strip {
+        display: flex !important;
+        gap: 3px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent);
+        mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent);
+        padding-right: 14px;
+      }
+      #allTimeBody .mobile-stat-strip::-webkit-scrollbar { display: none; }
+      #allTimeBody .mobile-stat { flex: 0 0 52px; min-width: 52px; }
+      #allTimeBody .mobile-stat.wide { flex-basis: 58px; min-width: 58px; }
+      #allTimeBody .mobile-stat.wider { flex-basis: 84px; min-width: 84px; }
+      #allTimeBody .mobile-stat strong { overflow: visible; text-overflow: clip; }
       .mobile-sort-control {
         display: inline-flex;
         margin-left: auto;
@@ -1490,37 +1506,18 @@
 
       /* Standings rows collapse as the season pages' do: rank and team, with
          every figure in a strip underneath. */
-      .compact-table:not(.scroll-table) .table-wrap { overflow: visible; }
-      .compact-table:not(.scroll-table) table, .compact-table:not(.scroll-table) tbody { display: block; width: 100%; min-width: 0; }
-      .compact-table:not(.scroll-table) thead { display: none; }
-      .compact-table:not(.scroll-table) tbody tr {
+      .compact-table .table-wrap { overflow: visible; }
+      .compact-table table, .compact-table tbody { display: block; width: 100%; min-width: 0; }
+      .compact-table thead { display: none; }
+      .compact-table tbody tr {
         display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: center;
         padding: 7px 8px; border-bottom: 1px solid #edf0f3;
       }
-      .compact-table:not(.scroll-table) tbody tr:last-child { border-bottom: 0; }
-      .compact-table:not(.scroll-table) td { padding: 0; border: 0; text-align: left; white-space: normal; }
-      .compact-table:not(.scroll-table) td.rank { grid-column: 1; color: #738090; font-size: 11px; text-align: center; }
-      .compact-table:not(.scroll-table) td.team-cell { grid-column: 2; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; }
-      .compact-table:not(.scroll-table) td:not(.rank):not(.team-cell) { display: none; }
-
-      /* All-time standings keep every column and scroll sideways inside their
-         own card; rank and team stay put on the left. */
-      .scroll-table .table-wrap { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
-      .scroll-table table { min-width: 700px; }
-      .scroll-table th { padding: 10px 9px; }
-      .scroll-table td { padding: 9px; font-size: 12px; font-variant-numeric: tabular-nums; }
-      .scroll-table th:first-child, .scroll-table td:first-child,
-      .scroll-table th:nth-child(2), .scroll-table td:nth-child(2) { position: sticky; z-index: 3; }
-      .scroll-table th:first-child, .scroll-table td:first-child { left: 0; width: 34px; min-width: 34px; max-width: 34px; padding-left: 8px; padding-right: 2px; text-align: center; }
-      .scroll-table th:nth-child(2), .scroll-table td:nth-child(2) { left: 34px; min-width: 132px; max-width: 132px; box-shadow: 6px 0 8px -6px rgba(7,24,39,.22); }
-      .scroll-table td:first-child, .scroll-table td:nth-child(2) { background: #fff !important; }
-      .scroll-table th:first-child, .scroll-table th:nth-child(2) { background: #f6f9fc !important; }
-      .scroll-table tbody tr:hover td:first-child, .scroll-table tbody tr:hover td:nth-child(2) { background: #f5f8fb !important; }
-      .scroll-table .team-cell .team-name { max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .scroll-table .team-button { gap: 6px; }
-      .scroll-table .team-badge { width: 27px; height: 27px; border-radius: 7px; font-size: 13px; flex: none; }
-      .scroll-table .team-name { font-size: 10.5px; }
-      .scroll-table .owner { font-size: 8.5px; }
+      .compact-table tbody tr:last-child { border-bottom: 0; }
+      .compact-table td { padding: 0; border: 0; text-align: left; white-space: normal; }
+      .compact-table td.rank { grid-column: 1; color: #738090; font-size: 11px; text-align: center; }
+      .compact-table td.team-cell { grid-column: 2; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; }
+      .compact-table td:not(.rank):not(.team-cell) { display: none; }
 
       .hl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
       .hl-tile { min-height: 82px; padding: 9px 10px; border-radius: 12px; }
@@ -2170,6 +2167,16 @@
           <td class="rank">${index + 1}</td>
           <td class="team-cell">
             ${teamButton(profile)}
+            <div class="mobile-stat-strip" aria-label="${profile.currentTeam} all-time statistics">
+              <span class="mobile-stat"><small>W–L</small><strong>${profile.wins}–${profile.losses}</strong></span>
+              <span class="mobile-stat"><small>PCT</small><strong>${pct(profile.wins, profile.losses)}</strong></span>
+              <span class="mobile-stat wide"><small>PF</small><strong>${fmt(profile.pf)}</strong></span>
+              <span class="mobile-stat wide"><small>PA</small><strong>${fmt(profile.pa)}</strong></span>
+              <span class="mobile-stat"><small>Diff</small><strong class="${profile.diff >= 0 ? "positive" : "negative"}">${signed(profile.diff)}</strong></span>
+              <span class="mobile-stat wider"><small>All-Play</small><strong>${profile.ap.apRecord}</strong></span>
+              <span class="mobile-stat"><small title="Wins above or below expected">Luck</small><strong class="${AllPlay.luckClass(profile.ap.luck)}">${AllPlay.luckText(profile.ap.luck)}</strong></span>
+              <span class="mobile-stat"><small>Exp W–L</small><strong>${profile.ap.xRecord}</strong></span>
+            </div>
           </td>
           <td class="record">${profile.wins}–${profile.losses}</td>
           <td>${pct(profile.wins, profile.losses)}</td>
@@ -2182,6 +2189,7 @@
           <td class="record">${profile.ap.xRecord}</td>
         </tr>`).join("");
       markSort("allTime", allTimeSort, "allTimeMobileSort", "allTimeMobileDirection");
+      AllPlay.linkStrips(document.getElementById("allTimeBody"));
     }
 
 
