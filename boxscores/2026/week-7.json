@@ -137,7 +137,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jakobi Meyers",
@@ -147,7 +147,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Zach Charbonnet",
@@ -157,7 +157,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Romeo Doubs",
@@ -199,7 +199,7 @@
       "pts": 15.1,
       "proj": 15.2,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Drake London",
@@ -269,7 +269,7 @@
       "pts": 9.9,
       "proj": 11.09,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Tyler Warren",
@@ -279,7 +279,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Josh Allen",
@@ -299,7 +299,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jayden Daniels",
@@ -379,7 +379,7 @@
       "pts": 10.6,
       "proj": 12.33,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "DK Metcalf",
@@ -419,7 +419,7 @@
       "pts": 3.6,
       "proj": 12.27,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Steelers D/ST",
@@ -449,7 +449,7 @@
       "pts": 14.1,
       "proj": 8.17,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Xavier Worthy",
@@ -581,7 +581,7 @@
       "pts": 2.1,
       "proj": 7.87,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Seahawks D/ST",
@@ -641,7 +641,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Jordan Mason",
@@ -741,7 +741,7 @@
       "pts": 9.9,
       "proj": 16.89,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Texans D/ST",
@@ -771,7 +771,7 @@
       "pts": 17.5,
       "proj": 18.58,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "RJ Harvey",
@@ -781,7 +781,7 @@
       "pts": 14,
       "proj": 11.43,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "T.J. Hockenson",
@@ -963,7 +963,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "De'Zhaun Stribling",
@@ -1033,7 +1033,7 @@
       "pts": 10.7,
       "proj": 16.69,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Colston Loveland",
@@ -1093,7 +1093,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "James Cook III",
@@ -1113,7 +1113,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Deebo Samuel Sr.",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "DJ Moore",
@@ -1165,7 +1165,7 @@
       "pts": 20.1,
       "proj": 12.64,
       "starter": true,
-      "injury": "DAY_TO_DAY"
+      "injury": null
      },
      {
       "name": "Ollie Gordon II",
@@ -1255,7 +1255,7 @@
       "pts": 11.8,
       "proj": 6.89,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "TreVeyon Henderson",
@@ -1265,7 +1265,7 @@
       "pts": 4.3,
       "proj": 7.12,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Ladd McConkey",
@@ -1275,7 +1275,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Dalton Kincaid",
@@ -1315,7 +1315,7 @@
       "pts": 13.9,
       "proj": 18,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bucky Irving",
@@ -1385,7 +1385,7 @@
       "pts": 1.9,
       "proj": 15.42,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Browns D/ST",
@@ -1455,7 +1455,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Davante Adams",
@@ -1507,7 +1507,7 @@
       "pts": 24.2,
       "proj": 19.5,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "A.J. Brown",
@@ -1517,7 +1517,7 @@
       "pts": 7.8,
       "proj": 15.95,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Pat Freiermuth",
@@ -1537,7 +1537,7 @@
       "pts": 8.8,
       "proj": 11.15,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Keenan Allen",

@@ -47,7 +47,7 @@
       "pts": 7.28,
       "proj": 16.82,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "DK Metcalf",
@@ -77,7 +77,7 @@
       "pts": 18.7,
       "proj": 17.42,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Quinshon Judkins",
@@ -249,7 +249,7 @@
       "pts": 1.6,
       "proj": 13.51,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Cowboys D/ST",
@@ -289,7 +289,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Saquon Barkley",
@@ -299,7 +299,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Josh Jacobs",
@@ -309,7 +309,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "DAY_TO_DAY"
+      "injury": null
      },
      {
       "name": "Jalen Coker",
@@ -319,7 +319,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Caleb Williams",
@@ -409,7 +409,7 @@
       "pts": 5.7,
       "proj": 10.7,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rome Odunze",
@@ -469,7 +469,7 @@
       "pts": 1.1,
       "proj": 11.87,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Patrick Mahomes",
@@ -499,7 +499,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "game": [
@@ -661,7 +661,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ]
    }
@@ -741,7 +741,7 @@
       "pts": 12.2,
       "proj": 12.79,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Rashid Shaheed",
@@ -751,7 +751,7 @@
       "pts": 4.3,
       "proj": 9.46,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Seahawks D/ST",
@@ -893,7 +893,7 @@
       "pts": 26.3,
       "proj": 12.77,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Malik Washington",
@@ -1033,7 +1033,7 @@
       "pts": 12.9,
       "proj": 20,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jaylen Waddle",
@@ -1043,7 +1043,7 @@
       "pts": 4.8,
       "proj": 11.37,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1153,7 +1153,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      }
     ],
     "jared": [
@@ -1235,7 +1235,7 @@
       "pts": 0.7,
       "proj": 11.29,
       "starter": true,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Texans D/ST",
@@ -1255,7 +1255,7 @@
       "pts": 27.32,
       "proj": 18.18,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Makai Lemon",
@@ -1345,7 +1345,7 @@
       "pts": 2.2,
       "proj": 14.37,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Puka Nacua",
@@ -1375,7 +1375,7 @@
       "pts": 21.4,
       "proj": 11.85,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Denzel Boston",
@@ -1425,7 +1425,7 @@
       "pts": 4.8,
       "proj": 10.54,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Dalton Kincaid",
@@ -1507,7 +1507,7 @@
       "pts": 11.6,
       "proj": 13.94,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Christian Watson",
@@ -1517,7 +1517,7 @@
       "pts": 32.3,
       "proj": 13.83,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "CeeDee Lamb",
@@ -1547,7 +1547,7 @@
       "pts": 20.3,
       "proj": 12.77,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Josh Downs",
@@ -1607,7 +1607,7 @@
       "pts": 2.5,
       "proj": 11.09,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rashee Rice",
@@ -1617,7 +1617,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Bryce Young",

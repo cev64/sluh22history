@@ -219,7 +219,7 @@
       "pts": 20.3,
       "proj": 9.62,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Aaron Jones Sr.",
@@ -229,7 +229,7 @@
       "pts": 10.5,
       "proj": 14.15,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "DK Metcalf",
@@ -309,7 +309,7 @@
       "pts": 3.8,
       "proj": 9.95,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      }
     ]
    }
@@ -369,7 +369,7 @@
       "pts": 12.3,
       "proj": 15.04,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Colston Loveland",
@@ -389,7 +389,7 @@
       "pts": 14.1,
       "proj": 12.49,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rhamondre Stevenson",
@@ -419,7 +419,7 @@
       "pts": 14.2,
       "proj": 10.05,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Josh Downs",
@@ -449,7 +449,7 @@
       "pts": 9.8,
       "proj": 10.85,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Deebo Samuel Sr.",
@@ -459,7 +459,7 @@
       "pts": 6.5,
       "proj": 12.03,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaxson Dart",
@@ -511,7 +511,7 @@
       "pts": 4.4,
       "proj": 14.2,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -621,7 +621,7 @@
       "pts": 3.8,
       "proj": 9.78,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Nico Collins",
@@ -641,7 +641,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ]
    }
@@ -681,7 +681,7 @@
       "pts": 3,
       "proj": 17.62,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Ladd McConkey",
@@ -691,7 +691,7 @@
       "pts": 6.5,
       "proj": 14.47,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Malik Nabers",
@@ -721,7 +721,7 @@
       "pts": 14.6,
       "proj": 11.93,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Mike Evans",
@@ -731,7 +731,7 @@
       "pts": 8.4,
       "proj": 12.99,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Eagles D/ST",
@@ -761,7 +761,7 @@
       "pts": 5.7,
       "proj": 11.42,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Kenyon Sadiq",
@@ -781,7 +781,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "DAY_TO_DAY"
+      "injury": null
      },
      {
       "name": "Jalen McMillan",
@@ -883,7 +883,7 @@
       "pts": 5,
       "proj": 13.21,
       "starter": true,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "49ers D/ST",
@@ -1003,7 +1003,7 @@
       "pts": 35.2,
       "proj": 20.39,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jaylen Waddle",
@@ -1013,7 +1013,7 @@
       "pts": 21.8,
       "proj": 12.18,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      }
     ],
     "hamilton": [
@@ -1155,7 +1155,7 @@
       "pts": 7.5,
       "proj": 12.88,
       "starter": true,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Drake London",
@@ -1195,7 +1195,7 @@
       "pts": 14.4,
       "proj": 11.38,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Cam Skattebo",
@@ -1285,7 +1285,7 @@
       "pts": 13.6,
       "proj": 9.31,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      }
     ]
    }
@@ -1395,7 +1395,7 @@
       "pts": 26.98,
       "proj": 18.21,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Stefon Diggs",
@@ -1445,7 +1445,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      }
     ],
     "kareem": [
@@ -1557,7 +1557,7 @@
       "pts": 7,
       "proj": 12.44,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Rashid Shaheed",
@@ -1567,7 +1567,7 @@
       "pts": 6.9,
       "proj": 8.61,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "J.K. Dobbins",
