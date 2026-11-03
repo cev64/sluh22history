@@ -5820,7 +5820,12 @@
         const gone = flag === "e";
 
         const playoff = locked ? 1 : gone ? 0 : o.playoff;
-        const byeP = flag === "z" ? 1 : gone ? 0 : o.division;
+        // A division rival holding z has taken the only bye this team could
+        // get, so its bye is settled at nothing too (the regular season's
+        // end gives every division winner a z, which settles every row).
+        const byeGone = gone || TEAM_IDS.some((r) => r !== id && flags[r] === "z" && teams[r].division === teams[id].division);
+        const byeSettled = flag === "z" || byeGone;
+        const byeP = flag === "z" ? 1 : byeGone ? 0 : o.division;
         const outP = 1 - playoff;
 
         // A settled outcome prints exactly; an unsettled one keeps the
@@ -5843,13 +5848,13 @@
           ${miniTeam(id)}
           <span class="odds-team">${teams[id].name}</span>
           <span class="odds-track" role="img"
-            aria-label="${show(byeP, flag === "z" || gone)} bye, ${show(playoff, locked || gone)} playoffs, ${show(outP, locked || gone)} out">
+            aria-label="${show(byeP, byeSettled)} bye, ${show(playoff, locked || gone)} playoffs, ${show(outP, locked || gone)} out">
             ${byeW > 0.4 ? `<span class="odds-seg s-bye" style="width:${byeW.toFixed(1)}%"></span>` : ""}
             ${inW > 0.4 ? `<span class="odds-seg s-in" style="width:${inW.toFixed(1)}%"></span>` : ""}
           </span>
           <span class="odds-nums">
             <span class="odds-pct primary ${locked || gone ? "settled" : ""}" data-label="Playoff">${show(playoff, locked || gone)}</span>
-            <span class="odds-pct ${flag === "z" || gone ? "settled" : ""}" data-label="Bye">${show(byeP, flag === "z" || gone)}</span>
+            <span class="odds-pct ${byeSettled ? "settled" : ""}" data-label="Bye">${show(byeP, byeSettled)}</span>
             <span class="odds-pct ${locked || gone ? "settled" : ""}" data-label="Out">${show(outP, locked || gone)}</span>
             ${change}
           </span>

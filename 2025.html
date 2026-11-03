@@ -5191,9 +5191,24 @@
       return ((leader.wins - team.wins) + (team.losses - leader.losses)) / 2;
     }
 
-    /* Clinch and elimination flags. Every test here is a *sufficient*
-       condition, so a badge is never shown unless it is mathematically
-       settled; a team can be safe before the badge appears, never after.
+    /* Clinch and elimination flags, exact: a badge appears the moment the
+       outcome is mathematically settled, and never before.
+
+         z  no division rival can even draw level, whatever happens.
+         x  the team loses every game it has left, every other remaining
+            game goes whichever way hurts it most, every tie on record is
+            broken against it, and it is still in the field.
+         e  the team wins every game it has left, every tie is broken its
+            way, and no way the other games go puts it in the field.
+
+       x and e are settled by searching the remaining schedule itself
+       (`exactBerth`), because who plays whom is what decides them: two
+       chasers can each reach a mark alone but not both, when reaching it
+       means beating the teams that would otherwise crowd the race. The
+       quick count tests below run first and are sufficient on their own;
+       the search only answers what they leave open, and if it ever ran
+       past its budget the quick answer stands, so a badge can lag but is
+       never wrong.
 
        The key structural fact: only the top two of each division take
        division seeds, so if a team finishes third or worse, the teams that
@@ -5201,7 +5216,7 @@
        cards. That means a third-place team's only wild-card rivals are the
        other division's non-top-two teams, plus any of its own division
        beyond the two ahead of it. */
-    function clinchFlags(stats, divisions, playoffField) {
+    function clinchFlags(stats, divisions, playoffField, remaining = []) {
       const maxWins = (id) => stats[id].wins + Math.max(0, REGULAR_WEEKS - stats[id].gp);
       const minWins = (id) => stats[id].wins;
       const rivalsOf = (id) => divisionOrder[teams[id].division].filter((x) => x !== id);
@@ -5261,8 +5276,94 @@
         flags[id] = (divBeaten >= 2 && poolBeaten >= 2) ? "e" : null;
       });
 
+      // What the counts leave open, the schedule settles.
+      TEAM_IDS.forEach((id) => {
+        if (seasonOver || flags[id]) return;
+        const verdict = exactBerth(id, stats, remaining);
+        if (verdict) flags[id] = verdict;
+      });
+
       return flags;
     }
+
+    /* The search behind x and e for one team. Its own games are decided
+       first (all lost for x, all won for e); the rest are tried both ways,
+       depth first. Each step bounds what is still reachable, every team at
+       its fewest or most wins, and drops a branch that cannot change the
+       answer, which keeps a late-season check to a few thousand steps.
+       Returns "x", "e" or null; null too if the budget runs out. */
+    const BERTH_BUDGET = 300000;
+    // With more games than this left nobody can be settled yet, so the
+    // search would only spend time proving it.
+    const BERTH_MAX_GAMES = 30;
+    function exactBerth(id, stats, remaining) {
+      if (!remaining.length || remaining.length > BERTH_MAX_GAMES) return null;
+      const n = TEAM_IDS.length, me = TEAM_IDS.indexOf(id);
+      const at = (t) => TEAM_IDS.indexOf(t);
+      const sameDiv = TEAM_IDS.map((t) => teams[t].division === teams[id].division);
+      const theirs = remaining.filter(([a, b]) => a !== id && b !== id).map(([a, b]) => [at(a), at(b)]);
+      const mine = remaining.filter(([a, b]) => a === id || b === id).map(([a, b]) => at(a === id ? b : a));
+      // Games each team still has from step i on, for the bounds.
+      const left = [];
+      for (let i = theirs.length; i >= 0; i--) {
+        const row = i === theirs.length ? new Array(n).fill(0) : left[0].slice();
+        if (i < theirs.length) { row[theirs[i][0]] += 1; row[theirs[i][1]] += 1; }
+        left.unshift(row);
+      }
+      let steps = 0;
+
+      /* Is the team out of the field? `ahead` counts a level team as ahead
+         (ties against it) or not (ties its way). Fewer than two division
+         rivals ahead is a division seat; otherwise the wild cards go to the
+         teams ahead of it beyond each division's two seats. */
+      const missesWith = (wins, mark, levelIsAhead) => {
+        let own = 0, other = 0;
+        for (let t = 0; t < n; t++) {
+          if (t === me) continue;
+          const ahead = levelIsAhead ? wins[t] >= mark : wins[t] > mark;
+          if (ahead) { if (sameDiv[t]) own += 1; else other += 1; }
+        }
+        return own >= 2 && Math.max(0, own - 2) + Math.max(0, other - 2) >= 2;
+      };
+
+      // x: is there any way it misses, having lost out?
+      const lossWins = TEAM_IDS.map((t) => stats[t].wins);
+      mine.forEach((opp) => { lossWins[opp] += 1; });
+      const low = lossWins[me];
+      let budgetOut = false;
+      const canMiss = (i, wins) => {
+        if (++steps > BERTH_BUDGET) { budgetOut = true; return true; }
+        const best = wins.map((w, t) => w + left[i][t]);
+        if (!missesWith(best, low, true)) return false;
+        if (i === theirs.length) return true;
+        const [a, b] = theirs[i];
+        wins[a] += 1; const viaA = canMiss(i + 1, wins); wins[a] -= 1;
+        if (viaA) return true;
+        wins[b] += 1; const viaB = canMiss(i + 1, wins); wins[b] -= 1;
+        return viaB;
+      };
+      if (!canMiss(0, lossWins)) return "x";
+      if (budgetOut) return null;
+
+      // e: is there any way it gets in, having won out?
+      steps = 0;
+      const winWins = TEAM_IDS.map((t) => stats[t].wins);
+      winWins[me] += mine.length;
+      const high = winWins[me];
+      const canMake = (i, wins) => {
+        if (++steps > BERTH_BUDGET) { budgetOut = true; return true; }
+        if (missesWith(wins, high, false)) return false;
+        if (i === theirs.length) return true;
+        const [a, b] = theirs[i];
+        wins[a] += 1; const viaA = canMake(i + 1, wins); wins[a] -= 1;
+        if (viaA) return true;
+        wins[b] += 1; const viaB = canMake(i + 1, wins); wins[b] -= 1;
+        return viaB;
+      };
+      if (!canMake(0, winWins)) return "e";
+      return null;
+    }
+
 
     const CLINCH_KEY = {
       z: { label: "z", title: "Clinched division and the first-round bye" },
@@ -5400,7 +5501,13 @@
         firstOut: wildcardOrder[2] || null
       };
 
-      result.flags = clinchFlags(stats, divisions, result.playoffField);
+      // The games still to come as of this week: the season is complete,
+      // so the schedule is every later week's posted matchups.
+      const remaining = [];
+      for (let w = week + 1; w <= REGULAR_WEEKS; w++) {
+        (weekResults[w] || []).forEach(([a, , b]) => remaining.push([a, b]));
+      }
+      result.flags = clinchFlags(stats, divisions, result.playoffField, remaining);
       return result;
     }
 
@@ -5680,7 +5787,12 @@
         const gone = flag === "e";
 
         const playoff = locked ? 1 : gone ? 0 : o.playoff;
-        const byeP = flag === "z" ? 1 : gone ? 0 : o.division;
+        // A division rival holding z has taken the only bye this team could
+        // get, so its bye is settled at nothing too (the regular season's
+        // end gives every division winner a z, which settles every row).
+        const byeGone = gone || TEAM_IDS.some((r) => r !== id && flags[r] === "z" && teams[r].division === teams[id].division);
+        const byeSettled = flag === "z" || byeGone;
+        const byeP = flag === "z" ? 1 : byeGone ? 0 : o.division;
         const outP = 1 - playoff;
 
         // A settled outcome prints exactly; an unsettled one keeps the
@@ -5693,13 +5805,13 @@
           ${miniTeam(id)}
           <span class="odds-team">${teams[id].name}</span>
           <span class="odds-track" role="img"
-            aria-label="${show(byeP, flag === "z" || gone)} bye, ${show(playoff, locked || gone)} playoffs, ${show(outP, locked || gone)} out">
+            aria-label="${show(byeP, byeSettled)} bye, ${show(playoff, locked || gone)} playoffs, ${show(outP, locked || gone)} out">
             ${byeW > 0.4 ? `<span class="odds-seg s-bye" style="width:${byeW.toFixed(1)}%"></span>` : ""}
             ${inW > 0.4 ? `<span class="odds-seg s-in" style="width:${inW.toFixed(1)}%"></span>` : ""}
           </span>
           <span class="odds-nums">
             <span class="odds-pct primary ${locked || gone ? "settled" : ""}" data-label="Playoff">${show(playoff, locked || gone)}</span>
-            <span class="odds-pct ${flag === "z" || gone ? "settled" : ""}" data-label="Bye">${show(byeP, flag === "z" || gone)}</span>
+            <span class="odds-pct ${byeSettled ? "settled" : ""}" data-label="Bye">${show(byeP, byeSettled)}</span>
             <span class="odds-pct ${locked || gone ? "settled" : ""}" data-label="Out">${show(outP, locked || gone)}</span>
           </span>
         </div>`;
