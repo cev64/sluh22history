@@ -5216,7 +5216,7 @@
        cards. That means a third-place team's only wild-card rivals are the
        other division's non-top-two teams, plus any of its own division
        beyond the two ahead of it. */
-    function clinchFlags(stats, divisions, playoffField, remaining = []) {
+    function clinchFlags(stats, divisions, playoffField, remaining = [], played = []) {
       const maxWins = (id) => stats[id].wins + Math.max(0, REGULAR_WEEKS - stats[id].gp);
       const minWins = (id) => stats[id].wins;
       const rivalsOf = (id) => divisionOrder[teams[id].division].filter((x) => x !== id);
@@ -5283,7 +5283,78 @@
         if (verdict) flags[id] = verdict;
       });
 
+      // Teams that can no longer win their division, so no longer the bye:
+      // the odds card prints their bye as a settled 0%. Carried on the flags
+      // (not enumerable) so it travels wherever they go.
+      const byeOut = new Set(seasonOver ? [] : TEAM_IDS.filter((id) => flags[id] !== "z" && divisionOut(id, stats, remaining, played)));
+      Object.defineProperty(flags, "byeOut", { value: byeOut });
+
       return flags;
+    }
+
+    /* Can the team still win its division? It wins every game it has left;
+       for each way the other games could go, it must finish with no rival
+       above it, and a tie for the lead must break its way under the
+       rulebook: head-to-head for two, record against the tied group for
+       more (settled by results, so known), and only past those points for,
+       which games still to come can move, so that much counts in its
+       favour. If no way remains, the division (and the bye) is gone.
+       Searched like `exactBerth`, and as there, an unsettled answer (too
+       many games left, or the budget spent) counts as still alive, so a
+       settled 0% is never shown early. */
+    function divisionOut(id, stats, remaining, played) {
+      if (!remaining.length || remaining.length > BERTH_MAX_GAMES) return false;
+      const rivals = TEAM_IDS.filter((t) => t !== id && teams[t].division === teams[id].division);
+      const isRival = {};
+      TEAM_IDS.forEach((t) => { isRival[t] = rivals.includes(t); });
+      const wins = {};
+      TEAM_IDS.forEach((t) => { wins[t] = stats[t].wins; });
+      remaining.forEach(([a, b]) => { if (a === id || b === id) wins[id] += 1; });
+      const high = wins[id];
+      // Head-to-head wins on record, then the team's own wins still to come.
+      const h2h = {};
+      TEAM_IDS.forEach((a) => { h2h[a] = {}; TEAM_IDS.forEach((b) => { h2h[a][b] = 0; }); });
+      played.forEach((g) => {
+        const w = g.win || (g.as > g.bs ? g.a : g.bs > g.as ? g.b : null);
+        if (w) h2h[w][w === g.a ? g.b : g.a] += 1;
+      });
+      remaining.forEach(([a, b]) => { if (a === id) h2h[id][b] += 1; else if (b === id) h2h[id][a] += 1; });
+      // Does a tie for the lead break its way? (Points for: assume yes.)
+      const topOf = (group) => {
+        if (group.length === 1) return group[0] === id;
+        const rec = {};
+        group.forEach((t) => {
+          let w = 0, l = 0;
+          group.forEach((o) => { if (o !== t) { w += h2h[t][o]; l += h2h[o][t]; } });
+          rec[t] = w + l ? w / (w + l) : -1;
+        });
+        const best = Math.max(...group.map((t) => rec[t]));
+        if (rec[id] < best) return false;
+        const tier = group.filter((t) => rec[t] === best);
+        return tier.length === group.length ? true : topOf(tier);
+      };
+      /* Only games between two rivals need searching. A game outside the
+         division touches nobody in the race, and a rival's game against an
+         outsider is never worse for this team lost than won (one fewer win
+         for the rival, no head-to-head inside the race), so it is lost. */
+      const theirs = remaining.filter(([a, b]) => isRival[a] && isRival[b]);
+      let steps = 0;
+      const canWin = (i) => {
+        if (++steps > BERTH_BUDGET) return true;
+        if (rivals.some((r) => wins[r] > high)) return false;
+        if (i === theirs.length) return topOf([id, ...rivals.filter((r) => wins[r] === high)]);
+        const [a, b] = theirs[i];
+        // The likelier way through first: the rival with fewer wins takes it.
+        const aFirst = wins[a] <= wins[b];
+        for (const [w, l] of aFirst ? [[a, b], [b, a]] : [[b, a], [a, b]]) {
+          wins[w] += 1; h2h[w][l] += 1;
+          const ok = canWin(i + 1);
+          wins[w] -= 1; h2h[w][l] -= 1;
+          if (ok) return true;
+        }
+        return false;
+      };
+      return !canWin(0);
     }
 
     /* The search behind x and e for one team. Its own games are decided
@@ -5507,7 +5578,7 @@
       for (let w = week + 1; w <= REGULAR_WEEKS; w++) {
         (weekResults[w] || []).forEach(([a, , b]) => remaining.push([a, b]));
       }
-      result.flags = clinchFlags(stats, divisions, result.playoffField, remaining);
+      result.flags = clinchFlags(stats, divisions, result.playoffField, remaining, gamesThrough(week));
       return result;
     }
 
@@ -5787,10 +5858,12 @@
         const gone = flag === "e";
 
         const playoff = locked ? 1 : gone ? 0 : o.playoff;
-        // A division rival holding z has taken the only bye this team could
-        // get, so its bye is settled at nothing too (the regular season's
-        // end gives every division winner a z, which settles every row).
-        const byeGone = gone || TEAM_IDS.some((r) => r !== id && flags[r] === "z" && teams[r].division === teams[id].division);
+        // A team that can no longer win its division (a rival holding z, or
+        // no way left to finish level with the leader) has no bye to get, so
+        // it is settled at nothing too; the regular season's end gives every
+        // division winner a z, which settles every row.
+        const byeGone = gone || (flags.byeOut && flags.byeOut.has(id))
+          || TEAM_IDS.some((r) => r !== id && flags[r] === "z" && teams[r].division === teams[id].division);
         const byeSettled = flag === "z" || byeGone;
         const byeP = flag === "z" ? 1 : byeGone ? 0 : o.division;
         const outP = 1 - playoff;
