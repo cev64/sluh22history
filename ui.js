@@ -311,10 +311,17 @@
 
      The page stays in charge of its data: it calls render() with the
      weeks and views it has, and hears back through onWeek / onView.
+
+     A page may also name one season-wide view (`action`: id, label,
+     icon) that is not a week's view. It gets a button of its own beside
+     the magnifier, an icon on a phone and a labelled pill on a wide
+     screen, so the week's tabs keep their full names. While it is the
+     view on screen the button is lit and the tabs show none chosen;
+     render({ action: false }) hides it. Tapping it calls onView with its id.
      =============================================================== */
   const SeasonNav = (() => {
     let root = null, cap = null, seg = null, segInd = null, wkbar = null, rail = null, pin = null;
-    let findBtn = null, findInput = null, finder = null;
+    let findBtn = null, findInput = null, finder = null, actBtn = null;
     let opts = {};
     let weeks = [], views = [], week = null, view = null, prevWeek = null;
     let chips = [], railWeek = null, visWeek = null, segIds = "";
@@ -331,6 +338,7 @@
           <div class="sn-seg" role="tablist" aria-label="${esc(opts.viewsLabel || "Views")}"><span class="sn-seg-ind" aria-hidden="true"></span></div>
           <div class="sn-find" role="search">${ICON_FIND}<input type="search" placeholder="Search any player" aria-label="Search players"
             autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="search" tabindex="-1"></div>
+          ${opts.action ? `<button class="sn-act" type="button" data-act="${esc(opts.action.id)}" aria-pressed="false" aria-label="${esc(opts.action.label)}" title="${esc(opts.action.label)}" hidden>${opts.action.icon || ""}<span>${esc(opts.action.label)}</span></button>` : ""}
           <button class="sn-search" type="button" aria-label="Search players" aria-expanded="false" title="Search players (/)">${ICON_FIND}${ICON_X}</button>
         </div>
         <div class="sn-drop"><div><div class="player-results" role="listbox" aria-label="Players"></div></div></div>
@@ -349,11 +357,16 @@
         requestAnimationFrame(follow);
       } });
       findBtn = root.querySelector(".sn-search");
+      actBtn = root.querySelector(".sn-act");
       findInput = root.querySelector(".sn-find input");
       seg = root.querySelector(".sn-seg");
       segInd = root.querySelector(".sn-seg-ind");
       wkbar = root.querySelector(".sn-wkbar");
       rail = root.querySelector(".sn-rail");
+      if (actBtn) {
+        PHONE.addEventListener("change", () => { seg.classList.toggle("fit", !actBtn.hidden && PHONE.matches); placeSegInd(); });
+        if (window.ResizeObserver) new ResizeObserver(() => { if (seg.classList.contains("fit")) placeSegInd(); }).observe(seg);
+      }
       wire();
     }
 
@@ -379,11 +392,19 @@
         // same views, a label may have changed (Results <-> Matchups)
         seg.querySelectorAll("button").forEach((b, i) => { const h = label(views[i]); if (b.innerHTML !== h) b.innerHTML = h; });
       }
-      seg.querySelectorAll("button").forEach((b) => {
+      const inSeg = views.some((v) => v.id === view);
+      seg.querySelectorAll("button").forEach((b, i) => {
         const on = b.dataset.view === view;
         b.setAttribute("aria-selected", on);
-        b.tabIndex = on ? 0 : -1;
+        b.tabIndex = on || (!inSeg && i === 0) ? 0 : -1;
       });
+      // the season-wide view: its button lit, no tab chosen
+      seg.classList.toggle("idle", !inSeg);
+      if (actBtn) {
+        const on = view === actBtn.dataset.act;
+        actBtn.classList.toggle("on", on);
+        actBtn.setAttribute("aria-pressed", String(on));
+      }
       placeSegInd();
     }
     /* The pill is placed by index, not measured in pixels: its size and
@@ -396,6 +417,17 @@
       if (k < 0) return;
       seg.style.setProperty("--n", views.length);
       seg.style.setProperty("--k", k);
+      /* On a phone with a season-wide button the tabs are sized to their
+         names (see .sn-seg.fit), so there the pill takes the chosen tab's
+         measured box instead; a ResizeObserver keeps it there as the
+         capsule pins and narrows. */
+      if (seg.classList.contains("fit")) {
+        const b = seg.querySelectorAll("button")[k];
+        if (b && b.offsetWidth) {
+          seg.style.setProperty("--x", `${b.offsetLeft - 3}px`);
+          seg.style.setProperty("--w", `${b.offsetWidth}px`);
+        }
+      }
       if (!segInd.classList.contains("ready") && seg.offsetParent) raf2(() => segInd.classList.add("ready"));
     }
 
@@ -571,6 +603,11 @@
     /* ---- events --------------------------------------------------- */
     function wire() {
       wireSearch();
+      if (actBtn) actBtn.addEventListener("click", () => {
+        haptic("tap");
+        if (opts.onView) opts.onView(actBtn.dataset.act);
+        toContentTop();
+      });
       seg.addEventListener("click", (e) => {
         const b = e.target.closest("button[data-view]");
         if (!b) return;
@@ -684,12 +721,13 @@
 
       /* Left and right arrow keys step through the weeks, unless something
          else has the keyboard (a field, an open drawer or box score, a
-         table that scrolls sideways). */
+         table that scrolls sideways, a page's own tab strip marked
+         data-own-arrows). */
       document.addEventListener("keydown", (e) => {
         if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
         if (e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return;
         const t = e.target;
-        if (t && t.closest && t.closest("input, select, textarea, [contenteditable], .sn-seg, .table-wrap, .bracket-scroll")) return;
+        if (t && t.closest && t.closest("input, select, textarea, [contenteditable], .sn-seg, .table-wrap, .bracket-scroll, [data-own-arrows]")) return;
         if (document.querySelector(".team-drawer.open, .bx-modal.open, .pc-card.open, [aria-modal='true'][aria-hidden='false']")) return;
         const i = weeks.findIndex((k) => k.w === week);
         const next = weeks[i + (e.key === "ArrowRight" ? 1 : -1)];
@@ -722,6 +760,10 @@
       if (s.views) views = s.views;
       if (s.week !== undefined && s.week !== week) { prevWeek = week; week = s.week; }
       if (s.view !== undefined) view = s.view;
+      if (actBtn && s.action !== undefined) {
+        actBtn.hidden = !s.action;
+        seg.classList.toggle("fit", !!s.action && PHONE.matches);
+      }
       if (s.weeks || s.week !== undefined) renderWeeks();
       if (s.views || s.view !== undefined) renderViews();
       if (!started && weeks.length && views.length) {
