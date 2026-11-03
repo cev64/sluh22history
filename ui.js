@@ -316,12 +316,12 @@
      icon) that is not a week's view. It gets a button of its own beside
      the magnifier, an icon on a phone and a labelled pill on a wide
      screen, so the week's tabs keep their full names. While it is the
-     view on screen the button is lit and the tabs show none chosen;
-     render({ action: false }) hides it. Tapping it calls onView with its id.
+     view on screen the button is lit, the tabs show none chosen and the
+     week wheel folds away; render({ action: false }) hides it. Tapping it calls onView with its id.
      =============================================================== */
   const SeasonNav = (() => {
     let root = null, cap = null, seg = null, segInd = null, wkbar = null, rail = null, pin = null;
-    let findBtn = null, findInput = null, finder = null, actBtn = null;
+    let findBtn = null, findInput = null, finder = null, actBtn = null, actT = 0;
     let opts = {};
     let weeks = [], views = [], week = null, view = null, prevWeek = null;
     let chips = [], railWeek = null, visWeek = null, segIds = "";
@@ -404,6 +404,13 @@
         const on = view === actBtn.dataset.act;
         actBtn.classList.toggle("on", on);
         actBtn.setAttribute("aria-pressed", String(on));
+        // the season-wide view is not a week's, so the wheel folds away
+        if (root.classList.contains("act-view") !== on) {
+          root.classList.toggle("act-view", on);
+          // the room the page keeps for the bar follows once the wheel settles
+          clearTimeout(actT);
+          actT = setTimeout(relayout, 480);
+        }
       }
       placeSegInd();
     }
