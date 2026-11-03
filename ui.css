@@ -263,8 +263,8 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 .sn-wkwrap { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .45s var(--ease); }
 .sn-wkwrap > .sn-wkbar { min-height: 0; }
 .sn-wkbar { transition: margin .5s var(--spring), opacity .25s var(--ease), transform .4s var(--ease); }
-.season-nav.searching .sn-wkwrap { grid-template-rows: 0fr; }
-.season-nav.searching .sn-wkbar { opacity: 0; transform: translateY(-8px) scale(.98); pointer-events: none; margin-top: 0; }
+.season-nav:is(.searching, .act-view) .sn-wkwrap { grid-template-rows: 0fr; }
+.season-nav:is(.searching, .act-view) .sn-wkbar { opacity: 0; transform: translateY(-8px) scale(.98); pointer-events: none; margin-top: 0; }
 
 /* Searching, the capsule is a frosted card wherever it is on the page. */
 .season-nav.searching .sn-cap {
