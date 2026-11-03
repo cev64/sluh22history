@@ -4195,22 +4195,6 @@
 
     .pd-sheet .card-head > span { display: inline-flex; align-items: center; gap: 10px; }
     .pd-count { font-variant-numeric: tabular-nums; }
-    .pd-reset {
-      min-height: 28px;
-      padding: 0 11px;
-      border: 1px solid var(--line-2);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--ink);
-      font-size: 12px;
-      font-weight: 600;
-      transition: background .15s ease, opacity .15s ease, transform .18s var(--ease);
-    }
-    .pd-reset:disabled { opacity: .45; cursor: default; }
-    .pd-reset:active:not(:disabled) { transform: scale(.96); }
-    .pd-reset:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-    @media (hover: hover) { .pd-reset:hover:not(:disabled) { background: var(--surface-2); } }
-
     .pd-hint { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin: 0; padding: 10px 16px 0; color: var(--ink-3); font-size: 12px; }
 
     /* The sheet: a week at a time. */
@@ -4345,7 +4329,16 @@
       padding: 10px 16px 14px;
     }
     .pd-key { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1.5px dashed var(--accent); }
-    .pd-steps { display: inline-flex; gap: 6px; }
+    .pd-steps, .pd-actions { display: inline-flex; gap: 6px; }
+    .pd-sheet-foot .wi-btn { white-space: nowrap; }
+    /* A phone gives the two pick buttons a row of their own, the week
+       steps the row under it. */
+    @media (max-width: 520px) {
+      .pd-sheet-foot { flex-wrap: wrap; }
+      .pd-actions, .pd-steps { flex: 1 1 100%; }
+      .pd-actions .wi-btn { flex: 1 1 0; }
+      .pd-steps .pd-next { flex: 1 1 auto; }
+    }
     .pd-steps [data-pd="prev"] { width: 32px; padding: 0; font-size: 16px; line-height: 1; }
 
     /* What the picks move: one segmented switch over three views. */
@@ -6622,7 +6615,7 @@
        odds hold it fixed while every game still open is simulated as
        usual; tap it again to take it back. Pick two weeks or all of them,
        and everything below reads exactly that far. "Pick all favorites"
-       fills every game still open with its favorite; "Reset" clears them.
+       fills every game still open with its favorite; "Clear picks" empties it.
 
        A game's win chance is worked out from the same model the playoff
        odds simulate (see `playoffOdds`): each side's score is drawn from
@@ -6808,12 +6801,15 @@
       panel.innerHTML = `
         <div class="panel-stack pd">
           <section class="card pd-sheet">
-            ${cardHead("Pick'em", "versus", `<span class="pd-count"></span><button type="button" class="pd-reset" data-pd="clear">Reset</button>`)}
+            ${cardHead("Pick'em", "versus", `<span class="pd-count"></span>`)}
             <div class="pd-weeks" role="tablist" aria-label="Weeks to pick" data-own-arrows>${pdWeekTabs()}</div>
             <p class="pd-hint">Tap the team you think wins. <span class="pd-key fav" aria-hidden="true"></span> marks the favorite.</p>
             <div class="pd-games" id="pd-games" role="tabpanel" tabindex="-1"></div>
             <div class="pd-sheet-foot">
-              <button type="button" class="wi-btn" data-pd="favorites">Pick all favorites</button>
+              <span class="pd-actions">
+                <button type="button" class="wi-btn" data-pd="favorites">Pick all favorites</button>
+                <button type="button" class="wi-btn" data-pd="clear">Clear picks</button>
+              </span>
               <span class="pd-steps">
                 <button type="button" class="wi-btn" data-pd="prev" aria-label="Previous week">‹</button>
                 <button type="button" class="wi-btn pd-next" data-pd="next"></button>

@@ -321,7 +321,7 @@
      =============================================================== */
   const SeasonNav = (() => {
     let root = null, cap = null, seg = null, segInd = null, wkbar = null, rail = null, pin = null;
-    let findBtn = null, findInput = null, finder = null, actBtn = null;
+    let findBtn = null, findInput = null, finder = null, actBtn = null, actT = 0;
     let opts = {};
     let weeks = [], views = [], week = null, view = null, prevWeek = null;
     let chips = [], railWeek = null, visWeek = null, segIds = "";
@@ -405,8 +405,12 @@
         actBtn.classList.toggle("on", on);
         actBtn.setAttribute("aria-pressed", String(on));
         // the season-wide view is not a week's, so the wheel folds away
-        root.classList.toggle("act-view", on);
-        if (!on) raf2(relayout);
+        if (root.classList.contains("act-view") !== on) {
+          root.classList.toggle("act-view", on);
+          // the room the page keeps for the bar follows once the wheel settles
+          clearTimeout(actT);
+          actT = setTimeout(relayout, 480);
+        }
       }
       placeSegInd();
     }
