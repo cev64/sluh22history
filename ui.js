@@ -208,7 +208,34 @@
       const d = window.scrollY - y;
       if ((up && d > 1) || (down && d < -1)) window.scrollTo({ top: y, behavior: REDUCE.matches ? "auto" : "smooth" });
     }
-    return { sentinel, top, measure, watch, toTop };
+    /* Change the capsule's resting layout (`flip` toggles it) and let its
+       box in the page follow at the capsule's own pace, so whatever sits
+       below glides with it instead of snapping once it settles. The end
+       height is measured first, unseen, exactly as measure() would. The
+       phone bar is fixed, so there it only re-measures. */
+    let morphT = 0;
+    function morph(flip) {
+      if (bottom() || !root.offsetParent || REDUCE.matches || !root.style.height) { flip(); measure(); return; }
+      const from = root.offsetHeight;
+      const stuck = root.classList.contains("stuck");
+      root.classList.add("measuring");
+      if (stuck) setStuck(false);
+      flip();
+      root.style.height = "";
+      const to = cap.offsetHeight;
+      flip();
+      root.style.height = `${from}px`;
+      if (stuck) setStuck(true);
+      void cap.offsetHeight;
+      root.classList.remove("measuring");
+      void cap.offsetHeight;
+      flip();
+      clearTimeout(morphT);
+      root.style.transition = "height .45s var(--ease)";
+      root.style.height = `${to}px`;
+      morphT = setTimeout(() => { root.style.transition = ""; }, 520);
+    }
+    return { sentinel, top, measure, watch, toTop, morph };
   }
 
   const ICON_FIND = '<svg class="ic-find" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>';
@@ -406,8 +433,10 @@
         actBtn.setAttribute("aria-pressed", String(on));
         // the season-wide view is not a week's, so the wheel folds away
         if (root.classList.contains("act-view") !== on) {
-          root.classList.toggle("act-view", on);
-          // the room the page keeps for the bar follows once the wheel settles
+          const flip = () => root.classList.toggle("act-view");
+          // the page below follows the wheel as it folds or opens
+          if (pin && started) pin.morph(flip); else flip();
+          // and the wheel re-centres once it has settled
           clearTimeout(actT);
           actT = setTimeout(relayout, 480);
         }

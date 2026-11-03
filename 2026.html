@@ -4336,7 +4336,7 @@
     @media (max-width: 520px) {
       .pd-sheet-foot { flex-wrap: wrap; }
       .pd-actions, .pd-steps { flex: 1 1 100%; }
-      .pd-actions .wi-btn { flex: 1 1 0; }
+      .pd-actions .wi-btn { flex: 1 1 auto; padding: 0 10px; }
       .pd-steps .pd-next { flex: 1 1 auto; }
     }
     .pd-steps [data-pd="prev"] { width: 32px; padding: 0; font-size: 16px; line-height: 1; }
@@ -6615,7 +6615,8 @@
        odds hold it fixed while every game still open is simulated as
        usual; tap it again to take it back. Pick two weeks or all of them,
        and everything below reads exactly that far. "Pick all favorites"
-       fills every game still open with its favorite; "Clear picks" empties it.
+       fills every game still open with its favorite; "Clear Week N" takes back
+       the week on screen and "Clear all" every pick.
 
        A game's win chance is worked out from the same model the playoff
        odds simulate (see `playoffOdds`): each side's score is drawn from
@@ -6808,7 +6809,8 @@
             <div class="pd-sheet-foot">
               <span class="pd-actions">
                 <button type="button" class="wi-btn" data-pd="favorites">Pick all favorites</button>
-                <button type="button" class="wi-btn" data-pd="clear">Clear picks</button>
+                <button type="button" class="wi-btn" data-pd="clear-week"></button>
+                <button type="button" class="wi-btn" data-pd="clear">Clear all</button>
               </span>
               <span class="pd-steps">
                 <button type="button" class="wi-btn" data-pd="prev" aria-label="Previous week">‹</button>
@@ -6827,7 +6829,6 @@
         </div>`;
 
       drawPredictWeek(panel);
-      updatePredict(panel, { first: true });      drawPredictWeek(panel);
       updatePredict(panel, { first: true });
     }
 
@@ -6899,6 +6900,9 @@
       panel.querySelector(".pd-count").textContent = `${count} of ${total} picked`;
       panel.querySelector('[data-pd="clear"]').disabled = !count;
       panel.querySelector('[data-pd="favorites"]').disabled = count === total;
+      const weekBtn = panel.querySelector('[data-pd="clear-week"]');
+      weekBtn.textContent = `Clear Week ${pdWeek}`;
+      weekBtn.disabled = !slate.some((g) => g.week === pdWeek && pdLocks[g.key]);
 
       drawPredictResults(panel, s, first);
     }
@@ -7016,6 +7020,11 @@
       if (!action || action.disabled) return;
       if (action.dataset.pd === "favorites") {
         predictSlate().filter((g) => !pdLocks[g.key]).forEach((g) => { pdLocks[g.key] = g.fav; });
+        savePredictLocks();
+        UI.haptic("tap");
+        updatePredict(panel);
+      } else if (action.dataset.pd === "clear-week") {
+        predictSlate().filter((g) => g.week === pdWeek).forEach((g) => { delete pdLocks[g.key]; });
         savePredictLocks();
         UI.haptic("tap");
         updatePredict(panel);
@@ -8950,6 +8959,14 @@
     applyHash();
     renderAll();
     writeHash();
+
+    /* Warm the playoff odds the Standings tab and the Predictor open on
+       while the page is idle, so switching to either never waits on the
+       simulation mid-animation. */
+    if (lastPlayedWeek) {
+      const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1500));
+      idle(() => playoffOdds(lastPlayedWeek), { timeout: 4000 });
+    }
   </script>
 </body>
 </html>
