@@ -4157,168 +4157,15 @@
       .rc-foot, .rc-more { padding-left: 12px; padding-right: 12px; }
     }
 
-    /* What-if picks ------------------------------------------------- */
-    /* A slim card above the brackets with a switch; on, it slides open the
-       week's games. A pick is a matchup box like the Results tab's: the
-       side picked to win is tinted and ruled in blue, the other side steps
-       back. */
+    /* Pick controls shared by the Season Predictor ------------------- */
 
-    .wi-bar-head {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      cursor: pointer;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .wi-bar-head .division-chip { flex: 0 0 auto; }
-    .wi-bar-copy { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
-    .wi-bar-copy strong { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: .02em; line-height: 1; text-transform: uppercase; }
-    .wi-bar-copy span { color: var(--ink-3); font-size: 12px; font-weight: 500; }
-
-    .wi-switch {
-      position: relative;
-      flex: 0 0 auto;
-      width: 46px;
-      height: 28px;
-      padding: 0;
-      border: 0;
-      border-radius: 999px;
-      background: var(--line-2);
-      transition: background .25s var(--ease);
-    }
-    .wi-knob {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 1px 3px rgba(16, 24, 40, .22);
-      transition: transform .4s var(--spring);
-    }
-    .wi-bar.on .wi-switch { background: var(--accent); }
-    .wi-bar.on .wi-knob { transform: translateX(18px); }
-    .wi-switch:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-    .wi-bar-head:active .wi-knob { width: 25px; }
-    .wi-bar.on .wi-bar-head:active .wi-knob { transform: translateX(15px); }
-
-    .wi-drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s var(--ease); }
-    .wi-bar.on .wi-drawer { grid-template-rows: 1fr; }
-    .wi-drawer-inner { min-height: 0; overflow: hidden; }
-    .wi-bar.on .wi-drawer-inner { border-top: 1px solid var(--line); }
-
-    /* Phones and narrow windows swipe through the games; wide ones lay all
-       five in a row. */
-    .wi-games {
-      display: flex;
-      gap: 8px;
-      padding: 12px 16px 4px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scroll-padding: 0 16px;
-      overscroll-behavior-x: contain;
-      scrollbar-width: none;
-    }
-    .wi-games::-webkit-scrollbar { display: none; }
-    .wi-game { flex: 0 0 min(232px, 76%); scroll-snap-align: start; }
-    @media (min-width: 1200px) {
-      .wi-games { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: visible; }
-    }
-
-    .wi-game {
-      min-width: 0;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fff;
-      overflow: hidden;
-    }
-
-    .wi-game-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 6px 10px;
-      border-bottom: 1px solid var(--line);
-      color: var(--ink-3);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-    .wi-state { font-weight: 600; letter-spacing: .06em; transition: color .2s ease; }
-    .wi-state.done { color: var(--accent-ink); }
-
-    .wi-side {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      min-height: 50px;
-      padding: 7px 10px;
-      border: 0;
-      background: #fff;
-      color: var(--ink);
-      text-align: left;
-      transition: background .18s ease, box-shadow .25s var(--ease);
-    }
-    .wi-side + .wi-side { border-top: 1px solid var(--line); }
-    .wi-side:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
-    @media (hover: hover) { .wi-side:hover { background: var(--surface-2); } }
-    .wi-side:active { background: var(--surface-3); }
-
-    .wi-side .mini-badge { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px; transition: opacity .2s ease, filter .2s ease; }
-    .wi-team { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
-    .wi-team strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; letter-spacing: -.005em; transition: color .2s ease; }
-    .wi-meta { display: flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
-
-    .wi-seed { display: inline-flex; align-items: center; gap: 3px; }
-    body:not(#_) .wi-seed .seed-tag { min-width: 0; padding: 1px 5px; font-size: 9.5px; }
-    .wi-seed.bump { animation: wiBump .5s var(--spring); }
     @keyframes wiBump { 0% { transform: scale(.7); opacity: .3; } 100% { transform: none; opacity: 1; } }
-
-    .wi-check {
-      flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 1.5px solid var(--line-2);
-      background: #fff;
-      transition: background .2s ease, border-color .2s ease;
-    }
-    .wi-check svg { width: 12px; height: 12px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 14; stroke-dashoffset: 14; transition: stroke-dashoffset .25s var(--ease); }
-
-    .wi-side.picked { background: var(--accent-soft); }
-    @media (hover: hover) { .wi-side.picked:hover { background: #e3edff; } }
-    .wi-side.picked .wi-team strong { color: var(--accent-ink); font-weight: 700; }
-    .wi-side.picked .wi-check { background: var(--accent); border-color: var(--accent); animation: wiCheck .4s var(--spring); }
-    .wi-side.picked .wi-check svg { stroke-dashoffset: 0; transition-delay: .06s; }
     @keyframes wiCheck { 0% { transform: scale(.6); } 100% { transform: none; } }
-
-    .wi-side.passed .wi-team strong { color: var(--ink-2); font-weight: 500; }
-    .wi-side.passed .mini-badge { opacity: .5; filter: saturate(.6); }
-    .wi-side.passed .wi-check { border-color: var(--line); }
-    /* Five across, the tint and rule say which side is picked; the names
-       get the check's room. */
-    @media (min-width: 1200px) { .wi-check { display: none; } .wi-side { padding-right: 8px; } }
 
     .wi-move { font-size: 9px; line-height: 1; }
     .wi-move.up { color: #15803d; }
     .wi-move.down { color: #dc2626; }
 
-    .wi-foot {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 8px 16px 12px;
-    }
-    .wi-count { color: var(--ink-3); font-size: 12px; font-weight: 500; }
     .wi-btn {
       min-height: 32px;
       padding: 0 13px;
@@ -4339,10 +4186,8 @@
     .wi-redraw .matchup-row.projected { animation: wiSettle .45s var(--ease); }
     @keyframes wiSettle { from { opacity: .35; } to { opacity: 1; } }
 
-    /* With picks in, the standings say what their numbers rest on, and the
-       odds card dims while its simulation reruns. */
+    /* With picks in, the standings say what their numbers rest on. */
     .wi-note { margin: 0; padding: 0 4px; color: var(--ink-2); font-size: 12px; line-height: 1.45; }
-    .wi-odds-slot.odds-pending .odds-pct { opacity: .4; transition: opacity .2s ease; }
 
     /* Season Predictor ---------------------------------------------- */
     /* Its own view, so it opens on its own ground: the hero's navy field,
@@ -4709,17 +4554,6 @@
     .odds-pct.odds-chg.up { color: #15803d; }
     .odds-pct.odds-chg.down { color: #dc2626; }
 
-    /* A record a pick has changed on its card. */
-    .wi-rec.bump { animation: wiBump .5s var(--spring); }
-    .wi-rec.moved { color: var(--accent-ink); font-weight: 700; }
-
-    @media (max-width: 700px) {
-      .wi-bar-head { padding: 10px 12px; gap: 10px; }
-      .wi-bar-copy strong { font-size: 18px; }
-      .wi-bar-copy span { font-size: 11.5px; }
-      .wi-games { padding: 10px 12px 2px; scroll-padding: 0 12px; }
-      .wi-foot { padding: 8px 12px 10px; }
-    }
     /* Division standings with the all-play columns ----------------------
        Desktop: eleven columns at fixed widths, so the numbers line up from
        one division to the next and the team column takes what is left
@@ -5160,25 +4994,25 @@
       playedWeeks.filter((w) => w <= week).forEach((w) => {
         results[w].forEach(([a, as, b, bs]) => out.push({ week: w, a, as, b, bs }));
       });
-      whatIfGames.forEach((g) => { if (g.week <= week) out.push(g); });
+      pickGames.forEach((g) => { if (g.week <= week) out.push(g); });
       return out;
     }
 
     /* Which side took a game: above zero for `a`, below for `b`. A picked
-       game (see WHAT-IF PICKS) names its winner outright, since its scores
+       game (see SEASON PREDICTOR) names its winner outright, since its scores
        are each side's season average, not a result. */
     const edgeOf = (g) => (g.win ? (g.win === g.a ? 1 : -1) : g.as - g.bs);
 
     /* Hypothetical games folded into every record while `withPicks` runs, so
-       the standings, tiebreakers, clinch flags and odds all read a what-if
-       week exactly as they would read a posted one. Empty the rest of the
+       the standings, tiebreakers, clinch flags and odds all read a picked
+       game exactly as they would read a posted one. Empty the rest of the
        time; nothing else on the page ever sees a pick. */
-    let whatIfGames = [];
+    let pickGames = [];
 
     function withPicks(games, fn) {
-      const saved = whatIfGames;
-      whatIfGames = games;
-      try { return fn(); } finally { whatIfGames = saved; }
+      const saved = pickGames;
+      pickGames = games;
+      try { return fn(); } finally { pickGames = saved; }
     }
 
     function blankLine(id) {
@@ -5478,8 +5312,8 @@
 
     /* Two teams level on record. Every team has played the same number of
        games once a week is posted, so this is the rulebook's "games won";
-       it matters only while a what-if week is partly picked, when a team
-       with its game picked has one more on the books than a team without
+       it matters only while picks cover some teams' games and not others',
+       when a team with its game picked has one more on the books than a team without
        and comparing wins alone would let a picked loss count as a gain. */
     const sameRecord = (p, c) => p.wins === c.wins && p.losses === c.losses && p.ties === c.ties;
     const byRecord = (p, c) => (c.pct - p.pct) || (c.wins - p.wins);
@@ -5838,14 +5672,14 @@
 
     const oddsCache = {};
 
-    // A what-if week is cached under its picks, apart from the real week.
+    // A set of picks is cached under its picks, apart from the real week.
     // It runs on the posted week's footing (`basis`): how much own form
     // counts and how far early odds fade, so that the picks are the only
     // thing that differs from the odds on the Standings tab.
     function playoffOdds(week, { iterations = ODDS_ITERATIONS, basis = week } = {}) {
       // A pick is keyed by its week too: the Season Predictor can pick the
       // same team in several weeks.
-      const key = [week, basis, iterations, ...whatIfGames.map((g) => `${g.week}:${g.win}`)].join("|");
+      const key = [week, basis, iterations, ...pickGames.map((g) => `${g.week}:${g.win}`)].join("|");
       if (oddsCache[key]) return oddsCache[key];
 
       const played = gamesThrough(week);
@@ -5870,8 +5704,7 @@
         if (sameDiv) { base[win].divWins += 1; base[lose].divLosses += 1; }
       });
 
-      // Every game not yet on record, which for a what-if week includes the
-      // games of that week left unpicked.
+      // Every game not yet on record: under picks, every game left unpicked.
       const pairKey = (w, a, b) => `${w}|${[a, b].sort().join("|")}`;
       const onRecord = new Set(played.map((g) => pairKey(g.week, g.a, g.b)));
       const remaining = [];
@@ -6129,7 +5962,7 @@
        VIEW STATE
        ================================================================= */
 
-    const VIEWS = ["results", "recap", "standings", "picture", "sidebets", "sos", "predict"];
+    const VIEWS = ["results", "recap", "standings", "picture", "sidebets", "sos"];
 
     // Strength of schedule is a preseason view; once games are played the
     // week tabs carry results instead.
@@ -6140,11 +5973,20 @@
 
     // A played week also has its recap (THE WEEK IN REVIEW), the playoff
     // weeks included once their games are posted.
-    // The Season Predictor sits beside every regular-season week's tabs
-    // while there are games left to pick.
-    const viewsFor = (week) => (week === 0 ? VIEWS.filter((v) => v !== "recap" && v !== "predict")
+    const viewsFor = (week) => (week === 0 ? VIEWS.filter((v) => v !== "recap")
       : week > REGULAR_WEEKS ? ["bracket", ...((playoffResults[week] || []).length ? ["recap"] : []), "standings"]
-      : VIEWS.filter((v) => v !== "sos" && (v !== "recap" || isPlayed(week)) && (v !== "predict" || predictOpen())));
+      : VIEWS.filter((v) => v !== "sos" && (v !== "recap" || isPlayed(week))));
+
+    /* The Season Predictor is the whole rest of the season, not a week's
+       view, so it is not one of the week's tabs: it has its own button in
+       the nav beside search, there while games are left to pick. Any week
+       can open it; picking a week on the wheel goes back to that week's
+       tabs. `lastWeekView` is the tab it returns to. */
+    const PREDICT = "predict";
+    const PREDICT_ICON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18.5 8 13l3.5 3 4-4.5"/><path class="sn-act-spark" d="M15.5 11.5 20.5 6" stroke-dasharray="1.6 3"/><path class="sn-act-spark" d="M17 5.5h4v4"/></svg>';
+    let lastWeekView = "results";
+    const canPredict = (week) => predictOpen() && week <= REGULAR_WEEKS;
+    const viewAllowed = (week, view) => (view === PREDICT ? canPredict(week) : viewsFor(week).includes(view));
 
     /* Weeks run Thu-Mon and results post Tuesday, so the page opens on the
        latest results through Tuesday and on the upcoming week's matchups
@@ -6178,16 +6020,13 @@
 
     function viewLabels(week) {
       if (week > REGULAR_WEEKS) return { bracket: "Bracket", recap: "Recap", standings: "Standings" };
-      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets", sos: "Strength of Schedule" };
-      if (isPlayed(week)) return { results: "Results", recap: "Recap", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets", predict: "Predictor" };
-      return { results: "Matchups", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets", predict: "Predictor" };
+      if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoffs", sidebets: "Bets", sos: "Strength of Schedule" };
+      if (isPlayed(week)) return { results: "Results", recap: "Recap", standings: "Standings", picture: "Playoffs", sidebets: "Bets" };
+      return { results: "Matchups", standings: "Standings", picture: "Playoffs", sidebets: "Bets" };
     }
     // Preseason adds a fifth view; on a phone its long name shortens so all
     // five still share the capsule's width.
     const PRESEASON_SHORT = { sos: "SOS" };
-    // With the Season Predictor a week has six views, and on a phone the
-    // longer names shorten so all six fit. Five-view weeks keep theirs.
-    const SIX_VIEW_SHORT = { standings: "Table", sidebets: "Bets", predict: "Predict" };
 
     /* =================================================================
        SHARED PIECES
@@ -6406,12 +6245,9 @@
     function renderViewTabs() {
       const labels = viewLabels(state.week);
       SeasonNav.render({
-        views: viewsFor(state.week).map((v, i, all) => ({
-          id: v,
-          label: labels[v],
-          short: state.week === 0 ? PRESEASON_SHORT[v] : all.length >= 6 ? SIX_VIEW_SHORT[v] : undefined,
-        })),
+        views: viewsFor(state.week).map((v) => ({ id: v, label: labels[v], short: state.week === 0 ? PRESEASON_SHORT[v] : undefined })),
         view: state.view,
+        action: canPredict(state.week),
       });
       // The predictor is the whole rest of the season, not the week.
       UI.roll(document.getElementById("weekTitle"), state.view === "predict"
@@ -6531,7 +6367,7 @@
               </div>`).join("")}
           </div>
           ${withOdds ? `<div class="recap-bar">
-            <button type="button" class="recap-link" data-goto-whatif>Pick the winners and watch the brackets move →</button>
+            ${predictOpen() ? `<button type="button" class="recap-link" data-goto-predict>Pick the rest of the season in the Predictor →</button>` : ""}
           </div>` : ""}
         </article>`;
       if (withOdds) fillMatchupOdds(panel, week, stats);
@@ -6547,7 +6383,7 @@
       return `<span class="pg-odds${odds ? "" : " odds-pending"}" data-pg-odds="${id}">${chip("now", "Now", odds && odds.now)}${chip("win", "Win", odds && odds.win)}${chip("loss", "Loss", odds && odds.loss)}</span>`;
     }
 
-    // Two what-if simulations per game (either side winning), each on the
+    // Two picked-winner simulations per game (either side winning), each on the
     // posted week's footing, after the cards have painted. A newer render
     // drops the work of an older one.
     let matchupOddsRun = 0;
@@ -6557,7 +6393,7 @@
       const games = schedule[week] || [];
       const scenario = (a, b, win) => withPicks(
         [{ week, a, as: stats[a].pfg, b, bs: stats[b].pfg, win }],
-        () => playoffOdds(week, { iterations: WHATIF_ITERATIONS, basis: asOf })
+        () => playoffOdds(week, { iterations: PICK_ITERATIONS, basis: asOf })
       );
       const live = () => run === matchupOddsRun && panel.querySelector("[data-pg-odds]");
       const paint = (id, odds) => {
@@ -6601,19 +6437,6 @@
     function renderStandingsPanel(week, { odds = true } = {}) {
       const panel = document.getElementById("panel-standings");
 
-      // From the latest results on, the tab carries the What If switch.
-      const pick = odds ? whatIfWeekFor(week) : null;
-      if (pick) {
-        loadPicks(pick);
-        panel.innerHTML = `
-          <div class="panel-stack">
-            ${whatIfBar(pick, "standings")}
-            <div class="panel-stack wi-standings"></div>
-          </div>`;
-        updateWhatIf(pick, { first: true, view: "standings" });
-        return;
-      }
-
       const asOf = asOfWeek(week);
       const live = asOf > 0;
       panel.innerHTML = `
@@ -6625,7 +6448,7 @@
     }
 
     /* All-play, luck and expected record through a week, from posted
-       results only. A What-If pick is never fed in: its scores are season
+       results only. A Predictor pick is never fed in: its scores are season
        averages, not a result, so under picks these columns hold the
        posted-week values while W–L moves. */
     const allPlayCache = {};
@@ -6790,19 +6613,6 @@
     function renderPicturePanel(week) {
       const panel = document.getElementById("panel-picture");
 
-      // From the latest results on, the tab carries the What If switch.
-      const pick = whatIfWeekFor(week);
-      if (pick) {
-        loadPicks(pick);
-        panel.innerHTML = `
-          <div class="panel-stack">
-            ${whatIfBar(pick)}
-            <div class="panel-stack wi-picture"></div>
-          </div>`;
-        updateWhatIf(pick, { first: true, view: "picture" });
-        return;
-      }
-
       const asOf = asOfWeek(week);
       panel.innerHTML = `
         <div class="panel-stack">
@@ -6856,77 +6666,23 @@
     }
 
     /* =================================================================
-       WHAT-IF PICKS
-
-       From the latest results on, the Playoffs and Standings tabs carry a
-       What If switch. Turned on, it opens the week up next above the
-       brackets or the tables: tap the winner of each game and the brackets,
-       the standings, the clinch flags and the odds redraw as if that week
-       had been posted. A pick says only who won. Points for is the first
-       tiebreaker, so each side is credited its own season scoring average
-       for the game: the likeliest score, and one that leaves every
-       points-for order where the real standings have it. The tables and
-       the tiebreak dots both read those projected totals. A game left
-       unpicked does not count yet.
-
-       The switch and the picks are kept in this browser only. Once a week's
-       real scores are posted the pickable week moves on, and the old week's
-       picks are cleared the next time the tab opens.
+       SHARED BY THE PREDICTOR AND THE MATCHUP ODDS
        ================================================================= */
 
+    // The week up next, the only one whose matchups carry playoff odds.
     const pickWeek = () => (lastPlayedWeek < REGULAR_WEEKS ? lastPlayedWeek + 1 : null);
-    const picksKey = (week) => `sluh22-whatif-${SEASON}-w${week}`;
-    const WHATIF_ON_KEY = `sluh22-whatif-${SEASON}-on`;
-
-    // The week a tab's switch would pick: only where the tab is showing the
-    // latest results (a week already behind them has its own picture).
-    const whatIfWeekFor = (week) => (pickWeek() && week <= REGULAR_WEEKS && asOfWeek(week) === lastPlayedWeek ? pickWeek() : null);
 
     // Odds under picks rerun on every tap, so they take a lighter simulation
-    // than the plain Standings card's, and run a beat after the tables have
-    // moved (long enough that a run of quick taps simulates only the last).
-    // Two separate simulations of the same race differ by a point now and
-    // then, so a move that small is not called a move.
-    const WHATIF_ITERATIONS = 5000;
+    // than the plain Standings card's. Two separate simulations of the same
+    // race differ by a point now and then, so a move that small is not
+    // called a move.
+    const PICK_ITERATIONS = 5000;
     const ODDS_NOISE = 1;
 
-    let picks = {};            // slate index → the team picked to win
-    let picksWeek = null;
-    let whatIfRun = 0;         // drops odds work a newer tap has overtaken
-    let whatIfOn = (() => { try { return localStorage.getItem(WHATIF_ON_KEY) === "1"; } catch (_) { return false; } })();
-
-    function setWhatIfOn(on) {
-      whatIfOn = on;
-      try { if (on) localStorage.setItem(WHATIF_ON_KEY, "1"); else localStorage.removeItem(WHATIF_ON_KEY); } catch (_) { /* storage blocked */ }
-    }
-
-    function loadPicks(week) {
-      if (picksWeek === week) return;
-      picksWeek = week;
-      picks = {};
-      try {
-        for (let w = 1; w < week; w++) localStorage.removeItem(picksKey(w));
-        const saved = JSON.parse(localStorage.getItem(picksKey(week)) || "{}");
-        (schedule[week] || []).forEach(([a, b], i) => {
-          if (saved[i] === a || saved[i] === b) picks[i] = saved[i];
-        });
-      } catch (_) { /* storage blocked: the picks last for this visit */ }
-    }
-
-    function savePicks(week) {
-      try {
-        if (Object.keys(picks).length) localStorage.setItem(picksKey(week), JSON.stringify(picks));
-        else localStorage.removeItem(picksKey(week));
-      } catch (_) { /* storage blocked */ }
-    }
-
-    // The picked games as records, each side scoring its own season average.
-    function pickedGames(week) {
-      const stats = computeStats(asOfWeek(week));
-      return (schedule[week] || []).flatMap(([a, b], i) => (picks[i]
-        ? [{ week, a, as: stats[a].pfg, b, bs: stats[b].pfg, win: picks[i] }]
-        : []));
-    }
+    // The old What If switch kept its picks in this browser; clear them out.
+    try {
+      Object.keys(localStorage).filter((k) => k.startsWith("sluh22-whatif-")).forEach((k) => localStorage.removeItem(k));
+    } catch (_) { /* storage blocked */ }
 
     // How high a seed sits, for the up/down arrows. The two leaders share a
     // tier, as do the two runners-up: neither outranks the other.
@@ -6945,44 +6701,6 @@
     }
 
     const CHECK_ICON = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.6 8.3 6.6 11.3 12.4 5"/></svg>';
-
-    /* The switch, and the week's games it opens. Each game is a matchup box
-       like the Results tab's: the side picked to win is tinted and ruled in
-       blue, the other side steps back. */
-    function whatIfBar(week, moves = "brackets") {
-      const stats = computeStats(asOfWeek(week));
-      const side = (id, i) => `
-        <button type="button" class="wi-side" data-pick="${i}" data-id="${id}" aria-pressed="false">
-          ${miniTeam(id)}
-          <span class="wi-team"><strong>${teams[id].name}</strong><span class="wi-meta"><span class="wi-rec">${stats[id].record}</span><span class="wi-seed"></span></span></span>
-          <span class="wi-check">${CHECK_ICON}</span>
-        </button>`;
-      const game = ([a, b], i) => {
-        const kind = week === rivalryWeek ? "Rivalry"
-          : teams[a].division === teams[b].division ? teams[a].division : "Cross-division";
-        return `<div class="wi-game" role="group" aria-label="${esc(plain(a))} versus ${esc(plain(b))}">
-          <div class="wi-game-head"><span>${kind}</span><span class="wi-state" data-state="${i}"></span></div>
-          ${side(a, i)}${side(b, i)}
-        </div>`;
-      };
-      return `
-        <section class="card wi-bar">
-          <div class="wi-bar-head" data-wi="toggle">
-            <span class="division-chip">${chipMark("versus")}</span>
-            <span class="wi-bar-copy"><strong>What If</strong><span>Pick the Week ${week} winners and watch the ${moves} move</span></span>
-            <button type="button" class="wi-switch" role="switch" aria-checked="false" aria-label="What if: pick the Week ${week} winners"><span class="wi-knob"></span></button>
-          </div>
-          <div class="wi-drawer">
-            <div class="wi-drawer-inner">
-              <div class="wi-games">${(schedule[week] || []).map(game).join("")}</div>
-              <div class="wi-foot">
-                <span class="wi-count" aria-live="polite"></span>
-                <button type="button" class="wi-btn" data-wi="clear">Clear picks</button>
-              </div>
-            </div>
-          </div>
-        </section>`;
-    }
 
     // Before Week 1 there is no bracket to show, only how one is made.
     function preseasonPicture() {
@@ -7008,162 +6726,13 @@
         </article>`;
     }
 
-    // Everything the switch and the picks decide, worked out once per change.
-    function whatIfState(week) {
-      const asOf = asOfWeek(week);
-      const games = whatIfOn ? pickedGames(week) : [];
-      // Before Week 1 every team is 0–0, so there is no order for picks to
-      // move anyone from: no arrows and no coin-flip notes.
-      const base = asOf ? buildPicture(asOf) : null;
-      const picture = games.length ? withPicks(games, () => buildPicture(week)) : base;
-      return { week, asOf, games, count: games.length, total: (schedule[week] || []).length, base, picture };
-    }
-
-    // The switch, the drawer it opens and the pick buttons, each carrying
-    // where its team would now be seeded.
-    function syncWhatIfBar(bar, { picture, base, count, total }, first) {
-      bar.classList.toggle("on", whatIfOn);
-      bar.querySelector(".wi-switch").setAttribute("aria-checked", String(whatIfOn));
-      bar.querySelector(".wi-drawer").inert = !whatIfOn;
-      bar.querySelectorAll(".wi-side").forEach((btn) => {
-        const i = btn.dataset.pick, id = btn.dataset.id;
-        const picked = picks[i] === id;
-        btn.classList.toggle("picked", picked);
-        btn.classList.toggle("passed", Boolean(picks[i]) && !picked);
-        btn.setAttribute("aria-pressed", String(picked));
-        btn.setAttribute("aria-label", `${plain(id)} ${picked ? "picked to win" : "to win"}${picture ? `, ${picture.seedLabels[id].note}` : ""}`);
-        // The record on the card counts the picks, as the tables do.
-        const rec = btn.querySelector(".wi-rec");
-        const record = picture ? picture.stats[id].record : "0–0";
-        if (rec.textContent !== record) {
-          rec.textContent = record;
-          if (!first) { rec.classList.remove("bump"); void rec.offsetWidth; rec.classList.add("bump"); }
-        }
-        rec.classList.toggle("moved", Boolean(base) && picture !== base && base.stats[id].record !== record);
-        const seed = btn.querySelector(".wi-seed");
-        const html = picture ? seedTag(picture, id) + seedMoveTag(base, picture, id) : "";
-        if (seed.innerHTML !== html) {
-          seed.innerHTML = html;
-          if (!first) { seed.classList.remove("bump"); void seed.offsetWidth; seed.classList.add("bump"); }
-        }
-      });
-      bar.querySelectorAll(".wi-state").forEach((el) => {
-        const winner = picks[el.dataset.state];
-        el.textContent = winner ? "Picked" : "Pick";
-        el.classList.toggle("done", Boolean(winner));
-      });
-      bar.querySelector(".wi-count").textContent = `${count} of ${total} picked`;
-      bar.querySelector('[data-wi="clear"]').disabled = !count;
-    }
-
-    // The Playoffs tab: both brackets, redrawn from the picks.
-    function drawWhatIfPicture(area, s, first) {
-      const { week, asOf, count, picture } = s;
-      if (!picture) { area.innerHTML = preseasonPicture(); return; }
-      const note = count ? `With your Week ${week} picks` : asOf === REGULAR_WEEKS ? "Final seeding" : `Projected · through Week ${asOf}`;
-      area.innerHTML = pictureCards(picture, note, { flips: Boolean(asOf) });
-      if (!first && whatIfOn) { area.classList.remove("wi-redraw"); void area.offsetWidth; area.classList.add("wi-redraw"); }
-    }
-
-    // The Standings tab: both divisions with every row sliding from its old
-    // place, then the odds, which land a beat later so a tap never waits on
-    // the simulation.
-    function drawWhatIfStandings(area, s, first) {
-      const { week, asOf, games, count, base, picture } = s;
-      const before = first ? null : UI.measureRows(area);
-      const lastOdds = area.querySelector(".wi-odds-slot");
-      const held = lastOdds ? lastOdds.innerHTML : asOf ? oddsCard(asOf) : "";
-
-      if (!picture) {
-        area.innerHTML = standingsCards(buildPicture(0), { live: false, scope: "w0" });
-        AllPlay.linkStrips(area.closest(".live-panel"));
-        return;
-      }
-      const note = count
-        ? `<p class="wi-note">Records include your ${count === s.total ? "" : `${count} `}Week ${week} pick${count === 1 ? "" : "s"}. Points for and against add each team's season scoring average for a picked game; all-play, WAE and EXPR count posted results only.</p>`
-        : "";
-      area.innerHTML = `${note}${standingsCards(picture, {
-        live: true,
-        scope: count ? "wi" : `w${asOf}`,
-        apWeek: asOf,
-      })}<div class="wi-odds-slot">${count ? held : asOf ? oddsCard(asOf) : ""}</div>`;
-      // A pick redraws the rows; the phone strips keep where they were scrolled to.
-      AllPlay.linkStrips(area.closest(".live-panel"));
-      if (before) UI.shuffleRows(area, before);
-      if (!count) return;
-
-      const slot = area.querySelector(".wi-odds-slot");
-      slot.classList.add("odds-pending");
-      const run = ++whatIfRun;
-      setTimeout(() => {
-        if (run !== whatIfRun || !area.contains(slot)) return;
-        slot.innerHTML = oddsCard(week, {
-          odds: withPicks(games, () => playoffOdds(week, { iterations: WHATIF_ITERATIONS, basis: asOf || week })),
-          flags: picture.flags,
-          meta: `With your Week ${week} picks`,
-          was: asOf ? { odds: playoffOdds(asOf), flags: base.flags } : null,
-        });
-        slot.classList.remove("odds-pending");
-      }, first ? 0 : 160);
-    }
-
-    const WHATIF_VIEWS = {
-      picture: { area: ".wi-picture", draw: drawWhatIfPicture, render: renderPicturePanel },
-      standings: { area: ".wi-standings", draw: drawWhatIfStandings, render: renderStandingsPanel },
-    };
-
-    /* Redraw the tab a pick was made on. The other tab that carries the
-       switch is rebuilt the next time it is opened, so the picks follow you
-       from one to the other. */
-    function updateWhatIf(week, { first = false, view = state.view } = {}) {
-      const tab = WHATIF_VIEWS[view];
-      const panel = document.getElementById(`panel-${view}`);
-      const area = tab && panel.querySelector(tab.area);
-      if (!area) return;
-      const s = whatIfState(week);
-      syncWhatIfBar(panel.querySelector(".wi-bar"), s, first);
-      tab.draw(area, s, first);
-      if (first) return;
-      Object.keys(WHATIF_VIEWS).forEach((other) => {
-        if (other === view || !document.querySelector(`#panel-${other} .wi-bar`)) return;
-        const shown = state.week;
-        pendingPanels[other] = () => WHATIF_VIEWS[other].render(shown);
-      });
-    }
-
+    // The Matchups tab's way in: the Season Predictor.
     document.addEventListener("click", (event) => {
-      const pick = event.target.closest(".wi-side[data-pick]");
-      if (pick) {
-        const i = pick.dataset.pick, id = pick.dataset.id;
-        if (picks[i] === id) delete picks[i]; else picks[i] = id;
-        savePicks(picksWeek);
-        UI.haptic("tap");
-        updateWhatIf(picksWeek);
-        return;
-      }
-      const action = event.target.closest("[data-wi]");
-      if (action && action.dataset.wi === "toggle") {
-        setWhatIfOn(!whatIfOn);
-        UI.haptic("tap");
-        updateWhatIf(picksWeek);
-        return;
-      }
-      if (action && action.dataset.wi === "clear") {
-        picks = {};
-        savePicks(picksWeek);
-        UI.haptic("tap");
-        updateWhatIf(picksWeek);
-        return;
-      }
-      // The Matchups tab's way in: the Playoffs tab with the switch on.
-      const go = event.target.closest("[data-goto-whatif]");
-      if (go) {
-        setWhatIfOn(true);
-        state.view = "picture";
-        renderAll();
-        writeHash();
-        window.scrollTo({ top: 0, behavior: UI.reduced() ? "auto" : "smooth" });
-      }
+      if (!event.target.closest("[data-goto-predict]")) return;
+      state.view = "predict";
+      renderAll();
+      writeHash();
+      window.scrollTo({ top: 0, behavior: UI.reduced() ? "auto" : "smooth" });
     });
 
     /* =================================================================
@@ -7244,8 +6813,13 @@
       if (pdSlateCache) return pdSlateCache;
       const stats = computeStats(PREDICT_BASIS);
       const slate = [];
-      for (let w = PREDICT_BASIS + 1; w <= REGULAR_WEEKS; w++) {
-        (schedule[w] || []).forEach(([a, b]) => {
+      // Every scheduled game not yet on record, as the odds simulation
+      // counts them, so a week posted only in part keeps its open games.
+      const pair = (w, a, b) => `${w}|${[a, b].sort().join("|")}`;
+      const onRecord = new Set();
+      playedWeeks.forEach((w) => results[w].forEach(([a, , b]) => onRecord.add(pair(w, a, b))));
+      for (let w = 1; w <= REGULAR_WEEKS; w++) {
+        (schedule[w] || []).filter(([a, b]) => !onRecord.has(pair(w, a, b))).forEach(([a, b]) => {
           const p = matchupChance(a, b);
           // A dead-even game goes to the better scorer.
           const fav = p > 0.5 ? a : p < 0.5 ? b : (stats[a].pfg >= stats[b].pfg ? a : b);
@@ -7258,6 +6832,8 @@
 
     let pdLocks = {};          // game key → the team picked to win it
     let pdWeek = PREDICT_BASIS + 1;
+    // The weeks with a game left to pick.
+    const pdWeeks = () => [...new Set(predictSlate().map((g) => g.week))];
     let pdTab = "standings";
     let pdRun = 0;             // drops odds work a newer tap has overtaken
 
@@ -7280,7 +6856,8 @@
     }
 
     // The slate as game records: everything, or only the games you picked.
-    // Each side scores its season average, as a What-If pick does.
+    // Each side scores its season average: the likeliest score, and one that
+    // leaves every points-for order where the real standings have it.
     function predictGames({ lockedOnly = false, ignoreLocks = false } = {}) {
       const stats = computeStats(PREDICT_BASIS);
       return predictSlate().flatMap((g) => {
@@ -7340,13 +6917,11 @@
     }
 
     function pdWeekTabs() {
-      const weeks = [];
-      for (let w = PREDICT_BASIS + 1; w <= REGULAR_WEEKS; w++) weeks.push(w);
-      return weeks.map((w) => `
-        <button type="button" class="pd-week" role="tab" data-pd-week="${w}" aria-selected="${w === pdWeek}">
+      return pdWeeks().map((w) => `
+        <button type="button" class="pd-week" role="tab" id="pd-week-${w}" aria-controls="pd-games" data-pd-week="${w}" aria-selected="${w === pdWeek}" tabindex="${w === pdWeek ? 0 : -1}">
           <small>${w === rivalryWeek ? "Rivalry" : "Week"}</small>
           <b>${w}</b>
-          <span class="pd-dots" data-pd-dots="${w}">${(schedule[w] || []).map(() => "<i></i>").join("")}</span>
+          <span class="pd-dots" data-pd-dots="${w}">${predictSlate().filter((g) => g.week === w).map(() => "<i></i>").join("")}</span>
         </button>`).join("");
     }
 
@@ -7374,9 +6949,10 @@
         panel.innerHTML = `<div class="panel-stack">${emptyState("Nothing left to predict", "The regular season is complete, so every game already has a result.")}</div>`;
         return;
       }
-      const first = PREDICT_BASIS + 1;
-      if (pdWeek < first || pdWeek > REGULAR_WEEKS) pdWeek = first;
-      const weeksLeft = REGULAR_WEEKS - PREDICT_BASIS;
+      const weeks = pdWeeks();
+      const first = weeks[0];
+      if (!weeks.includes(pdWeek)) pdWeek = first;
+      const weeksLeft = weeks.length;
 
       panel.innerHTML = `
         <div class="panel-stack pd">
@@ -7384,7 +6960,7 @@
             <div class="pd-hero-top">
               <div class="pd-hero-copy">
                 <span class="pd-kicker"><span class="pd-kicker-dot" aria-hidden="true"></span>Season Predictor</span>
-                <h3>Weeks ${first}–${REGULAR_WEEKS}</h3>
+                <h3>${first === REGULAR_WEEKS ? `Week ${first}` : `Weeks ${first}–${REGULAR_WEEKS}`}</h3>
                 <p>Every game below goes to its favorite. Tap a team to pick it instead, and the standings, bracket and playoff odds move with you.</p>
               </div>
               <div class="pd-meter" role="img" aria-label="">
@@ -7404,8 +6980,8 @@
 
           <section class="card pd-sheet">
             ${cardHead("Pick'em", "versus", `${weeksLeft} week${weeksLeft === 1 ? "" : "s"} · ${predictSlate().length} games`)}
-            <div class="pd-weeks" role="tablist" aria-label="Weeks to pick">${pdWeekTabs()}</div>
-            <div class="pd-games" role="tabpanel"></div>
+            <div class="pd-weeks" role="tablist" aria-label="Weeks to pick" data-own-arrows>${pdWeekTabs()}</div>
+            <div class="pd-games" id="pd-games" role="tabpanel" tabindex="-1"></div>
             <div class="pd-sheet-foot">
               <span class="pd-legend"><span class="pd-key fav"></span>Favorite<span class="pd-key pick"></span>Your pick</span>
               <span class="pd-steps">
@@ -7416,11 +6992,11 @@
           </section>
 
           <section class="pd-results">
-            <div class="pd-tabs" role="tablist" aria-label="Projection">
+            <div class="pd-tabs" role="tablist" aria-label="Projection" data-own-arrows>
               <span class="pd-tabs-ind" aria-hidden="true"></span>
-              ${PREDICT_TABS.map((t) => `<button type="button" role="tab" data-pd-tab="${t.id}" aria-selected="${t.id === pdTab}">${t.label}</button>`).join("")}
+              ${PREDICT_TABS.map((t) => `<button type="button" role="tab" id="pd-tab-${t.id}" aria-controls="pd-out" data-pd-tab="${t.id}" aria-selected="${t.id === pdTab}" tabindex="${t.id === pdTab ? 0 : -1}">${t.label}</button>`).join("")}
             </div>
-            <div class="panel-stack pd-out"></div>
+            <div class="panel-stack pd-out" id="pd-out" role="tabpanel"></div>
           </section>
         </div>`;
 
@@ -7431,11 +7007,17 @@
     function drawPredictWeek(panel) {
       const games = predictSlate().filter((g) => g.week === pdWeek);
       panel.querySelector(".pd-games").innerHTML = games.map(pdGame).join("");
-      panel.querySelectorAll(".pd-week").forEach((b) => b.setAttribute("aria-selected", String(Number(b.dataset.pdWeek) === pdWeek)));
+      panel.querySelectorAll(".pd-week").forEach((b) => {
+        const on = Number(b.dataset.pdWeek) === pdWeek;
+        b.setAttribute("aria-selected", String(on));
+        b.tabIndex = on ? 0 : -1;
+      });
+      panel.querySelector(".pd-games").setAttribute("aria-labelledby", `pd-week-${pdWeek}`);
+      const weeks = pdWeeks(), at = weeks.indexOf(pdWeek);
       const prev = panel.querySelector('[data-pd="prev"]');
       const next = panel.querySelector('[data-pd="next"]');
-      prev.disabled = pdWeek <= PREDICT_BASIS + 1;
-      next.textContent = pdWeek < REGULAR_WEEKS ? `Week ${pdWeek + 1} →` : "See the standings ↓";
+      prev.disabled = at <= 0;
+      next.textContent = at < weeks.length - 1 ? `Week ${weeks[at + 1]} →` : "See the standings ↓";
       // Keep the chosen week in view when the strip scrolls on a phone.
       const tab = panel.querySelector(`.pd-week[data-pd-week="${pdWeek}"]`);
       if (tab && tab.scrollIntoView && tab.parentElement.scrollWidth > tab.parentElement.clientWidth) {
@@ -7504,7 +7086,12 @@
       const tabs = panel.querySelector(".pd-tabs");
       const k = PREDICT_TABS.findIndex((t) => t.id === pdTab);
       tabs.style.setProperty("--k", k);
-      tabs.querySelectorAll("[data-pd-tab]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.pdTab === pdTab)));
+      tabs.querySelectorAll("[data-pd-tab]").forEach((b) => {
+        const on = b.dataset.pdTab === pdTab;
+        b.setAttribute("aria-selected", String(on));
+        b.tabIndex = on ? 0 : -1;
+      });
+      panel.querySelector(".pd-out").setAttribute("aria-labelledby", `pd-tab-${pdTab}`);
     }
 
     function drawPredictResults(panel, s, first) {
@@ -7529,7 +7116,12 @@
 
       // Odds: your picks held fixed, every open game simulated. With no
       // picks they are the Standings tab's odds exactly.
-      const was = { odds: playoffOdds(PREDICT_BASIS), flags: buildPicture(PREDICT_BASIS).flags };
+      // The change column compares runs of the same size and seed, so a team
+      // no pick touches does not wobble by simulation noise.
+      const flags = buildPicture(PREDICT_BASIS).flags;
+      const was = count
+        ? { odds: playoffOdds(PREDICT_BASIS, { iterations: PICK_ITERATIONS }), flags }
+        : { odds: playoffOdds(PREDICT_BASIS), flags };
       const card = (odds) => oddsCard(REGULAR_WEEKS, {
         odds,
         flags: locked.flags,
@@ -7543,10 +7135,27 @@
       const run = ++pdRun;
       setTimeout(() => {
         if (run !== pdRun || !panel.contains(area)) return;
-        area.innerHTML = card(withPicks(lockedGames, () => playoffOdds(REGULAR_WEEKS, { iterations: WHATIF_ITERATIONS, basis: PREDICT_BASIS })));
+        area.innerHTML = card(withPicks(lockedGames, () => playoffOdds(REGULAR_WEEKS, { iterations: PICK_ITERATIONS, basis: PREDICT_BASIS })));
         area.classList.remove("odds-pending");
       }, first ? 0 : 160);
     }
+
+    // Left and right move along the week strip and the projection switch,
+    // as in any tab list (the page's own arrow keys step the season's week).
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowRight" && event.key !== "ArrowLeft" && event.key !== "Home" && event.key !== "End") return;
+      const strip = event.target.closest && event.target.closest("#panel-predict [data-own-arrows]");
+      if (!strip) return;
+      const tabs = [...strip.querySelectorAll('[role="tab"]')];
+      const i = tabs.indexOf(event.target);
+      if (i < 0) return;
+      const j = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1
+        : Math.max(0, Math.min(tabs.length - 1, i + (event.key === "ArrowRight" ? 1 : -1)));
+      event.preventDefault();
+      if (j === i) return;
+      tabs[j].click();
+      tabs[j].focus();
+    });
 
     document.addEventListener("click", (event) => {
       const panel = document.getElementById("panel-predict");
@@ -7589,11 +7198,12 @@
         updatePredict(panel);
       } else if (action.dataset.pd === "prev" || action.dataset.pd === "next") {
         const step = action.dataset.pd === "next" ? 1 : -1;
-        if (step > 0 && pdWeek >= REGULAR_WEEKS) {
+        const weeks = pdWeeks(), at = weeks.indexOf(pdWeek);
+        if (step > 0 && at >= weeks.length - 1) {
           panel.querySelector(".pd-results").scrollIntoView({ block: "start", behavior: UI.reduced() ? "auto" : "smooth" });
           return;
         }
-        pdWeek = Math.max(PREDICT_BASIS + 1, Math.min(REGULAR_WEEKS, pdWeek + step));
+        pdWeek = weeks[Math.max(0, Math.min(weeks.length - 1, at + step))];
         UI.haptic("tap");
         drawPredictWeek(panel);
         updatePredict(panel, { first: true });
@@ -9375,7 +8985,8 @@
     function renderAll() {
       // Playoff weeks offer only the bracket, so a view carried over from
       // another week falls back to the first one this week has.
-      if (!viewsFor(state.week).includes(state.view)) state.view = viewsFor(state.week)[0];
+      if (!viewAllowed(state.week, state.view)) state.view = viewsFor(state.week).includes(lastWeekView) ? lastWeekView : viewsFor(state.week)[0];
+      if (state.view !== PREDICT) lastWeekView = state.view;
       renderWeekRail();
       renderViewTabs();
       renderHero(state.week);
@@ -9391,7 +9002,7 @@
         picture: () => renderPicturePanel(week),
         sidebets: () => renderSideBetsPanel(week),
         ...(week === 0 ? { sos: () => renderSosPanel() } : {}),
-        ...(predictOpen() ? { predict: () => renderPredictPanel() } : {}),
+        ...(canPredict(week) ? { predict: () => renderPredictPanel() } : {}),
       };
       showLivePanel();
     }
@@ -9418,10 +9029,9 @@
       const week = Number(match[1]);
       if (week < 0 || week > LAST_WEEK) return false;
       state.week = week;
-      const allowed = viewsFor(week);
       // The old written-summary links land on the recap that replaced it.
       const view = match[2] === "summary" ? "recap" : match[2];
-      state.view = allowed.includes(view) ? view : allowed[0];
+      state.view = view && viewAllowed(week, view) ? view : viewsFor(week)[0];
       return true;
     }
 
@@ -9435,7 +9045,10 @@
        week's instead of the table simply redrawing. */
     SeasonNav.mount("#seasonNav", {
       viewsLabel: "Week views",
+      action: { id: PREDICT, label: "Predictor", icon: PREDICT_ICON },
       onWeek: (week) => {
+        // A week on the wheel is a week's tabs, so the predictor steps aside.
+        if (state.view === PREDICT) state.view = lastWeekView;
         const panel = document.getElementById(`panel-${state.view}`);
         const before = UI.measureRows(panel);
         state.week = week;
@@ -9446,6 +9059,10 @@
         }
       },
       onView: (view) => {
+        // The predictor's button, tapped again, goes back to the week's tab.
+        if (view === PREDICT && state.view === PREDICT) view = lastWeekView;
+        if (!viewAllowed(state.week, view)) view = viewsFor(state.week)[0];
+        if (view !== PREDICT) lastWeekView = view;
         state.view = view;
         renderViewTabs();
         showLivePanel();

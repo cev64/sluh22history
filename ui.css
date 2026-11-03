@@ -161,7 +161,7 @@ button, summary, [role="tab"] { touch-action: manipulation; }
   box-shadow: 0 1px 3px rgba(16, 24, 40, .14), 0 1px 1px rgba(16, 24, 40, .05);
   pointer-events: none; z-index: 0; will-change: transform, width;
 }
-.sn-seg-ind.ready { transition: transform .45s var(--ease), width .45s var(--ease); }
+.sn-seg-ind.ready { transition: transform .45s var(--ease), width .45s var(--ease), opacity .25s var(--ease); }
 .season-nav.stuck .sn-seg { background: rgba(12, 28, 45, .06); }
 .sn-seg .l-sm { display: none; }
 @media (max-width: 520px) {
@@ -197,6 +197,32 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 .season-nav.searching .sn-search { background: var(--navy, #071827); color: #fff; box-shadow: 0 6px 14px -6px rgba(7, 24, 39, .6); }
 .season-nav.searching .sn-search .ic-find { opacity: 0; transform: rotate(90deg) scale(.5); }
 .season-nav.searching .sn-search .ic-x { opacity: 1; transform: none; }
+
+/* A season-wide view's own button, beside the magnifier: an icon on a
+   phone, a labelled pill on a wide screen, lit navy while it is open. */
+.sn-act {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-width: 40px; padding: 0 12px; border: 0; border-radius: 12px; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 700; letter-spacing: -.005em; white-space: nowrap;
+  color: var(--ink, #0b1726); background: rgba(12, 28, 45, .07);
+  transition: background-color .25s var(--ease), color .25s var(--ease), transform .18s var(--ease), box-shadow .25s var(--ease), opacity .25s var(--ease);
+}
+.sn-act[hidden] { display: none; }
+.sn-act svg { flex: none; }
+@media (hover: hover) { .sn-act:not(.on):hover { background: rgba(12, 28, 45, .12); } }
+.sn-act:active { transform: scale(.94); }
+.sn-act:focus-visible { outline: 2px solid var(--blue, #1769e0); outline-offset: 2px; }
+.sn-act.on { background: var(--navy, #071827); color: #fff; box-shadow: 0 6px 14px -6px rgba(7, 24, 39, .6); }
+.sn-act.on svg .sn-act-spark { color: var(--gold, #f6b73c); }
+@media (max-width: 899px) { .sn-act { padding: 0; width: 40px; } .sn-act span { display: none; } }
+.season-nav.searching .sn-act { opacity: 0; pointer-events: none; }
+/* A phone with that button: the tabs take their names' widths and share
+   what is left, so every name fits in full; the pill is measured. */
+.sn-seg.fit button { flex: 1 1 auto; padding-left: 3px; padding-right: 3px; }
+.sn-seg.fit .sn-seg-ind { width: var(--w); transform: translateX(var(--x)); }
+.sn-seg.fit.idle .sn-seg-ind { transform: translateX(var(--x)) scale(.92); }
+/* with the season-wide view open, no tab is chosen */
+.sn-seg.idle .sn-seg-ind { opacity: 0; transform: translateX(calc(var(--k, 0) * (100% + 2px))) scale(.92); }
 
 /* The field grows leftward out of the button while the views blur away. */
 .sn-find {
@@ -251,6 +277,7 @@ button, summary, [role="tab"] { touch-action: manipulation; }
 }
 @media (max-width: 520px) {
   .sn-search { width: 36px; }
+  .sn-act { width: 36px; min-width: 36px; }
   .sn-top { gap: 4px; }
   .sn-find { right: 40px; }
   .season-nav.searching .sn-cap { padding: 6px; }
