@@ -4343,6 +4343,368 @@
        odds card dims while its simulation reruns. */
     .wi-note { margin: 0; padding: 0 4px; color: var(--ink-2); font-size: 12px; line-height: 1.45; }
     .wi-odds-slot.odds-pending .odds-pct { opacity: .4; transition: opacity .2s ease; }
+
+    /* Season Predictor ---------------------------------------------- */
+    /* Its own view, so it opens on its own ground: the hero's navy field,
+       striped like the season header, holding a meter of how many games
+       you have called and the playoff field as it stands with your picks.
+       Below it, the same white cards as every other tab: a pick'em sheet
+       a week at a time, then the standings, bracket and odds it moves. */
+
+    .pd-hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      gap: 16px;
+      padding: 20px 20px 18px;
+      border-radius: var(--card-radius, 14px);
+      color: #fff;
+      background:
+        radial-gradient(120% 90% at 100% 0%, rgba(23, 105, 224, .32), transparent 60%),
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.075) 28px 30px) 0 30% / 100% 6px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,.075) 28px 30px) 0 72% / 100% 6px no-repeat,
+        repeating-linear-gradient(90deg, transparent 0 89px, rgba(255,255,255,.05) 89px 90px),
+        var(--navy, #071827);
+      box-shadow: 0 18px 36px -26px rgba(7, 24, 39, .8);
+    }
+    .pd-hero > * { position: relative; }
+
+    .pd-hero-top { display: flex; align-items: flex-start; gap: 16px; }
+    .pd-hero-copy { flex: 1 1 auto; min-width: 0; display: grid; gap: 6px; }
+    .pd-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      width: max-content;
+      padding: 4px 10px 4px 8px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .07);
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .pd-kicker-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold, #f6b73c); box-shadow: 0 0 0 3px rgba(246, 183, 60, .22); }
+    .pd-hero h3 {
+      margin: 4px 0 0;
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 700;
+      line-height: .9;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+    .pd-hero p { margin: 0; max-width: 520px; color: rgba(255, 255, 255, .72); font-size: 13px; line-height: 1.45; }
+
+    .pd-meter { position: relative; flex: 0 0 auto; width: 76px; height: 76px; }
+    .pd-meter svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .pd-meter circle { fill: none; stroke-width: 5; }
+    .pd-meter-track { stroke: rgba(255, 255, 255, .12); }
+    .pd-meter-fill { stroke: var(--gold, #f6b73c); stroke-linecap: round; transition: stroke-dashoffset .5s var(--ease); }
+    .pd-meter-num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1; }
+    .pd-meter-num b { font-family: var(--font-display); font-size: 26px; font-weight: 700; }
+    .pd-meter-num small { margin-top: 2px; color: rgba(255, 255, 255, .6); font-size: 10px; font-weight: 600; letter-spacing: .04em; }
+
+    .pd-field-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, .1);
+      color: rgba(255, 255, 255, .6);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .pd-reset {
+      min-height: 30px;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: 999px;
+      background: transparent;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
+      transition: background .15s ease, opacity .15s ease, transform .18s var(--ease);
+    }
+    .pd-reset:disabled { opacity: .35; cursor: default; }
+    .pd-reset:active:not(:disabled) { transform: scale(.96); }
+    .pd-reset:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    @media (hover: hover) { .pd-reset:hover:not(:disabled) { background: rgba(255, 255, 255, .08); } }
+
+    /* Byes, runners-up, wild cards: a column each, Xavier over Ignatius. */
+    .pd-field { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto; grid-auto-flow: column; gap: 8px; }
+    .pd-seed-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      min-height: 44px;
+      padding: 7px 10px;
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .06);
+      color: #fff;
+      text-align: left;
+      transition: background .15s ease, transform .18s var(--ease);
+    }
+    @media (hover: hover) { .pd-seed-chip:hover { background: rgba(255, 255, 255, .1); } }
+    .pd-seed-chip:active { transform: scale(.98); }
+    .pd-seed-chip:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    body:not(#_) .pd-seed-chip .seed-tag { flex: 0 0 auto; min-width: 30px; justify-content: center; }
+    body:not(#_) .pd-seed-chip .seed-tag.div { background: rgba(255, 255, 255, .14); color: #fff; }
+    body:not(#_) .pd-seed-chip .seed-tag.div.lead { background: #fff; color: var(--navy, #071827); }
+    body:not(#_) .pd-seed-chip .seed-tag.wc { background: var(--gold, #f6b73c); color: #3a2a02; }
+    .pd-seed-chip .mini-badge { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px; }
+    .pd-seed-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; font-weight: 600; }
+    .pd-seed-rec { flex: 0 0 auto; color: rgba(255, 255, 255, .62); font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .pd-field .pd-seed-chip { animation: wiSettle .4s var(--ease); }
+
+    /* The sheet: a week at a time. */
+    .pd-weeks {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+      grid-auto-flow: column;
+      gap: 6px;
+      padding: 12px 16px 0;
+    }
+    .pd-week {
+      display: grid;
+      justify-items: center;
+      gap: 3px;
+      min-width: 0;
+      padding: 8px 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink-2);
+      transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s var(--ease);
+    }
+    .pd-week small { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+    .pd-week b { font-family: var(--font-display); font-size: 24px; font-weight: 700; line-height: .95; }
+    .pd-dots { display: flex; gap: 3px; }
+    .pd-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--line-2); transition: background .2s ease, transform .3s var(--spring); }
+    .pd-dots i.on { background: var(--accent); transform: scale(1.15); }
+    @media (hover: hover) { .pd-week:hover { background: var(--surface-2); } }
+    .pd-week:active { transform: scale(.96); }
+    .pd-week:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .pd-week[aria-selected="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+    .pd-week[aria-selected="true"] small { color: rgba(255, 255, 255, .62); }
+    .pd-week[aria-selected="true"] .pd-dots i { background: rgba(255, 255, 255, .28); }
+    .pd-week[aria-selected="true"] .pd-dots i.on { background: var(--gold, #f6b73c); }
+
+    .pd-games { display: grid; gap: 10px; padding: 12px 16px 4px; }
+
+    .pd-game {
+      position: relative;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+      animation: wiSettle .35s var(--ease);
+    }
+    .pd-game-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-3);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .pd-state { font-weight: 600; letter-spacing: .06em; transition: color .2s ease; }
+    .pd-state.pick { color: var(--accent-ink); }
+    .pd-state.upset { color: #8a5a00; }
+
+    /* Phones stack the two sides; wider screens face them off. */
+    .pd-sides { display: grid; }
+    .pd-vs { display: none; }
+    .pd-side {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-width: 0;
+      min-height: 54px;
+      padding: 8px 12px;
+      border: 0;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      transition: background .18s ease;
+    }
+    .pd-side + .pd-vs + .pd-side { border-top: 1px solid var(--line); }
+    .pd-side:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    @media (hover: hover) { .pd-side:hover { background: var(--surface-2); } }
+    .pd-side:active { background: var(--surface-3); }
+    .pd-side .mini-badge { flex: 0 0 auto; width: 28px; height: 28px; border-radius: 8px; transition: opacity .2s ease, filter .2s ease; }
+    .pd-team { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+    .pd-team strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13.5px; font-weight: 600; letter-spacing: -.005em; transition: color .2s ease; }
+    .pd-meta { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--ink-3); font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pd-seed { display: inline-flex; align-items: center; gap: 3px; }
+    body:not(#_) .pd-seed .seed-tag { min-width: 0; padding: 1px 5px; font-size: 9.5px; }
+    .pd-rec.bump, .pd-seed.bump { animation: wiBump .5s var(--spring); }
+    .pd-pct { flex: 0 0 auto; min-width: 40px; text-align: right; color: var(--ink-3); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; transition: color .2s ease; }
+
+    /* The check: a dashed ring on the favorite, filled in on your pick. */
+    .pd-check {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line-2);
+      background: #fff;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .pd-check svg { width: 12px; height: 12px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 14; stroke-dashoffset: 14; transition: stroke-dashoffset .25s var(--ease); }
+
+    .pd-side.win { background: #f6f9ff; }
+    .pd-side.win .pd-team strong { font-weight: 700; }
+    .pd-side.win .pd-pct { color: var(--ink); }
+    .pd-side.win .pd-check { border-style: dashed; border-color: var(--accent); }
+    .pd-side.picked { background: var(--accent-soft); }
+    @media (hover: hover) { .pd-side.picked:hover { background: #e3edff; } .pd-side.win:not(.picked):hover { background: #eef3fd; } }
+    .pd-side.picked .pd-team strong, .pd-side.picked .pd-pct { color: var(--accent-ink); }
+    .pd-side.picked .pd-check { border-style: solid; border-color: var(--accent); background: var(--accent); animation: wiCheck .4s var(--spring); }
+    .pd-side.picked .pd-check svg { stroke-dashoffset: 0; transition-delay: .06s; }
+    .pd-side.lose .pd-team strong { color: var(--ink-2); font-weight: 500; }
+    .pd-side.lose .mini-badge { opacity: .5; filter: saturate(.6); }
+    .pd-game.locked .pd-side.lose .pd-check { border-color: var(--line); }
+
+    /* The chance, as a bar in both teams' colours. */
+    .pd-bar { display: flex; height: 4px; background: var(--line); }
+    .pd-bar span { height: 100%; background: var(--c); opacity: .85; transition: opacity .2s ease; }
+    .pd-bar span + span { flex: 1 1 auto; margin-left: 2px; }
+
+    .pd-sheet-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 16px 14px;
+    }
+    .pd-legend { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: 11.5px; font-weight: 500; }
+    .pd-key { width: 12px; height: 12px; border-radius: 50%; border: 1.5px dashed var(--accent); }
+    .pd-key.pick { margin-left: 8px; border-style: solid; background: var(--accent); }
+    .pd-steps { display: inline-flex; gap: 6px; }
+    .pd-steps [data-pd="prev"] { width: 32px; padding: 0; font-size: 16px; line-height: 1; }
+
+    /* What the picks move: one segmented switch over three views. */
+    .pd-results { display: grid; gap: 12px; scroll-margin-top: 150px; }
+    .pd-tabs {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2px;
+      padding: 3px;
+      border-radius: 12px;
+      background: rgba(12, 28, 45, .07);
+    }
+    .pd-tabs button {
+      position: relative;
+      z-index: 1;
+      min-height: 36px;
+      padding: 0 6px;
+      border: 0;
+      border-radius: 9px;
+      background: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      transition: color .25s var(--ease), transform .18s var(--ease);
+    }
+    .pd-tabs button[aria-selected="true"] { color: var(--ink); }
+    @media (hover: hover) { .pd-tabs button:hover { color: var(--ink); } }
+    .pd-tabs button:active { transform: scale(.96); }
+    .pd-tabs button:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    .pd-tabs-ind {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: calc((100% - 10px) / 3);
+      height: calc(100% - 6px);
+      border-radius: 9px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(16, 24, 40, .14), 0 1px 1px rgba(16, 24, 40, .05);
+      transform: translateX(calc(var(--k, 0) * (100% + 2px)));
+      transition: transform .45s var(--ease);
+      pointer-events: none;
+    }
+    .pd-out.odds-pending .odds-pct { opacity: .4; transition: opacity .2s ease; }
+
+    @media (min-width: 760px) {
+      .pd-hero { padding: 24px 24px 20px; }
+      .pd-hero h3 { font-size: 46px; }
+      .pd-meter { width: 88px; height: 88px; }
+      .pd-meter-num b { font-size: 30px; }
+
+      /* Face-off rows: favorite and underdog either side of the bar. */
+      .pd-sides { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; }
+      .pd-vs {
+        display: grid;
+        place-items: center;
+        padding: 0 4px;
+        color: var(--ink-3);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        border-left: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        background: var(--surface-2);
+      }
+      .pd-side + .pd-vs + .pd-side { border-top: 0; }
+      .pd-side.right { flex-direction: row-reverse; text-align: right; }
+      .pd-side.right .pd-meta { justify-content: flex-end; }
+      .pd-side.left .pd-pct { text-align: right; }
+      .pd-side.right .pd-pct { text-align: left; }
+      .pd-side { min-height: 60px; padding: 9px 14px; }
+      .pd-pct { font-size: 17px; min-width: 46px; }
+    }
+
+    @media (max-width: 759px) {
+      .pd-field { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-flow: row; }
+    }
+    @media (max-width: 520px) {
+      /* The field swipes, so every name reads in full. */
+      .pd-field {
+        display: flex;
+        margin: 0 -16px;
+        padding: 0 16px 2px;
+        overflow-x: auto;
+        scroll-snap-type: x proximity;
+        scroll-padding: 0 16px;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+      }
+      .pd-field::-webkit-scrollbar { display: none; }
+      .pd-field .pd-seed-chip { flex: 0 0 auto; max-width: 240px; scroll-snap-align: start; }
+      .pd-hero { gap: 14px; padding: 18px 16px 16px; }
+      .pd-hero h3 { font-size: 34px; }
+      .pd-hero p { font-size: 12.5px; }
+      .pd-meter { width: 66px; height: 66px; }
+      .pd-meter-num b { font-size: 22px; }
+      .pd-weeks { gap: 5px; padding: 12px 12px 0; }
+      .pd-week { padding: 7px 2px 8px; border-radius: 10px; }
+      .pd-week small { font-size: 8.5px; letter-spacing: .06em; }
+      .pd-week b { font-size: 21px; }
+      .pd-games { padding: 12px 12px 4px; }
+      .pd-sheet-foot { padding: 10px 12px 14px; }
+      .pd-seed-chip { gap: 6px; padding: 6px 8px; }
+      .pd-seed-name { font-size: 12px; }
+    }
     .odds-pct.odds-chg { font-size: 12px; font-weight: 700; color: var(--ink-3); }
     .odds-pct.odds-chg.up { color: #15803d; }
     .odds-pct.odds-chg.down { color: #dc2626; }
@@ -4482,6 +4844,7 @@
     <section id="panel-sidebets" class="live-panel" role="tabpanel"></section>
     <section id="panel-sos" class="live-panel" role="tabpanel"></section>
     <section id="panel-bracket" class="live-panel" role="tabpanel"></section>
+    <section id="panel-predict" class="live-panel" role="tabpanel"></section>
   </main>
 
   <div class="bx-backdrop" id="bxBackdrop"></div>
@@ -5480,7 +5843,9 @@
     // counts and how far early odds fade, so that the picks are the only
     // thing that differs from the odds on the Standings tab.
     function playoffOdds(week, { iterations = ODDS_ITERATIONS, basis = week } = {}) {
-      const key = [week, basis, iterations, ...whatIfGames.map((g) => g.win)].join("|");
+      // A pick is keyed by its week too: the Season Predictor can pick the
+      // same team in several weeks.
+      const key = [week, basis, iterations, ...whatIfGames.map((g) => `${g.week}:${g.win}`)].join("|");
       if (oddsCache[key]) return oddsCache[key];
 
       const played = gamesThrough(week);
@@ -5764,7 +6129,7 @@
        VIEW STATE
        ================================================================= */
 
-    const VIEWS = ["results", "recap", "standings", "picture", "sidebets", "sos"];
+    const VIEWS = ["results", "recap", "standings", "picture", "sidebets", "sos", "predict"];
 
     // Strength of schedule is a preseason view; once games are played the
     // week tabs carry results instead.
@@ -5775,9 +6140,11 @@
 
     // A played week also has its recap (THE WEEK IN REVIEW), the playoff
     // weeks included once their games are posted.
-    const viewsFor = (week) => (week === 0 ? VIEWS.filter((v) => v !== "recap")
+    // The Season Predictor sits beside every regular-season week's tabs
+    // while there are games left to pick.
+    const viewsFor = (week) => (week === 0 ? VIEWS.filter((v) => v !== "recap" && v !== "predict")
       : week > REGULAR_WEEKS ? ["bracket", ...((playoffResults[week] || []).length ? ["recap"] : []), "standings"]
-      : VIEWS.filter((v) => v !== "sos" && (v !== "recap" || isPlayed(week))));
+      : VIEWS.filter((v) => v !== "sos" && (v !== "recap" || isPlayed(week)) && (v !== "predict" || predictOpen())));
 
     /* Weeks run Thu-Mon and results post Tuesday, so the page opens on the
        latest results through Tuesday and on the upcoming week's matchups
@@ -5812,12 +6179,15 @@
     function viewLabels(week) {
       if (week > REGULAR_WEEKS) return { bracket: "Bracket", recap: "Recap", standings: "Standings" };
       if (week === 0) return { results: "Schedule", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets", sos: "Strength of Schedule" };
-      if (isPlayed(week)) return { results: "Results", recap: "Recap", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets" };
-      return { results: "Matchups", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets" };
+      if (isPlayed(week)) return { results: "Results", recap: "Recap", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets", predict: "Predictor" };
+      return { results: "Matchups", standings: "Standings", picture: "Playoffs", sidebets: "Side Bets", predict: "Predictor" };
     }
     // Preseason adds a fifth view; on a phone its long name shortens so all
     // five still share the capsule's width.
     const PRESEASON_SHORT = { sos: "SOS" };
+    // With the Season Predictor a week has six views, and on a phone the
+    // longer names shorten so all six fit. Five-view weeks keep theirs.
+    const SIX_VIEW_SHORT = { standings: "Table", sidebets: "Bets", predict: "Predict" };
 
     /* =================================================================
        SHARED PIECES
@@ -6036,12 +6406,19 @@
     function renderViewTabs() {
       const labels = viewLabels(state.week);
       SeasonNav.render({
-        views: viewsFor(state.week).map((v) => ({ id: v, label: labels[v], short: state.week === 0 ? PRESEASON_SHORT[v] : undefined })),
+        views: viewsFor(state.week).map((v, i, all) => ({
+          id: v,
+          label: labels[v],
+          short: state.week === 0 ? PRESEASON_SHORT[v] : all.length >= 6 ? SIX_VIEW_SHORT[v] : undefined,
+        })),
         view: state.view,
       });
-      UI.roll(document.getElementById("weekTitle"), state.week === 0
-        ? "Preseason · 2026"
-        : `Week ${state.week} · 2026`, SeasonNav.dir);
+      // The predictor is the whole rest of the season, not the week.
+      UI.roll(document.getElementById("weekTitle"), state.view === "predict"
+        ? `Season Predictor · ${SEASON}`
+        : state.week === 0
+          ? "Preseason · 2026"
+          : `Week ${state.week} · 2026`, SeasonNav.dir);
     }
 
     /* =================================================================
@@ -6786,6 +7163,442 @@
         renderAll();
         writeHash();
         window.scrollTo({ top: 0, behavior: UI.reduced() ? "auto" : "smooth" });
+      }
+    });
+
+    /* =================================================================
+       SEASON PREDICTOR
+
+       Its own view, beside the week's tabs: every game left on the
+       regular-season schedule, each with the chance either side wins it,
+       and the season played out to the end from them.
+
+       Every open game goes to its favorite, so the projected standings
+       and bracket always cover all fourteen weeks. Tapping a side locks
+       it in as your pick: the standings and bracket take it in place of
+       the favorite, and the playoff odds hold it fixed while every game
+       still open is simulated as usual. Tap the picked side again and the
+       game goes back to the favorite.
+
+       A game's win chance is worked out from the same model the playoff
+       odds simulate (see `playoffOdds`): each side's score is drawn from
+       its own posted scores with the week's own-form share, otherwise
+       from the league-wide pool. The chance is the exact probability that
+       draw favours one side, ties split evenly, so the favorite here is
+       the side the odds simulation also favours.
+
+       Picks stay in this browser and belong to the week they were made
+       after: once the next week's scores are posted, its games leave the
+       sheet and the old picks are cleared.
+       ================================================================= */
+
+    const PREDICT_BASIS = lastPlayedWeek;
+    const predictOpen = () => PREDICT_BASIS >= 1 && PREDICT_BASIS < REGULAR_WEEKS;
+    const predictKey = (basis) => `sluh22-predict-${SEASON}-w${basis}`;
+    const PREDICT_TABS = [
+      { id: "standings", label: "Standings" },
+      { id: "picture", label: "Playoffs" },
+      { id: "odds", label: "Odds" },
+    ];
+
+    // Exact win chances under the odds simulation's scoring draw.
+    let matchupModelCache = null;
+    function matchupChance(a, b) {
+      if (!matchupModelCache) {
+        const pool = [], own = {};
+        TEAM_IDS.forEach((id) => { own[id] = []; });
+        playedWeeks.filter((w) => w <= PREDICT_BASIS).forEach((w) => {
+          results[w].forEach(([x, xs, y, ys]) => { pool.push(xs, ys); own[x].push(xs); own[y].push(ys); });
+        });
+        const share = ownFormWeight(PREDICT_BASIS);
+        // Each side's score as weighted outcomes, the way `draw` picks one.
+        const dist = (id) => {
+          const s = own[id].length ? share : 0;
+          return [
+            ...own[id].map((v) => [v, s / own[id].length]),
+            ...(s < 1 ? pool.map((v) => [v, (1 - s) / pool.length]) : []),
+          ];
+        };
+        matchupModelCache = { dist: {}, enough: pool.length >= 10, pairs: {} };
+        TEAM_IDS.forEach((id) => { matchupModelCache.dist[id] = dist(id); });
+      }
+      const m = matchupModelCache;
+      if (!m.enough) return 0.5;
+      const key = `${a}|${b}`;
+      if (m.pairs[key] == null) {
+        let p = 0;
+        m.dist[a].forEach(([x, wx]) => m.dist[b].forEach(([y, wy]) => {
+          if (x > y) p += wx * wy; else if (x === y) p += wx * wy / 2;
+        }));
+        m.pairs[key] = p;
+        m.pairs[`${b}|${a}`] = 1 - p;
+      }
+      return m.pairs[key];
+    }
+
+    const pdGameKey = (week, a, b) => `${week}|${a}|${b}`;
+
+    // Every game still to play, with its chance and its favorite.
+    let pdSlateCache = null;
+    function predictSlate() {
+      if (pdSlateCache) return pdSlateCache;
+      const stats = computeStats(PREDICT_BASIS);
+      const slate = [];
+      for (let w = PREDICT_BASIS + 1; w <= REGULAR_WEEKS; w++) {
+        (schedule[w] || []).forEach(([a, b]) => {
+          const p = matchupChance(a, b);
+          // A dead-even game goes to the better scorer.
+          const fav = p > 0.5 ? a : p < 0.5 ? b : (stats[a].pfg >= stats[b].pfg ? a : b);
+          slate.push({ week: w, a, b, key: pdGameKey(w, a, b), p, fav });
+        });
+      }
+      pdSlateCache = slate;
+      return slate;
+    }
+
+    let pdLocks = {};          // game key → the team picked to win it
+    let pdWeek = PREDICT_BASIS + 1;
+    let pdTab = "standings";
+    let pdRun = 0;             // drops odds work a newer tap has overtaken
+
+    (function loadPredictLocks() {
+      if (!predictOpen()) return;
+      try {
+        for (let w = 1; w < PREDICT_BASIS; w++) localStorage.removeItem(predictKey(w));
+        const saved = JSON.parse(localStorage.getItem(predictKey(PREDICT_BASIS)) || "{}");
+        predictSlate().forEach((g) => {
+          if (saved[g.key] === g.a || saved[g.key] === g.b) pdLocks[g.key] = saved[g.key];
+        });
+      } catch (_) { /* storage blocked: the picks last for this visit */ }
+    })();
+
+    function savePredictLocks() {
+      try {
+        if (Object.keys(pdLocks).length) localStorage.setItem(predictKey(PREDICT_BASIS), JSON.stringify(pdLocks));
+        else localStorage.removeItem(predictKey(PREDICT_BASIS));
+      } catch (_) { /* storage blocked */ }
+    }
+
+    // The slate as game records: everything, or only the games you picked.
+    // Each side scores its season average, as a What-If pick does.
+    function predictGames({ lockedOnly = false, ignoreLocks = false } = {}) {
+      const stats = computeStats(PREDICT_BASIS);
+      return predictSlate().flatMap((g) => {
+        const lock = ignoreLocks ? null : pdLocks[g.key];
+        if (!lock && lockedOnly) return [];
+        return [{ week: g.week, a: g.a, as: stats[g.a].pfg, b: g.b, bs: stats[g.b].pfg, win: lock || g.fav }];
+      });
+    }
+
+    // The season played out (`picture`), the favorites alone (`base`, what
+    // the seed arrows compare against) and the picks alone (`locked`, whose
+    // clinch flags are what the picks have actually settled).
+    let pdBaseCache = null;
+    function predictState() {
+      if (!pdBaseCache) pdBaseCache = withPicks(predictGames({ ignoreLocks: true }), () => buildPicture(REGULAR_WEEKS));
+      const lockedGames = predictGames({ lockedOnly: true });
+      const count = lockedGames.length;
+      const picture = count ? withPicks(predictGames(), () => buildPicture(REGULAR_WEEKS)) : pdBaseCache;
+      const locked = count ? withPicks(lockedGames, () => buildPicture(REGULAR_WEEKS)) : buildPicture(PREDICT_BASIS);
+      // The table's clinch marks say what your picks settle, not the favorites.
+      const shown = Object.assign({}, picture, { flags: locked.flags });
+      return { picture: shown, base: pdBaseCache, locked, lockedGames, count, total: predictSlate().length };
+    }
+
+    const pdPct = (p) => `${Math.round(p * 100)}%`;
+
+    function pdKind(g) {
+      if (g.week === rivalryWeek) return "Rivalry";
+      return teams[g.a].division === teams[g.b].division ? teams[g.a].division : "Cross-division";
+    }
+
+    function pdSide(g, id, align) {
+      const p = id === g.a ? g.p : 1 - g.p;
+      return `
+        <button type="button" class="pd-side ${align}" data-pd-pick="${g.key}" data-id="${id}" aria-pressed="false">
+          <span class="pd-check">${CHECK_ICON}</span>
+          ${miniTeam(id)}
+          <span class="pd-team"><strong>${teams[id].name}</strong><span class="pd-meta"><span class="pd-rec"></span><span class="pd-seed"></span></span></span>
+          <span class="pd-pct">${pdPct(p)}</span>
+        </button>`;
+    }
+
+    function pdGame(g) {
+      const pa = Math.max(0, Math.min(100, g.p * 100));
+      return `
+        <div class="pd-game" data-pd-game="${g.key}" role="group" aria-label="${esc(plain(g.a))} versus ${esc(plain(g.b))}">
+          <div class="pd-game-head"><span>${pdKind(g)}</span><span class="pd-state"></span></div>
+          <div class="pd-sides">
+            ${pdSide(g, g.a, "left")}
+            <span class="pd-vs" aria-hidden="true">vs</span>
+            ${pdSide(g, g.b, "right")}
+          </div>
+          <div class="pd-bar" aria-hidden="true">
+            <span style="width:${pa.toFixed(1)}%;--c:${teams[g.a].color}"></span><span style="--c:${teams[g.b].color}"></span>
+          </div>
+        </div>`;
+    }
+
+    function pdWeekTabs() {
+      const weeks = [];
+      for (let w = PREDICT_BASIS + 1; w <= REGULAR_WEEKS; w++) weeks.push(w);
+      return weeks.map((w) => `
+        <button type="button" class="pd-week" role="tab" data-pd-week="${w}" aria-selected="${w === pdWeek}">
+          <small>${w === rivalryWeek ? "Rivalry" : "Week"}</small>
+          <b>${w}</b>
+          <span class="pd-dots" data-pd-dots="${w}">${(schedule[w] || []).map(() => "<i></i>").join("")}</span>
+        </button>`).join("");
+    }
+
+    // The playoff field as the season plays out, byes first.
+    function pdField(picture) {
+      const order = [
+        ...picture.champs.map((c) => c.id),
+        ...picture.runnersUp.map((r) => r.id),
+        ...picture.wildcards,
+      ];
+      return order.map((id) => `
+        <button type="button" class="pd-seed-chip" data-team="${id}" aria-label="${esc(plain(id))}, ${picture.seedLabels[id].note}, ${picture.stats[id].record}">
+          ${seedTag(picture, id)}
+          ${miniTeam(id)}
+          <span class="pd-seed-name">${teams[id].name}</span>
+          <span class="pd-seed-rec">${picture.stats[id].record}</span>
+        </button>`).join("");
+    }
+
+    const PD_RING = 2 * Math.PI * 23;
+
+    function renderPredictPanel() {
+      const panel = document.getElementById("panel-predict");
+      if (!predictOpen()) {
+        panel.innerHTML = `<div class="panel-stack">${emptyState("Nothing left to predict", "The regular season is complete, so every game already has a result.")}</div>`;
+        return;
+      }
+      const first = PREDICT_BASIS + 1;
+      if (pdWeek < first || pdWeek > REGULAR_WEEKS) pdWeek = first;
+      const weeksLeft = REGULAR_WEEKS - PREDICT_BASIS;
+
+      panel.innerHTML = `
+        <div class="panel-stack pd">
+          <section class="pd-hero">
+            <div class="pd-hero-top">
+              <div class="pd-hero-copy">
+                <span class="pd-kicker"><span class="pd-kicker-dot" aria-hidden="true"></span>Season Predictor</span>
+                <h3>Weeks ${first}–${REGULAR_WEEKS}</h3>
+                <p>Every game below goes to its favorite. Tap a team to pick it instead, and the standings, bracket and playoff odds move with you.</p>
+              </div>
+              <div class="pd-meter" role="img" aria-label="">
+                <svg viewBox="0 0 56 56" aria-hidden="true">
+                  <circle class="pd-meter-track" cx="28" cy="28" r="23"/>
+                  <circle class="pd-meter-fill" cx="28" cy="28" r="23" stroke-dasharray="${PD_RING.toFixed(2)}" stroke-dashoffset="${PD_RING.toFixed(2)}"/>
+                </svg>
+                <span class="pd-meter-num"><b></b><small>of ${predictSlate().length}</small></span>
+              </div>
+            </div>
+            <div class="pd-field-head">
+              <span>Projected playoff field</span>
+              <button type="button" class="pd-reset" data-pd="clear">Reset picks</button>
+            </div>
+            <div class="pd-field"></div>
+          </section>
+
+          <section class="card pd-sheet">
+            ${cardHead("Pick'em", "versus", `${weeksLeft} week${weeksLeft === 1 ? "" : "s"} · ${predictSlate().length} games`)}
+            <div class="pd-weeks" role="tablist" aria-label="Weeks to pick">${pdWeekTabs()}</div>
+            <div class="pd-games" role="tabpanel"></div>
+            <div class="pd-sheet-foot">
+              <span class="pd-legend"><span class="pd-key fav"></span>Favorite<span class="pd-key pick"></span>Your pick</span>
+              <span class="pd-steps">
+                <button type="button" class="wi-btn" data-pd="prev" aria-label="Previous week">‹</button>
+                <button type="button" class="wi-btn pd-next" data-pd="next"></button>
+              </span>
+            </div>
+          </section>
+
+          <section class="pd-results">
+            <div class="pd-tabs" role="tablist" aria-label="Projection">
+              <span class="pd-tabs-ind" aria-hidden="true"></span>
+              ${PREDICT_TABS.map((t) => `<button type="button" role="tab" data-pd-tab="${t.id}" aria-selected="${t.id === pdTab}">${t.label}</button>`).join("")}
+            </div>
+            <div class="panel-stack pd-out"></div>
+          </section>
+        </div>`;
+
+      drawPredictWeek(panel);
+      updatePredict(panel, { first: true });
+    }
+
+    function drawPredictWeek(panel) {
+      const games = predictSlate().filter((g) => g.week === pdWeek);
+      panel.querySelector(".pd-games").innerHTML = games.map(pdGame).join("");
+      panel.querySelectorAll(".pd-week").forEach((b) => b.setAttribute("aria-selected", String(Number(b.dataset.pdWeek) === pdWeek)));
+      const prev = panel.querySelector('[data-pd="prev"]');
+      const next = panel.querySelector('[data-pd="next"]');
+      prev.disabled = pdWeek <= PREDICT_BASIS + 1;
+      next.textContent = pdWeek < REGULAR_WEEKS ? `Week ${pdWeek + 1} →` : "See the standings ↓";
+      // Keep the chosen week in view when the strip scrolls on a phone.
+      const tab = panel.querySelector(`.pd-week[data-pd-week="${pdWeek}"]`);
+      if (tab && tab.scrollIntoView && tab.parentElement.scrollWidth > tab.parentElement.clientWidth) {
+        tab.scrollIntoView({ block: "nearest", inline: "center", behavior: UI.reduced() ? "auto" : "smooth" });
+      }
+    }
+
+    function pdBump(el) { el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+
+    // Everything a pick changes, redrawn in place.
+    function updatePredict(panel, { first = false } = {}) {
+      const s = predictState();
+      const { picture, base, count, total } = s;
+      const slate = predictSlate();
+      const byKey = {};
+      slate.forEach((g) => { byKey[g.key] = g; });
+
+      // The sheet: each side's state, record and projected seed.
+      panel.querySelectorAll(".pd-game").forEach((card) => {
+        const g = byKey[card.dataset.pdGame];
+        const lock = pdLocks[g.key];
+        const winner = lock || g.fav;
+        card.classList.toggle("locked", Boolean(lock));
+        const state = card.querySelector(".pd-state");
+        state.textContent = !lock ? `Favorite · ${pdPct(Math.max(g.p, 1 - g.p))}` : lock === g.fav ? "Your pick" : "Upset pick";
+        state.className = `pd-state${lock ? (lock === g.fav ? " pick" : " upset") : ""}`;
+        card.querySelectorAll(".pd-side").forEach((btn) => {
+          const id = btn.dataset.id;
+          const won = id === winner;
+          btn.classList.toggle("win", won);
+          btn.classList.toggle("lose", !won);
+          btn.classList.toggle("picked", lock === id);
+          btn.setAttribute("aria-pressed", String(lock === id));
+          btn.setAttribute("aria-label", `${plain(id)}, ${btn.querySelector(".pd-pct").textContent} to win${lock === id ? ", your pick" : won ? ", favorite" : ""}. Projected ${picture.stats[id].record}, ${picture.seedLabels[id].note}`);
+          const rec = btn.querySelector(".pd-rec");
+          const record = `${picture.stats[id].record} final`;
+          if (rec.textContent !== record) { rec.textContent = record; if (!first) pdBump(rec); }
+          const seed = btn.querySelector(".pd-seed");
+          const html = seedTag(picture, id) + seedMoveTag(base, picture, id);
+          if (seed.innerHTML !== html) { seed.innerHTML = html; if (!first) pdBump(seed); }
+        });
+      });
+
+      // Week strip: a dot per game you have picked.
+      panel.querySelectorAll("[data-pd-dots]").forEach((dots) => {
+        const w = Number(dots.dataset.pdDots);
+        const games = slate.filter((g) => g.week === w);
+        dots.querySelectorAll("i").forEach((dot, i) => dot.classList.toggle("on", Boolean(games[i] && pdLocks[games[i].key])));
+        const tab = dots.closest(".pd-week");
+        const n = games.filter((g) => pdLocks[g.key]).length;
+        tab.setAttribute("aria-label", `Week ${w}, ${n} of ${games.length} picked`);
+      });
+
+      // Hero: the meter and the field.
+      const meter = panel.querySelector(".pd-meter");
+      meter.querySelector(".pd-meter-num b").textContent = count;
+      meter.querySelector(".pd-meter-fill").style.strokeDashoffset = (PD_RING * (1 - count / total)).toFixed(2);
+      meter.setAttribute("aria-label", `${count} of ${total} games picked`);
+      panel.querySelector(".pd-field").innerHTML = pdField(picture);
+      panel.querySelector('[data-pd="clear"]').disabled = !count;
+
+      drawPredictResults(panel, s, first);
+    }
+
+    function syncPredictTabs(panel) {
+      const tabs = panel.querySelector(".pd-tabs");
+      const k = PREDICT_TABS.findIndex((t) => t.id === pdTab);
+      tabs.style.setProperty("--k", k);
+      tabs.querySelectorAll("[data-pd-tab]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.pdTab === pdTab)));
+    }
+
+    function drawPredictResults(panel, s, first) {
+      syncPredictTabs(panel);
+      const area = panel.querySelector(".pd-out");
+      const { picture, locked, lockedGames, count } = s;
+
+      if (pdTab === "standings") {
+        const before = first ? null : UI.measureRows(area);
+        area.innerHTML = `<p class="wi-note">Final records: ${count ? `your ${count} pick${count === 1 ? "" : "s"}, ` : ""}the favorite in every ${count ? "other " : ""}game. Each game still to play adds a team's season scoring average to its points. All-play, WAE and EXPR count posted games only; clinch marks count only your picks.</p>
+          ${standingsCards(picture, { live: true, scope: "pd", apWeek: PREDICT_BASIS })}`;
+        AllPlay.linkStrips(panel);
+        if (before) UI.shuffleRows(area, before);
+        return;
+      }
+
+      if (pdTab === "picture") {
+        area.innerHTML = pictureCards(picture, count ? "Projected final · your picks" : "Projected final · favorites");
+        if (!first) { area.classList.remove("wi-redraw"); void area.offsetWidth; area.classList.add("wi-redraw"); }
+        return;
+      }
+
+      // Odds: your picks held fixed, every open game simulated. With no
+      // picks they are the Standings tab's odds exactly.
+      const was = { odds: playoffOdds(PREDICT_BASIS), flags: buildPicture(PREDICT_BASIS).flags };
+      const card = (odds) => oddsCard(REGULAR_WEEKS, {
+        odds,
+        flags: locked.flags,
+        meta: count ? `With your ${count} pick${count === 1 ? "" : "s"} · open games simulated` : oddsBasis(PREDICT_BASIS),
+        was: count ? was : null,
+      });
+      if (!count) { area.innerHTML = card(was.odds); return; }
+      const held = area.querySelector(".odds-grid") ? area.innerHTML : card(was.odds);
+      area.innerHTML = held;
+      area.classList.add("odds-pending");
+      const run = ++pdRun;
+      setTimeout(() => {
+        if (run !== pdRun || !panel.contains(area)) return;
+        area.innerHTML = card(withPicks(lockedGames, () => playoffOdds(REGULAR_WEEKS, { iterations: WHATIF_ITERATIONS, basis: PREDICT_BASIS })));
+        area.classList.remove("odds-pending");
+      }, first ? 0 : 160);
+    }
+
+    document.addEventListener("click", (event) => {
+      const panel = document.getElementById("panel-predict");
+      if (!panel || !panel.contains(event.target)) return;
+
+      const side = event.target.closest(".pd-side[data-pd-pick]");
+      if (side) {
+        const key = side.dataset.pdPick, id = side.dataset.id;
+        if (pdLocks[key] === id) delete pdLocks[key]; else pdLocks[key] = id;
+        savePredictLocks();
+        UI.haptic("tap");
+        updatePredict(panel);
+        return;
+      }
+
+      const week = event.target.closest("[data-pd-week]");
+      if (week) {
+        pdWeek = Number(week.dataset.pdWeek);
+        UI.haptic("tap");
+        drawPredictWeek(panel);
+        updatePredict(panel, { first: true });
+        return;
+      }
+
+      const tab = event.target.closest("[data-pd-tab]");
+      if (tab) {
+        if (tab.dataset.pdTab === pdTab) return;
+        pdTab = tab.dataset.pdTab;
+        UI.haptic("tap");
+        drawPredictResults(panel, predictState(), true);
+        return;
+      }
+
+      const action = event.target.closest("[data-pd]");
+      if (!action || action.disabled) return;
+      if (action.dataset.pd === "clear") {
+        pdLocks = {};
+        savePredictLocks();
+        UI.haptic("tap");
+        updatePredict(panel);
+      } else if (action.dataset.pd === "prev" || action.dataset.pd === "next") {
+        const step = action.dataset.pd === "next" ? 1 : -1;
+        if (step > 0 && pdWeek >= REGULAR_WEEKS) {
+          panel.querySelector(".pd-results").scrollIntoView({ block: "start", behavior: UI.reduced() ? "auto" : "smooth" });
+          return;
+        }
+        pdWeek = Math.max(PREDICT_BASIS + 1, Math.min(REGULAR_WEEKS, pdWeek + step));
+        UI.haptic("tap");
+        drawPredictWeek(panel);
+        updatePredict(panel, { first: true });
+        const sheet = panel.querySelector(".pd-sheet");
+        if (sheet.getBoundingClientRect().top < 0) sheet.scrollIntoView({ block: "start", behavior: UI.reduced() ? "auto" : "smooth" });
       }
     });
 
@@ -8578,6 +9391,7 @@
         picture: () => renderPicturePanel(week),
         sidebets: () => renderSideBetsPanel(week),
         ...(week === 0 ? { sos: () => renderSosPanel() } : {}),
+        ...(predictOpen() ? { predict: () => renderPredictPanel() } : {}),
       };
       showLivePanel();
     }
@@ -8599,7 +9413,7 @@
     }
 
     function applyHash() {
-      const match = /^#w(\d{1,2})(?:-(results|recap|standings|picture|summary|sidebets|sos|bracket))?$/.exec(window.location.hash || "");
+      const match = /^#w(\d{1,2})(?:-(results|recap|standings|picture|summary|sidebets|sos|bracket|predict))?$/.exec(window.location.hash || "");
       if (!match) return false;
       const week = Number(match[1]);
       if (week < 0 || week > LAST_WEEK) return false;

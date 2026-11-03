@@ -1126,7 +1126,7 @@ body:not(#_) .bet-match .bet-div {
 }
 body:not(#_) .bet-match .matchup-row.winner {
   background: color-mix(in srgb, var(--bet-color) 8%, #fff);
-  box-shadow: inset 3px 0 0 var(--bet-color);
+  box-shadow: none;
   color: var(--ink);
 }
 body:not(#_) .bet-match .matchup-row.winner .score { color: var(--ink); }
@@ -1136,7 +1136,7 @@ body:not(#_) .bet-table { min-width: 0; }
 body:not(#_) .bet-table tbody tr.is-pending td { color: var(--ink-3); }
 body:not(#_) .bet-table tbody tr.is-current { background: var(--accent-soft); }
 body:not(#_) .bet-table tbody tr.is-current td { color: var(--ink); font-weight: 600; }
-body:not(#_) .bet-table tbody tr.is-current > td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+body:not(#_) .bet-table tbody tr.is-current > td:first-child { box-shadow: none; }
 body:not(#_) .bet-table tbody tr td.bet-lead-a { color: #1769e0; font-weight: 600; }
 body:not(#_) .bet-table tbody tr td.bet-lead-b { color: #d71920; font-weight: 600; }
 body:not(#_) .bet-table tbody tr td.bet-lead-even { color: var(--ink-3); font-weight: 600; }
