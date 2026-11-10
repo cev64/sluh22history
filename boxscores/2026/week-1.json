@@ -27,7 +27,7 @@
       "pts": 13.8,
       "proj": 18.52,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jadarian Price",
@@ -229,7 +229,7 @@
       "pts": 32.7,
       "proj": 10.92,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Rhamondre Stevenson",
@@ -239,7 +239,7 @@
       "pts": 14.5,
       "proj": 13.97,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Chargers D/ST",
@@ -279,7 +279,7 @@
       "pts": 9.8,
       "proj": 11.96,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jaylin Noel",
@@ -309,7 +309,7 @@
       "pts": 2.3,
       "proj": 5.77,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jordyn Tyson",
@@ -319,7 +319,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ]
    }
@@ -399,7 +399,7 @@
       "pts": 21,
       "proj": 11.57,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Parker Washington",
@@ -459,7 +459,7 @@
       "pts": 4.1,
       "proj": 17.5,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Makai Lemon",
@@ -491,7 +491,7 @@
       "pts": 24.96,
       "proj": 19.13,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Kenneth Walker III",
@@ -561,7 +561,7 @@
       "pts": 1.2,
       "proj": 12.24,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ravens D/ST",
@@ -651,7 +651,7 @@
       "pts": 13.26,
       "proj": 18.99,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Derrick Henry",
@@ -681,7 +681,7 @@
       "pts": 9.5,
       "proj": 12,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Tee Higgins",
@@ -833,7 +833,7 @@
       "pts": 19.2,
       "proj": 13.74,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Malik Nabers",
@@ -903,7 +903,7 @@
       "pts": 16.9,
       "proj": 10.65,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Kenyon Sadiq",
@@ -933,7 +933,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jalen McMillan",
@@ -993,7 +993,7 @@
       "pts": 11.3,
       "proj": 14.04,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "DeVonta Smith",
@@ -1013,7 +1013,7 @@
       "pts": 2.6,
       "proj": 9.81,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "D'Andre Swift",
@@ -1083,7 +1083,7 @@
       "pts": 10.6,
       "proj": 10.46,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Aaron Jones Sr.",
@@ -1103,7 +1103,7 @@
       "pts": 4.8,
       "proj": 9.52,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      }
     ],
     "roll": [
@@ -1115,7 +1115,7 @@
       "pts": 21.66,
       "proj": 15.48,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ashton Jeanty",
@@ -1135,7 +1135,7 @@
       "pts": 28.9,
       "proj": 12.67,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -1205,7 +1205,7 @@
       "pts": 12.2,
       "proj": 10.41,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Tyler Allgeier",
@@ -1295,7 +1295,7 @@
       "pts": 19.8,
       "proj": 16.5,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jeremiyah Love",
@@ -1305,7 +1305,7 @@
       "pts": 13,
       "proj": 13.86,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Puka Nacua",
@@ -1315,7 +1315,7 @@
       "pts": 12.4,
       "proj": 21.05,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Drake London",
@@ -1345,7 +1345,7 @@
       "pts": 14.1,
       "proj": 13.71,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "KC Concepcion",
@@ -1477,7 +1477,7 @@
       "pts": 13.9,
       "proj": 14.78,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "George Pickens",
@@ -1487,7 +1487,7 @@
       "pts": 5.8,
       "proj": 14.69,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Trey McBride",
@@ -1517,7 +1517,7 @@
       "pts": 3.7,
       "proj": 12.75,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jaguars D/ST",
