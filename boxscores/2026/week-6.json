@@ -47,7 +47,7 @@
       "pts": 17.5,
       "proj": 12.46,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Terry McLaurin",
@@ -117,7 +117,7 @@
       "pts": 8.76,
       "proj": 11.52,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bo Nix",
@@ -169,7 +169,7 @@
       "pts": 10.48,
       "proj": 18.77,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ashton Jeanty",
@@ -229,7 +229,7 @@
       "pts": 13.3,
       "proj": 9.6,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Rome Odunze",
@@ -299,7 +299,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jonah Coleman",
@@ -349,7 +349,7 @@
       "pts": 30.7,
       "proj": 21.22,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Bucky Irving",
@@ -521,7 +521,7 @@
       "pts": 1,
       "proj": 10.95,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Khalil Shakir",
@@ -541,7 +541,7 @@
       "pts": 8.4,
       "proj": 14.8,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Trey McBride",
@@ -571,7 +571,7 @@
       "pts": 12.4,
       "proj": 14.86,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "49ers D/ST",
@@ -701,7 +701,7 @@
       "pts": 6.4,
       "proj": 9.46,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "A.J. Brown",
@@ -781,7 +781,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -853,7 +853,7 @@
       "pts": 3.6,
       "proj": 13.33,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "CeeDee Lamb",
@@ -873,7 +873,7 @@
       "pts": 9.4,
       "proj": 16.33,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Colston Loveland",
@@ -893,7 +893,7 @@
       "pts": 24.7,
       "proj": 12.64,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Braelon Allen",
@@ -953,7 +953,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Deebo Samuel Sr.",
@@ -963,7 +963,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "DJ Moore",
@@ -973,7 +973,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jalen Hurts",
@@ -1013,7 +1013,7 @@
       "pts": 15,
       "proj": 12.34,
       "starter": true,
-      "injury": "INJURY_RESERVE"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Tyler Allgeier",
@@ -1033,7 +1033,7 @@
       "pts": 13.3,
       "proj": 13.55,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Zay Flowers",
@@ -1073,7 +1073,7 @@
       "pts": 2.7,
       "proj": 10.42,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ravens D/ST",
@@ -1113,7 +1113,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Joe Burrow",
@@ -1143,7 +1143,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "jared": [
@@ -1245,7 +1245,7 @@
       "pts": 16.88,
       "proj": 19.62,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Stefon Diggs",
@@ -1355,7 +1355,7 @@
       "pts": 7.2,
       "proj": 14.01,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Juwan Johnson",
@@ -1375,7 +1375,7 @@
       "pts": 17.8,
       "proj": 10.98,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Xavier Worthy",
@@ -1385,7 +1385,7 @@
       "pts": 14.3,
       "proj": 11.06,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Steelers D/ST",
@@ -1497,7 +1497,7 @@
       "pts": 0,
       "proj": 8.99,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Malik Nabers",
@@ -1537,7 +1537,7 @@
       "pts": 14,
       "proj": 22.78,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Denzel Boston",
@@ -1607,7 +1607,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Saquon Barkley",

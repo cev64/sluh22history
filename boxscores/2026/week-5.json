@@ -47,7 +47,7 @@
       "pts": 7.28,
       "proj": 16.82,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "DK Metcalf",
@@ -117,7 +117,7 @@
       "pts": 17.2,
       "proj": 9.76,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Keon Coleman",
@@ -147,7 +147,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Darren Waller",
@@ -209,7 +209,7 @@
       "pts": 28,
       "proj": 13.21,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Zay Flowers",
@@ -289,7 +289,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Saquon Barkley",
@@ -309,7 +309,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jalen Coker",
@@ -409,7 +409,7 @@
       "pts": 5.7,
       "proj": 10.7,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Rome Odunze",
@@ -469,7 +469,7 @@
       "pts": 1.1,
       "proj": 11.87,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Patrick Mahomes",
@@ -479,7 +479,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jonah Coleman",
@@ -531,7 +531,7 @@
       "pts": 17.3,
       "proj": 18.72,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Justin Jefferson",
@@ -711,7 +711,7 @@
       "pts": 8.9,
       "proj": 12.28,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Tee Higgins",
@@ -781,7 +781,7 @@
       "pts": 10.24,
       "proj": 13.96,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Dallas Goedert",
@@ -863,7 +863,7 @@
       "pts": 23.4,
       "proj": 14.64,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jameson Williams",
@@ -893,7 +893,7 @@
       "pts": 26.3,
       "proj": 12.77,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Malik Washington",
@@ -923,7 +923,7 @@
       "pts": 16.7,
       "proj": 9.28,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Germie Bernard",
@@ -1023,7 +1023,7 @@
       "pts": 1.6,
       "proj": 8.1,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1043,7 +1043,7 @@
       "pts": 4.8,
       "proj": 11.37,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1103,7 +1103,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Kenneth Walker III",
@@ -1255,7 +1255,7 @@
       "pts": 27.32,
       "proj": 18.18,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Makai Lemon",
@@ -1295,7 +1295,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Stefon Diggs",
@@ -1335,7 +1335,7 @@
       "pts": 7.1,
       "proj": 13.21,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jeremiyah Love",
@@ -1345,7 +1345,7 @@
       "pts": 2.2,
       "proj": 14.37,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Puka Nacua",
@@ -1355,7 +1355,7 @@
       "pts": 37.7,
       "proj": 21.68,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Drake London",
@@ -1455,7 +1455,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Rams D/ST",
@@ -1507,7 +1507,7 @@
       "pts": 11.6,
       "proj": 13.94,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Christian Watson",
@@ -1517,7 +1517,7 @@
       "pts": 32.3,
       "proj": 13.83,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "CeeDee Lamb",
@@ -1587,7 +1587,7 @@
       "pts": 17.5,
       "proj": 13.26,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Devaughn Vele",
@@ -1607,7 +1607,7 @@
       "pts": 2.5,
       "proj": 11.09,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Rashee Rice",
@@ -1637,7 +1637,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ]
    }

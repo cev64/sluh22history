@@ -47,7 +47,7 @@
       "pts": 16.7,
       "proj": 15.86,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "George Pickens",
@@ -57,7 +57,7 @@
       "pts": 10,
       "proj": 14.79,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Trey McBride",
@@ -127,7 +127,7 @@
       "pts": 8.6,
       "proj": 11.16,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Brian Thomas Jr.",
@@ -209,7 +209,7 @@
       "pts": 10.3,
       "proj": 13.8,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jake Ferguson",
@@ -219,7 +219,7 @@
       "pts": 20.3,
       "proj": 9.62,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Aaron Jones Sr.",
@@ -269,7 +269,7 @@
       "pts": 13.5,
       "proj": 11.04,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Juwan Johnson",
@@ -309,7 +309,7 @@
       "pts": 3.8,
       "proj": 9.95,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      }
     ]
    }
@@ -389,7 +389,7 @@
       "pts": 14.1,
       "proj": 12.49,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Rhamondre Stevenson",
@@ -399,7 +399,7 @@
       "pts": 3.6,
       "proj": 12.91,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Buccaneers D/ST",
@@ -419,7 +419,7 @@
       "pts": 14.2,
       "proj": 10.05,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Josh Downs",
@@ -459,7 +459,7 @@
       "pts": 6.5,
       "proj": 12.03,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jaxson Dart",
@@ -479,7 +479,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ],
     "roll": [
@@ -491,7 +491,7 @@
       "pts": 28.98,
       "proj": 18.22,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ashton Jeanty",
@@ -511,7 +511,7 @@
       "pts": 4.4,
       "proj": 14.2,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -621,7 +621,7 @@
       "pts": 3.8,
       "proj": 9.78,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Nico Collins",
@@ -691,7 +691,7 @@
       "pts": 6.5,
       "proj": 14.47,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Malik Nabers",
@@ -731,7 +731,7 @@
       "pts": 8.4,
       "proj": 12.99,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Eagles D/ST",
@@ -781,7 +781,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Jalen McMillan",
@@ -823,7 +823,7 @@
       "pts": 22.6,
       "proj": 21.48,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Bucky Irving",
@@ -973,7 +973,7 @@
       "pts": 14.8,
       "proj": 21.66,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Kenneth Walker III",
@@ -1013,7 +1013,7 @@
       "pts": 21.8,
       "proj": 12.18,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1145,7 +1145,7 @@
       "pts": 14.2,
       "proj": 15.79,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jeremiyah Love",
@@ -1155,7 +1155,7 @@
       "pts": 7.5,
       "proj": 12.88,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Drake London",
@@ -1205,7 +1205,7 @@
       "pts": 9.5,
       "proj": 12.83,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Rams D/ST",
@@ -1275,7 +1275,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "TreVeyon Henderson",
@@ -1375,7 +1375,7 @@
       "pts": -0.1,
       "proj": 12.58,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Texans D/ST",
@@ -1395,7 +1395,7 @@
       "pts": 26.98,
       "proj": 18.21,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Stefon Diggs",
@@ -1457,7 +1457,7 @@
       "pts": 7.88,
       "proj": 19.48,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Derrick Henry",
@@ -1497,7 +1497,7 @@
       "pts": 6.2,
       "proj": 12.46,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Sam LaPorta",
