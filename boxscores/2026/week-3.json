@@ -107,7 +107,7 @@
       "pts": 25.9,
       "proj": 11.32,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "DK Metcalf",
@@ -137,7 +137,7 @@
       "pts": 4,
       "proj": 11.42,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Drake Maye",
@@ -147,7 +147,7 @@
       "pts": 3.76,
       "proj": 18.64,
       "starter": false,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Kyle Monangai",
@@ -219,7 +219,7 @@
       "pts": 27.6,
       "proj": 14.18,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaylen Warren",
@@ -309,7 +309,7 @@
       "pts": 3.1,
       "proj": 9.18,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      }
     ]
    }
@@ -359,7 +359,7 @@
       "pts": 10.6,
       "proj": 13.58,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Malik Nabers",
@@ -389,7 +389,7 @@
       "pts": 15.2,
       "proj": 13.8,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jalen Coker",
@@ -521,7 +521,7 @@
       "pts": 26.7,
       "proj": 16.09,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Mike Evans",
@@ -601,7 +601,7 @@
       "pts": 3.8,
       "proj": 8.63,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Germie Bernard",
@@ -631,7 +631,7 @@
       "pts": 0.5,
       "proj": 9.72,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "De'Zhaun Stribling",
@@ -661,7 +661,7 @@
       "pts": 15.94,
       "proj": 19.63,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Ashton Jeanty",
@@ -681,7 +681,7 @@
       "pts": 6.8,
       "proj": 12.01,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -833,7 +833,7 @@
       "pts": 13,
       "proj": 14.02,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Breece Hall",
@@ -933,7 +933,7 @@
       "pts": 3.9,
       "proj": 10.5,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "KC Concepcion",
@@ -953,7 +953,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Jayden Daniels",
@@ -993,7 +993,7 @@
       "pts": 12.74,
       "proj": 17.26,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Bijan Robinson",
@@ -1063,7 +1063,7 @@
       "pts": 3.4,
       "proj": 10.95,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Seahawks D/ST",
@@ -1255,7 +1255,7 @@
       "pts": 15.4,
       "proj": 12.33,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Colston Loveland",
@@ -1285,7 +1285,7 @@
       "pts": 6.8,
       "proj": 12.05,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jordyn Tyson",
@@ -1325,7 +1325,7 @@
       "pts": 21.3,
       "proj": 21,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Travis Etienne Jr.",
@@ -1335,7 +1335,7 @@
       "pts": 9,
       "proj": 11.94,
       "starter": true,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1405,7 +1405,7 @@
       "pts": 20,
       "proj": 10.57,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Trevor Lawrence",
@@ -1465,7 +1465,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      }
     ],
     "game": [
@@ -1567,7 +1567,7 @@
       "pts": 18.7,
       "proj": 8,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Marvin Harrison Jr.",
@@ -1577,7 +1577,7 @@
       "pts": 7,
       "proj": 7.05,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Blake Corum",

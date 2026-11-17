@@ -47,7 +47,7 @@
       "pts": 7.28,
       "proj": 16.82,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "DK Metcalf",
@@ -107,7 +107,7 @@
       "pts": 39.46,
       "proj": 18.47,
       "starter": false,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Emeka Egbuka",
@@ -147,7 +147,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Darren Waller",
@@ -209,7 +209,7 @@
       "pts": 28,
       "proj": 13.21,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Zay Flowers",
@@ -289,7 +289,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Saquon Barkley",
@@ -469,7 +469,7 @@
       "pts": 1.1,
       "proj": 11.87,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Patrick Mahomes",
@@ -479,7 +479,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jonah Coleman",
@@ -611,7 +611,7 @@
       "pts": 11.3,
       "proj": 8.99,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Mike Washington Jr.",
@@ -641,7 +641,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Travis Kelce",
@@ -751,7 +751,7 @@
       "pts": 4.3,
       "proj": 9.46,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Seahawks D/ST",
@@ -781,7 +781,7 @@
       "pts": 10.24,
       "proj": 13.96,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Dallas Goedert",
@@ -863,7 +863,7 @@
       "pts": 23.4,
       "proj": 14.64,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jameson Williams",
@@ -923,7 +923,7 @@
       "pts": 16.7,
       "proj": 9.28,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Germie Bernard",
@@ -963,7 +963,7 @@
       "pts": 9.8,
       "proj": 7.49,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Brian Thomas Jr.",
@@ -1113,7 +1113,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Travis Etienne Jr.",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Jordan Addison",
@@ -1133,7 +1133,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Adonai Mitchell",
@@ -1153,7 +1153,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      }
     ],
     "jared": [
@@ -1215,7 +1215,7 @@
       "pts": 23,
       "proj": 16.33,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jaylen Warren",
@@ -1275,7 +1275,7 @@
       "pts": 1.7,
       "proj": 10.51,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Tetairoa McMillan",
@@ -1335,7 +1335,7 @@
       "pts": 7.1,
       "proj": 13.21,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jeremiyah Love",
@@ -1355,7 +1355,7 @@
       "pts": 37.7,
       "proj": 21.68,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Drake London",
@@ -1425,7 +1425,7 @@
       "pts": 4.8,
       "proj": 10.54,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Dalton Kincaid",
@@ -1587,7 +1587,7 @@
       "pts": 17.5,
       "proj": 13.26,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Devaughn Vele",
@@ -1607,7 +1607,7 @@
       "pts": 2.5,
       "proj": 11.09,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Rashee Rice",

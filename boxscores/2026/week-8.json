@@ -47,7 +47,7 @@
       "pts": 6.8,
       "proj": 13.96,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Zay Flowers",
@@ -87,7 +87,7 @@
       "pts": 0,
       "proj": 10.6,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Rams D/ST",
@@ -127,7 +127,7 @@
       "pts": 12.6,
       "proj": 10.37,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "George Kittle",
@@ -147,7 +147,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Dameon Pierce",
@@ -269,7 +269,7 @@
       "pts": 7.78,
       "proj": 10.88,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "J.K. Dobbins",
@@ -299,7 +299,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jordan Mason",
@@ -359,7 +359,7 @@
       "pts": 25,
       "proj": 22.8,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Drake London",
@@ -449,7 +449,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Carnell Tate",
@@ -541,7 +541,7 @@
       "pts": 28.2,
       "proj": 16.16,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Matthew Golden",
@@ -591,7 +591,7 @@
       "pts": 15.8,
       "proj": 11.23,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Stefon Diggs",
@@ -651,7 +651,7 @@
       "pts": 22.46,
       "proj": 22.07,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "D'Andre Swift",
@@ -681,7 +681,7 @@
       "pts": 26.8,
       "proj": 12.66,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "DK Metcalf",
@@ -751,7 +751,7 @@
       "pts": 4.3,
       "proj": 8.16,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Keon Coleman",
@@ -813,7 +813,7 @@
       "pts": 18,
       "proj": 18.46,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bucky Irving",
@@ -863,7 +863,7 @@
       "pts": 3.2,
       "proj": 8.27,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Antonio Williams",
@@ -953,7 +953,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Davante Adams",
@@ -1053,7 +1053,7 @@
       "pts": 12,
       "proj": 15.72,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Jaguars D/ST",
@@ -1113,7 +1113,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Devaughn Vele",
@@ -1145,7 +1145,7 @@
       "pts": 25.44,
       "proj": 14.23,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Tony Pollard",
@@ -1275,7 +1275,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Alvin Kamara",
@@ -1335,7 +1335,7 @@
       "pts": 12.4,
       "proj": 19.85,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1355,7 +1355,7 @@
       "pts": 11.6,
       "proj": 9.79,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Brenton Strange",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Dontayvion Wicks",
@@ -1465,7 +1465,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      }
     ],
     "left": [
@@ -1517,7 +1517,7 @@
       "pts": 14.3,
       "proj": 14.13,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Trey McBride",
@@ -1597,7 +1597,7 @@
       "pts": 2.6,
       "proj": 4.91,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Brock Purdy",
