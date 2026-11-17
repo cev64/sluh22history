@@ -47,7 +47,7 @@
       "pts": 16.7,
       "proj": 15.86,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "George Pickens",
@@ -57,7 +57,7 @@
       "pts": 10,
       "proj": 14.79,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Trey McBride",
@@ -117,7 +117,7 @@
       "pts": 9,
       "proj": 8.65,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "MarShawn Lloyd",
@@ -127,7 +127,7 @@
       "pts": 8.6,
       "proj": 11.16,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Brian Thomas Jr.",
@@ -169,7 +169,7 @@
       "pts": 8.02,
       "proj": 18.23,
       "starter": true,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Jahmyr Gibbs",
@@ -269,7 +269,7 @@
       "pts": 13.5,
       "proj": 11.04,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Juwan Johnson",
@@ -309,7 +309,7 @@
       "pts": 3.8,
       "proj": 9.95,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      }
     ]
    }
@@ -399,7 +399,7 @@
       "pts": 3.6,
       "proj": 12.91,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Buccaneers D/ST",
@@ -459,7 +459,7 @@
       "pts": 6.5,
       "proj": 12.03,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jaxson Dart",
@@ -491,7 +491,7 @@
       "pts": 28.98,
       "proj": 18.22,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Ashton Jeanty",
@@ -511,7 +511,7 @@
       "pts": 4.4,
       "proj": 14.2,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jaxon Smith-Njigba",
@@ -691,7 +691,7 @@
       "pts": 6.5,
       "proj": 14.47,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Malik Nabers",
@@ -943,7 +943,7 @@
       "pts": 1.9,
       "proj": 9.5,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Marvin Harrison Jr.",
@@ -953,7 +953,7 @@
       "pts": 0,
       "proj": 9.3,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      }
     ]
    }
@@ -983,7 +983,7 @@
       "pts": 23.8,
       "proj": 17.84,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Travis Etienne Jr.",
@@ -993,7 +993,7 @@
       "pts": 7.1,
       "proj": 12.77,
       "starter": true,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Amon-Ra St. Brown",
@@ -1043,7 +1043,7 @@
       "pts": 4.1,
       "proj": 10.58,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Ravens D/ST",
@@ -1073,7 +1073,7 @@
       "pts": 8.5,
       "proj": 7.74,
       "starter": false,
-      "injury": null
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Rico Dowdle",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "QUESTIONABLE"
      }
     ],
     "hamilton": [
@@ -1205,7 +1205,7 @@
       "pts": 9.5,
       "proj": 12.83,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Rams D/ST",
@@ -1275,7 +1275,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "TreVeyon Henderson",
@@ -1285,7 +1285,7 @@
       "pts": 13.6,
       "proj": 9.31,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      }
     ]
    }
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "RJ Harvey",
@@ -1457,7 +1457,7 @@
       "pts": 7.88,
       "proj": 19.48,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Derrick Henry",
@@ -1567,7 +1567,7 @@
       "pts": 6.9,
       "proj": 8.61,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "J.K. Dobbins",
