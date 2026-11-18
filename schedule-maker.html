@@ -3,106 +3,284 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Schedule Maker (no divisions mock)</title>
+<title>Schedule Maker</title>
 <style>
   :root {
-    --bg: #f5f3ee; --card: #ffffff; --ink: #1d2126; --muted: #667080; --line: #dcd8cf;
-    --accent: #1f5f8b; --accent-ink: #ffffff; --riv: #b4472a; --rem: #2f7d55; --warn: #9a5b00;
+    color-scheme: light;
+    --bg: #f3f2ee; --surface: #fcfcfb; --raised: #ffffff;
+    --ink: #0b0b0b; --ink2: #52514e; --ink3: #85847d; --line: #e3e1d9;
+    --blue: #2a78d6; --orange: #eb6834; --good: #0ca30c; --critical: #d03b3b; --warning: #fab219;
+    --shadow: 0 1px 2px rgba(20,20,15,.05), 0 8px 24px rgba(20,20,15,.06);
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #14171b; --card: #1d2228; --ink: #e9ecef; --muted: #98a2b0; --line: #333b45;
-      --accent: #5aa7d8; --accent-ink: #0d1115; --riv: #ee8a6c; --rem: #6fcb99; --warn: #e5ad55; }
+    :root {
+      color-scheme: dark;
+      --bg: #111110; --surface: #1a1a19; --raised: #222220;
+      --ink: #f0efec; --ink2: #c3c2b7; --ink3: #8d8c84; --line: #33332f;
+      --blue: #3987e5; --orange: #d95926;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root {
+    --blue-soft: color-mix(in srgb, var(--blue) 20%, var(--surface));
+    --orange-soft: color-mix(in srgb, var(--orange) 22%, var(--surface));
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--bg); color: var(--ink);
-    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 60px; }
-  h1 { font-size: 24px; margin: 0 0 4px; }
-  h2 { font-size: 17px; margin: 0 0 10px; }
-  p.sub { margin: 0 0 18px; color: var(--muted); }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-  .hint { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
-  .row { display: grid; grid-template-columns: 34px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.2fr) 68px; gap: 8px; align-items: center; margin-bottom: 6px; }
-  .row.head { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
-  .rank { font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
-  input[type=text], select, input[type=number] { width: 100%; padding: 8px 9px; border: 1px solid var(--line);
-    border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; min-width: 0; }
-  button { font: inherit; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
-    border-radius: 8px; padding: 8px 12px; cursor: pointer; }
-  button:disabled { opacity: .4; cursor: default; }
-  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-  .moves { display: flex; gap: 4px; }
-  .moves button { padding: 6px 0; flex: 1; }
-  .opts { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; }
-  .opts label { display: block; font-size: 13px; color: var(--muted); }
-  .opts label select { margin-top: 4px; width: auto; min-width: 110px; }
-  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  .msg { margin-top: 12px; font-size: 14px; }
-  .msg.err { color: var(--riv); } .msg.warn { color: var(--warn); } .msg.ok { color: var(--rem); }
-  .scroll { overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; font-size: 14px; }
-  th, td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; }
-  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
-  td.wk { font-weight: 700; white-space: nowrap; }
-  .game { display: inline-block; margin: 0 14px 2px 0; white-space: nowrap; }
-  .tag { font-size: 11px; font-weight: 700; margin-left: 4px; }
-  .tag.riv { color: var(--riv); } .tag.rem { color: var(--rem); }
-  tr.rivweek td { background: color-mix(in srgb, var(--riv) 9%, transparent); }
-  #grid td, #grid th { white-space: nowrap; }
-  #grid td.r { color: var(--riv); font-weight: 600; } #grid td.m { color: var(--rem); }
-  .legend { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
-  .legend b.riv { color: var(--riv); } .legend b.rem { color: var(--rem); }
+    font: 15px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 16px 80px; }
   [hidden] { display: none !important; }
-  .own { color: var(--muted); font-weight: 400; font-size: 12px; }
-  @media (max-width: 640px) {
-    .row { grid-template-columns: 26px minmax(0, 1fr) minmax(0, 1fr); gap: 5px; margin-bottom: 12px; }
-    .row.head { display: none; }
-    .row select { grid-column: 2 / 3; } .row .moves { grid-column: 3 / 4; }
+  button, input, select { font: inherit; color: inherit; }
+
+  /* hero */
+  .hero h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 8px; font-weight: 800; }
+  .hero p { margin: 0 0 16px; color: var(--ink2); max-width: 62ch; }
+  .rules { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .rule { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 8px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--line); font-size: 13px; color: var(--ink2); }
+  .rule i { font-style: normal; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--bg); font-size: 12px; }
+  .rule b { color: var(--ink); font-weight: 650; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); }
+  .card h2 { font-size: 17px; margin: 0 0 2px; letter-spacing: -.01em; }
+  .card .hint { margin: 0 0 14px; color: var(--ink3); font-size: 13px; }
+  .step { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ink);
+    color: var(--surface); font-size: 13px; font-weight: 700; margin-right: 8px; }
+  .setup { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 880px) { .setup { grid-template-columns: minmax(0, 1fr); } }
+
+  /* avatars */
+  .av { --c: hsl(var(--h, 0) 60% 46%); display: inline-grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 50%;
+    background: color-mix(in srgb, var(--c) 20%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--c) 70%, var(--surface));
+    font-size: 17px; line-height: 1; }
+  .av.sm { width: 24px; height: 24px; font-size: 12px; border-width: 1px; }
+  .av.xs { width: 20px; height: 20px; font-size: 10.5px; border-width: 1px; }
+
+  /* standings list */
+  #list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .team { display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 190px); gap: 10px; align-items: center;
+    background: var(--raised); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px 8px 6px;
+    transition: box-shadow .15s, transform .15s, border-color .15s; }
+  .team.dragging { box-shadow: 0 12px 32px rgba(0,0,0,.22); transform: scale(1.02); border-color: var(--blue); position: relative; z-index: 2; }
+  .drag { display: flex; align-items: center; gap: 8px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+    background: none; border: 0; padding: 4px; border-radius: 10px; }
+  .drag:active { cursor: grabbing; }
+  .drag:focus-visible, .seg button:focus-visible, .tab:focus-visible, .btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .grip { color: var(--ink3); font-size: 15px; letter-spacing: -2px; width: 14px; }
+  .rank { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--bg);
+    font-weight: 750; font-variant-numeric: tabular-nums; font-size: 14px; }
+  .names { min-width: 0; display: grid; }
+  .names input { border: 0; background: transparent; padding: 1px 4px; border-radius: 6px; width: 100%; min-width: 0; text-overflow: ellipsis; }
+  .names input:hover { background: var(--bg); }
+  .names input:focus { outline: 2px solid var(--blue); background: var(--surface); }
+  .names .tn { font-weight: 650; }
+  .names .on { font-size: 12.5px; color: var(--ink2); }
+  .rival { position: relative; min-width: 0; }
+  .rival::before { content: "⚔️"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; }
+  .rival select { width: 100%; appearance: none; -webkit-appearance: none; padding: 8px 26px 8px 28px; border-radius: 999px;
+    border: 1px dashed var(--ink3); background: transparent; font-size: 13px; text-overflow: ellipsis; cursor: pointer; }
+  .rival.set select { border: 1px solid transparent; background: var(--orange-soft); }
+  .rival::after { content: "▾"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--ink2); pointer-events: none; }
+  @media (max-width: 560px) {
+    .team { grid-template-columns: auto minmax(0, 1fr); }
+    .rival { grid-column: 1 / -1; }
   }
+
+  /* rivalry board */
+  #pairs { display: grid; gap: 8px; margin-bottom: 18px; }
+  .pair { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: 8px; align-items: center;
+    border-radius: 14px; padding: 9px 10px; background: var(--orange-soft); }
+  .pair.empty { background: none; border: 1px dashed var(--line); color: var(--ink3); font-size: 13px; grid-template-columns: 1fr; min-height: 54px; }
+  .pside { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .pside.r { flex-direction: row-reverse; text-align: right; }
+  .pside span.n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: 13.5px; }
+  .vs { font-size: 11px; font-weight: 700; color: var(--ink2); text-align: center; line-height: 1.2; }
+  .vs small { display: block; font-weight: 500; white-space: nowrap; }
+  .x { border: 0; background: none; cursor: pointer; color: var(--ink2); width: 24px; height: 24px; border-radius: 50%; }
+  .x:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); }
+
+  .field { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); font-weight: 650; margin: 0 0 6px; }
+  .seg { display: inline-flex; background: var(--bg); border-radius: 12px; padding: 3px; gap: 2px; margin-bottom: 16px; }
+  .seg button { border: 0; background: none; padding: 7px 14px; border-radius: 9px; cursor: pointer; color: var(--ink2); font-weight: 600; }
+  .seg button[aria-pressed=true] { background: var(--raised); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+  .btn { border: 1px solid var(--line); background: var(--raised); border-radius: 12px; padding: 9px 14px; cursor: pointer; font-weight: 600; }
+  .btn:hover:not(:disabled) { border-color: var(--ink3); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); padding: 13px 18px; font-size: 16px; width: 100%; border-radius: 14px; }
+  .btn.primary:hover { opacity: .9; }
+  #msg { margin-top: 12px; font-size: 13.5px; color: var(--ink2); display: flex; gap: 8px; align-items: flex-start; }
+  #msg:empty { display: none; }
+  #msg::before { content: ""; flex: none; width: 9px; height: 9px; border-radius: 50%; margin-top: 5px; background: var(--ink3); }
+  #msg.ok::before { background: var(--good); } #msg.err::before { background: var(--critical); } #msg.warn::before { background: var(--warning); }
+
+  /* results */
+  #results { margin-top: 28px; }
+  .tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+  .tile b { display: block; font-size: 30px; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .tile b small { font-size: 14px; font-weight: 600; color: var(--ink2); letter-spacing: 0; }
+  .tile span { font-size: 12.5px; color: var(--ink2); }
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .tabs { display: inline-flex; background: var(--bg); border-radius: 12px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+  .tab { border: 0; background: none; padding: 8px 13px; border-radius: 9px; cursor: pointer; color: var(--ink2); font-weight: 600; }
+  .tab[aria-selected=true] { background: var(--raised); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.14); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--ink2); margin: 0 0 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 16px; height: 16px; border-radius: 5px; border: 1px solid var(--line); display: inline-grid; place-items: center; font-size: 9px; font-weight: 700; color: var(--ink); }
+  .sw.re { background: var(--blue-soft); border-color: var(--blue); } .sw.rv { background: var(--orange-soft); border-color: var(--orange); }
+  .scroll { overflow-x: auto; margin: 0 -8px; padding: 0 8px 4px; }
+  .cap { font-size: 12.5px; color: var(--ink3); margin: 10px 0 0; }
+
+  /* season matrix: weeks down, teams across, colour = opponent */
+  .cell, .key span { --cell-bg: hsl(var(--h) 78% 87%); --cell-edge: hsl(var(--h) 50% 55%); }
+  @media (prefers-color-scheme: dark) { .cell, .key span { --cell-bg: hsl(var(--h) 42% 25%); --cell-edge: hsl(var(--h) 45% 48%); } }
+  table.grid { border-collapse: separate; border-spacing: 3px; }
+  .grid thead th { vertical-align: bottom; padding: 0 0 3px; }
+  .colh { display: grid; justify-items: center; gap: 4px; width: 96px; border: 0; background: none; padding: 6px 4px; border-radius: 12px; cursor: pointer; }
+  .colh:hover { background: var(--bg); }
+  .colh .t { font-size: 11.5px; font-weight: 700; line-height: 1.15; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden; text-align: center; min-height: 2.3em; }
+  .colh[aria-pressed=true] { background: var(--ink); } .colh[aria-pressed=true] .t { color: var(--surface); }
+  .grid th.wk { position: sticky; left: 0; background: var(--surface); z-index: 1; text-align: right; padding: 0 8px 0 0; white-space: nowrap;
+    font-size: 12px; font-weight: 700; color: var(--ink2); font-variant-numeric: tabular-nums; }
+  .grid tr.rvrow th.wk { color: var(--ink); }
+  .cell { position: relative; width: 96px; height: 42px; border-radius: 10px; background: var(--cell-bg); display: flex; align-items: center;
+    justify-content: center; padding: 3px 6px; transition: opacity .12s, box-shadow .12s; cursor: default; }
+  .cell .ab { font-size: 11px; font-weight: 650; line-height: 1.15; color: var(--ink); text-align: center; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cell.re, .cell.rv { box-shadow: inset 0 0 0 1.5px var(--cell-edge); }
+  .cell .mk { position: absolute; top: -4px; right: -3px; min-width: 16px; height: 16px; padding: 0 3px; border-radius: 8px; display: grid; place-items: center;
+    background: var(--ink); color: var(--surface); font-size: 9.5px; font-weight: 800; box-shadow: 0 0 0 2px var(--surface); }
+  .dim .cell:not(.hl), .dim .mcell:not(.hl) { opacity: .22; }
+  .cell.hl, .mcell.hl { box-shadow: inset 0 0 0 2px var(--ink); }
+
+  /* week cards */
+  .weeks { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .week { border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: var(--raised); }
+  .week.rv { border-color: var(--orange); background: var(--orange-soft); }
+  .week h3 { margin: 0 0 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+  .week h3 span { font-size: 11px; font-weight: 650; color: var(--ink2); text-transform: uppercase; letter-spacing: .05em; }
+  .game { display: grid; grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr); align-items: center; gap: 4px; padding: 5px 6px; border-radius: 10px; font-size: 12.5px; }
+  .game + .game { margin-top: 2px; }
+  .game.re { background: var(--blue-soft); }
+  .game .s { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .game .s.r { flex-direction: row-reverse; }
+  .game .s span.n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  .game .m { text-align: center; font-size: 10px; font-weight: 800; color: var(--ink2); }
+
+  /* head-to-head matrix */
+  table.mx { border-collapse: separate; border-spacing: 3px; }
+  .mx th { padding: 2px; }
+  .mx th.rowh { position: sticky; left: 0; background: var(--surface); z-index: 1; }
+  .mx th.rowh div { display: flex; align-items: center; gap: 6px; justify-content: flex-end; font-size: 12px; font-weight: 650; white-space: nowrap; padding-right: 4px; }
+  .mcell { width: 50px; height: 40px; border-radius: 9px; background: var(--bg); display: grid; place-items: center; font-size: 11.5px;
+    font-weight: 650; font-variant-numeric: tabular-nums; color: var(--ink); transition: opacity .12s; position: relative; }
+  .mcell.re { background: var(--blue-soft); box-shadow: inset 0 0 0 1.5px var(--blue); }
+  .mcell.rv { box-shadow: inset 0 0 0 1.5px var(--orange); }
+  .mcell.rv.re { background: linear-gradient(135deg, var(--blue-soft) 50%, var(--orange-soft) 50%); }
+  .mcell.rv:not(.re) { background: var(--orange-soft); }
+  .mcell.self { background: none; color: var(--ink3); }
+
+  /* difficulty */
+  .diff { display: grid; gap: 4px; }
+  .drow { display: grid; grid-template-columns: 216px minmax(120px, 1fr) 44px 150px; gap: 12px; align-items: center; padding: 4px 6px; border-radius: 10px; }
+  .drow:hover { background: var(--bg); }
+  .drow .lab { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .drow .lab .p { width: 18px; text-align: right; color: var(--ink3); font-size: 12px; font-weight: 650; }
+  .drow .lab .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13.5px; font-weight: 650; }
+  .track { position: relative; height: 26px; }
+  .track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); }
+  .track .mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--ink3); }
+  .track .stem { position: absolute; top: calc(50% - 1px); height: 2px; background: var(--blue); }
+  .track .dot { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--blue);
+    box-shadow: 0 0 0 2px var(--surface); }
+  .drow .val { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 13.5px; }
+  .drow .opp { display: flex; gap: 3px; }
+  .axis { display: grid; grid-template-columns: 216px minmax(120px, 1fr) 44px 150px; gap: 12px; padding: 0 6px; font-size: 11px; color: var(--ink3); font-weight: 600; }
+  .axis .sc { display: flex; justify-content: space-between; }
+  .axis .hd { text-transform: uppercase; letter-spacing: .05em; }
+  @media (max-width: 760px) {
+    .drow, .axis { grid-template-columns: 110px minmax(90px, 1fr) 36px; }
+    .drow .opp, .axis .o { display: none; }
+  }
+
+  #tip { position: fixed; z-index: 20; pointer-events: none; max-width: 280px; background: var(--ink); color: var(--surface);
+    padding: 8px 11px; border-radius: 10px; font-size: 12.5px; line-height: 1.35; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+  #tip b { font-weight: 700; } #tip span { opacity: .75; }
 </style>
 </head>
 <body>
 <main>
-  <h1>Schedule Maker</h1>
-  <p class="sub">No-divisions mock: 14 games. Everyone plays everyone once, plus 5 rematches set by last year's finish, scattered randomly through the season. Rivalry week is always week 14.</p>
-
-  <section class="card">
-    <h2>1. Last year's final standings and rivals</h2>
-    <p class="hint">Put the teams in the order they finished (use the arrows), then pick each team's rival. Picking a rival for one team sets it for the other automatically.</p>
-    <div class="row head"><span></span><span>Team name</span><span>Owner</span><span>Rival</span><span>Move</span></div>
-    <div id="rows"></div>
-  </section>
-
-  <section class="card">
-    <h2>2. Options</h2>
-    <div class="opts">
-      <label>Minimum weeks between a rematch<br><select id="gap"></select></label>
+  <header class="hero">
+    <h1>Schedule Maker</h1>
+    <p>A no-divisions season: everyone plays everyone once, plus five rematches decided by last year's finish, shuffled across the year.</p>
+    <div class="rules">
+      <span class="rule"><i>14</i><b>games</b> per team</span>
+      <span class="rule"><i>⚔️</i><b>Rivalry week</b> is week 14</span>
+      <span class="rule"><i>1</i><b>Ted vs Charlie</b> opens week 1</span>
+      <span class="rule"><i>↔</i>Rematches <b>3+ weeks</b> apart</span>
+      <span class="rule"><i>✕</i><b>Never</b> three meetings</span>
     </div>
-    <p class="hint" style="margin:12px 0 0">Always on: rivalry week is week 14 · Ted and Charlie play in week 1 · the same two teams never play twice in a 3-week period · nobody plays anyone three times.</p>
-    <div class="actions">
-      <button class="primary" id="go">Generate schedule</button>
-      <button id="csvWeek" disabled>Export CSV (by week)</button>
-      <button id="csvTeam" disabled>Export CSV (by team)</button>
+  </header>
+
+  <div class="setup">
+    <section class="card">
+      <h2><span class="step">1</span>Last year's final standings</h2>
+      <p class="hint">Drag teams into the order they finished. Click a name to edit it.</p>
+      <ol id="list"></ol>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">2</span>Rivalries</h2>
+      <p class="hint">Pick a rival on any team. Both sides link up automatically.</p>
+      <div id="pairs"></div>
+
+      <p class="field">Minimum weeks between a rematch</p>
+      <div class="seg" id="gap" role="group" aria-label="Minimum weeks between a rematch"></div>
+
+      <button class="btn primary" id="go">Generate schedule</button>
+      <div id="msg" role="status"></div>
+    </section>
+  </div>
+
+  <section id="results" hidden>
+    <div class="tiles" id="tiles"></div>
+    <div class="card">
+      <div class="bar">
+        <div class="tabs" role="tablist" id="tabs">
+          <button class="tab" role="tab" data-tab="grid" aria-selected="true">Season grid</button>
+          <button class="tab" role="tab" data-tab="weeks" aria-selected="false">Week by week</button>
+          <button class="tab" role="tab" data-tab="h2h" aria-selected="false">Head to head</button>
+          <button class="tab" role="tab" data-tab="diff" aria-selected="false">Rematch difficulty</button>
+        </div>
+        <div class="tools">
+          <button class="btn" id="again">↻ Shuffle again</button>
+          <button class="btn" id="csvWeek">⤓ CSV by week</button>
+          <button class="btn" id="csvTeam">⤓ CSV by team</button>
+        </div>
+      </div>
+      <div class="legend" id="legendGrid">
+        <span><b>Colour</b>&nbsp;= the opponent</span>
+        <span><i class="sw" style="background:var(--ink);color:var(--surface);border:0;border-radius:8px">2</i>Rematch (second meeting)</span>
+        <span><i class="sw" style="background:var(--ink);color:var(--surface);border:0;border-radius:8px">⚔️</i>Rivalry game</span>
+      </div>
+      <div class="legend" id="legend" hidden>
+        <span><i class="sw"></i>First meeting</span>
+        <span><i class="sw re">2</i>Rematch (second meeting)</span>
+        <span><i class="sw rv">⚔️</i>Rivalry game</span>
+      </div>
+      <div id="p-grid"><div class="scroll"><table class="grid" id="gridT"></table></div><p class="cap">Read down a column for a team's season, or across a row for a week. Each colour is one opponent. Hover a square to see both meetings; click a team name to spotlight every game it plays.</p></div>
+      <div id="p-weeks" hidden><div class="weeks" id="weeksG"></div></div>
+      <div id="p-h2h" hidden><div class="scroll"><table class="mx" id="mxT"></table></div><p class="cap">Numbers are the weeks the two teams meet. Filled squares meet twice.</p></div>
+      <div id="p-diff" hidden><div class="axis" id="axis"></div><div class="diff" id="diffG"></div><p class="cap">Average last-year finish of each team's five rematch opponents. Left of the centre line means tougher rematches; a perfectly even draw is 5.5.</p></div>
     </div>
-    <div class="msg" id="msg"></div>
-  </section>
-
-  <section class="card" id="outWeeks" hidden>
-    <h2>Schedule by week</h2>
-    <div class="scroll"><table><thead><tr><th>Week</th><th>Games</th></tr></thead><tbody id="weeksBody"></tbody></table></div>
-    <p class="legend"><b class="riv">RIVALRY</b> = rivalry game &nbsp; <b class="rem">2nd</b> = second meeting of the season</p>
-  </section>
-
-  <section class="card" id="outGrid" hidden>
-    <h2>Schedule by team</h2>
-    <div class="scroll"><table id="grid"></table></div>
-  </section>
-
-  <section class="card" id="outRep" hidden>
-    <h2>Who plays twice</h2>
-    <div class="scroll"><table><thead><tr><th>Team</th><th>Plays twice</th></tr></thead><tbody id="repBody"></tbody></table></div>
   </section>
 </main>
+<div id="tip" hidden></div>
 
 <script>
 /* ---------- scheduling core ---------- */
@@ -206,152 +384,307 @@ function verify(weeks, rivals, rivWeek) {
 }
 
 /* ---------- page ---------- */
-const DEFAULT_TEAMS = [["First and Ted", "Ted Williams"], ["Game of Throws", "Charlie Vonderheid"],
-  ["Ramilton Administration", "Niko Nadreau"], ["Kraft Mac and Cheese", "JP Torack"],
-  ["Javaris Jamar Javarsion-Lamar", "Ian Farroll"], ["BYE WEEK", "Matt Windler"],
-  ["The Left Tacklers", "Nathan Rich"], ["Team Kareem Pie 🥧", "Matthew Kluba"],
-  ["Baby Back Gibbs", "Grant Thornberry"], ["Jared's Pack Attack", "Jared Thornberry"]];
+const DEFAULT_TEAMS = [
+  ["First and Ted", "Ted Williams", "🏇", "#7c3945"], ["Game of Throws", "Charlie Vonderheid", "🏰", "#c05b2a"],
+  ["Ramilton Administration", "Niko Nadreau", "🎭", "#304f91"], ["Kraft Mac and Cheese", "JP Torack", "🦬", "#9d542e"],
+  ["Javaris Jamar Javarsion-Lamar", "Ian Farroll", "👑", "#b78d0a"], ["BYE WEEK", "Matt Windler", "🌴", "#3a3c9d"],
+  ["The Left Tacklers", "Nathan Rich", "🛡️", "#166a83"], ["Team Kareem Pie 🥧", "Matthew Kluba", "🏈", "#719b70"],
+  ["Baby Back Gibbs", "Grant Thornberry", "🚽", "#6a78a7"], ["Jared's Pack Attack", "Jared Thornberry", "🟣", "#4d3f93"]];
+// icon + colour stay with the team id; hues are spread evenly so all ten are easy to tell apart
+const HUES = [355, 25, 215, 48, 280, 160, 190, 105, 320, 250];
+const LOOK = DEFAULT_TEAMS.map((t, i) => ({ icon: t[2], hue: HUES[i] }));
 let teams = DEFAULT_TEAMS.map(([name, owner], i) => ({ id: i, name, owner }));   // order = finishing order
 const OPENER_IDS = [0, 1];   // Ted and Charlie: always play each other in week 1
 const MIN_GAP = 3;           // the same two teams never play twice in a 3-week period
-let rivalOf = {};                                                  // id -> id
-let result = null;                                                 // { weeks, names, rivWeek }
+let rivalOf = {};            // id -> id
+let gap = 4;
+let result = null;           // { weeks, t: [team snapshot by position], rivWeek, meet, minGap }
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const nameOf = t => t.name.trim() || (t.owner || "").trim() || "Team " + (t.id + 1);
 const ownerOf = t => (t.owner || "").trim();
 const both = t => ownerOf(t) && ownerOf(t) !== nameOf(t) ? nameOf(t) + " (" + ownerOf(t) + ")" : nameOf(t);
-
-function save() {
-  try { localStorage.setItem("schedMaker2", JSON.stringify({ teams, rivalOf, gap: $("gap").value })); } catch (e) {}
+const av = (id, size) => `<span class="av ${size || ""}" style="--h:${LOOK[id].hue}" aria-hidden="true">${LOOK[id].icon}</span>`;
+const byId = id => teams.find(t => t.id === id);
+const posOfId = id => teams.findIndex(t => t.id === id) + 1;
+function abbr(name) {
+  const w = name.replace(/[^\p{L}\p{N}\s]/gu, "").split(/\s+/).filter(Boolean);
+  if (!w.length) return "?";
+  return (w.length === 1 ? w[0].slice(0, 3) : w.slice(0, 4).map(x => x[0]).join("")).toUpperCase();
 }
+
+function save() { try { localStorage.setItem("schedMaker2", JSON.stringify({ teams, rivalOf, gap })); } catch (e) {} }
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem("schedMaker2") || "null");
-    if (s && Array.isArray(s.teams) && s.teams.length === N) {
+    if (s && Array.isArray(s.teams) && s.teams.length === N && s.teams.every(t => t.id >= 0 && t.id < N)) {
       teams = s.teams; rivalOf = s.rivalOf || {};
-      if (s.gap && +s.gap >= MIN_GAP) $("gap").value = s.gap;
+      if (+s.gap >= MIN_GAP && +s.gap <= 5) gap = +s.gap;
     }
   } catch (e) {}
 }
 
-function renderRows() {
-  $("rows").innerHTML = teams.map((t, i) => {
-    const opts = ['<option value="">Pick rival…</option>'].concat(
-      teams.filter(o => o.id !== t.id).map(o =>
-        `<option value="${o.id}"${String(rivalOf[t.id]) === String(o.id) ? " selected" : ""}>${esc(both(o))}</option>`));
-    return `<div class="row">
-      <span class="rank">${i + 1}</span>
-      <input type="text" data-name="${t.id}" value="${esc(t.name)}" placeholder="Team name" aria-label="Team that finished ${i + 1}">
-      <input type="text" data-owner="${t.id}" value="${esc(t.owner || "")}" placeholder="Owner" aria-label="Owner of the team that finished ${i + 1}">
-      <select data-rival="${t.id}" aria-label="Rival of ${esc(nameOf(t))}">${opts.join("")}</select>
-      <span class="moves">
-        <button data-up="${i}" ${i === 0 ? "disabled" : ""} aria-label="Move up">▲</button>
-        <button data-down="${i}" ${i === N - 1 ? "disabled" : ""} aria-label="Move down">▼</button>
-      </span></div>`;
+/* ----- step 1: draggable standings ----- */
+function renderList() {
+  $("list").innerHTML = teams.map((t, i) => {
+    const opts = ['<option value="">Pick rival</option>'].concat(teams.filter(o => o.id !== t.id).map(o =>
+      `<option value="${o.id}"${rivalOf[t.id] === o.id ? " selected" : ""}>${esc(nameOf(o))}</option>`));
+    return `<li class="team" data-id="${t.id}">
+      <button class="drag" type="button" aria-label="${esc(nameOf(t))}, finished ${i + 1}. Drag, or use the up and down arrow keys, to move.">
+        <span class="grip" aria-hidden="true">⋮⋮</span><span class="rank">${i + 1}</span>${av(t.id)}</button>
+      <div class="names">
+        <input class="tn" type="text" data-name="${t.id}" value="${esc(t.name)}" placeholder="Team name" aria-label="Team name">
+        <input class="on" type="text" data-owner="${t.id}" value="${esc(t.owner || "")}" placeholder="Owner" aria-label="Owner">
+      </div>
+      <div class="rival${rivalOf[t.id] !== undefined ? " set" : ""}"><select data-rival="${t.id}" aria-label="Rival of ${esc(nameOf(t))}">${opts.join("")}</select></div>
+    </li>`;
   }).join("");
 }
+function syncOrderFromDom() {
+  const ids = [...$("list").children].map(li => +li.dataset.id);
+  teams = ids.map(byId);
+}
+function renumber() { [...$("list").children].forEach((li, i) => { li.querySelector(".rank").textContent = i + 1; }); }
 
-$("rows").addEventListener("click", e => {
-  const b = e.target.closest("button"); if (!b) return;
-  const i = b.dataset.up !== undefined ? +b.dataset.up : +b.dataset.down;
-  const j = b.dataset.up !== undefined ? i - 1 : i + 1;
-  [teams[i], teams[j]] = [teams[j], teams[i]];
-  renderRows(); save();
-});
-$("rows").addEventListener("change", e => {
-  const el = e.target;
-  if (el.dataset.name !== undefined) {
-    teams.find(t => t.id === +el.dataset.name).name = el.value;
-    renderRows(); save();
-  } else if (el.dataset.owner !== undefined) {
-    teams.find(t => t.id === +el.dataset.owner).owner = el.value;
-    renderRows(); save();
-  } else if (el.dataset.rival !== undefined) {
-    const a = +el.dataset.rival;
-    const old = rivalOf[a];
-    if (old !== undefined) { delete rivalOf[old]; delete rivalOf[a]; }
-    if (el.value !== "") {
-      const b = +el.value;
-      if (rivalOf[b] !== undefined) delete rivalOf[rivalOf[b]];
-      rivalOf[a] = b; rivalOf[b] = a;
+$("list").addEventListener("pointerdown", e => {
+  const h = e.target.closest(".drag"); if (!h || e.button > 0) return;
+  const list = $("list"), li = h.closest(".team");
+  e.preventDefault(); h.focus();
+  li.classList.add("dragging");
+  const move = ev => {
+    const sibs = [...list.children], me = sibs.indexOf(li);
+    for (let i = 0; i < me; i++) {            // moving up: land above the first row whose middle is below the pointer
+      const r = sibs[i].getBoundingClientRect();
+      if (ev.clientY < r.top + r.height / 2) { list.insertBefore(li, sibs[i]); renumber(); return; }
     }
-    renderRows(); save();
-  }
+    for (let i = sibs.length - 1; i > me; i--) {  // moving down: land below the last row whose middle is above the pointer
+      const r = sibs[i].getBoundingClientRect();
+      if (ev.clientY > r.top + r.height / 2) { list.insertBefore(li, sibs[i].nextSibling); renumber(); return; }
+    }
+    if (ev.clientY < 70) window.scrollBy(0, -14); else if (ev.clientY > window.innerHeight - 70) window.scrollBy(0, 14);
+  };
+  const end = () => {
+    window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", end); window.removeEventListener("pointercancel", end);
+    li.classList.remove("dragging");
+    syncOrderFromDom(); save(); renderList(); renderPairs();
+  };
+  window.addEventListener("pointermove", move); window.addEventListener("pointerup", end); window.addEventListener("pointercancel", end);
 });
-
-function setMsg(text, cls) { const m = $("msg"); m.textContent = text; m.className = "msg " + (cls || ""); }
-
-function generate() {
-  const missing = teams.filter(t => rivalOf[t.id] === undefined);
-  if (missing.length) { setMsg("Pick a rival for: " + missing.map(nameOf).join(", ") + ".", "err"); return; }
-  const names = teams.map(nameOf);
-  if (new Set(names.map(n => n.toLowerCase())).size !== N) { setMsg("Two teams have the same name. Give each team a different name.", "err"); return; }
-
-  const posOf = {}; teams.forEach((t, i) => { posOf[t.id] = i + 1; });
-  const rivals = []; const done = new Set();
-  teams.forEach(t => { if (done.has(t.id)) return; const r = rivalOf[t.id]; done.add(t.id); done.add(r); rivals.push([posOf[t.id], posOf[r]]); });
-  const rivWeek = RIV_WEEK, wantGap = +$("gap").value;
-
-  // Fixed rule: Ted and Charlie (the first two default teams) always meet in week 1.
-  const opener = [posOf[OPENER_IDS[0]], posOf[OPENER_IDS[1]]];
-  let out;
-  try {
-    out = buildSchedule(rivals, rivWeek, wantGap, opener);
-    if (out.minGap < MIN_GAP) throw new Error("could not keep rematches " + MIN_GAP + " weeks apart");
+$("list").addEventListener("keydown", e => {
+  const h = e.target.closest(".drag"); if (!h || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+  e.preventDefault();
+  const id = +h.closest(".team").dataset.id, i = posOfId(id) - 1, j = e.key === "ArrowUp" ? i - 1 : i + 1;
+  if (j < 0 || j >= N) return;
+  [teams[i], teams[j]] = [teams[j], teams[i]];
+  save(); renderList(); renderPairs();
+  $("list").querySelector(`.team[data-id="${id}"] .drag`).focus();
+});
+$("list").addEventListener("change", e => {
+  const el = e.target;
+  if (el.dataset.name !== undefined) byId(+el.dataset.name).name = el.value;
+  else if (el.dataset.owner !== undefined) byId(+el.dataset.owner).owner = el.value;
+  else if (el.dataset.rival !== undefined) setRival(+el.dataset.rival, el.value === "" ? null : +el.value);
+  save(); renderList(); renderPairs();
+});
+function setRival(a, b) {
+  const old = rivalOf[a];
+  if (old !== undefined) { delete rivalOf[old]; delete rivalOf[a]; }
+  if (b !== null) {
+    if (rivalOf[b] !== undefined) delete rivalOf[rivalOf[b]];
+    rivalOf[a] = b; rivalOf[b] = a;
   }
-  catch (err) { setMsg("Something went wrong building the schedule (" + err.message + "). Try again.", "err"); return; }
-
-  result = { weeks: out.weeks, names, owners: teams.map(ownerOf), rivWeek };
-  render();
-  $("csvWeek").disabled = $("csvTeam").disabled = false;
-  const opNames = OPENER_IDS.map(id => nameOf(teams.find(t => t.id === id)));
-  if (!out.openerMet) setMsg(`Schedule made, but ${opNames[0]} and ${opNames[1]} are rivals and only meet once this year, so their one game is in rivalry week (week 14), not week 1.`, "warn");
-  else if (out.bad > 0) setMsg(`Schedule made, but the closest rematch is ${out.minGap} week${out.minGap === 1 ? "" : "s"} apart instead of ${wantGap}. Click Generate again or lower the minimum.`, "warn");
-  else setMsg(`Schedule made and checked: every team plays every week, everyone meets at least once, nobody meets three times, no rematch within ${MIN_GAP} weeks, and ${opNames[0]} plays ${opNames[1]} in week 1. Click Generate again for a different one.`, "ok");
 }
 
-// For each week, list of games with flags.
+/* ----- step 2: rivalry board ----- */
+function renderPairs() {
+  const done = new Set(), rows = [];
+  teams.forEach(t => {
+    const r = rivalOf[t.id]; if (r === undefined || done.has(t.id)) return;
+    done.add(t.id); done.add(r);
+    const o = byId(r), twice = TEMPLATE_PAIRS.has(pairKey(posOfId(t.id), posOfId(r)));
+    rows.push(`<div class="pair">
+      <div class="pside">${av(t.id)}<span class="n">${esc(nameOf(t))}</span></div>
+      <div class="vs">⚔️<small>${twice ? "2 games" : "1 game"}</small></div>
+      <div class="pside r">${av(o.id)}<span class="n">${esc(nameOf(o))}</span></div>
+      <button class="x" type="button" data-unpair="${t.id}" aria-label="Remove this rivalry">✕</button></div>`);
+  });
+  const left = teams.filter(t => rivalOf[t.id] === undefined);
+  while (rows.length < 5) rows.push(`<div class="pair empty"><div>${left.length ? "Waiting for a rivalry" : ""}</div></div>`);
+  $("pairs").innerHTML = rows.join("");
+}
+$("pairs").addEventListener("click", e => {
+  const b = e.target.closest("[data-unpair]"); if (!b) return;
+  setRival(+b.dataset.unpair, null); save(); renderList(); renderPairs();
+});
+function renderGap() {
+  $("gap").innerHTML = [3, 4, 5].map(g => `<button type="button" data-gap="${g}" aria-pressed="${g === gap}">${g} weeks</button>`).join("");
+}
+$("gap").addEventListener("click", e => { const b = e.target.closest("[data-gap]"); if (!b) return; gap = +b.dataset.gap; save(); renderGap(); });
+
+function setMsg(text, cls) { const m = $("msg"); m.textContent = text; m.className = cls || ""; }
+
+/* ----- generate ----- */
+function generate() {
+  const missing = teams.filter(t => rivalOf[t.id] === undefined);
+  if (missing.length) { setMsg("Pick a rival for: " + missing.map(nameOf).join(", ") + ".", "err"); return false; }
+  const names = teams.map(nameOf);
+  if (new Set(names.map(n => n.toLowerCase())).size !== N) { setMsg("Two teams have the same name. Give each team a different name.", "err"); return false; }
+
+  const rivals = [], done = new Set();
+  teams.forEach(t => { if (done.has(t.id)) return; const r = rivalOf[t.id]; done.add(t.id); done.add(r); rivals.push([posOfId(t.id), posOfId(r)]); });
+  const opener = [posOfId(OPENER_IDS[0]), posOfId(OPENER_IDS[1])];
+  let out;
+  try {
+    out = buildSchedule(rivals, RIV_WEEK, gap, opener);
+    if (out.minGap < MIN_GAP) throw new Error("could not keep rematches " + MIN_GAP + " weeks apart");
+  } catch (err) { setMsg("Something went wrong building the schedule (" + err.message + "). Try again.", "err"); return false; }
+
+  const t = [null, ...teams.map(x => ({ id: x.id, name: nameOf(x), owner: ownerOf(x) }))];   // by position 1..10
+  const meet = {};
+  out.weeks.forEach((p, w) => { for (let v = 1; v <= N; v++) if (v < p[v]) (meet[v + "-" + p[v]] = meet[v + "-" + p[v]] || []).push(w); });
+  result = { weeks: out.weeks, t, rivWeek: RIV_WEEK, meet, minGap: out.minGap, rivals, opener, openerMet: out.openerMet };
+  renderResults();
+  $("results").hidden = false;
+
+  const op = OPENER_IDS.map(id => nameOf(byId(id)));
+  if (!out.openerMet) setMsg(`Schedule made, but ${op[0]} and ${op[1]} are rivals who only meet once this year, so their game is in rivalry week (week 14), not week 1.`, "warn");
+  else if (out.bad > 0) setMsg(`Schedule made, but the closest rematch is ${out.minGap} weeks apart instead of ${gap}. Shuffle again or lower the minimum.`, "warn");
+  else setMsg(`Schedule made and checked. ${op[0]} plays ${op[1]} in week 1.`, "ok");
+  return true;
+}
+
+/* ----- results ----- */
+const isRiv = (a, b) => result.rivals.some(r => (r[0] === a && r[1] === b) || (r[0] === b && r[1] === a));
+// kind of the game between a and b in week w: "rv" rivalry game, "re" second meeting, "" first meeting
+function kind(a, b, w) {
+  if (w === result.rivWeek) return "rv";
+  return result.meet[pairKey(a, b)][0] === w ? "" : "re";
+}
+function tipFor(a, b, w) {
+  const m = result.meet[pairKey(a, b)], k = kind(a, b, w);
+  const what = k === "rv" ? "Rivalry game" : m.length === 1 ? "Only meeting" : m[0] === w ? "First meeting" : "Rematch";
+  const other = m.length === 2 ? ` · also week ${(m[0] === w ? m[1] : m[0]) + 1}` : "";
+  return `<b>Week ${w + 1}</b> · ${what}<br>${esc(result.t[a].name)} vs ${esc(result.t[b].name)}<br><span>${what === "Only meeting" ? "They play once this season" : "They play twice" + other}</span>`;
+}
 function gamesByWeek() {
-  const seen = {};
   return result.weeks.map((p, w) => {
     const games = [];
-    for (let v = 1; v <= N; v++) if (v < p[v]) {
-      const k = v + "-" + p[v];
-      const second = !!seen[k]; seen[k] = true;
-      games.push({ a: v, b: p[v], second, rivalry: w === result.rivWeek });
-    }
+    for (let v = 1; v <= N; v++) if (v < p[v]) games.push({ a: v, b: p[v], k: kind(v, p[v], w), second: result.meet[v + "-" + p[v]][0] !== w });
     return games;
   });
 }
 
-function render() {
-  const nm = i => esc(result.names[i - 1]);
-  const gw = gamesByWeek();
-  $("weeksBody").innerHTML = gw.map((games, w) =>
-    `<tr class="${w === result.rivWeek ? "rivweek" : ""}"><td class="wk">${w + 1}</td><td>${games.map(g =>
-      `<span class="game">${nm(g.a)} vs ${nm(g.b)}${g.rivalry ? '<span class="tag riv">RIVALRY</span>' : ""}${g.second ? '<span class="tag rem">2nd</span>' : ""}</span>`).join("")}</td></tr>`).join("");
+function renderResults() {
+  const R = result, T = R.t;
+  const twiceRiv = R.rivals.filter(([a, b]) => TEMPLATE_PAIRS.has(pairKey(a, b))).length;
+  $("tiles").innerHTML = [
+    ["14", "games for every team"], ["70", "games in the season"], ["25", "rematches (5 per team)"],
+    [`${R.minGap}<small> weeks</small>`, "closest rematch"], [`${twiceRiv}<small> of 5</small>`, "rivalries that play twice"],
+  ].map(([b, s]) => `<div class="tile"><b>${b}</b><span>${s}</span></div>`).join("");
 
-  const flag = {}; gw.forEach((games, w) => games.forEach(g => { flag[w + ":" + g.a] = g; flag[w + ":" + g.b] = g; }));
-  let h = "<thead><tr><th>Team</th>" + result.weeks.map((_, w) => `<th>Wk ${w + 1}</th>`).join("") + "</tr></thead><tbody>";
-  for (let v = 1; v <= N; v++) {
-    h += `<tr><td class="wk">${v}. ${nm(v)}<br><span class="own">${esc(result.owners[v - 1])}</span></td>` + result.weeks.map((p, w) => {
-      const g = flag[w + ":" + v];
-      return `<td class="${g.rivalry ? "r" : g.second ? "m" : ""}">${nm(p[v])}</td>`;
-    }).join("") + "</tr>";
-  }
-  $("grid").innerHTML = h + "</tbody>";
+  // season matrix: one row per week, one column per team, value = that week's opponent
+  let h = `<thead><tr><th></th>` + T.slice(1).map((t, i) =>
+    `<th><button type="button" class="colh" data-focus="${i + 1}" aria-pressed="false" title="${esc(t.name)}">${av(t.id)}<span class="t">${esc(t.name)}</span></button></th>`).join("") + "</tr></thead><tbody>";
+  R.weeks.forEach((p, w) => {
+    h += `<tr class="${w === R.rivWeek ? "rvrow" : ""}"><th class="wk">${w === R.rivWeek ? "⚔️ " : ""}Week ${w + 1}</th>`;
+    for (let v = 1; v <= N; v++) {
+      const o = p[v], k = kind(v, o, w);
+      h += `<td><div class="cell ${k}" style="--h:${LOOK[T[o].id].hue}" data-pair="${pairKey(v, o)}" data-a="${v}" data-b="${o}" data-tip="${esc(tipFor(v, o, w))}">` +
+        `${k ? `<span class="mk">${k === "rv" ? "⚔️" : "2"}</span>` : ""}<span class="ab">${esc(T[o].name)}</span></div></td>`;
+    }
+    h += "</tr>";
+  });
+  $("gridT").innerHTML = h + "</tbody>";
+  $("gridT").classList.remove("dim");
 
-  let r = "";
-  for (let v = 1; v <= N; v++) {
-    const twice = []; for (let o = 1; o <= N; o++) if (o !== v && TEMPLATE_PAIRS.has(pairKey(v, o))) twice.push(nm(o));
-    r += `<tr><td class="wk">${v}. ${nm(v)}<br><span class="own">${esc(result.owners[v - 1])}</span></td><td>${twice.join(", ")}</td></tr>`;
+  // week cards
+  $("weeksG").innerHTML = gamesByWeek().map((games, w) =>
+    `<div class="week ${w === R.rivWeek ? "rv" : ""}"><h3>Week ${w + 1}<span>${w === R.rivWeek ? "⚔️ Rivalry week" : w === 0 ? "Opening week" : ""}</span></h3>` +
+    games.map(g => `<div class="game ${g.k === "re" ? "re" : ""}" data-tip="${esc(tipFor(g.a, g.b, w))}">
+      <div class="s">${av(T[g.a].id, "sm")}<span class="n">${esc(T[g.a].name)}</span></div>
+      <div class="m">${g.k === "rv" ? "⚔️" : g.k === "re" ? "2nd" : "vs"}</div>
+      <div class="s r">${av(T[g.b].id, "sm")}<span class="n">${esc(T[g.b].name)}</span></div></div>`).join("") + "</div>").join("");
+
+  // head-to-head matrix
+  let m = "<thead><tr><th></th>" + T.slice(1).map(t => `<th title="${esc(t.name)}">${av(t.id, "sm")}</th>`).join("") + "</tr></thead><tbody>";
+  for (let a = 1; a <= N; a++) {
+    m += `<tr><th class="rowh"><div><span>${esc(abbr(T[a].name))}</span>${av(T[a].id, "sm")}</div></th>`;
+    for (let b = 1; b <= N; b++) {
+      if (a === b) { m += `<td><div class="mcell self">·</div></td>`; continue; }
+      const wk = R.meet[pairKey(a, b)], riv = isRiv(a, b);
+      const tip = `<b>${esc(T[a].name)} vs ${esc(T[b].name)}</b><br>${wk.length === 2 ? "Play twice" : "Play once"}: week${wk.length === 2 ? "s" : ""} ${wk.map(x => x + 1).join(" and ")}${riv ? "<br><span>Rivals (week 14)</span>" : ""}`;
+      m += `<td><div class="mcell ${wk.length === 2 ? "re" : ""} ${riv ? "rv" : ""}" data-pair="${pairKey(a, b)}" data-tip="${esc(tip)}">${wk.map(x => x + 1).join("·")}</div></td>`;
+    }
+    m += "</tr>";
   }
-  $("repBody").innerHTML = r;
-  $("outWeeks").hidden = $("outGrid").hidden = $("outRep").hidden = false;
+  $("mxT").innerHTML = m + "</tbody>";
+
+  // rematch difficulty
+  const rows = [];
+  for (let v = 1; v <= N; v++) {
+    const opp = []; for (let o = 1; o <= N; o++) if (o !== v && TEMPLATE_PAIRS.has(pairKey(v, o))) opp.push(o);
+    rows.push({ v, opp, avg: opp.reduce((s, o) => s + o, 0) / opp.length });
+  }
+  const span = Math.max(0.5, ...rows.map(r => Math.abs(r.avg - 5.5)));
+  const lo = 5.5 - span, hi = 5.5 + span, x = a => ((a - lo) / (hi - lo)) * 100;
+  $("axis").innerHTML = `<span class="hd">Team</span><span class="sc"><span>◀ tougher · ${lo.toFixed(1)}</span><span>5.5</span><span>${hi.toFixed(1)} · easier ▶</span></span><span class="hd">Avg</span><span class="hd o">Plays twice</span>`;
+  $("diffG").innerHTML = rows.map(r => {
+    const px = x(r.avg), l = Math.min(px, 50), wd = Math.abs(px - 50);
+    const tip = `<b>${esc(T[r.v].name)}</b> · rematch opponents average ${r.avg.toFixed(1)}<br><span>${r.opp.map(o => esc(T[o].name)).join(", ")}</span>`;
+    return `<div class="drow" data-tip="${esc(tip)}"><div class="lab"><span class="p">${r.v}</span>${av(T[r.v].id, "sm")}<span class="t">${esc(T[r.v].name)}</span></div>
+      <div class="track"><i class="mid"></i><i class="stem" style="left:${l}%;width:${wd}%"></i><i class="dot" style="left:${px}%"></i></div>
+      <div class="val">${r.avg.toFixed(1)}</div><div class="opp">${r.opp.map(o => av(T[o].id, "sm")).join("")}</div></div>`;
+  }).join("");
 }
 
+/* hover: tooltip + highlight both meetings of a pair */
+const tip = $("tip");
+function placeTip(e) {
+  const pad = 14, r = tip.getBoundingClientRect();
+  let x = e.clientX + pad, y = e.clientY + pad;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - pad;
+  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - pad;
+  tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
+}
+let focusPos = 0;
+function applyFocus() {
+  const g = $("gridT");
+  g.querySelectorAll("[data-focus]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.focus === focusPos)));
+  g.querySelectorAll(".cell").forEach(c => c.classList.toggle("hl", focusPos > 0 && (+c.dataset.a === focusPos || +c.dataset.b === focusPos)));
+  g.classList.toggle("dim", focusPos > 0);
+}
+$("results").addEventListener("pointerover", e => {
+  const el = e.target.closest("[data-tip]");
+  if (!el) return;
+  tip.innerHTML = el.dataset.tip; tip.hidden = false; placeTip(e);
+  const tbl = el.closest("table");
+  if (tbl && el.dataset.pair && !(tbl.id === "gridT" && focusPos)) {
+    tbl.querySelectorAll(`[data-pair="${el.dataset.pair}"]`).forEach(c => c.classList.add("hl"));
+    tbl.classList.add("dim");
+  }
+});
+$("results").addEventListener("pointermove", e => { if (!tip.hidden) placeTip(e); });
+$("results").addEventListener("pointerout", e => {
+  const el = e.target.closest("[data-tip]");
+  if (!el || el.contains(e.relatedTarget)) return;
+  tip.hidden = true;
+  const tbl = el.closest("table");
+  if (tbl && !(tbl.id === "gridT" && focusPos)) { tbl.querySelectorAll(".hl").forEach(c => c.classList.remove("hl")); tbl.classList.remove("dim"); }
+});
+$("gridT").addEventListener("click", e => {
+  const b = e.target.closest("[data-focus]"); if (!b) return;
+  focusPos = focusPos === +b.dataset.focus ? 0 : +b.dataset.focus; applyFocus();
+});
+$("tabs").addEventListener("click", e => {
+  const b = e.target.closest(".tab"); if (!b) return;
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t === b)));
+  ["grid", "weeks", "h2h", "diff"].forEach(k => { $("p-" + k).hidden = k !== b.dataset.tab; });
+  $("legendGrid").hidden = b.dataset.tab !== "grid";
+  $("legend").hidden = b.dataset.tab === "grid" || b.dataset.tab === "diff";
+});
+
+/* ----- CSV ----- */
 const csvCell = s => /[",\n]/.test(s) ? '"' + String(s).replace(/"/g, '""') + '"' : String(s);
 function download(name, rows) {
   const text = rows.map(r => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
@@ -361,21 +694,20 @@ function download(name, rows) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function csvByWeek() {
-  const rows = [["Week", "Team 1", "Owner 1", "Team 2", "Owner 2", "Rivalry Game", "Meeting"]];
+  const T = result.t, rows = [["Week", "Team 1", "Owner 1", "Team 2", "Owner 2", "Rivalry Game", "Meeting"]];
   gamesByWeek().forEach((games, w) => games.forEach(g =>
-    rows.push([String(w + 1), result.names[g.a - 1], result.owners[g.a - 1], result.names[g.b - 1], result.owners[g.b - 1], g.rivalry ? "Yes" : "No", g.second ? "2nd" : "1st"])));
+    rows.push([String(w + 1), T[g.a].name, T[g.a].owner, T[g.b].name, T[g.b].owner, g.k === "rv" ? "Yes" : "No", g.second ? "2nd" : "1st"])));
   download("schedule-by-week.csv", rows);
 }
 function csvByTeam() {
-  const rows = [["Last Year Finish", "Team", "Owner", ...result.weeks.map((_, w) => "Week " + (w + 1))]];
-  for (let v = 1; v <= N; v++) rows.push([String(v), result.names[v - 1], result.owners[v - 1], ...result.weeks.map(p => result.names[p[v] - 1])]);
+  const T = result.t, rows = [["Last Year Finish", "Team", "Owner", ...result.weeks.map((_, w) => "Week " + (w + 1))]];
+  for (let v = 1; v <= N; v++) rows.push([String(v), T[v].name, T[v].owner, ...result.weeks.map(p => T[p[v]].name)]);
   download("schedule-by-team.csv", rows);
 }
 
-$("gap").innerHTML = [3, 4, 5].map(g => `<option value="${g}"${g === 4 ? " selected" : ""}>${g}</option>`).join("");
-load(); renderRows();
-$("gap").addEventListener("change", save);
-$("go").addEventListener("click", generate);
+load(); renderList(); renderPairs(); renderGap();
+$("go").addEventListener("click", () => { focusPos = 0; if (generate()) $("results").scrollIntoView({ block: "start" }); });
+$("again").addEventListener("click", () => { focusPos = 0; generate(); });
 $("csvWeek").addEventListener("click", csvByWeek);
 $("csvTeam").addEventListener("click", csvByTeam);
 </script>
