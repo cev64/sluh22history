@@ -22,7 +22,7 @@
   p.sub { margin: 0 0 18px; color: var(--muted); }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
   .hint { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
-  .row { display: grid; grid-template-columns: 34px minmax(0, 1.3fr) minmax(0, 1fr) 68px; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .row { display: grid; grid-template-columns: 34px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.2fr) 68px; gap: 8px; align-items: center; margin-bottom: 6px; }
   .row.head { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
   .rank { font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
   input[type=text], select, input[type=number] { width: 100%; padding: 8px 9px; border: 1px solid var(--line);
@@ -53,7 +53,12 @@
   .legend { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
   .legend b.riv { color: var(--riv); } .legend b.rem { color: var(--rem); }
   [hidden] { display: none !important; }
-  @media (max-width: 560px) { .row { grid-template-columns: 26px minmax(0, 1fr) minmax(0, 1fr) 58px; gap: 5px; } }
+  .own { color: var(--muted); font-weight: 400; font-size: 12px; }
+  @media (max-width: 640px) {
+    .row { grid-template-columns: 26px minmax(0, 1fr) minmax(0, 1fr); gap: 5px; margin-bottom: 12px; }
+    .row.head { display: none; }
+    .row select { grid-column: 2 / 3; } .row .moves { grid-column: 3 / 4; }
+  }
 </style>
 </head>
 <body>
@@ -64,7 +69,7 @@
   <section class="card">
     <h2>1. Last year's final standings and rivals</h2>
     <p class="hint">Put the teams in the order they finished (use the arrows), then pick each team's rival. Picking a rival for one team sets it for the other automatically.</p>
-    <div class="row head"><span></span><span>Team</span><span>Rival</span><span>Move</span></div>
+    <div class="row head"><span></span><span>Team name</span><span>Owner</span><span>Rival</span><span>Move</span></div>
     <div id="rows"></div>
   </section>
 
@@ -189,22 +194,27 @@ function verify(weeks, rivals, rivWeek) {
 }
 
 /* ---------- page ---------- */
-const DEFAULT_NAMES = ["Ted Williams", "Charlie Vonderheid", "Niko Nadreau", "JP Torack", "Ian Farroll",
-  "Matt Windler", "Nathan Rich", "Matthew Kluba", "Grant Thornberry", "Jared Thornberry"];
-let teams = DEFAULT_NAMES.map((name, i) => ({ id: i, name }));   // order = finishing order
+const DEFAULT_TEAMS = [["First and Ted", "Ted Williams"], ["Game of Throws", "Charlie Vonderheid"],
+  ["Ramilton Administration", "Niko Nadreau"], ["Kraft Mac and Cheese", "JP Torack"],
+  ["Javaris Jamar Javarsion-Lamar", "Ian Farroll"], ["BYE WEEK", "Matt Windler"],
+  ["The Left Tacklers", "Nathan Rich"], ["Team Kareem Pie 🥧", "Matthew Kluba"],
+  ["Baby Back Gibbs", "Grant Thornberry"], ["Jared's Pack Attack", "Jared Thornberry"]];
+let teams = DEFAULT_TEAMS.map(([name, owner], i) => ({ id: i, name, owner }));   // order = finishing order
 let rivalOf = {};                                                  // id -> id
 let result = null;                                                 // { weeks, names, rivWeek }
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const nameOf = t => t.name.trim() || "Team " + (t.id + 1);
+const nameOf = t => t.name.trim() || (t.owner || "").trim() || "Team " + (t.id + 1);
+const ownerOf = t => (t.owner || "").trim();
+const both = t => ownerOf(t) && ownerOf(t) !== nameOf(t) ? nameOf(t) + " (" + ownerOf(t) + ")" : nameOf(t);
 
 function save() {
-  try { localStorage.setItem("schedMaker", JSON.stringify({ teams, rivalOf, gap: $("gap").value })); } catch (e) {}
+  try { localStorage.setItem("schedMaker2", JSON.stringify({ teams, rivalOf, gap: $("gap").value })); } catch (e) {}
 }
 function load() {
   try {
-    const s = JSON.parse(localStorage.getItem("schedMaker") || "null");
+    const s = JSON.parse(localStorage.getItem("schedMaker2") || "null");
     if (s && Array.isArray(s.teams) && s.teams.length === N) {
       teams = s.teams; rivalOf = s.rivalOf || {};
       if (s.gap) $("gap").value = s.gap;
@@ -216,10 +226,11 @@ function renderRows() {
   $("rows").innerHTML = teams.map((t, i) => {
     const opts = ['<option value="">Pick rival…</option>'].concat(
       teams.filter(o => o.id !== t.id).map(o =>
-        `<option value="${o.id}"${String(rivalOf[t.id]) === String(o.id) ? " selected" : ""}>${esc(nameOf(o))}</option>`));
+        `<option value="${o.id}"${String(rivalOf[t.id]) === String(o.id) ? " selected" : ""}>${esc(both(o))}</option>`));
     return `<div class="row">
       <span class="rank">${i + 1}</span>
-      <input type="text" data-name="${t.id}" value="${esc(t.name)}" aria-label="Team that finished ${i + 1}">
+      <input type="text" data-name="${t.id}" value="${esc(t.name)}" placeholder="Team name" aria-label="Team that finished ${i + 1}">
+      <input type="text" data-owner="${t.id}" value="${esc(t.owner || "")}" placeholder="Owner" aria-label="Owner of the team that finished ${i + 1}">
       <select data-rival="${t.id}" aria-label="Rival of ${esc(nameOf(t))}">${opts.join("")}</select>
       <span class="moves">
         <button data-up="${i}" ${i === 0 ? "disabled" : ""} aria-label="Move up">▲</button>
@@ -239,6 +250,9 @@ $("rows").addEventListener("change", e => {
   const el = e.target;
   if (el.dataset.name !== undefined) {
     teams.find(t => t.id === +el.dataset.name).name = el.value;
+    renderRows(); save();
+  } else if (el.dataset.owner !== undefined) {
+    teams.find(t => t.id === +el.dataset.owner).owner = el.value;
     renderRows(); save();
   } else if (el.dataset.rival !== undefined) {
     const a = +el.dataset.rival;
@@ -270,7 +284,7 @@ function generate() {
   try { out = buildSchedule(rivals, rivWeek, wantGap); }
   catch (err) { setMsg("Something went wrong building the schedule (" + err.message + "). Try again.", "err"); return; }
 
-  result = { weeks: out.weeks, names, rivWeek };
+  result = { weeks: out.weeks, names, owners: teams.map(ownerOf), rivWeek };
   render();
   $("csvWeek").disabled = $("csvTeam").disabled = false;
   if (out.bad > 0) setMsg(`Schedule made, but the closest rematch is ${out.minGap} week${out.minGap === 1 ? "" : "s"} apart instead of ${wantGap}. Click Generate again or lower the minimum.`, "warn");
@@ -301,7 +315,7 @@ function render() {
   const flag = {}; gw.forEach((games, w) => games.forEach(g => { flag[w + ":" + g.a] = g; flag[w + ":" + g.b] = g; }));
   let h = "<thead><tr><th>Team</th>" + result.weeks.map((_, w) => `<th>Wk ${w + 1}</th>`).join("") + "</tr></thead><tbody>";
   for (let v = 1; v <= N; v++) {
-    h += `<tr><td class="wk">${v}. ${nm(v)}</td>` + result.weeks.map((p, w) => {
+    h += `<tr><td class="wk">${v}. ${nm(v)}<br><span class="own">${esc(result.owners[v - 1])}</span></td>` + result.weeks.map((p, w) => {
       const g = flag[w + ":" + v];
       return `<td class="${g.rivalry ? "r" : g.second ? "m" : ""}">${nm(p[v])}</td>`;
     }).join("") + "</tr>";
@@ -311,7 +325,7 @@ function render() {
   let r = "";
   for (let v = 1; v <= N; v++) {
     const twice = []; for (let o = 1; o <= N; o++) if (o !== v && TEMPLATE_PAIRS.has(pairKey(v, o))) twice.push(nm(o));
-    r += `<tr><td class="wk">${v}. ${nm(v)}</td><td>${twice.join(", ")}</td></tr>`;
+    r += `<tr><td class="wk">${v}. ${nm(v)}<br><span class="own">${esc(result.owners[v - 1])}</span></td><td>${twice.join(", ")}</td></tr>`;
   }
   $("repBody").innerHTML = r;
   $("outWeeks").hidden = $("outGrid").hidden = $("outRep").hidden = false;
@@ -326,14 +340,14 @@ function download(name, rows) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function csvByWeek() {
-  const rows = [["Week", "Team 1", "Team 2", "Rivalry Game", "Meeting"]];
+  const rows = [["Week", "Team 1", "Owner 1", "Team 2", "Owner 2", "Rivalry Game", "Meeting"]];
   gamesByWeek().forEach((games, w) => games.forEach(g =>
-    rows.push([String(w + 1), result.names[g.a - 1], result.names[g.b - 1], g.rivalry ? "Yes" : "No", g.second ? "2nd" : "1st"])));
+    rows.push([String(w + 1), result.names[g.a - 1], result.owners[g.a - 1], result.names[g.b - 1], result.owners[g.b - 1], g.rivalry ? "Yes" : "No", g.second ? "2nd" : "1st"])));
   download("schedule-by-week.csv", rows);
 }
 function csvByTeam() {
-  const rows = [["Last Year Finish", "Team", ...result.weeks.map((_, w) => "Week " + (w + 1))]];
-  for (let v = 1; v <= N; v++) rows.push([String(v), result.names[v - 1], ...result.weeks.map(p => result.names[p[v] - 1])]);
+  const rows = [["Last Year Finish", "Team", "Owner", ...result.weeks.map((_, w) => "Week " + (w + 1))]];
+  for (let v = 1; v <= N; v++) rows.push([String(v), result.names[v - 1], result.owners[v - 1], ...result.weeks.map(p => result.names[p[v] - 1])]);
   download("schedule-by-team.csv", rows);
 }
 
