@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule Maker (no divisions mock)</title>
+<style>
+  :root {
+    --bg: #f5f3ee; --card: #ffffff; --ink: #1d2126; --muted: #667080; --line: #dcd8cf;
+    --accent: #1f5f8b; --accent-ink: #ffffff; --riv: #b4472a; --rem: #2f7d55; --warn: #9a5b00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14171b; --card: #1d2228; --ink: #e9ecef; --muted: #98a2b0; --line: #333b45;
+      --accent: #5aa7d8; --accent-ink: #0d1115; --riv: #ee8a6c; --rem: #6fcb99; --warn: #e5ad55; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+  p.sub { margin: 0 0 18px; color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .hint { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+  .row { display: grid; grid-template-columns: 34px minmax(0, 1.3fr) minmax(0, 1fr) 68px; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .row.head { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .rank { font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+  input[type=text], select, input[type=number] { width: 100%; padding: 8px 9px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; min-width: 0; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+    border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  .moves { display: flex; gap: 4px; }
+  .moves button { padding: 6px 0; flex: 1; }
+  .opts { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; }
+  .opts label { display: block; font-size: 13px; color: var(--muted); }
+  .opts label select { margin-top: 4px; width: auto; min-width: 110px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .msg { margin-top: 12px; font-size: 14px; }
+  .msg.err { color: var(--riv); } .msg.warn { color: var(--warn); } .msg.ok { color: var(--rem); }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+  td.wk { font-weight: 700; white-space: nowrap; }
+  .game { display: inline-block; margin: 0 14px 2px 0; white-space: nowrap; }
+  .tag { font-size: 11px; font-weight: 700; margin-left: 4px; }
+  .tag.riv { color: var(--riv); } .tag.rem { color: var(--rem); }
+  tr.rivweek td { background: color-mix(in srgb, var(--riv) 9%, transparent); }
+  #grid td, #grid th { white-space: nowrap; }
+  #grid td.r { color: var(--riv); font-weight: 600; } #grid td.m { color: var(--rem); }
+  .legend { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  .legend b.riv { color: var(--riv); } .legend b.rem { color: var(--rem); }
+  [hidden] { display: none !important; }
+  @media (max-width: 560px) { .row { grid-template-columns: 26px minmax(0, 1fr) minmax(0, 1fr) 58px; gap: 5px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Schedule Maker</h1>
+  <p class="sub">No-divisions mock: 14 games. Everyone plays everyone once, plus 5 rematches set by last year's finish, scattered randomly through the season. Rivalry week is always week 14.</p>
+
+  <section class="card">
+    <h2>1. Last year's final standings and rivals</h2>
+    <p class="hint">Put the teams in the order they finished (use the arrows), then pick each team's rival. Picking a rival for one team sets it for the other automatically.</p>
+    <div class="row head"><span></span><span>Team</span><span>Rival</span><span>Move</span></div>
+    <div id="rows"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Options</h2>
+    <div class="opts">
+      <label>Minimum weeks between a rematch<br><select id="gap"></select></label>
+    </div>
+    <div class="actions">
+      <button class="primary" id="go">Generate schedule</button>
+      <button id="csvWeek" disabled>Export CSV (by week)</button>
+      <button id="csvTeam" disabled>Export CSV (by team)</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </section>
+
+  <section class="card" id="outWeeks" hidden>
+    <h2>Schedule by week</h2>
+    <div class="scroll"><table><thead><tr><th>Week</th><th>Games</th></tr></thead><tbody id="weeksBody"></tbody></table></div>
+    <p class="legend"><b class="riv">RIVALRY</b> = rivalry game &nbsp; <b class="rem">2nd</b> = second meeting of the season</p>
+  </section>
+
+  <section class="card" id="outGrid" hidden>
+    <h2>Schedule by team</h2>
+    <div class="scroll"><table id="grid"></table></div>
+  </section>
+
+  <section class="card" id="outRep" hidden>
+    <h2>Who plays twice</h2>
+    <div class="scroll"><table><thead><tr><th>Team</th><th>Plays twice</th></tr></thead><tbody id="repBody"></tbody></table></div>
+  </section>
+</main>
+
+<script>
+/* ---------- scheduling core ---------- */
+const N = 10, W = 14, RIV_WEEK = W - 1;   // rivalry week is always the last week (0-based index)
+// Rematch template. Numbers are last year's finishing position.
+// Every position replays 5 others; no two positions share more than 3 of them,
+// and the average strength of each position's rematches is nearly equal.
+const TEMPLATE = [
+  [[1,2],[3,4],[5,6],[7,8],[9,10]],
+  [[1,3],[2,5],[4,6],[7,10],[8,9]],
+  [[1,4],[2,8],[3,7],[5,10],[6,9]],
+  [[1,9],[2,6],[3,10],[4,8],[5,7]],
+  [[1,10],[2,7],[3,5],[4,9],[6,8]],
+];
+const TEMPLATE_PAIRS = new Set(TEMPLATE.flat().map(([a, b]) => a + "-" + b));
+const pairKey = (a, b) => (a < b ? a + "-" + b : b + "-" + a);
+
+// rivals: array of 5 [a,b] pairs of positions 1..10. rivWeek: 0-based week index.
+// Returns { weeks: [partner arrays indexed 1..10], minGap } or throws if invalid.
+function buildSchedule(rivals, rivWeek, wantGap) {
+  // Single round robin (circle method) arranged so round 0 is exactly the rivalry games.
+  const inf = rivals[0][0];
+  const lab = [rivals[0][1], rivals[1][0], rivals[2][0], rivals[3][0], rivals[4][0],
+               rivals[4][1], rivals[3][1], rivals[2][1], rivals[1][1]];
+  const rr = [];
+  for (let r = 0; r < 9; r++) {
+    const m = [[inf, lab[r]]];
+    for (let k = 1; k <= 4; k++) m.push([lab[(r + k) % 9], lab[(r - k + 9) % 9]]);
+    rr.push(m);
+  }
+  const base = [...rr.slice(1), ...TEMPLATE];
+  base.splice(rivWeek, 0, rr[0]);
+  const toPartner = m => { const p = Array(N + 1).fill(0); m.forEach(([a, b]) => { p[a] = b; p[b] = a; }); return p; };
+
+  let best = null;
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const weeks = base.map(toPartner);
+    const rnd = () => { let i; do { i = Math.floor(Math.random() * W); } while (i === rivWeek); return i; };
+    // Scramble two weeks: their games form loops; flipping a loop swaps games
+    // between the weeks while every team still plays once in each.
+    const mix = (i, j) => {
+      const a = weeks[i], b = weeks[j], seen = Array(N + 1).fill(false);
+      for (let s = 1; s <= N; s++) {
+        if (seen[s]) continue;
+        const comp = []; let v = s, useA = true;
+        while (!seen[v]) { seen[v] = true; comp.push(v); v = useA ? a[v] : b[v]; useA = !useA; }
+        if (Math.random() < 0.5) for (const x of comp) { const t = a[x]; a[x] = b[x]; b[x] = t; }
+      }
+    };
+    const score = () => {
+      let minGap = 99, bad = 0; const last = {};
+      for (let w = 0; w < W; w++) for (let v = 1; v <= N; v++) {
+        const o = weeks[w][v]; if (v > o) continue;
+        const k = v + "-" + o;
+        if (k in last) { const g = w - last[k]; if (g < minGap) minGap = g; if (g < wantGap) bad += wantGap - g; }
+        last[k] = w;
+      }
+      return { minGap, bad };
+    };
+    for (let s = 0; s < 4000; s++) { const i = rnd(), j = rnd(); if (i !== j) mix(i, j); }
+    let cur = score();
+    for (let s = 0; s < 30000 && cur.bad > 0; s++) {
+      const i = rnd(), j = rnd(); if (i === j) continue;
+      const sa = weeks[i].slice(), sb = weeks[j].slice();
+      mix(i, j);
+      const n = score();
+      if (n.bad <= cur.bad) cur = n; else { weeks[i] = sa; weeks[j] = sb; }
+    }
+    if (!best || cur.bad < best.bad) best = { weeks, minGap: cur.minGap, bad: cur.bad };
+    if (cur.bad === 0) break;
+  }
+  verify(best.weeks, rivals, rivWeek);
+  return best;
+}
+
+// Hard checks: every team plays once a week, every pair meets once,
+// template pairs meet exactly twice, rivalry week holds the rivalry games.
+function verify(weeks, rivals, rivWeek) {
+  const cnt = {};
+  if (weeks.length !== W) throw new Error("wrong number of weeks");
+  weeks.forEach(p => {
+    for (let v = 1; v <= N; v++) {
+      if (!p[v] || p[v] === v || p[p[v]] !== v) throw new Error("a team is missing a game");
+      if (v < p[v]) cnt[v + "-" + p[v]] = (cnt[v + "-" + p[v]] || 0) + 1;
+    }
+  });
+  if (Object.keys(cnt).length !== 45) throw new Error("some teams never meet");
+  for (const k in cnt) if (cnt[k] !== (TEMPLATE_PAIRS.has(k) ? 2 : 1)) throw new Error("wrong number of meetings for " + k);
+  for (const [a, b] of rivals) if (weeks[rivWeek][a] !== b) throw new Error("rivalry week is wrong");
+}
+
+/* ---------- page ---------- */
+const DEFAULT_NAMES = ["Ted Williams", "Charlie Vonderheid", "Niko Nadreau", "JP Torack", "Ian Farroll",
+  "Matt Windler", "Nathan Rich", "Matthew Kluba", "Grant Thornberry", "Jared Thornberry"];
+let teams = DEFAULT_NAMES.map((name, i) => ({ id: i, name }));   // order = finishing order
+let rivalOf = {};                                                  // id -> id
+let result = null;                                                 // { weeks, names, rivWeek }
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const nameOf = t => t.name.trim() || "Team " + (t.id + 1);
+
+function save() {
+  try { localStorage.setItem("schedMaker", JSON.stringify({ teams, rivalOf, gap: $("gap").value })); } catch (e) {}
+}
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem("schedMaker") || "null");
+    if (s && Array.isArray(s.teams) && s.teams.length === N) {
+      teams = s.teams; rivalOf = s.rivalOf || {};
+      if (s.gap) $("gap").value = s.gap;
+    }
+  } catch (e) {}
+}
+
+function renderRows() {
+  $("rows").innerHTML = teams.map((t, i) => {
+    const opts = ['<option value="">Pick rival…</option>'].concat(
+      teams.filter(o => o.id !== t.id).map(o =>
+        `<option value="${o.id}"${String(rivalOf[t.id]) === String(o.id) ? " selected" : ""}>${esc(nameOf(o))}</option>`));
+    return `<div class="row">
+      <span class="rank">${i + 1}</span>
+      <input type="text" data-name="${t.id}" value="${esc(t.name)}" aria-label="Team that finished ${i + 1}">
+      <select data-rival="${t.id}" aria-label="Rival of ${esc(nameOf(t))}">${opts.join("")}</select>
+      <span class="moves">
+        <button data-up="${i}" ${i === 0 ? "disabled" : ""} aria-label="Move up">▲</button>
+        <button data-down="${i}" ${i === N - 1 ? "disabled" : ""} aria-label="Move down">▼</button>
+      </span></div>`;
+  }).join("");
+}
+
+$("rows").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const i = b.dataset.up !== undefined ? +b.dataset.up : +b.dataset.down;
+  const j = b.dataset.up !== undefined ? i - 1 : i + 1;
+  [teams[i], teams[j]] = [teams[j], teams[i]];
+  renderRows(); save();
+});
+$("rows").addEventListener("change", e => {
+  const el = e.target;
+  if (el.dataset.name !== undefined) {
+    teams.find(t => t.id === +el.dataset.name).name = el.value;
+    renderRows(); save();
+  } else if (el.dataset.rival !== undefined) {
+    const a = +el.dataset.rival;
+    const old = rivalOf[a];
+    if (old !== undefined) { delete rivalOf[old]; delete rivalOf[a]; }
+    if (el.value !== "") {
+      const b = +el.value;
+      if (rivalOf[b] !== undefined) delete rivalOf[rivalOf[b]];
+      rivalOf[a] = b; rivalOf[b] = a;
+    }
+    renderRows(); save();
+  }
+});
+
+function setMsg(text, cls) { const m = $("msg"); m.textContent = text; m.className = "msg " + (cls || ""); }
+
+function generate() {
+  const missing = teams.filter(t => rivalOf[t.id] === undefined);
+  if (missing.length) { setMsg("Pick a rival for: " + missing.map(nameOf).join(", ") + ".", "err"); return; }
+  const names = teams.map(nameOf);
+  if (new Set(names.map(n => n.toLowerCase())).size !== N) { setMsg("Two teams have the same name. Give each team a different name.", "err"); return; }
+
+  const posOf = {}; teams.forEach((t, i) => { posOf[t.id] = i + 1; });
+  const rivals = []; const done = new Set();
+  teams.forEach(t => { if (done.has(t.id)) return; const r = rivalOf[t.id]; done.add(t.id); done.add(r); rivals.push([posOf[t.id], posOf[r]]); });
+  const rivWeek = RIV_WEEK, wantGap = +$("gap").value;
+
+  let out;
+  try { out = buildSchedule(rivals, rivWeek, wantGap); }
+  catch (err) { setMsg("Something went wrong building the schedule (" + err.message + "). Try again.", "err"); return; }
+
+  result = { weeks: out.weeks, names, rivWeek };
+  render();
+  $("csvWeek").disabled = $("csvTeam").disabled = false;
+  if (out.bad > 0) setMsg(`Schedule made, but the closest rematch is ${out.minGap} week${out.minGap === 1 ? "" : "s"} apart instead of ${wantGap}. Click Generate again or lower the minimum.`, "warn");
+  else setMsg("Schedule made and checked: every team plays every week, everyone meets at least once, nobody meets three times. Click Generate again for a different one.", "ok");
+}
+
+// For each week, list of games with flags.
+function gamesByWeek() {
+  const seen = {};
+  return result.weeks.map((p, w) => {
+    const games = [];
+    for (let v = 1; v <= N; v++) if (v < p[v]) {
+      const k = v + "-" + p[v];
+      const second = !!seen[k]; seen[k] = true;
+      games.push({ a: v, b: p[v], second, rivalry: w === result.rivWeek });
+    }
+    return games;
+  });
+}
+
+function render() {
+  const nm = i => esc(result.names[i - 1]);
+  const gw = gamesByWeek();
+  $("weeksBody").innerHTML = gw.map((games, w) =>
+    `<tr class="${w === result.rivWeek ? "rivweek" : ""}"><td class="wk">${w + 1}</td><td>${games.map(g =>
+      `<span class="game">${nm(g.a)} vs ${nm(g.b)}${g.rivalry ? '<span class="tag riv">RIVALRY</span>' : ""}${g.second ? '<span class="tag rem">2nd</span>' : ""}</span>`).join("")}</td></tr>`).join("");
+
+  const flag = {}; gw.forEach((games, w) => games.forEach(g => { flag[w + ":" + g.a] = g; flag[w + ":" + g.b] = g; }));
+  let h = "<thead><tr><th>Team</th>" + result.weeks.map((_, w) => `<th>Wk ${w + 1}</th>`).join("") + "</tr></thead><tbody>";
+  for (let v = 1; v <= N; v++) {
+    h += `<tr><td class="wk">${v}. ${nm(v)}</td>` + result.weeks.map((p, w) => {
+      const g = flag[w + ":" + v];
+      return `<td class="${g.rivalry ? "r" : g.second ? "m" : ""}">${nm(p[v])}</td>`;
+    }).join("") + "</tr>";
+  }
+  $("grid").innerHTML = h + "</tbody>";
+
+  let r = "";
+  for (let v = 1; v <= N; v++) {
+    const twice = []; for (let o = 1; o <= N; o++) if (o !== v && TEMPLATE_PAIRS.has(pairKey(v, o))) twice.push(nm(o));
+    r += `<tr><td class="wk">${v}. ${nm(v)}</td><td>${twice.join(", ")}</td></tr>`;
+  }
+  $("repBody").innerHTML = r;
+  $("outWeeks").hidden = $("outGrid").hidden = $("outRep").hidden = false;
+}
+
+const csvCell = s => /[",\n]/.test(s) ? '"' + String(s).replace(/"/g, '""') + '"' : String(s);
+function download(name, rows) {
+  const text = rows.map(r => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+  const url = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" }));
+  const a = document.createElement("a"); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function csvByWeek() {
+  const rows = [["Week", "Team 1", "Team 2", "Rivalry Game", "Meeting"]];
+  gamesByWeek().forEach((games, w) => games.forEach(g =>
+    rows.push([String(w + 1), result.names[g.a - 1], result.names[g.b - 1], g.rivalry ? "Yes" : "No", g.second ? "2nd" : "1st"])));
+  download("schedule-by-week.csv", rows);
+}
+function csvByTeam() {
+  const rows = [["Last Year Finish", "Team", ...result.weeks.map((_, w) => "Week " + (w + 1))]];
+  for (let v = 1; v <= N; v++) rows.push([String(v), result.names[v - 1], ...result.weeks.map(p => result.names[p[v] - 1])]);
+  download("schedule-by-team.csv", rows);
+}
+
+$("gap").innerHTML = [1, 2, 3, 4, 5].map(g => `<option value="${g}"${g === 4 ? " selected" : ""}>${g}</option>`).join("");
+load(); renderRows();
+$("gap").addEventListener("change", save);
+$("go").addEventListener("click", generate);
+$("csvWeek").addEventListener("click", csvByWeek);
+$("csvTeam").addEventListener("click", csvByTeam);
+</script>
+</body>
+</html>
