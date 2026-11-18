@@ -78,6 +78,7 @@
     <div class="opts">
       <label>Minimum weeks between a rematch<br><select id="gap"></select></label>
     </div>
+    <p class="hint" style="margin:12px 0 0">Always on: rivalry week is week 14 · Ted and Charlie play in week 1 · the same two teams never play twice in a 3-week period · nobody plays anyone three times.</p>
     <div class="actions">
       <button class="primary" id="go">Generate schedule</button>
       <button id="csvWeek" disabled>Export CSV (by week)</button>
@@ -108,20 +109,22 @@
 const N = 10, W = 14, RIV_WEEK = W - 1;   // rivalry week is always the last week (0-based index)
 // Rematch template. Numbers are last year's finishing position.
 // Every position replays 5 others; no two positions share more than 3 of them,
-// and the average strength of each position's rematches is nearly equal.
+// the average strength of each position's rematches is nearly equal (5.2 to 5.8),
+// and neither 9th nor 10th place gets the hardest draw.
 const TEMPLATE = [
   [[1,2],[3,4],[5,6],[7,8],[9,10]],
-  [[1,3],[2,5],[4,6],[7,10],[8,9]],
-  [[1,4],[2,8],[3,7],[5,10],[6,9]],
-  [[1,9],[2,6],[3,10],[4,8],[5,7]],
-  [[1,10],[2,7],[3,5],[4,9],[6,8]],
+  [[1,3],[2,4],[5,7],[6,9],[8,10]],
+  [[1,5],[2,6],[3,9],[4,8],[7,10]],
+  [[1,7],[2,10],[3,5],[4,9],[6,8]],
+  [[1,10],[2,8],[3,7],[4,6],[5,9]],
 ];
 const TEMPLATE_PAIRS = new Set(TEMPLATE.flat().map(([a, b]) => a + "-" + b));
 const pairKey = (a, b) => (a < b ? a + "-" + b : b + "-" + a);
 
 // rivals: array of 5 [a,b] pairs of positions 1..10. rivWeek: 0-based week index.
 // Returns { weeks: [partner arrays indexed 1..10], minGap } or throws if invalid.
-function buildSchedule(rivals, rivWeek, wantGap) {
+// opener: [a,b] positions that must meet in week 1, or null.
+function buildSchedule(rivals, rivWeek, wantGap, opener) {
   // Single round robin (circle method) arranged so round 0 is exactly the rivalry games.
   const inf = rivals[0][0];
   const lab = [rivals[0][1], rivals[1][0], rivals[2][0], rivals[3][0], rivals[4][0],
@@ -137,7 +140,7 @@ function buildSchedule(rivals, rivWeek, wantGap) {
   const toPartner = m => { const p = Array(N + 1).fill(0); m.forEach(([a, b]) => { p[a] = b; p[b] = a; }); return p; };
 
   let best = null;
-  for (let attempt = 0; attempt < 30; attempt++) {
+  for (let attempt = 0; attempt < 12; attempt++) {
     const weeks = base.map(toPartner);
     const rnd = () => { let i; do { i = Math.floor(Math.random() * W); } while (i === rivWeek); return i; };
     // Scramble two weeks: their games form loops; flipping a loop swaps games
@@ -152,28 +155,37 @@ function buildSchedule(rivals, rivWeek, wantGap) {
       }
     };
     const score = () => {
-      let minGap = 99, bad = 0; const last = {};
+      let minGap = 99, bad = 0; const last = new Int8Array(128).fill(-1);
       for (let w = 0; w < W; w++) for (let v = 1; v <= N; v++) {
         const o = weeks[w][v]; if (v > o) continue;
-        const k = v + "-" + o;
-        if (k in last) { const g = w - last[k]; if (g < minGap) minGap = g; if (g < wantGap) bad += wantGap - g; }
+        const k = v * 11 + o;
+        if (last[k] >= 0) { const g = w - last[k]; if (g < minGap) minGap = g; if (g < wantGap) bad += wantGap - g; }
         last[k] = w;
       }
       return { minGap, bad };
     };
     for (let s = 0; s < 4000; s++) { const i = rnd(), j = rnd(); if (i !== j) mix(i, j); }
+    // Put the fixed opener in week 1 by swapping whole weeks (week order is free).
+    // (Impossible only when the two are rivals who meet once: that game stays in rivalry week.)
+    let lockOpener = false;
+    if (opener && rivWeek !== 0) {
+      const ks = []; for (let w = 0; w < W; w++) if (w !== rivWeek && weeks[w][opener[0]] === opener[1]) ks.push(w);
+      if (ks.length) { const k = ks[Math.floor(Math.random() * ks.length)]; [weeks[0], weeks[k]] = [weeks[k], weeks[0]]; lockOpener = true; }
+    }
+    const openerOk = () => !lockOpener || weeks[0][opener[0]] === opener[1];
     let cur = score();
-    for (let s = 0; s < 30000 && cur.bad > 0; s++) {
+    for (let s = 0; s < 20000 && cur.bad > 0; s++) {
       const i = rnd(), j = rnd(); if (i === j) continue;
       const sa = weeks[i].slice(), sb = weeks[j].slice();
       mix(i, j);
       const n = score();
-      if (n.bad <= cur.bad) cur = n; else { weeks[i] = sa; weeks[j] = sb; }
+      if (n.bad <= cur.bad && openerOk()) cur = n; else { weeks[i] = sa; weeks[j] = sb; }
     }
     if (!best || cur.bad < best.bad) best = { weeks, minGap: cur.minGap, bad: cur.bad };
     if (cur.bad === 0) break;
   }
   verify(best.weeks, rivals, rivWeek);
+  best.openerMet = !opener || best.weeks[0][opener[0]] === opener[1];
   return best;
 }
 
@@ -200,6 +212,8 @@ const DEFAULT_TEAMS = [["First and Ted", "Ted Williams"], ["Game of Throws", "Ch
   ["The Left Tacklers", "Nathan Rich"], ["Team Kareem Pie 🥧", "Matthew Kluba"],
   ["Baby Back Gibbs", "Grant Thornberry"], ["Jared's Pack Attack", "Jared Thornberry"]];
 let teams = DEFAULT_TEAMS.map(([name, owner], i) => ({ id: i, name, owner }));   // order = finishing order
+const OPENER_IDS = [0, 1];   // Ted and Charlie: always play each other in week 1
+const MIN_GAP = 3;           // the same two teams never play twice in a 3-week period
 let rivalOf = {};                                                  // id -> id
 let result = null;                                                 // { weeks, names, rivWeek }
 
@@ -217,7 +231,7 @@ function load() {
     const s = JSON.parse(localStorage.getItem("schedMaker2") || "null");
     if (s && Array.isArray(s.teams) && s.teams.length === N) {
       teams = s.teams; rivalOf = s.rivalOf || {};
-      if (s.gap) $("gap").value = s.gap;
+      if (s.gap && +s.gap >= MIN_GAP) $("gap").value = s.gap;
     }
   } catch (e) {}
 }
@@ -280,15 +294,22 @@ function generate() {
   teams.forEach(t => { if (done.has(t.id)) return; const r = rivalOf[t.id]; done.add(t.id); done.add(r); rivals.push([posOf[t.id], posOf[r]]); });
   const rivWeek = RIV_WEEK, wantGap = +$("gap").value;
 
+  // Fixed rule: Ted and Charlie (the first two default teams) always meet in week 1.
+  const opener = [posOf[OPENER_IDS[0]], posOf[OPENER_IDS[1]]];
   let out;
-  try { out = buildSchedule(rivals, rivWeek, wantGap); }
+  try {
+    out = buildSchedule(rivals, rivWeek, wantGap, opener);
+    if (out.minGap < MIN_GAP) throw new Error("could not keep rematches " + MIN_GAP + " weeks apart");
+  }
   catch (err) { setMsg("Something went wrong building the schedule (" + err.message + "). Try again.", "err"); return; }
 
   result = { weeks: out.weeks, names, owners: teams.map(ownerOf), rivWeek };
   render();
   $("csvWeek").disabled = $("csvTeam").disabled = false;
-  if (out.bad > 0) setMsg(`Schedule made, but the closest rematch is ${out.minGap} week${out.minGap === 1 ? "" : "s"} apart instead of ${wantGap}. Click Generate again or lower the minimum.`, "warn");
-  else setMsg("Schedule made and checked: every team plays every week, everyone meets at least once, nobody meets three times. Click Generate again for a different one.", "ok");
+  const opNames = OPENER_IDS.map(id => nameOf(teams.find(t => t.id === id)));
+  if (!out.openerMet) setMsg(`Schedule made, but ${opNames[0]} and ${opNames[1]} are rivals and only meet once this year, so their one game is in rivalry week (week 14), not week 1.`, "warn");
+  else if (out.bad > 0) setMsg(`Schedule made, but the closest rematch is ${out.minGap} week${out.minGap === 1 ? "" : "s"} apart instead of ${wantGap}. Click Generate again or lower the minimum.`, "warn");
+  else setMsg(`Schedule made and checked: every team plays every week, everyone meets at least once, nobody meets three times, no rematch within ${MIN_GAP} weeks, and ${opNames[0]} plays ${opNames[1]} in week 1. Click Generate again for a different one.`, "ok");
 }
 
 // For each week, list of games with flags.
@@ -351,7 +372,7 @@ function csvByTeam() {
   download("schedule-by-team.csv", rows);
 }
 
-$("gap").innerHTML = [1, 2, 3, 4, 5].map(g => `<option value="${g}"${g === 4 ? " selected" : ""}>${g}</option>`).join("");
+$("gap").innerHTML = [3, 4, 5].map(g => `<option value="${g}"${g === 4 ? " selected" : ""}>${g}</option>`).join("");
 load(); renderRows();
 $("gap").addEventListener("change", save);
 $("go").addEventListener("click", generate);
