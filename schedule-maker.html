@@ -184,6 +184,16 @@
   .mcell.rv.re { background: linear-gradient(135deg, var(--blue-soft) 50%, var(--orange-soft) 50%); }
   .mcell.rv:not(.re) { background: var(--orange-soft); }
   .mcell.self { background: none; color: var(--ink3); }
+  /* overlap matrix: darker = more shared rematch opponents */
+  .mcell.ov { font-size: 14px; font-weight: 700; }
+  .mcell.o0 { background: var(--bg); color: var(--ink3); }
+  .mcell.o1 { background: color-mix(in srgb, var(--blue) 16%, var(--surface)); }
+  .mcell.o2 { background: color-mix(in srgb, var(--blue) 38%, var(--surface)); }
+  .mcell.o3 { background: color-mix(in srgb, var(--blue) 62%, var(--surface)); }
+  .mcell.o4, .mcell.o5 { background: var(--blue); }
+  .scale { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink2); margin: 0 0 12px; }
+  .scale .mcell { width: 26px; height: 22px; border-radius: 6px; font-size: 11.5px; }
+  .scale b { color: var(--ink); margin-left: 12px; }
 
   /* difficulty */
   .diff { display: grid; gap: 4px; }
@@ -255,6 +265,7 @@
           <button class="tab" role="tab" data-tab="grid" aria-selected="true">Season grid</button>
           <button class="tab" role="tab" data-tab="weeks" aria-selected="false">Week by week</button>
           <button class="tab" role="tab" data-tab="h2h" aria-selected="false">Head to head</button>
+          <button class="tab" role="tab" data-tab="ovl" aria-selected="false">Overlap</button>
           <button class="tab" role="tab" data-tab="diff" aria-selected="false">Rematch difficulty</button>
         </div>
         <div class="tools">
@@ -275,6 +286,7 @@
       <div id="p-grid"><div class="scroll"><table class="grid" id="gridT"></table></div><p class="cap">Read down a column for a team's season, or across a row for a week. Each colour is one opponent. Hover a square to see both meetings; click a team name to spotlight every game it plays.</p></div>
       <div id="p-weeks" hidden><div class="weeks" id="weeksG"></div></div>
       <div id="p-h2h" hidden><div class="scroll"><table class="mx" id="mxT"></table></div><p class="cap">Numbers are the weeks the two teams meet. Filled squares meet twice.</p></div>
+      <div id="p-ovl" hidden><div class="scale" id="ovScale"></div><div class="scroll"><table class="mx" id="ovT"></table></div><p class="cap">Each square counts how many rematch opponents two teams have in common, out of 5. Lower means their schedules are more different. Hover a square to see which teams they share.</p></div>
       <div id="p-diff" hidden><div class="axis" id="axis"></div><div class="diff" id="diffG"></div><p class="cap">Average last-year finish of each team's five rematch opponents. Left of the centre line means tougher rematches; a perfectly even draw is 5.5.</p></div>
     </div>
   </section>
@@ -619,6 +631,27 @@ function renderResults() {
   }
   $("mxT").innerHTML = m + "</tbody>";
 
+  // overlap matrix: how many of their five rematch opponents two teams share
+  const reps = v => { const a = []; for (let o = 1; o <= N; o++) if (o !== v && TEMPLATE_PAIRS.has(pairKey(v, o))) a.push(o); return a; };
+  const counts = [0, 0, 0, 0, 0, 0]; let ovSum = 0, ovMax = 0;
+  let ov = "<thead><tr><th></th>" + T.slice(1).map(t => `<th title="${esc(t.name)}">${av(t.id, "sm")}</th>`).join("") + "</tr></thead><tbody>";
+  for (let a = 1; a <= N; a++) {
+    ov += `<tr><th class="rowh"><div><span>${esc(abbr(T[a].name))}</span>${av(T[a].id, "sm")}</div></th>`;
+    const ra = reps(a);
+    for (let b = 1; b <= N; b++) {
+      if (a === b) { ov += `<td><div class="mcell self">·</div></td>`; continue; }
+      const shared = ra.filter(o => reps(b).includes(o)), n = shared.length;
+      if (a < b) { counts[n]++; ovSum += n; ovMax = Math.max(ovMax, n); }
+      const tipO = `<b>${esc(T[a].name)} and ${esc(T[b].name)}</b><br>${n ? `Share ${n} of 5 rematch opponents` : "Share no rematch opponents"}` +
+        (n ? `<br><span>${shared.map(o => esc(T[o].name)).join(", ")}</span>` : "");
+      ov += `<td><div class="mcell ov o${n}" data-pair="${pairKey(a, b)}" data-tip="${esc(tipO)}">${n}</div></td>`;
+    }
+    ov += "</tr>";
+  }
+  $("ovT").innerHTML = ov + "</tbody>";
+  $("ovScale").innerHTML = "Shared rematch opponents:" + [0, 1, 2, 3].map(n => `<i class="mcell ov o${n}" style="font-style:normal">${n}</i>`).join("") +
+    `<b>Most: ${ovMax} of 5</b><b>Average: ${(ovSum / 45).toFixed(1)}</b><b>Pairs by overlap: ${counts.map((c, n) => c ? `${c} share ${n}` : "").filter(Boolean).join(" · ")}</b>`;
+
   // rematch difficulty
   const rows = [];
   for (let v = 1; v <= N; v++) {
@@ -678,9 +711,9 @@ $("gridT").addEventListener("click", e => {
 $("tabs").addEventListener("click", e => {
   const b = e.target.closest(".tab"); if (!b) return;
   document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t === b)));
-  ["grid", "weeks", "h2h", "diff"].forEach(k => { $("p-" + k).hidden = k !== b.dataset.tab; });
+  ["grid", "weeks", "h2h", "ovl", "diff"].forEach(k => { $("p-" + k).hidden = k !== b.dataset.tab; });
   $("legendGrid").hidden = b.dataset.tab !== "grid";
-  $("legend").hidden = b.dataset.tab === "grid" || b.dataset.tab === "diff";
+  $("legend").hidden = b.dataset.tab !== "weeks" && b.dataset.tab !== "h2h";
 });
 
 /* ----- Excel export (season grid) -----
