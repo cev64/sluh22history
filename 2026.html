@@ -5126,7 +5126,10 @@
     /* Clinch and elimination flags, exact: a badge appears the moment the
        outcome is mathematically settled, and never before.
 
-         z  no division rival can even draw level, whatever happens.
+         z  no division rival can finish ahead, whatever happens: either
+            none can even draw level, or every tie for the lead that could
+            still form is one the team wins on head-to-head, which results
+            already posted (or forced by the tie itself) settle.
          x  the team loses every game it has left, every other remaining
             game goes whichever way hurts it most, every tie on record is
             broken against it, and it is still in the field.
@@ -5172,6 +5175,9 @@
 
         // Nobody left who can even draw level: division and bye are locked.
         if (rivals.every((x) => maxWins(x) < minWins(id))) { flags[id] = "z"; return; }
+
+        // Rivals can draw level but never pass, and the tiebreakers hold.
+        if (divisionLocked(id, stats, remaining, played)) { flags[id] = "z"; return; }
 
         // Guaranteed a top-two finish, which is a berth on its own.
         if (couldPass(id) <= 1) { flags[id] = "x"; return; }
@@ -5222,6 +5228,69 @@
       Object.defineProperty(flags, "byeOut", { value: byeOut });
 
       return flags;
+    }
+
+    /* Is the division won even though a rival can still draw level? The
+       team's fewest wins is its record today, and a rival's most is winning
+       out. If any rival can pass that mark, nothing is settled. Otherwise
+       the only danger is a tie at that mark, and a tie fixes every result
+       that matters: the team lost every game it had left (one more win and
+       nobody reaches it) and each rival in the tie won every game it had
+       left. So the possible ties are just the sets of rivals who can all
+       win out together, and for each one the head-to-head inside the tie
+       is already known. The team must come out on top of every such tie on
+       head-to-head alone (rulebook 4.1.1 to 4.1.3); a tie that would fall
+       through to points for is not settled, since points are still to be
+       scored. No search, so no budget: the answer is exact. */
+    function divisionLocked(id, stats, remaining, played) {
+      if (!remaining.length) return false;
+      const rivals = TEAM_IDS.filter((t) => t !== id && teams[t].division === teams[id].division);
+      const gamesOf = (t) => remaining.filter(([a, b]) => a === t || b === t);
+      const mark = stats[id].wins;
+      const most = (t) => stats[t].wins + gamesOf(t).length;
+      if (rivals.some((r) => most(r) > mark)) return false;
+      const chasers = rivals.filter((r) => most(r) === mark);
+      if (!chasers.length) return true;
+
+      // Head-to-head wins on record.
+      const h2h = {};
+      TEAM_IDS.forEach((a) => { h2h[a] = {}; TEAM_IDS.forEach((b) => { h2h[a][b] = 0; }); });
+      played.forEach((g) => {
+        const w = g.win || (g.as > g.bs ? g.a : g.bs > g.as ? g.b : null);
+        if (w) h2h[w][w === g.a ? g.b : g.a] += 1;
+      });
+
+      // Does the team top this tie on head-to-head, with nothing left to points?
+      const tops = (group) => {
+        if (group.length === 1) return true;
+        const rec = {};
+        group.forEach((t) => {
+          let w = 0, l = 0;
+          group.forEach((o) => { if (o !== t) { w += h2h[t][o]; l += h2h[o][t]; } });
+          rec[t] = w + l ? w / (w + l) : -1;
+        });
+        const best = Math.max(...group.map((t) => rec[t]));
+        if (rec[id] < best) return false;
+        const tier = group.filter((t) => rec[t] === best);
+        return tier.length === group.length ? false : tops(tier);
+      };
+
+      for (let mask = 1; mask < (1 << chasers.length); mask++) {
+        const tied = chasers.filter((_, i) => mask & (1 << i));
+        const inTie = (t) => tied.includes(t);
+        // Two of them still to meet cannot both win out.
+        if (remaining.some(([a, b]) => inTie(a) && inTie(b))) continue;
+        // A chaser left out has to drop a game, and the team's own are all lost.
+        const mustJoin = chasers.some((r) => !inTie(r) &&
+          gamesOf(r).every(([a, b]) => a === id || b === id));
+        if (mustJoin) continue;
+        const forced = remaining.filter(([a, b]) => (a === id && inTie(b)) || (b === id && inTie(a)));
+        forced.forEach(([a, b]) => { h2h[a === id ? b : a][id] += 1; });
+        const ok = tops([id, ...tied]);
+        forced.forEach(([a, b]) => { h2h[a === id ? b : a][id] -= 1; });
+        if (!ok) return false;
+      }
+      return true;
     }
 
     /* Can the team still win its division? It wins every game it has left;
