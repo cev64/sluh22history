@@ -67,7 +67,7 @@
       "pts": 5.6,
       "proj": 10.07,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Aaron Jones Sr.",
@@ -107,7 +107,7 @@
       "pts": 39.46,
       "proj": 18.47,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Emeka Egbuka",
@@ -137,7 +137,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Xavier Worthy",
@@ -167,7 +167,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "hawaii": [
@@ -249,7 +249,7 @@
       "pts": 1.6,
       "proj": 13.51,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Cowboys D/ST",
@@ -269,7 +269,7 @@
       "pts": 8.3,
       "proj": 10.25,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Kenyon Sadiq",
@@ -289,7 +289,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Saquon Barkley",
@@ -299,7 +299,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Josh Jacobs",
@@ -581,7 +581,7 @@
       "pts": 0,
       "proj": 10.19,
       "starter": true,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Commanders D/ST",
@@ -611,7 +611,7 @@
       "pts": 11.3,
       "proj": 8.99,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Mike Washington Jr.",
@@ -711,7 +711,7 @@
       "pts": 8.9,
       "proj": 12.28,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Tee Higgins",
@@ -731,7 +731,7 @@
       "pts": 19.8,
       "proj": 13.09,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Terry McLaurin",
@@ -781,7 +781,7 @@
       "pts": 10.24,
       "proj": 13.96,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Dallas Goedert",
@@ -791,7 +791,7 @@
       "pts": 9.8,
       "proj": 10.87,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Quentin Johnston",
@@ -893,7 +893,7 @@
       "pts": 26.3,
       "proj": 12.77,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Malik Washington",
@@ -963,7 +963,7 @@
       "pts": 9.8,
       "proj": 7.49,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Brian Thomas Jr.",
@@ -1043,7 +1043,7 @@
       "pts": 4.8,
       "proj": 11.37,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1063,7 +1063,7 @@
       "pts": 11.3,
       "proj": 10.09,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Keenan Allen",
@@ -1093,7 +1093,7 @@
       "pts": 14.2,
       "proj": 8.93,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Lamar Jackson",
@@ -1153,7 +1153,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "DOUBTFUL"
      }
     ],
     "jared": [
@@ -1215,7 +1215,7 @@
       "pts": 23,
       "proj": 16.33,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jaylen Warren",
@@ -1275,7 +1275,7 @@
       "pts": 1.7,
       "proj": 10.51,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Tetairoa McMillan",
@@ -1435,7 +1435,7 @@
       "pts": 3.7,
       "proj": 8.82,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "KC Concepcion",
@@ -1507,7 +1507,7 @@
       "pts": 11.6,
       "proj": 13.94,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Christian Watson",

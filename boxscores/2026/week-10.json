@@ -17,7 +17,7 @@
       "pts": 3.02,
       "proj": 21.97,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Jahmyr Gibbs",
@@ -77,7 +77,7 @@
       "pts": 4,
       "proj": 10.34,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Xavier Worthy",
@@ -157,7 +157,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "DeVonta Smith",
@@ -167,7 +167,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "hawaii": [
@@ -229,7 +229,7 @@
       "pts": 7.8,
       "proj": 8.85,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "George Kittle",
@@ -289,7 +289,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Caleb Williams",
@@ -319,7 +319,7 @@
       "pts": 0,
       "proj": 9.45,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Dameon Pierce",
@@ -389,7 +389,7 @@
       "pts": 4.7,
       "proj": 12.55,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Brenton Strange",
@@ -439,7 +439,7 @@
       "pts": 13.7,
       "proj": 5.53,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Caleb Douglas",
@@ -469,7 +469,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Kenneth Walker III",
@@ -731,7 +731,7 @@
       "pts": 3.8,
       "proj": 15.41,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Parker Washington",
@@ -821,7 +821,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "RJ Harvey",
@@ -893,7 +893,7 @@
       "pts": 2.6,
       "proj": 11.44,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Chuba Hubbard",
@@ -953,7 +953,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Dallas Goedert",
@@ -963,7 +963,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "J.K. Dobbins",
@@ -1033,7 +1033,7 @@
       "pts": 7.5,
       "proj": 14.19,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Drake London",
@@ -1143,7 +1143,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Saquon Barkley",
@@ -1153,7 +1153,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jeremiyah Love",
@@ -1365,7 +1365,7 @@
       "pts": 20.3,
       "proj": 17.26,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "CeeDee Lamb",
@@ -1637,7 +1637,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Demarcus Robinson",

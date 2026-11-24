@@ -47,7 +47,7 @@
       "pts": 12.5,
       "proj": 15.62,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Emeka Egbuka",
@@ -67,7 +67,7 @@
       "pts": 23.3,
       "proj": 9.18,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Aaron Jones Sr.",
@@ -147,7 +147,7 @@
       "pts": 3.76,
       "proj": 18.64,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Kyle Monangai",
@@ -157,7 +157,7 @@
       "pts": 3.1,
       "proj": 8.46,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "jared": [
@@ -219,7 +219,7 @@
       "pts": 27.6,
       "proj": 14.18,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jaylen Warren",
@@ -309,7 +309,7 @@
       "pts": 3.1,
       "proj": 9.18,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ]
    }
@@ -339,7 +339,7 @@
       "pts": 9,
       "proj": 17.37,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Omarion Hampton",
@@ -359,7 +359,7 @@
       "pts": 10.6,
       "proj": 13.58,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Malik Nabers",
@@ -429,7 +429,7 @@
       "pts": 11.8,
       "proj": 11.75,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Rachaad White",
@@ -531,7 +531,7 @@
       "pts": 12.4,
       "proj": 12.48,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Trey McBride",
@@ -631,7 +631,7 @@
       "pts": 0.5,
       "proj": 9.72,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "De'Zhaun Stribling",
@@ -893,7 +893,7 @@
       "pts": 3.8,
       "proj": 11.62,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Rams D/ST",
@@ -993,7 +993,7 @@
       "pts": 12.74,
       "proj": 17.26,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Bijan Robinson",
@@ -1033,7 +1033,7 @@
       "pts": 19.8,
       "proj": 11.16,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Sam LaPorta",
@@ -1043,7 +1043,7 @@
       "pts": 7.4,
       "proj": 11.19,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Chuba Hubbard",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jordan Mason",
@@ -1245,7 +1245,7 @@
       "pts": 17,
       "proj": 11,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Deebo Samuel Sr.",
@@ -1355,7 +1355,7 @@
       "pts": 6.4,
       "proj": 13.09,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1375,7 +1375,7 @@
       "pts": 5.2,
       "proj": 9.9,
       "starter": true,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Michael Pittman Jr.",
@@ -1425,7 +1425,7 @@
       "pts": 5.3,
       "proj": 8.77,
       "starter": false,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Rico Dowdle",
@@ -1465,7 +1465,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "DOUBTFUL"
      }
     ],
     "game": [
@@ -1567,7 +1567,7 @@
       "pts": 18.7,
       "proj": 8,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Marvin Harrison Jr.",
