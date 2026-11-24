@@ -67,7 +67,7 @@
       "pts": 18.6,
       "proj": 8.89,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Breece Hall",
@@ -87,7 +87,7 @@
       "pts": 0,
       "proj": 10.6,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Rams D/ST",
@@ -127,7 +127,7 @@
       "pts": 12.6,
       "proj": 10.37,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "George Kittle",
@@ -209,7 +209,7 @@
       "pts": 18.6,
       "proj": 13.4,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Sam LaPorta",
@@ -219,7 +219,7 @@
       "pts": 6.5,
       "proj": 10.74,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Chuba Hubbard",
@@ -239,7 +239,7 @@
       "pts": 7.2,
       "proj": 10.97,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Seahawks D/ST",
@@ -269,7 +269,7 @@
       "pts": 7.78,
       "proj": 10.88,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "J.K. Dobbins",
@@ -339,7 +339,7 @@
       "pts": 12.4,
       "proj": 14.03,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jeremiyah Love",
@@ -459,7 +459,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Malik Nabers",
@@ -541,7 +541,7 @@
       "pts": 28.2,
       "proj": 16.16,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Matthew Golden",
@@ -591,7 +591,7 @@
       "pts": 15.8,
       "proj": 11.23,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Stefon Diggs",
@@ -651,7 +651,7 @@
       "pts": 22.46,
       "proj": 22.07,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "D'Andre Swift",
@@ -771,7 +771,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Kyle Monangai",
@@ -781,7 +781,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Juwan Johnson",
@@ -791,7 +791,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Emeka Egbuka",
@@ -813,7 +813,7 @@
       "pts": 18,
       "proj": 18.46,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Bucky Irving",
@@ -993,7 +993,7 @@
       "pts": 29.9,
       "proj": 14.56,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "James Cook III",
@@ -1375,7 +1375,7 @@
       "pts": 14.9,
       "proj": 10.85,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Keenan Allen",
@@ -1425,7 +1425,7 @@
       "pts": 2.9,
       "proj": 3.65,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "A.J. Brown",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Dontayvion Wicks",
@@ -1445,7 +1445,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Chris Godwin Jr.",
@@ -1617,7 +1617,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "De'Zhaun Stribling",

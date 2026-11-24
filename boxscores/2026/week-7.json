@@ -199,7 +199,7 @@
       "pts": 15.1,
       "proj": 15.2,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Drake London",
@@ -269,7 +269,7 @@
       "pts": 9.9,
       "proj": 11.09,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Tyler Warren",
@@ -399,7 +399,7 @@
       "pts": 1.7,
       "proj": 8.65,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Quinshon Judkins",
@@ -439,7 +439,7 @@
       "pts": 27.44,
       "proj": 20.59,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Hunter Henry",
@@ -479,7 +479,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Keon Coleman",
@@ -499,7 +499,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "kareem": [
@@ -551,7 +551,7 @@
       "pts": 23.7,
       "proj": 12.66,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Sam LaPorta",
@@ -561,7 +561,7 @@
       "pts": 2.8,
       "proj": 12.66,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Chuba Hubbard",
@@ -611,7 +611,7 @@
       "pts": 9.8,
       "proj": 11.34,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "J.K. Dobbins",
@@ -631,7 +631,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Terry McLaurin",
@@ -721,7 +721,7 @@
       "pts": 13.3,
       "proj": 18.46,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Jaylen Warren",
@@ -791,7 +791,7 @@
       "pts": 13.5,
       "proj": 10.55,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Parker Washington",
@@ -943,7 +943,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Khalil Shakir",
@@ -963,7 +963,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "De'Zhaun Stribling",
@@ -1113,7 +1113,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Deebo Samuel Sr.",
@@ -1215,7 +1215,7 @@
       "pts": 22.5,
       "proj": 8.04,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Tyler Allgeier",
@@ -1275,7 +1275,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Dalton Kincaid",
@@ -1285,7 +1285,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Breece Hall",
@@ -1375,7 +1375,7 @@
       "pts": 9.1,
       "proj": 14,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Jalen Coker",
@@ -1517,7 +1517,7 @@
       "pts": 7.8,
       "proj": 15.95,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Pat Freiermuth",
@@ -1537,7 +1537,7 @@
       "pts": 8.8,
       "proj": 11.15,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Keenan Allen",
@@ -1587,7 +1587,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Trevor Lawrence",

@@ -27,7 +27,7 @@
       "pts": 8.2,
       "proj": 12.46,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Devin Singletary",
@@ -87,7 +87,7 @@
       "pts": 8.4,
       "proj": 14.57,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Chiefs D/ST",
@@ -147,7 +147,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Rico Dowdle",
@@ -209,7 +209,7 @@
       "pts": 20.7,
       "proj": 13.89,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Tee Higgins",
@@ -229,7 +229,7 @@
       "pts": 7.2,
       "proj": 12.07,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Chuba Hubbard",
@@ -249,7 +249,7 @@
       "pts": 10,
       "proj": 8.67,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Seahawks D/ST",
@@ -279,7 +279,7 @@
       "pts": 10.42,
       "proj": 12.51,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "J.K. Dobbins",
@@ -389,7 +389,7 @@
       "pts": 22.3,
       "proj": 18.2,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Matthew Golden",
@@ -469,7 +469,7 @@
       "pts": 7.3,
       "proj": 10.69,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Jaylen Warren",
@@ -671,7 +671,7 @@
       "pts": 18.26,
       "proj": 20.86,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Jahmyr Gibbs",
@@ -791,7 +791,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Steelers D/ST",
@@ -811,7 +811,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      }
     ],
     "left": [
@@ -953,7 +953,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Mike Washington Jr.",
@@ -1013,7 +1013,7 @@
       "pts": 8.9,
       "proj": 15.45,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "CeeDee Lamb",
@@ -1395,7 +1395,7 @@
       "pts": 3.2,
       "proj": 11.38,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Texans D/ST",
@@ -1425,7 +1425,7 @@
       "pts": 11.2,
       "proj": 4.76,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "A.J. Brown",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "DOUBTFUL"
      },
      {
       "name": "Travis Etienne Jr.",
@@ -1455,7 +1455,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Adonai Mitchell",
@@ -1577,7 +1577,7 @@
       "pts": 13.8,
       "proj": 11.11,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "Caleb Williams",
@@ -1597,7 +1597,7 @@
       "pts": 5.8,
       "proj": 8.6,
       "starter": false,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Ladd McConkey",
@@ -1607,7 +1607,7 @@
       "pts": 0,
       "proj": 10.84,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "George Pickens",

@@ -117,7 +117,7 @@
       "pts": 9,
       "proj": 8.65,
       "starter": false,
-      "injury": null
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "MarShawn Lloyd",
@@ -169,7 +169,7 @@
       "pts": 8.02,
       "proj": 18.23,
       "starter": true,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Jahmyr Gibbs",
@@ -199,7 +199,7 @@
       "pts": 27.7,
       "proj": 13.96,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Emeka Egbuka",
@@ -279,7 +279,7 @@
       "pts": 10.6,
       "proj": 8.87,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Quinshon Judkins",
@@ -299,7 +299,7 @@
       "pts": 7.8,
       "proj": 9.81,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Michael Wilson",
@@ -419,7 +419,7 @@
       "pts": 14.2,
       "proj": 10.05,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Josh Downs",
@@ -681,7 +681,7 @@
       "pts": 3,
       "proj": 17.62,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Ladd McConkey",
@@ -691,7 +691,7 @@
       "pts": 6.5,
       "proj": 14.47,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Malik Nabers",
@@ -731,7 +731,7 @@
       "pts": 8.4,
       "proj": 12.99,
       "starter": true,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Eagles D/ST",
@@ -761,7 +761,7 @@
       "pts": 5.7,
       "proj": 11.42,
       "starter": false,
-      "injury": "OUT"
+      "injury": null
      },
      {
       "name": "Kenyon Sadiq",
@@ -943,7 +943,7 @@
       "pts": 1.9,
       "proj": 9.5,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Marvin Harrison Jr.",
@@ -1013,7 +1013,7 @@
       "pts": 21.8,
       "proj": 12.18,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Harold Fannin Jr.",
@@ -1033,7 +1033,7 @@
       "pts": 5.8,
       "proj": 10.18,
       "starter": true,
-      "injury": "INJURY_RESERVE"
+      "injury": null
      },
      {
       "name": "Jordan Addison",
@@ -1063,7 +1063,7 @@
       "pts": 12.4,
       "proj": 8.62,
       "starter": false,
-      "injury": "OUT"
+      "injury": "INJURY_RESERVE"
      },
      {
       "name": "Woody Marks",
@@ -1073,7 +1073,7 @@
       "pts": 8.5,
       "proj": 7.74,
       "starter": false,
-      "injury": "DOUBTFUL"
+      "injury": "OUT"
      },
      {
       "name": "Rico Dowdle",
@@ -1123,7 +1123,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "DOUBTFUL"
      }
     ],
     "hamilton": [
@@ -1185,7 +1185,7 @@
       "pts": 22.5,
       "proj": 10.43,
       "starter": true,
-      "injury": null
+      "injury": "OUT"
      },
      {
       "name": "Tyler Warren",
@@ -1255,7 +1255,7 @@
       "pts": 6.7,
       "proj": 9.82,
       "starter": false,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Jonathon Brooks",
@@ -1435,7 +1435,7 @@
       "pts": 0,
       "proj": 0,
       "starter": false,
-      "injury": "QUESTIONABLE"
+      "injury": "OUT"
      },
      {
       "name": "RJ Harvey",
@@ -1457,7 +1457,7 @@
       "pts": 7.88,
       "proj": 19.48,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Derrick Henry",
@@ -1497,7 +1497,7 @@
       "pts": 6.2,
       "proj": 12.46,
       "starter": true,
-      "injury": "QUESTIONABLE"
+      "injury": null
      },
      {
       "name": "Sam LaPorta",
@@ -1507,7 +1507,7 @@
       "pts": 17.2,
       "proj": 11.25,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Chuba Hubbard",
@@ -1527,7 +1527,7 @@
       "pts": 1.4,
       "proj": 10.79,
       "starter": true,
-      "injury": null
+      "injury": "QUESTIONABLE"
      },
      {
       "name": "Seahawks D/ST",
